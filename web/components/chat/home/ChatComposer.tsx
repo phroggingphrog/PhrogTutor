@@ -64,6 +64,7 @@ import ComposerResources, {
 } from "./ComposerResources";
 import KnowledgeSelector from "./KnowledgeSelector";
 import ModelSelector from "./ModelSelector";
+import EffortSelector from "./EffortSelector";
 import styles from "./ChatComposer.module.css";
 import PersonaSelector from "./PersonaSelector";
 import ResourceSelector from "./ResourceSelector";
@@ -1302,6 +1303,8 @@ export default memo(function ChatComposer({
                   onChange={onSelectLLM}
                   onRefresh={onRefreshLLMOptions}
                 />
+
+                <EffortSelector />
 
                 {contextBudget ? <ContextBudgetChip budget={contextBudget} /> : null}
 

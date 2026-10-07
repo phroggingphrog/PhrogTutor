@@ -290,6 +290,7 @@ export interface StartTurnCommand {
   knowledge_bases?: KnowledgeBases;
   language?: Language;
   llm_selection?: LLMSelection | null;
+  reasoning_effort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | "adaptive" | null;
   mastery_answer?: MasteryCardAnswer | null;
   mastery_path_id?: MasteryPathId;
   mastery_path_lease_managed?: MasteryPathLeaseManaged;

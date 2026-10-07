@@ -545,6 +545,14 @@ class TurnExecutor:
                     )
 
             llm_config, llm_scope_token = activate_llm_selection(payload.get("llm_selection"))
+            # PhrogVPS patch: the composer's effort picker overrides the model's default effort for this turn.
+            _turn_effort = str(payload.get("reasoning_effort") or "").strip().lower()
+            if _turn_effort:
+                from deeptutor.services.llm import config as _llm_config_module
+
+                _llm_config_module.reset_scoped_llm_config(llm_scope_token)
+                llm_config = llm_config.model_copy({"reasoning_effort": _turn_effort})
+                llm_scope_token = _llm_config_module.set_scoped_llm_config(llm_config)
             builder = self._create_context_builder()
 
             async def _emit_context_event(event: StreamEvent) -> None:
@@ -582,7 +590,7 @@ class TurnExecutor:
                 account = get_user_by_id(current_user.id)
                 if account and str(account[1].get("preset") or "standard") == "learner":
                     learner_profile_prompt = prompt_block(account[1].get("learner_profile"))
-            requested_persona = str(payload.get("persona") or "").strip()
+            requested_persona = str(payload.get("persona") or __import__("os").environ.get("DEEPTUTOR_DEFAULT_PERSONA", "")).strip()  # PhrogVPS patch
             persona_context = (
                 load_visible_for_context(
                     requested_persona,

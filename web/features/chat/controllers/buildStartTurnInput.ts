@@ -1,3 +1,4 @@
+import { getEffortPref, type EffortLevel } from "@/lib/reasoning-effort-pref";
 import type { StartTurnCommand } from "@/contracts/generated/turn-protocol";
 import { buildStartTurn } from "@/contracts/parse/turn-command";
 import { ApiError } from "@/shared/api/errors";
@@ -92,6 +93,7 @@ export function buildStartTurnInput(input: StartTurnInput): StartTurnCommand {
     mcp: input.mcp ?? [],
     persona: input.persona ?? null,
     llm_selection: input.llmSelection ?? null,
+    ...(getEffortPref() ? { reasoning_effort: getEffortPref() as Exclude<EffortLevel, ""> } : {}),
     workspace_mode: input.workspaceMode ?? null,
     mastery_path_id: input.masteryPathId ?? null,
     mastery_session_mode: input.masterySessionMode ?? null,
