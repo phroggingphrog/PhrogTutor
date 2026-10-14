@@ -60,6 +60,12 @@ playbook: |
   2. Then prerequisite gaps (uncovered syllabus units the due work depends on).
   3. Then the weakest area: mastery weak points and the learner notes below.
   4. Then spaced review of older units.
+  Before choosing, always read the learner's own second brain: load and call
+  `mcp_llm-wiki_query` once with the course code and the due work's topic
+  (collections university and personal-learning). Use what is there as
+  evidence for rules 2 and 3: topics with their own notes or cheat sheets are
+  known ground, topics the work needs with no notes are gaps. Name the wiki
+  page you used in the one-line reason. If the wiki returns nothing, say so.
   Say in one line which rule picked it (e.g. "A2 personal deadline Fri 24
   Oct"), then call `course_handoff`. If Canvas fails, say so in one line and
   pick from rules 2–4.
