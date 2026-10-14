@@ -140,7 +140,7 @@ export default function DshPlanCard({ raw, className = "" }: { raw: string; clas
     planState === "proposed" ? "Proposed" : planState === "approved" ? "Approved" : planState === "rejected" ? "Rejected" : "Superseded";
 
   return (
-    <div className={`my-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 ${className}`}>
+    <div className={`my-3 ${planState === "proposed" ? "mb-28" : ""} rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 ${className}`}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-sm font-semibold text-[var(--foreground)]">{planId}</span>
         <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-xs">v{seed.version}</span>
@@ -246,7 +246,7 @@ export default function DshPlanCard({ raw, className = "" }: { raw: string; clas
           )}
           {reply && (
             <div className="mt-2">
-              <h4 className="text-xs text-[var(--muted-foreground)]">Last reply</h4>
+              <h4 className="text-sm font-medium text-[var(--foreground)]">Last reply</h4>
               <p className="whitespace-pre-wrap text-sm">{reply}</p>
             </div>
           )}
