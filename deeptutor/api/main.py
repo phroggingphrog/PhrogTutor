@@ -600,6 +600,12 @@ app.include_router(
     tags=["multi-user"],
     dependencies=_auth,
 )
+try:  # optional: owner-click plan approval -> persistent DSH session (deeptutor-dsh-plan package)
+    from dsh_plan.router import router as _dsh_plan_router
+
+    app.include_router(_dsh_plan_router, prefix="/api/dsh-plan", tags=["dsh-plan"], dependencies=_auth)
+except ImportError:
+    pass
 app.include_router(question.router, prefix="/api/question", tags=["question"], dependencies=_auth)
 app.include_router(knowledge.router, prefix="/api", tags=["knowledge-bases"], dependencies=_auth)
 app.include_router(
