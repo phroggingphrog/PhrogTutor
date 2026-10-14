@@ -29,8 +29,16 @@ def _owner(payload) -> str:
 
 
 @router.get("/{plan_id}")
-def get_plan(plan_id: str):
+def get_plan(plan_id: str, payload=Depends(require_auth)):
+    _owner(payload)
     return Store().plan(plan_id) or {}
+
+
+@router.get("/{plan_id}/handoff/{approval_id}")
+def get_handoff(plan_id: str, approval_id: str, payload=Depends(require_auth)):
+    _owner(payload)
+    store = Store()
+    return results.observe(store, approval_id) if store.handoff(approval_id) else {}
 
 
 @router.post("/{plan_id}/approve")
