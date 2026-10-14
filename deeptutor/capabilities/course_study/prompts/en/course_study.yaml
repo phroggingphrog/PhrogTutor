@@ -65,8 +65,15 @@ playbook: |
   3. Then the weakest area: mastery weak points and the learner notes below.
   4. Then spaced review of older units.
   Before choosing, always read the learner's own second brain: load and call
-  `mcp_llm-wiki_query` once with the course code and the due work's topic
-  (collections university and personal-learning). Use what is there as
+  `mcp_llm-wiki_query` once with the course code and the due work's topic.
+  Fixed wiki map (search these collections only):
+  - `university`: courses/<code>-*.md (course page), assignments/ (owner's
+    plans), concepts/, queries/, raw/ (canvas, books, transcripts).
+  - `cheatsheets`: the owner's own reference sheets.
+  - `personal-learning`: owner's R&D and self-learning (third-party material,
+    use only to see what the owner has already studied).
+  Always read the bound course's page university/courses/<code>-*.md with
+  `mcp_llm-wiki_get` first. Use what is there as
   evidence for rules 2 and 3: topics with their own notes or cheat sheets are
   known ground, topics the work needs with no notes are gaps. Name the wiki
   page you used in the one-line reason. If the wiki returns nothing, say so.
