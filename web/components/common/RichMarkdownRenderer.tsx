@@ -54,6 +54,7 @@ const LazyCodeBlock = dynamic(() => import("./RichCodeBlock"), {
   loading: () => null,
 });
 
+const DshPlanCard = dynamic(() => import("@/components/common/DshPlanCard"), { ssr: false });
 const GeogebraOpenCTA = dynamic(
   () => import("@/components/common/GeogebraOpenCTA"),
   { ssr: false, loading: () => null },
@@ -455,6 +456,10 @@ export default function RichMarkdownRenderer({
             </div>
           );
         }
+      }
+
+      if (lang === "dsh-plan") {
+        return <DshPlanCard raw={raw} className={gap} />;
       }
 
       if (lang === "ggbscript" && enableCode) {

@@ -1,0 +1,14 @@
+[project]
+name = "deeptutor-dsh-plan"
+version = "0.1.0"
+dependencies = []
+
+[project.entry-points."deeptutor.extensions"]
+dsh_plan = "dsh_plan.capability:DshPlanCapability"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["dsh_plan"]
