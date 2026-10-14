@@ -38,15 +38,33 @@ def _owner(payload) -> str:
 
 @router.get("/{plan_id}")
 def get_plan(plan_id: str, payload=Depends(require_auth)):
+    """Plan row plus the latest approval/handoff (stored values; the card polls /handoff for live status)."""
     _owner(payload)
-    return Store().plan(plan_id) or {}
+    store = Store()
+    plan = store.plan(plan_id)
+    if not plan:
+        return {}
+    row = store.db.execute(
+        "SELECT a.approval_id, a.permission, h.state, h.result FROM approvals a "
+        "LEFT JOIN handoffs h ON h.approval_id=a.approval_id WHERE a.plan_id=? AND a.version=? "
+        "ORDER BY a.approved_at DESC LIMIT 1", (plan_id, plan["version"])).fetchone()
+    if row:
+        plan["approval_id"], plan["permission"] = row["approval_id"], row["permission"]
+        plan["handoff_state"], plan["result"] = row["state"] or "", row["result"] or ""
+        plan["link"] = results.link(store, row["approval_id"]) if row["state"] else None
+    return plan
 
 
 @router.get("/{plan_id}/handoff/{approval_id}")
 def get_handoff(plan_id: str, approval_id: str, payload=Depends(require_auth)):
     _owner(payload)
     store = Store()
-    return results.observe(store, approval_id) if store.handoff(approval_id) else {}
+    if not store.handoff(approval_id):
+        return {}
+    try:
+        return results.observe(store, approval_id)
+    except Exception:  # bridge unreachable: show what is stored
+        return store.handoff(approval_id) | {"link": results.link(store, approval_id)}
 
 
 @router.post("/{plan_id}/approve")
