@@ -36,7 +36,10 @@ def test_get_requires_owner(tmp_path, monkeypatch):
     app = FastAPI(); app.include_router(router.router)
     c = TestClient(app)
     app.dependency_overrides[router.require_auth] = lambda: None
-    assert c.get("/plan-x").status_code == 403
+    monkeypatch.setattr(router, "AUTH_ENABLED", True)
+    assert c.get("/plan-x").status_code == 403  # login on, no identity
+    monkeypatch.setattr(router, "AUTH_ENABLED", False)  # login off: instance owner (Cloudflare Access is the gate)
+    assert c.get("/plan-x").status_code == 200
 
 
 def test_modes_and_callback(tmp_path, monkeypatch):

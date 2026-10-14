@@ -12,7 +12,9 @@ from .plan_records import Store
 
 try:  # owner identity comes from the login token, never from model text
     from deeptutor.api.routers.auth import require_auth
-except Exception:  # unit tests without DeepTutor installed
+    from deeptutor.services.auth import AUTH_ENABLED
+except Exception:
+    AUTH_ENABLED = True  # unit tests without DeepTutor installed
     def require_auth():
         raise HTTPException(401, 'owner login required')
 
@@ -30,16 +32,23 @@ class Approve(BaseModel):
     confirm_bypass: bool = False  # bypass (no sandbox, no prompts) needs a second deliberate flag
 
 
-def _owner(payload) -> str:
-    if payload is None or getattr(payload, "role", "") != "admin" or not getattr(payload, "username", ""):
+def _owner(payload, request: Request) -> str:
+    """Who clicked. With DeepTutor login on: the admin token. With login off (this deployment: Cloudflare
+    Access is the gate) the whole instance is the owner's; record the Cloudflare user email when present.
+    Known limit: a local process could call the loopback port; sandboxed DSH modes cannot."""
+    if payload is not None:
+        if getattr(payload, "role", "") != "admin" or not getattr(payload, "username", ""):
+            raise HTTPException(403, "owner (admin) login required")
+        return payload.username
+    if AUTH_ENABLED:
         raise HTTPException(403, "owner (admin) login required")
-    return payload.username
+    return request.headers.get("cf-access-authenticated-user-email") or "local-owner"
 
 
 @router.get("/{plan_id}")
-def get_plan(plan_id: str, payload=Depends(require_auth)):
+def get_plan(plan_id: str, request: Request, payload=Depends(require_auth)):
     """Plan row plus the latest approval/handoff (stored values; the card polls /handoff for live status)."""
-    _owner(payload)
+    _owner(payload, request)
     store = Store()
     plan = store.plan(plan_id)
     if not plan:
@@ -56,8 +65,8 @@ def get_plan(plan_id: str, payload=Depends(require_auth)):
 
 
 @router.get("/{plan_id}/handoff/{approval_id}")
-def get_handoff(plan_id: str, approval_id: str, payload=Depends(require_auth)):
-    _owner(payload)
+def get_handoff(plan_id: str, approval_id: str, request: Request, payload=Depends(require_auth)):
+    _owner(payload, request)
     store = Store()
     if not store.handoff(approval_id):
         return {}
@@ -68,9 +77,9 @@ def get_handoff(plan_id: str, approval_id: str, payload=Depends(require_auth)):
 
 
 @router.post("/{plan_id}/approve")
-def approve(plan_id: str, body: Approve, payload=Depends(require_auth)):
+def approve(plan_id: str, body: Approve, request: Request, payload=Depends(require_auth)):
     store = Store()
-    owner = _owner(payload)  # 403 before anything is touched
+    owner = _owner(payload, request)  # 403 before anything is touched
     if body.mode not in MODES:
         raise HTTPException(422, f"mode must be one of {sorted(MODES)}")
     if body.mode == "bypass" and not body.confirm_bypass:
@@ -87,8 +96,8 @@ def approve(plan_id: str, body: Approve, payload=Depends(require_auth)):
 
 
 @router.post("/{plan_id}/reject")
-def reject(plan_id: str, version: int, payload=Depends(require_auth)):
-    approval.reject(Store(), plan_id, version, _owner(payload))
+def reject(plan_id: str, version: int, request: Request, payload=Depends(require_auth)):
+    approval.reject(Store(), plan_id, version, _owner(payload, request))
     return {"ok": True}
 
 
