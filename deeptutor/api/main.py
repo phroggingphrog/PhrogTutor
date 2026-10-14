@@ -533,6 +533,7 @@ from deeptutor.api.routers import (
     co_writer,
     courses,
     dashboard,
+    data_explorer,
     file_preview,
     imports,
     knowledge,
@@ -600,6 +601,19 @@ app.include_router(
     tags=["multi-user"],
     dependencies=_auth,
 )
+# Owner-click plan approval -> persistent DSH session. The package
+# (deeptutor-dsh-plan) ships in the PhrogVPS image; without it the bridge is off.
+try:
+    from dsh_plan.router import router as _dsh_plan_router
+
+    app.include_router(
+        _dsh_plan_router,
+        prefix="/api/dsh-plan",
+        tags=["dsh-plan"],
+        dependencies=_auth,
+    )
+except ImportError:
+    pass
 app.include_router(question.router, prefix="/api/question", tags=["question"], dependencies=_auth)
 app.include_router(knowledge.router, prefix="/api", tags=["knowledge-bases"], dependencies=_auth)
 app.include_router(
@@ -611,6 +625,13 @@ app.include_router(
 app.include_router(imports.router, prefix="/api/imports", tags=["imports"], dependencies=_auth)
 app.include_router(
     dashboard.router, prefix="/api/dashboard", tags=["dashboard"], dependencies=_auth
+)
+# PhrogVPS: read-only SQLite data explorer (browse / query / profile).
+app.include_router(
+    data_explorer.router,
+    prefix="/api/data-explorer",
+    tags=["data-explorer"],
+    dependencies=_auth,
 )
 app.include_router(
     mastery_path.router,

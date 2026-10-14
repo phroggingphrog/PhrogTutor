@@ -50,6 +50,17 @@ class MCPServerConfig(BaseModel):
     # Blocklist applied after ``enabled_tools`` — for "everything except X".
     disabled_tools: list[str] = Field(default_factory=list)
     enabled: bool = True
+    #: Withhold this server's tool schemas from the initial per-turn tool list
+    #: and expose them on demand through ``load_tools`` (progressive
+    #: disclosure — the upstream default).
+    #:
+    #: Set ``false`` to mount this server's tools eagerly, so the model sees
+    #: them without having to call ``load_tools`` first. Use it for small
+    #: servers whose tools are wanted on most turns (a local wiki, a memory
+    #: store): a handful of extra schemas per call is cheap. Leave it ``true``
+    #: for large catalogs — eager-mounting a server with hundreds of tools
+    #: would put every one of those schemas on every model call.
+    deferred: bool = True
     # authentication
     #: ``"oauth"`` when this server requires an OAuth 2.1 authorization the
     #: account has to grant interactively; ``""`` when a static credential in

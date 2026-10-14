@@ -118,6 +118,7 @@ class MCPToolAdapter(BaseTool):
         description: str,
         input_schema: dict[str, Any] | None,
         tool_timeout: int,
+        deferred: bool = True,
         owner: str = SHARED_OWNER,
     ) -> None:
         self._manager = manager
@@ -128,6 +129,9 @@ class MCPToolAdapter(BaseTool):
         self._description = description or original_name
         self._input_schema = input_schema or {"type": "object", "properties": {}}
         self._tool_timeout = tool_timeout
+        # Honours ``MCPServerConfig.deferred`` so a small server can be mounted
+        # eagerly while a large catalog stays behind ``load_tools``.
+        self.deferred = deferred
 
     @property
     def owner(self) -> str:
@@ -697,6 +701,7 @@ class MCPConnectionManager:
                         description=tool_def.description or "",
                         input_schema=tool_def.inputSchema,
                         tool_timeout=conn.config.tool_timeout,
+                        deferred=conn.config.deferred,
                     )
                     for tool_def in listing.tools
                     if conn.config.tool_allowed(
