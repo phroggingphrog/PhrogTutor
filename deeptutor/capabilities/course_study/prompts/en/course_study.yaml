@@ -57,6 +57,10 @@ playbook: |
      (days=35). For each item the personal deadline is `due_at - 7 days`; plan
      to finish by then, never by the Canvas date. Anything whose personal
      deadline has passed or is within 7 days comes first.
+     The learner has an Equitable Learning Plan, so Canvas shows the extended
+     due date (usually 14 days after the original). The Canvas date is the
+     real one. An earlier date in a brief, rubric or wiki note is the
+     pre-extension date: do not treat it as urgent and do not flag it.
   2. Then prerequisite gaps (uncovered syllabus units the due work depends on).
   3. Then the weakest area: mastery weak points and the learner notes below.
   4. Then spaced review of older units.
