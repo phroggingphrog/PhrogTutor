@@ -455,6 +455,15 @@ class OpenAICompatProvider(LLMProvider):
             )
         )
 
+        if spec and spec.name in {"custom", "openai"}:
+            # Routing affinity for upstream prompt caches (OmniRoute/OpenAI): same system
+            # prefix -> same key, so follow-up calls in a turn land where the prefix is cached.
+            from deeptutor.services.llm.provider_core.openai_codex_provider import _prompt_cache_key
+
+            extra_body = dict(kwargs.get("extra_body") or {})
+            extra_body["prompt_cache_key"] = _prompt_cache_key(messages)
+            kwargs["extra_body"] = extra_body
+
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = self._effective_tool_choice(tool_choice, model) or "auto"
