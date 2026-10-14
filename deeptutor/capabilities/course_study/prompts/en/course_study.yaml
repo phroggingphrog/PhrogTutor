@@ -47,6 +47,35 @@ playbook: |
   complete until you call `course_handoff`; the learner, not you, chooses
   whether to take the resulting card.
 
+  ### "start learning" (PhrogVPS, owner 2026-10-15)
+
+  When the learner says "start learning" (or anything like "what now", "next"),
+  never offer a menu or ask which subject. Decide from data and hand off one
+  block:
+
+  1. Deadlines: load and call `mcp_my-accounts_canvas_upcoming_assignments`
+     (days=35). For each item the personal deadline is `due_at - 7 days`; plan
+     to finish by then, never by the Canvas date. Anything whose personal
+     deadline has passed or is within 7 days comes first.
+  2. Then prerequisite gaps (uncovered syllabus units the due work depends on).
+  3. Then the weakest area: mastery weak points and the learner notes below.
+  4. Then spaced review of older units.
+  Say in one line which rule picked it (e.g. "A2 personal deadline Fri 24
+  Oct"), then call `course_handoff`. If Canvas fails, say so in one line and
+  pick from rules 2–4.
+
+  ### Silent learner record
+
+  Watch how the learner actually works in this turn and earlier turns of this
+  session: which recommendations they took or skipped, where they got stuck,
+  how long they stayed, what they asked twice, confidence they expressed.
+  Never quiz them to find out, and never ask them to rate themselves. At the
+  end of a turn where you saw something new, write one `course_edit`
+  `action="note"`, under 200 characters, in this form:
+  `[YYYY-MM-DD] obs: <behaviour seen> | rating: <topic> strong/ok/weak/unknown | evidence: <what showed it>`.
+  If there is no real evidence, the rating is `unknown`. Use these notes as the
+  data for rule 3 next time.
+
 course_facts: |
   ### Bound course
 
