@@ -454,7 +454,11 @@ class CourseStudyLoopCapability:
             # round to write one.
             return ""
         context.extension(self.name)[COURSE_ANSWER_KEY] = answer
-        # Deliberately *not* setting ``capability_output.answer_published``. That flag
+        # PhrogVPS 2026-10-15: the loop now releases a tool round's prose as answer
+        # content by default (agent_loop "publish needs no marker"), so emitting the
+        # override again printed the recommendation twice. Mark it as shown.
+        context.capability_output.answer_published = True
+        # Originally deliberately *not* setting ``capability_output.answer_published``. That flag
         # means "the learner has already been shown this text, do not emit it
         # again as the answer", and it is true for capabilities that buffer
         # their output behind a protocol. This mode buffers nothing: the prose
