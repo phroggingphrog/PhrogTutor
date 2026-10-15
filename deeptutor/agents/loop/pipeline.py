@@ -622,7 +622,20 @@ class AgenticLoopPipeline:
                     ),
                 ),
                 overlay_tools=pageindex_tools,
-                preloaded_names=[tool.name for tool in pageindex_tools],
+                preloaded_names=[tool.name for tool in pageindex_tools]
+                # PhrogVPS 2026-10-15: Course Study always needs these. Loading them
+                # mid-turn changes the tool list at the front of the request and
+                # throws away the prompt cache for every later call in the turn.
+                + (
+                    [
+                        "mcp_my-accounts_canvas_upcoming_assignments",
+                        "mcp_my-accounts_canvas_assignment",
+                        "mcp_llm-wiki_query",
+                        "mcp_llm-wiki_get",
+                    ]
+                    if any(getattr(c, "name", "") == "course_study" for c in self._active_loop_capabilities(context))
+                    else []
+                ),
             )
         except Exception:
             # ``build_tool_view`` is contractually non-raising; this is defence
