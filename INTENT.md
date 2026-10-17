@@ -6,7 +6,7 @@ Note: "no need study plan bcs my uni already over" (2026-10-18) only drops exam-
 
 ## Plan (smallest steps, each one proven before the next)
 1. Fork (done): ~/projects/pi-tutor, branch pi-core, from DeepTutor v1.6.13-13. Upstream remote renamed deeptutor-upstream, so nothing pushes to HKUDS.
-2. Keep only: chat/session UI + API surface the web app actually calls, notebooks, practice/quiz, mastery path, memory. Delete: partners, co_writer, video_learning, reading, book, multi_user, visualizers, textbook_struct, plugins, marginnote, cli apps, codex/codebuddy auth, extra i18n. Measure before/after (KB, Python deps, RAM).
+2. Keep EVERY feature (owner 2026-10-18: "no dont do that partner co writer video learning reading book multi user visualiser textbook plugins and extra logins provider is important"). Nothing is deleted for being a feature. Debloat means only: the agent core becomes the pi SDK (step 3), llama-index/faiss go once the wiki search replaces them (step 4), and unused dependencies and dead code are removed ONLY after the owner has seen the list. Measure before/after (deps, RAM, startup).
 3. Replace deeptutor/agents + capabilities + runtime with one pi SDK session per chat turn (as in ~/projects/pi-study/src/study.ts), behind the same /api/v1 chat route so the web UI keeps working.
 4. RAG: drop llama-index/faiss; one search = the wiki qmd MCP (EmbeddingGemma, local), as pi tools.
 5. Personalised learning + data collection: every turn logs (course, topic, question, answer quality, quiz result, time) to one SQLite; a learner profile (mastery per topic) is read back into the system prompt; feeds the Acha dataset only where the owner says so.
