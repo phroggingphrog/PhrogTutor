@@ -10,3 +10,5 @@ Note: "no need study plan bcs my uni already over" (2026-10-18) only drops exam-
 3. Replace deeptutor/agents + capabilities + runtime with one pi SDK session per chat turn (as in ~/projects/pi-study/src/study.ts), behind the same /api/v1 chat route so the web UI keeps working.
 4. RAG: drop llama-index/faiss; one search = the wiki qmd MCP (EmbeddingGemma, local), as pi tools.
 5. Personalised learning + data collection (owner 2026-10-18: "the personalised learning which is automated behind the code not in the gui/ui"). Runs in the backend only, no new page, button or setting. After every turn the code itself logs (course, topic, question, answer, quiz result, time) to one SQLite file and updates a per-topic mastery profile; the next turn reads the profile into the system prompt on its own. The existing UI is left as it is. Data goes to the Acha dataset only where the owner says so.
+
+See docs/LEARNING-MAP.md for how the owner Academia learning-agent concept (archive) maps onto steps 3-5.
