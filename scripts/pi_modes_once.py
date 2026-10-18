@@ -45,7 +45,7 @@ async def _counting_agent(run, request):
         tools += [t["function"]["name"] for t in (ch.get("delta") or {}).get("tool_calls") or []]
         finish = ch.get("finish_reason") or finish
         yield c
-    TRACE.append(f"pi agent round {CALLS['n']}: {time.time() - t0:.1f}s finish={finish} tools={tools}")
+    TRACE.append(f"pi agent round {CALLS['n']}: {time.time() - t0:.1f}s finish={finish} tools={tools}")  # noqa
 
 
 pi_bridge._agent_chunks = _agent_counting
@@ -58,8 +58,22 @@ _orig_create = AsyncCompletions.create
 
 async def _vanilla_create(self, *a, **kw):
     CALLS["n"] += 1
-    TRACE.append(f"vanilla call {CALLS['n']}: stream={kw.get('stream')} msgs_in={len(kw.get('messages') or [])} tools_offered={len(kw.get('tools') or [])}")
-    return await _orig_create(self, *a, **kw)
+    n, t0 = CALLS["n"], time.time()
+    resp = await _orig_create(self, *a, **kw)
+    if not kw.get("stream"):
+        TRACE.append(f"vanilla call {n}: {time.time() - t0:.1f}s")
+        return resp
+
+    async def timed():
+        cached = None
+        async for c in resp:
+            u = getattr(c, "usage", None)
+            if u is not None and getattr(u, "prompt_tokens_details", None) is not None:
+                cached = f"{u.prompt_tokens_details.cached_tokens}/{u.prompt_tokens}"
+            yield c
+        TRACE.append(f"vanilla call {n}: {time.time() - t0:.1f}s cached={cached}")
+
+    return timed()
 
 
 AsyncCompletions.create = _vanilla_create

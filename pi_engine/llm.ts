@@ -162,7 +162,11 @@ const pushCtl = (rid: string, c: Ctl) => {
 };
 const THINKING: Record<string, string> = { minimal: "minimal", low: "low", medium: "medium", high: "high", xhigh: "xhigh", max: "max" };
 
+const T0 = Date.now();
+const dbg = (m: string) => { if (process.env.PI_TUTOR_DEBUG) process.stderr.write(`[t+${Date.now() - T0}ms] ${m}\n`); };
+
 async function handleAgent(rid: string, first: any): Promise<string> {
+	dbg(`agent start ${rid.slice(0, 6)}`);
 	controls.set(rid, { queue: [] });
 	let req = first;
 	const model = buildModel(req);
@@ -189,18 +193,21 @@ async function handleAgent(rid: string, first: any): Promise<string> {
 			// keeping pi's tool declarations on the system message (plugin tools included).
 			const { system, messages } = convert(req, model.id);
 			const sys = { ...ev.messages[0], sections: { preamble: system } };
+			dbg(`request out (${messages.length} msgs)`);
 			return { messages: [sys, ...messages] };
 		});
-		pi.on("message_start", (ev: any) => { if (ev.message?.role === "assistant") writer = chunkWriter(model.id, write); });
+		pi.on("message_start", (ev: any) => { if (ev.message?.role === "assistant") { writer = chunkWriter(model.id, write); dbg("first model event"); } });
 		pi.on("message_update", (ev: any) => { if (ev.message?.role === "assistant") writer?.event(ev.assistantMessageEvent); });
 		pi.on("message_end", (ev: any) => {
 			if (ev.message?.role !== "assistant") return;
 			const msg = ev.message;
 			if (msg.stopReason === "error") error = `pi model error: ${msg.errorMessage ?? "unknown"}`;
 			writer?.finish(msg);
+			dbg(`message_end cacheRead=${msg.usage?.cacheRead} input=${msg.usage?.input}`);
 			write({ round_end: true, ...(error ? { error } : {}) });
 			ctlPromise = nextCtl(rid).then((c) => { // DeepTutor's answer to this round
 				toolResults = new Map();
+				dbg(`ctl ${c.kind} from DeepTutor`);
 				if (c.kind === "next") {
 					req = c.req;
 					for (const m of req.messages ?? []) if (m.role === "tool") toolResults.set(m.tool_call_id, text(m.content));
@@ -223,14 +230,17 @@ async function handleAgent(rid: string, first: any): Promise<string> {
 		noContextFiles: true, systemPrompt: convert(req, model.id).system,
 	});
 	await loader.reload();
+	dbg("loader ready");
 	const settings = SettingsManager.inMemory({ compaction: { enabled: false }, retry: { enabled: false } });
 	const { session } = await createAgentSession({
 		cwd: HERE, agentDir: AGENT_DIR, model, thinkingLevel: (THINKING[req.reasoning_effort] ?? "off") as any,
 		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE),
 		noTools: "builtin", customTools: customTools as any,
 	});
+	dbg("session created");
 	try {
 		await session.bindExtensions({});
+		dbg("extensions bound");
 		const lastUser = [...(req.messages ?? [])].reverse().find((m: any) => m.role === "user");
 		await session.prompt(text(lastUser?.content) || "Continue.");
 		// pi settled (DeepTutor said end, or an error round stopped it): finish the handshake if DeepTutor has not.
