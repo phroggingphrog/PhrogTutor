@@ -23,3 +23,7 @@ So, the whole project is two things:
 
 Out of scope: study plans, exam prep, deadline selector, spaced review, next_block, Canvas, quiz-based mastery. The Academia code (pi_learning/, the learning hook, docs/LEARNING-MAP.md) was REMOVED 2026-10-18 (owner: "remove the old acadmeia design then").
 Focus now (owner 2026-10-18: "so lets focus on the port of deep tutor into pi agaent sdk first"): the port only. pi engine on by default + every page checked. Chat-based mastery comes after, as a new small hook.
+
+## What "port" means (owner 2026-10-18, verbatim)
+"making the pi as the SDK for the deep tutor that what i mean"
+So pi is the agent SDK UNDER every DeepTutor agent and mode (chat, solve, research, question, visualize, co-writer, book, partners ...), with DeepTutor's own prompts and tools. Not a separate pi chat path with its own prompt. The seam is DeepTutor's model/agent layer: deeptutor/agents/base_agent.py (call_llm, stream_llm) and the agent loop in deeptutor/agents/loop, which every mode already goes through. The step-B pi_engine/turn.ts + TUTOR.md (uni-only prompt that replaces chat) is NOT the target; it is replaced by this.
