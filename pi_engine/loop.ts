@@ -233,10 +233,13 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		let prompt = text(lastUser?.content) || "Continue.";
 		while (!outcome) {
 			restart = false;
+			const roundsBefore = s.rounds;
 			await session.prompt(prompt);
 			await decision;
 			if (outcome) break;
-			if (!restart) { outcome = { error: roundError || "pi agent run ended without an answer", error_kind: "transport", partial: true }; break; }
+			// pi may stop on its own after a continue (e.g. it will not extend a cut-off round): prompt again,
+			// unless that prompt produced no new round at all.
+			if (!restart && s.rounds === roundsBefore) { outcome = { error: roundError || "pi agent run ended without an answer", error_kind: "transport", partial: true }; break; }
 			activate();
 			prompt = "Continue.";
 		}
