@@ -14,7 +14,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const req = JSON.parse(readFileSync(0, "utf8"));
 const omni = JSON.parse(readFileSync(join(HERE, "agent-dir", "models.json"), "utf8")).providers.omni;
 const known = new Set<string>(omni.models.map((m: any) => m.id));
-const modelId: string = known.has(req.model) ? req.model : (process.env.PI_TUTOR_MODEL ?? "openai/luna");
+// Any OmniRoute model or combo name passes through (DeepTutor's own catalog picks it); known ones get their limits/costs.
+const modelId: string = req.model || process.env.PI_TUTOR_MODEL || "openai/luna";
 const spec = omni.models.find((m: any) => m.id === modelId) ?? {};
 
 const model: any = {
