@@ -30,6 +30,7 @@ KINDS = {
 }
 _HALF_LIFE_DAYS = 30.0
 _TASKS: set[asyncio.Task] = set()
+_EXTRACT_MODEL = "deepseek-flash"  # OmniRoute combo: cheap, and does not share the chat model's cooldowns
 
 _SYSTEM = (
     "You watch one tutoring exchange and record what it shows about the LEARNER's understanding "
@@ -65,7 +66,7 @@ async def _extract(session_id: str, turn_id: str, user_message: str, answer: str
     reuse = f"Concepts already tracked (reuse a name when it is the same idea): {', '.join(known)}\n\n" if known else ""
     prompt = reuse + f"LEARNER:\n{user_message[:4000]}\n\nTUTOR:\n{answer[:3000]}"
     raw = await asyncio.wait_for(
-        complete(prompt=prompt, system_prompt=_SYSTEM, temperature=0, max_tokens=400, reasoning_effort="none"),
+        complete(prompt=prompt, system_prompt=_SYSTEM, model=_EXTRACT_MODEL, temperature=0, max_tokens=400, reasoning_effort="none"),
         timeout=60,
     )
     match = re.search(r"\{.*\}", raw or "", re.S)
@@ -150,7 +151,8 @@ def _method(score: float) -> tuple[str, str]:
     return next((band, how) for limit, band, how in _METHODS if score < limit)
 
 
-_MATCH = 0.6  # cosine similarity between the message and a concept name
+_FLOOR, _NEAR_TOP = 0.5, 0.06  # a concept matches if it scores >= 0.5 and within 0.06 of the best one
+_PENDING: dict[str, asyncio.Task] = {}
 
 
 def _cos(a: list[float], b: list[float]) -> float:
@@ -159,20 +161,38 @@ def _cos(a: list[float], b: list[float]) -> float:
 
 
 async def _related(user_message: str) -> set[str]:
-    """Concepts whose meaning is close to the message. Concept vectors are cached in the same database."""
+    """Concepts whose meaning is close to the message. Each concept is embedded as its name plus the
+    learner's own quotes, cached until those quotes change."""
     from deeptutor.services.embedding.client import get_embedding_client
 
     with _db() as con:
-        con.execute("CREATE TABLE IF NOT EXISTS concept_vec (concept TEXT PRIMARY KEY, vec TEXT)")
-        cached = {c: json.loads(v) for c, v in con.execute("SELECT concept, vec FROM concept_vec")}
-        concepts = [r[0] for r in con.execute("SELECT DISTINCT concept FROM evidence")]
-    missing = [c for c in concepts if c not in cached]
-    vecs = await get_embedding_client().embed([user_message[:2000], *missing])
-    if missing:
+        con.execute("CREATE TABLE IF NOT EXISTS concept_vec (concept TEXT PRIMARY KEY, text TEXT, vec TEXT)")
+        if "text" not in [r[1] for r in con.execute("PRAGMA table_info(concept_vec)")]:
+            con.execute("DROP TABLE concept_vec")
+            con.execute("CREATE TABLE concept_vec (concept TEXT PRIMARY KEY, text TEXT, vec TEXT)")
+        cached = {c: (t, json.loads(v)) for c, t, v in con.execute("SELECT concept, text, vec FROM concept_vec")}
+        quotes: dict[str, list[str]] = {}
+        for c, q in con.execute("SELECT concept, quote FROM evidence ORDER BY ts DESC"):
+            quotes.setdefault(c, []).append(q[:150])
+    texts = {c: f"{c}. " + " | ".join(qs[:3]) for c, qs in quotes.items()}
+    stale = [c for c, t in texts.items() if cached.get(c, ("",))[0] != t]
+    vecs = await get_embedding_client().embed([user_message[:2000], *[texts[c] for c in stale]])
+    if stale:
         with _db() as con:
-            con.executemany("INSERT OR REPLACE INTO concept_vec VALUES (?, ?)", [(c, json.dumps(v)) for c, v in zip(missing, vecs[1:])])
-        cached.update(zip(missing, vecs[1:]))
-    return {c for c in concepts if _cos(vecs[0], cached[c]) >= _MATCH}
+            con.executemany(
+                "INSERT OR REPLACE INTO concept_vec VALUES (?, ?, ?)",
+                [(c, texts[c], json.dumps(v)) for c, v in zip(stale, vecs[1:])],
+            )
+        cached.update({c: (texts[c], v) for c, v in zip(stale, vecs[1:])})
+    scores = {c: _cos(vecs[0], cached[c][1]) for c in texts}
+    best = max(scores.values(), default=0)
+    return {c for c, sc in scores.items() if sc >= _FLOOR and sc >= best - _NEAR_TOP}
+
+
+def start_match(user_message: str) -> None:
+    """Begin the meaning lookup as soon as the message arrives, so it overlaps the rest of turn setup."""
+    if user_message.strip() and user_message not in _PENDING:
+        _PENDING[user_message] = asyncio.create_task(_related(user_message))
 
 
 async def prompt_block(user_message: str, limit: int = 4) -> str:
@@ -180,7 +200,10 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
     hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))]
     try:  # also match by meaning ("beta-binomial updating" -> "conjugate priors")
-        near = await asyncio.wait_for(_related(user_message), timeout=3)
+        task = _PENDING.pop(user_message, None) or asyncio.create_task(_related(user_message))
+        t0 = time.monotonic()
+        near = await asyncio.wait_for(task, timeout=3)
+        logger.info("chat mastery: meaning match waited %.0f ms, matched %s", (time.monotonic() - t0) * 1000, sorted(near))
         hits += [m for m in mastery() if m["concept"] in near and m not in hits]
     except Exception:
         logger.debug("chat mastery: meaning match skipped", exc_info=True)

@@ -265,6 +265,9 @@ class TurnExecutor:
             persist_user_message = bool(payload.get("persist_user_message", True))
             is_regenerate = bool(payload.get("regenerate", False))
             raw_user_content = str(payload.get("content", "") or "")
+            from deeptutor.services import chat_mastery
+
+            chat_mastery.start_match(raw_user_content)  # meaning lookup runs while the turn is set up
             # Edit-branching tip: when the FE includes ``parent_message_id``
             # (even as ``null``), the new user message attaches at that
             # exact parent — creating a sibling of any existing children
