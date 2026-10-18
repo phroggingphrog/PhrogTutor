@@ -306,11 +306,15 @@ class AgentLoop:
                 include_tool_manifest=bool(self.tool_schemas),
             )
             try:
-                outcome = await self._run_loop(
-                    messages=messages,
-                    state=state,
-                    checkpoint_boundary=len(messages),
-                )
+                # TASK-71: the whole loop is one pi agent session (pi runs the rounds and the tools).
+                from deeptutor.services.llm.pi_bridge import agent_run
+
+                async with agent_run():
+                    outcome = await self._run_loop(
+                        messages=messages,
+                        state=state,
+                        checkpoint_boundary=len(messages),
+                    )
                 if outcome.final_text and (
                     messages[-1].get("role") != "assistant" or not messages[-1].get("content")
                 ):

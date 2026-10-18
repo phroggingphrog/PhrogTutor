@@ -1,12 +1,11 @@
-"""pi SDK as DeepTutor's model layer (TASK-71).
+"""DeepTutor on the pi SDK (TASK-71), through one long-lived ``bun pi_engine/llm.ts --serve``.
 
-Every model call goes through ``pi_engine/llm.ts`` (the pi SDK's ``stream``), which reads an OpenAI
-chat-completions request on stdin and prints OpenAI ``chat.completion.chunk`` lines. Two seams use it:
-
-* :func:`complete` / :func:`stream`: called from ``services.llm.factory`` (BaseAgent.call_llm /
-  stream_llm and every other helper that goes through the factory).
-* :class:`PiClient`: returned by ``runtime.agentic.client.build_openai_client``, so the agent loop
-  (chat, research, question pipelines) calls ``client.chat.completions.create`` unchanged.
+* Agent runs: every :class:`~deeptutor.agents.loop.agent_loop.AgentLoop` run is one pi agent session
+  (``createAgentSession``). :func:`agent_run` marks the run; inside it, each
+  ``client.chat.completions.create`` is one pi round, carrying DeepTutor's full next context (and the
+  results of the tools pi just ran). pi plugins in ``pi_engine/agent-dir`` load for these sessions.
+* Single model calls: :func:`complete` / :func:`stream` (``services.llm.factory``: BaseAgent.call_llm /
+  stream_llm) and any create() outside an agent run use pi's model layer (pi-ai ``stream``).
 
 On by default; ``PI_TUTOR_SDK=0`` sends everything back to DeepTutor's own OpenAI clients.
 """
@@ -18,6 +17,8 @@ import json
 import os
 import uuid
 from collections.abc import AsyncGenerator, AsyncIterator
+from contextlib import asynccontextmanager
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
 
@@ -42,7 +43,7 @@ class _PiProcess:
             if self.proc is None or self.proc.returncode is not None:
                 self.proc = await asyncio.create_subprocess_exec(
                     "bun", str(_LLM_TS), "--serve",
-                    stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,
+                    stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=open(os.environ["PI_TUTOR_DEBUG_LOG"], "a") if os.environ.get("PI_TUTOR_DEBUG_LOG") else asyncio.subprocess.DEVNULL,
                     limit=16 * 1024 * 1024,
                 )
                 asyncio.create_task(self._read(self.proc))
@@ -75,12 +76,69 @@ class _PiProcess:
             self.queues.pop(rid, None)
 
 
+    async def _send(self, obj: dict[str, Any]) -> None:
+        proc = await self._ensure()
+        proc.stdin.write((json.dumps(obj) + "\n").encode())
+        await proc.stdin.drain()
+
+    async def agent_round(self, run: dict[str, Any], request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+        """One pi round of an agent run: start the session on the first call, else hand pi the next context."""
+        queue = self.queues.setdefault(run["rid"], asyncio.Queue())
+        req = {k: request[k] for k in _PASS if request.get(k) is not None}
+        await self._send({"rid": run["rid"], "kind": "next" if run["started"] else "agent", "req": req})
+        run["started"] = True
+        while not ((msg := await queue.get()).get("round_end") or msg.get("end")):
+            yield msg
+        if msg.get("end"):
+            run["started"] = False  # pi ended the session; a later round starts a new one
+        if msg.get("error"):
+            raise RuntimeError(f"pi SDK agent round failed: {msg['error'][-500:]}")
+
+    async def agent_end(self, run: dict[str, Any]) -> None:
+        queue = self.queues.get(run["rid"])
+        try:
+            if run["started"] and queue is not None:
+                await self._send({"rid": run["rid"], "kind": "end"})
+                while not (await queue.get()).get("end"):
+                    pass
+        finally:
+            self.queues.pop(run["rid"], None)
+
+
 _PROCS: dict[int, _PiProcess] = {}
+_AGENT_RUN: ContextVar[dict[str, Any] | None] = ContextVar("pi_agent_run", default=None)
+
+
+def _proc() -> _PiProcess:
+    return _PROCS.setdefault(id(asyncio.get_running_loop()), _PiProcess())
 
 
 def _chunks(request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
-    loop_id = id(asyncio.get_running_loop())
-    return _PROCS.setdefault(loop_id, _PiProcess()).chunks(request)
+    return _proc().chunks(request)
+
+
+def _agent_chunks(run: dict[str, Any], request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+    return _proc().agent_round(run, request)
+
+
+@asynccontextmanager
+async def agent_run():
+    """Wrap one DeepTutor agent loop run: its model rounds become one pi agent session."""
+    if not pi_sdk_enabled():
+        yield
+        return
+    run = {"rid": uuid.uuid4().hex, "started": False}
+    token = _AGENT_RUN.set(run)
+    try:
+        yield
+    finally:
+        _AGENT_RUN.reset(token)
+        await _proc().agent_end(run)
+
+
+def _source(kwargs: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+    run = _AGENT_RUN.get()
+    return _agent_chunks(run, kwargs) if run is not None else _chunks(kwargs)
 
 
 def _messages(prompt: str, system_prompt: str, messages: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
@@ -114,12 +172,12 @@ class _Completions:
 
         if kwargs.get("stream"):
             async def gen() -> AsyncIterator[ChatCompletionChunk]:
-                async for chunk in _chunks(kwargs):
+                async for chunk in _source(kwargs):
                     yield ChatCompletionChunk.model_validate(chunk)
 
             return gen()
         text, tool_calls, finish, usage, base = [], {}, "stop", None, None
-        async for chunk in _chunks(kwargs):
+        async for chunk in _source(kwargs):
             base = base or chunk
             choice = chunk["choices"][0]
             delta = choice.get("delta") or {}

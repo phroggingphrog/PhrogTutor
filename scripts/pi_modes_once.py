@@ -30,6 +30,25 @@ async def _counting(request):
 
 
 pi_bridge._chunks = _counting
+_orig_agent = pi_bridge._agent_chunks
+
+
+def _agent_counting(run, request):
+    return _counting_agent(run, request)
+
+
+async def _counting_agent(run, request):
+    CALLS["n"] += 1
+    t0, finish, tools = time.time(), None, []
+    async for c in _orig_agent(run, request):
+        ch = (c.get("choices") or [{}])[0]
+        tools += [t["function"]["name"] for t in (ch.get("delta") or {}).get("tool_calls") or []]
+        finish = ch.get("finish_reason") or finish
+        yield c
+    TRACE.append(f"pi agent round {CALLS['n']}: {time.time() - t0:.1f}s finish={finish} tools={tools}")
+
+
+pi_bridge._agent_chunks = _agent_counting
 
 # vanilla: count DeepTutor's own OpenAI calls the same way
 from openai.resources.chat.completions import AsyncCompletions  # noqa: E402
