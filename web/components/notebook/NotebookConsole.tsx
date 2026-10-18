@@ -329,6 +329,13 @@ export default function NotebookConsole({
             </div>
           )}
 
+          <Link
+            href="/notes"
+            className="rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-1 text-xs hover:bg-[var(--muted)]"
+          >
+            My Markdown notes →
+          </Link>
+
           {courseScope ? (
             <div className="flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 pl-2 pr-1 text-[11px] text-[var(--muted-foreground)]">
               <School size={11} strokeWidth={1.8} className="shrink-0" />

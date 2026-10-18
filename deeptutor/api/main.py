@@ -542,6 +542,7 @@ from deeptutor.api.routers import (
     mcp_settings,
     memory,
     notebook,
+    notes,
     outputs,
     partner_groups,
     partners,
@@ -658,6 +659,7 @@ app.include_router(
 )
 app.include_router(co_writer.router, prefix="/api", tags=["documents"], dependencies=_auth)
 app.include_router(notebook.router, prefix="/api", tags=["notebooks"], dependencies=_auth)
+app.include_router(notes.router, prefix="/api/notes", tags=["notes"], dependencies=_auth)
 app.include_router(
     task_board.router, prefix="/api/task-board", tags=["task-board"], dependencies=_auth
 )

@@ -1387,3 +1387,16 @@ a[href^="#dt-locator-"]:hover {
   visibility: hidden;
   pointer-events: none;
 }
+
+/* Notes editor (Markdown WYSIWYG) */
+.notes-prose h1 { font-size: 1.75rem; font-weight: 700; margin: 1.2em 0 .4em; }
+.notes-prose h2 { font-size: 1.4rem; font-weight: 600; margin: 1.1em 0 .4em; }
+.notes-prose h3 { font-size: 1.15rem; font-weight: 600; margin: 1em 0 .3em; }
+.notes-prose p { margin: .5em 0; line-height: 1.7; }
+.notes-prose ul { list-style: disc; padding-left: 1.5em; }
+.notes-prose ol { list-style: decimal; padding-left: 1.5em; }
+.notes-prose ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+.notes-prose ul[data-type="taskList"] li { display: flex; gap: .5em; align-items: flex-start; }
+.notes-prose code:not(pre code) { background: var(--muted); padding: .1em .3em; border-radius: 4px; }
+.notes-prose blockquote { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
+.notes-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--muted-foreground); pointer-events: none; }
