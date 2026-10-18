@@ -70,7 +70,7 @@ export default function NotesEditor() {
       const name = currentRef.current;
       if (loading.current || !name) return;
       if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => save(name, editor.getMarkdown()).then(refresh), 800);
+      timer.current = setTimeout(() => save(name, tidyMarkdown(editor.getMarkdown())).then(refresh), 800);
     },
   });
 
@@ -186,4 +186,9 @@ export default function NotesEditor() {
       </main>
     </div>
   );
+}
+
+// The editor pads blocks with empty paragraphs; keep saved files as plain Markdown would be written by hand.
+function tidyMarkdown(md: string): string {
+  return md.replace(/\n+```(\n|$)/g, "\n```$1").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
 }

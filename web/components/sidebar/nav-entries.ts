@@ -5,6 +5,7 @@ import {
   HeartHandshake,
   House,
   LayoutGrid,
+  NotebookPen,
   ListTodo,
   PenLine,
   Settings,
@@ -48,6 +49,7 @@ export const PRIMARY_NAV: NavEntry[] = [
     tooltipKey: 'One tutor, your own way to learn.',
   },
   { href: '/space', label: 'Learning Space', icon: LayoutGrid, tooltipKey: 'Space tooltip' },
+  { href: '/notes', label: 'Notes', icon: NotebookPen, tooltipKey: 'Your own Markdown notes' },
   { href: '/kanban', label: 'Task Board', icon: ListTodo, tooltipKey: 'kanban.intro' },
   {
     href: '/co-writer',
