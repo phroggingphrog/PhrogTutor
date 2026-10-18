@@ -123,5 +123,7 @@ def prompt_block(user_message: str, limit: int = 4) -> str:
     lines = [f"- {m['concept']}: mastery {m['mastery']} from {m['evidence']} past chat signals" for m in weak]
     return (
         "Learned from this learner's earlier chats (weak spots relevant to this message; 0 = shaky, 1 = solid). "
-        "Use it to pitch the explanation; do not mention scores or quiz them:\n" + "\n".join(lines)
+        "For these weak topics: start from the basic idea in plain words before any jargon, then walk through "
+        "one small worked example with real numbers step by step. Do not mention scores or quiz them:\n"
+        + "\n".join(lines)
     )
