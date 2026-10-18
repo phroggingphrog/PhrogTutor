@@ -55,6 +55,12 @@ def _db() -> sqlite3.Connection:
         "CREATE TABLE IF NOT EXISTS evidence (id INTEGER PRIMARY KEY, ts REAL, session_id TEXT, turn_id TEXT,"
         " concept TEXT, kind TEXT, quote TEXT)"
     )
+    if "answer" not in [r[1] for r in con.execute("PRAGMA table_info(evidence)")]:
+        con.execute("ALTER TABLE evidence ADD COLUMN answer TEXT DEFAULT ''")  # the tutor reply it came from
+    con.execute(
+        "CREATE TABLE IF NOT EXISTS explanations (id INTEGER PRIMARY KEY, ts REAL, concept TEXT, outcome TEXT,"
+        " tutor_answer TEXT, learner_quote TEXT)"
+    )
     return con
 
 
@@ -73,16 +79,86 @@ async def _extract(session_id: str, turn_id: str, user_message: str, answer: str
     rows = (json.loads(match.group(0)).get("evidence") if match else None) or []
     now = time.time()
     clean = [
-        (now, session_id, turn_id, str(r["concept"]).strip().lower()[:60], r["kind"], str(r.get("quote", ""))[:200])
+        (now, session_id, turn_id, str(r["concept"]).strip().lower()[:60], r["kind"], str(r.get("quote", ""))[:200], answer[:2000])
         for r in rows
         if isinstance(r, dict) and r.get("kind") in KINDS and str(r.get("concept") or "").strip()
     ]
     if clean:
         with _db() as con:
             con.executemany(
-                "INSERT INTO evidence (ts, session_id, turn_id, concept, kind, quote) VALUES (?,?,?,?,?,?)", clean
+                "INSERT INTO evidence (ts, session_id, turn_id, concept, kind, quote, answer) VALUES (?,?,?,?,?,?,?)",
+                clean,
             )
+        for row in clean:
+            await _learn_from(row[3], row[4], row[5], row[1])
     logger.info("chat mastery: turn %s -> %d evidence rows", turn_id, len(clean))
+
+
+_WEAK = ("misconception", "confusion", "hint_seeking")
+_SUCCESS = ("applied_correctly", "explained_correctly")
+
+
+def _rules_path() -> Path:
+    from deeptutor.services.path_service import get_path_service
+
+    return get_path_service().user_data_dir / "teaching_rules.md"
+
+
+async def _learn_from(concept: str, kind: str, quote: str, session_id: str) -> None:
+    """Log whether the tutor's last explanation of a weak concept worked, and turn a later independent
+    success into one teaching rule (teaching_rules.md; delete a line to undo it)."""
+    if kind not in _WEAK + _SUCCESS:
+        return
+    with _db() as con:
+        prev = con.execute(
+            "SELECT answer, quote FROM evidence WHERE concept = ? AND kind IN (?,?,?) AND answer != ''"
+            " AND quote != ? ORDER BY ts DESC LIMIT 1",
+            (concept, *_WEAK, quote),
+        ).fetchone()
+        if not prev:
+            return
+        outcome = "worked" if kind in _SUCCESS else "failed"
+        con.execute(
+            "INSERT INTO explanations (ts, concept, outcome, tutor_answer, learner_quote) VALUES (?,?,?,?,?)",
+            (time.time(), concept, outcome, prev[0], quote),
+        )
+    if outcome != "worked":
+        return
+    path = _rules_path()
+    today = time.strftime("%Y-%m-%d")
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
+    if f"{today} ({concept})" in existing:
+        return  # one new rule per concept per day
+    from deeptutor.services.llm import complete
+
+    rule = await asyncio.wait_for(
+        complete(
+            prompt=(
+                f"Earlier the learner was stuck on {concept}: \"{prev[1]}\"\n\nThe tutor explained:\n{prev[0][:1500]}\n\n"
+                f"Later, on their own, the learner showed: \"{quote}\"\n\nExisting rules:\n{existing[-1500:]}"
+            ),
+            system_prompt=(
+                "Write ONE short rule (max 25 words) about HOW to explain things to this learner, based on what "
+                "made that explanation work. General teaching style, not the topic itself. If an existing rule "
+                "already says it, reply exactly: SKIP"
+            ),
+            model=_EXTRACT_MODEL, temperature=0, max_tokens=80, reasoning_effort="none",
+        ),
+        timeout=60,
+    )
+    rule = " ".join((rule or "").split()).strip("-• ")
+    if rule and rule.upper() != "SKIP":
+        with path.open("a", encoding="utf-8") as f:
+            f.write(f"- {today} ({concept}): {rule}\n")
+        logger.info("chat mastery: new teaching rule from %s", concept)
+
+
+def _learned_rules() -> str:
+    path = _rules_path()
+    lines = [l for l in path.read_text(encoding="utf-8").splitlines() if l.strip()] if path.exists() else []
+    if not lines:
+        return ""
+    return "\n\nRules learned from what worked for this learner (newest first):\n" + "\n".join(reversed(lines[-15:]))
 
 
 def record_turn(session_id: str, turn_id: str, user_message: str, answer: str) -> None:
@@ -212,7 +288,7 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
     if practice and not hits:  # "give me practice" with no topic: practise the weakest concepts
         hits = mastery()[:3]
     if not hits:
-        return _RULES
+        return _RULES + _learned_rules()
     lines = []
     for m in hits:
         band, how = _method(m["mastery"])
@@ -222,4 +298,4 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
         "a harder twist for strong ones."
         if practice else ""
     )
-    return _RULES + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra
+    return _RULES + _learned_rules() + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra
