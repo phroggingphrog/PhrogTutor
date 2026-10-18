@@ -21,5 +21,5 @@ So, the whole project is two things:
 1. DeepTutor's agent core runs on the pi agent SDK; every page and feature stays.
 2. Mastery is measured from the normal chat conversations, collected by the backend on its own. No quizzes, no direct questions to the learner, no new UI. This REPLACES the Academia rule "reading or chatting never creates mastery" (deeptutor/runtime/pi_learning_hook.py): chat IS the evidence.
 
-Out of scope: study plans, exam prep, deadline selector, spaced review, next_block, Canvas, quiz-based mastery. Code already written for them stays but is not extended.
-Next step: pi engine on by default + every page checked; then the hook scores mastery per topic from each chat turn.
+Out of scope: study plans, exam prep, deadline selector, spaced review, next_block, Canvas, quiz-based mastery. The Academia code (pi_learning/, the learning hook, docs/LEARNING-MAP.md) was REMOVED 2026-10-18 (owner: "remove the old acadmeia design then").
+Focus now (owner 2026-10-18: "so lets focus on the port of deep tutor into pi agaent sdk first"): the port only. pi engine on by default + every page checked. Chat-based mastery comes after, as a new small hook.
