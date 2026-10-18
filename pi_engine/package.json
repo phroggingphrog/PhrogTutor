@@ -2,11 +2,12 @@
   "name": "pi-tutor-engine",
   "private": true,
   "type": "module",
-  "description": "pi-tutor turn engine (TASK-71 step B): one pi SDK agent session per chat turn.",
+  "description": "pi-tutor: the pi SDK under DeepTutor (llm.ts = model bridge for every agent; turn.ts = old step-B chat path).",
   "scripts": {
     "turn": "bun turn.ts"
   },
   "dependencies": {
-    "@earendil-works/pi-coding-agent": "1.0.2"
+    "@earendil-works/pi-coding-agent": "1.0.2",
+    "@earendil-works/pi-ai": "1.0.2"
   }
 }

@@ -408,6 +408,11 @@ async def _complete_with_resolved_config(
     return response.content or ""
 
 
+def _pi_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """The request fields the pi bridge understands; images ride in ``messages``."""
+    return {k: kwargs[k] for k in ("temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "tools") if kwargs.get(k) is not None}
+
+
 async def complete(
     prompt: str,
     system_prompt: str = "You are a helpful assistant.",
@@ -423,6 +428,10 @@ async def complete(
     allow_image_fallback: bool | None = None,
     **kwargs: Any,
 ) -> str:
+    from deeptutor.services.llm import pi_bridge
+
+    if pi_bridge.pi_sdk_enabled():  # TASK-71: every factory call runs on the pi SDK
+        return await pi_bridge.complete(prompt, system_prompt, model, messages, **_pi_kwargs(kwargs))
     caller_extra_headers = kwargs.pop("extra_headers", None)
     reasoning_effort = kwargs.pop("reasoning_effort", None)
     image_data = kwargs.pop("image_data", None)
@@ -538,6 +547,12 @@ async def stream(
     usage once the stream ends. A caller that parses the streamed text needs it
     to tell a complete response from one cut off at ``max_tokens`` (#1545).
     """
+    from deeptutor.services.llm import pi_bridge
+
+    if pi_bridge.pi_sdk_enabled():  # TASK-71: every factory call runs on the pi SDK
+        async for part in pi_bridge.stream(prompt, system_prompt, model, messages, outcome, **_pi_kwargs(kwargs)):
+            yield part
+        return
     caller_extra_headers = kwargs.pop("extra_headers", None)
     reasoning_effort = kwargs.pop("reasoning_effort", None)
     image_data = kwargs.pop("image_data", None)

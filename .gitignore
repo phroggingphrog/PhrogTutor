@@ -292,3 +292,4 @@ pi_engine/agent-dir/auth.json
 pi_engine/agent-dir/mcp-auth.json
 pi_engine/agent-dir/models-store.json
 pi_engine/node_modules
+scratch-workspace/
