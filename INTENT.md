@@ -15,4 +15,11 @@ See docs/LEARNING-MAP.md for how the owner Academia learning-agent concept (arch
 
 ## Scope reset (owner 2026-10-18, verbatim)
 "it basically just porting deep tutor into lighter sdk" / "why it even asking study plan etc thats drifted way too far"
-So: port DeepTutor's agent core to the pi agent SDK, keep every feature and page, nothing more. The Academia concept parts (selector, deadlines, spaced review, next_block, mastery cascade, Canvas, exam/study plans) are OUT of scope; already-written code for them stays but is not extended. Next step: make the pi engine the default and check every existing page works on it.
+"the ideas should be deep tutor rewritten in pi can measured, and self collected the learner mastery based on the ai chat conversations instead of directly question it"
+
+So, the whole project is two things:
+1. DeepTutor's agent core runs on the pi agent SDK; every page and feature stays.
+2. Mastery is measured from the normal chat conversations, collected by the backend on its own. No quizzes, no direct questions to the learner, no new UI. This REPLACES the Academia rule "reading or chatting never creates mastery" (deeptutor/runtime/pi_learning_hook.py): chat IS the evidence.
+
+Out of scope: study plans, exam prep, deadline selector, spaced review, next_block, Canvas, quiz-based mastery. Code already written for them stays but is not extended.
+Next step: pi engine on by default + every page checked; then the hook scores mastery per topic from each chat turn.
