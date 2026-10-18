@@ -1,0 +1,5 @@
+{"mcpServers":{
+ "my-accounts":{"url":"http://127.0.0.1:8913/mcp","timeout":90,"exposure":"hidden",
+   "toolExposure":{"canvas_courses":"direct","canvas_upcoming_assignments":"direct","canvas_assignment":"direct"}},
+ "llm-wiki":{"url":"http://127.0.0.1:8906/mcp","timeout":240,"exposure":"hidden",
+   "toolExposure":{"query":"direct","get":"direct"}}}}

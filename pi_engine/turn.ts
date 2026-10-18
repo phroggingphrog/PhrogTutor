@@ -13,6 +13,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const AGENT_DIR = join(HERE, "agent-dir");
 process.env.PI_CODING_AGENT_DIR = AGENT_DIR; // the MCP extension finds mcp.json through this
 const LIMIT_MS = Number(process.env.PI_TUTOR_TIMEOUT_MS ?? 300_000); // wiki query ~45s warm, >120s cold
+const MCP_WAIT_MS = Number(process.env.PI_TUTOR_MCP_WAIT_MS ?? 90_000);
 
 // Wiki query/get + Canvas read-only. No file or shell tools.
 const TOOLS = [
@@ -22,6 +23,10 @@ const TOOLS = [
 	"mcp__my_accounts__canvas_upcoming_assignments",
 	"mcp__my_accounts__canvas_assignment",
 ];
+
+// Every declared tool must be registered before the prompt, so a cold MCP server shows up as a real
+// error instead of a turn that quietly answers without the owner's notes.
+const REQUIRED = TOOLS;
 
 const out = (o: object) => process.stdout.write(JSON.stringify(o) + "\n");
 const input = JSON.parse(readFileSync(0, "utf8"));
@@ -67,8 +72,20 @@ const timer = setTimeout(() => {
 
 let status = "completed";
 try {
-	await session.bindExtensions({}); // starts the MCP connections
-	if (process.env.PI_TUTOR_DEBUG) console.error("[tools] " + session.getActiveToolNames().join(", "));
+	await session.bindExtensions({}); // starts the MCP connections; they finish registering asynchronously
+	// A cold MCP server registers its tools after bindExtensions resolves (measured: ~0.5s warm). Wait for the
+	// declared tools, and fail the turn loudly rather than let the model answer "I cannot reach your notes".
+	const waitStart = Date.now();
+	let missing = REQUIRED.filter((n) => !session.getActiveToolNames().includes(n));
+	while (missing.length && Date.now() - waitStart < MCP_WAIT_MS) {
+		await new Promise((r) => setTimeout(r, 250));
+		missing = REQUIRED.filter((n) => !session.getActiveToolNames().includes(n));
+	}
+	if (process.env.PI_TUTOR_DEBUG) console.error(`[tools] after ${Date.now() - waitStart}ms: ` + session.getActiveToolNames().join(", "));
+	if (missing.length) {
+		out({ type: "error", content: `MCP tools not registered after ${MCP_WAIT_MS / 1000}s: ${missing.join(", ")}; registered: ${session.getActiveToolNames().join(", ") || "none"}` });
+		finish("failed");
+	}
 	session.subscribe((e: any) => {
 		if (e.type === "message_update" && e.assistantMessageEvent?.type === "text_delta") {
 			out({ type: "content", content: e.assistantMessageEvent.delta });
