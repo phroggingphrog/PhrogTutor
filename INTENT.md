@@ -39,3 +39,4 @@ Approved plan and order: board card TASK-71.4 (starts after the pi port is finis
 ## Fully native pi (owner 2026-10-18, verbatim)
 "So then because its a fork and this will be my own version from today now on and I need to maintain it, therefore move all of the remaining deep tutor only rules into pi it should be native fully pi port right and fully remove deeptutor's old engine"
 Size found: engine core ~6k lines Python (agent loop, pipeline, base agent, orchestrator); capabilities + agents ~35k; tools ~10k.
+Owner choice 2026-10-18: "Engine native, rest stays". Rewrite the engine core (agent loop, pipeline round rules, base agent model calls, orchestrator routing) as pi extensions in TypeScript (pi_engine/), delete the Python engine. Modes and tools stay Python and are called by pi as tools. Port mode by mode; after each, rerun the vanilla-vs-pi comparison (scripts/pi_modes_once.py, throwaway DEEPTUTOR_HOME, 3 runs) and keep every mode working.
