@@ -241,8 +241,8 @@ def build_openai_client(config: LLMClientConfig) -> Any:
     from deeptutor.services.llm.metrics import instrument_client
     from deeptutor.services.llm.pi_bridge import PiClient, pi_sdk_enabled
 
-    if pi_sdk_enabled():  # TASK-71: the agent loop's model calls run on the pi SDK
-        return PiClient()
+    if pi_sdk_enabled():  # TASK-71: the agent loop's model calls run on the pi SDK (metered like any client)
+        return instrument_client(PiClient(), model=config.model or "", provider=config.binding)
 
     disable_ssl_verify = bool(load_system_settings()["disable_ssl_verify"])
     try:
