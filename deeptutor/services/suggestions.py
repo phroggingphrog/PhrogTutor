@@ -516,7 +516,7 @@ def _sanitize(raw: str, language: str = "en") -> tuple[Suggestion, ...]:
     return tuple(items[:_COUNT]) if len(items) >= _COUNT else ()
 
 
-async def _generate(language: str, material: _Material) -> SuggestionSet:
+async def _generate(language: str, material: _Material, avoid: list[str] | None = None) -> SuggestionSet:
     """Build a fresh set from *material*. Always returns one — empty on failure.
 
     Takes the material rather than collecting it, so one pass reads memory once
@@ -551,6 +551,11 @@ async def _generate(language: str, material: _Material) -> SuggestionSet:
     closing = (
         "\n请提出那三个探索方向。" if zh else "\nPropose the three things worth exploring next."
     )
+    if avoid:  # "Suggest something else": the learner already saw these
+        sections.append(
+            ("# 已经给过的建议（换不同的主题）\n" if zh else "# Already suggested (pick different topics)\n")
+            + "\n".join(f"- {label}" for label in avoid)
+        )
     user_prompt = "\n\n".join(sections) + "\n" + closing
 
     try:
@@ -600,7 +605,7 @@ def _is_fresh(cached: SuggestionSet | None, language: str, *, now: float) -> boo
     )
 
 
-async def _generate_and_cache(language: str, material: _Material) -> SuggestionSet:
+async def _generate_and_cache(language: str, material: _Material, avoid: list[str] | None = None) -> SuggestionSet:
     """Generate from *material* and cache the result — unless it is a failure.
 
     An empty result is only written when it is the *right* answer: there was no
@@ -611,7 +616,7 @@ async def _generate_and_cache(language: str, material: _Material) -> SuggestionS
     pass would see nothing due and never retry. Those are dropped instead, and
     the next visit tries again.
     """
-    value = await _generate(language, material)
+    value = await _generate(language, material, avoid)
     if value.status == "error":
         _failures[_scope_key()] = language
     else:
@@ -636,7 +641,9 @@ async def refresh_suggestions() -> SuggestionSet:
     async def generate():
         language = _output_language()
         material = await asyncio.to_thread(_collect_material, _trace_count())
-        return await _generate_and_cache(language, material)
+        shown = _load()
+        avoid = [s.label for s in shown.suggestions] if shown and shown.language == language else []
+        return await _generate_and_cache(language, material, avoid)
 
     task = asyncio.create_task(_bounded_generation(generate))
     _inflight[key] = task
