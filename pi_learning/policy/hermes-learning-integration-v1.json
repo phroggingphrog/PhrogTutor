@@ -1,0 +1,108 @@
+{
+  "plan_id": "hermes-learning-integration-v1",
+  "revision": 2,
+  "status": "ACTIVE_STUDY_FIRST_EVIDENCE_GROUNDED",
+  "owner": "Acha",
+  "source_module": "/home/phroggingphrog/data/hermes/learning/ACHA_HERMES_EVIDENCE_GROUNDED_CATCHUP_20260910.md",
+  "supersedes_module": "/home/phroggingphrog/data/hermes/learning/ACHA_WEEK1_7_ALL_SUBJECTS_CATCHUP.md",
+  "canvas_evidence": "/home/phroggingphrog/data/hermes/runtime/canvas_scan/course_materials/week1-7-all/manifest.json",
+  "evidence_basis": {
+    "window": "2026-09-04 through 2026-09-10",
+    "agent_record_inventory_count": 107,
+    "live_status_command": "python3 ~/.hermes/skills/project-phase-tracker/scripts/track.py --brief",
+    "detailed_records": [
+      "m10-preparation-wave-20260909.json",
+      "canonical-population-20260907.json",
+      "canonical-db-qa-20260907.json",
+      "tiktok-canonical-schema-gap-appraisal-20260909.json",
+      "gate-b-separation-extraction-merged-20260910.json",
+      "gate-b-extraction-resilience-fix-20260910.json",
+      "ash-phase1-authority-substrate-20260909.json",
+      "ash-phase2-c5-ingest-inversion-20260909.json",
+      "ash-phase3-c2-proposal-store-20260909.json",
+      "ash-phase5-c6-c8-20260909.json",
+      "ash-runtime-integration-20260910.json",
+      "formal-analytics-a2-build-20260910.json",
+      "formal-analytics-a3-build-20260910.json",
+      "formal-analytics-a4-build-20260910.json",
+      "analytics-d2-routing-optimization-20260910.json",
+      "analytics-d2-integration-prep-20260910.json",
+      "d2-routing-research-20260910.md",
+      "d2-routing-optimization-implementation-20260910.json",
+      "cost-tracking-finalization-20260907.json",
+      "usage-tracking-subagent-integration-20260907.json",
+      "f6-financial-record-keeping-implementation-20260910.json",
+      "frontend-client-phase2-20260910.tcr.json",
+      "frontend-client-full-extraction-20260910-open-terminal-correction.json",
+      "email-and-canvas-staff-extraction-20260910.json",
+      "integrated-learning-agent-workstream-20260910.json"
+    ],
+    "raw_personal_content_read": false,
+    "canonical_or_raw_mutation_by_this_plan": false,
+    "status_reconciliation_rule": "Live tracker state and exact task-record verification are kept separate from isolated branch completion claims and stale summaries."
+  },
+  "policy": {
+    "study_first": true,
+    "teaching_mode": "evidence_grounded_project_first",
+    "running_case_study": "The Hermes project currently in progress, using verified M10, canonical QA, Gate-B, Ash, analytics, routing, cost, finance, and learning artifacts",
+    "minimum_concept_before_application": true,
+    "max_optional_hermes_block_minutes_per_day": 25,
+    "no_worker_babysitting_during_study": true,
+    "no_assessed_work_generated_or_submitted_on_behalf_of_student": true,
+    "synthetic_practice_data_by_default": true,
+    "project_work_must_produce_learning_artifact": true,
+    "do_not_treat_project_artifact_as_course_mastery": true,
+    "do_not_treat_isolated_worktree_as_live_deployment": true
+  },
+  "course_to_hermes_map": {
+    "database_concepts": {
+      "weeks": "1-8",
+      "hermes_layers": ["capture", "staging", "provenance", "canonical_memory", "audit_history", "retrieval"],
+      "outputs": ["ER diagram", "relational schema", "SQL queries", "constraints", "views", "triggers", "integrity tests"],
+      "practice_project": "M8/M9 canonical QA, M10 review-wave reconciliation, Gate-B states, and the verified TikTok schema-gap appraisal; synthetic fixtures only for write/test exercises"
+    },
+    "categorical_analysis": {
+      "weeks": "1-8",
+      "hermes_layers": ["descriptive_analytics", "formal_models", "model_evaluation", "decision_evidence"],
+      "outputs": ["R script", "exploratory plots", "logistic model", "multinomial/count model", "AIC/AICc/BIC comparison", "contextual interpretation"],
+      "practice_project": "A1 projection-local QA and M10 review-category counts, with synthetic data for assessment practice; no claim that the current Hermes work completes the categorical assessment"
+    },
+    "applied_bayesian_statistics": {
+      "modules": "1-8",
+      "hermes_layers": ["uncertainty", "evidence_weighting", "calibration", "routing_estimates", "decision_support"],
+      "outputs": ["prior specification", "posterior calculation", "MCMC diagnostics", "JAGS workflow", "Bayesian regression", "Bayesian logistic regression", "hierarchical model sketch"],
+      "practice_project": "Reconstruct the documented A3 Beta-Binomial model on a tiny synthetic recorded-status fixture, then transfer to hierarchical-model concepts without treating status labels as truth"
+    },
+    "programming": {
+      "skills": ["Python", "SQL", "R", "Git", "Linux", "testing"],
+      "hermes_layers": ["automation", "APIs", "data_pipeline", "worker_control", "verification"],
+      "outputs": ["small executable scripts", "tests", "reproducible reports", "resource-safe workers"],
+      "practice_project": "Gate-B per-item failure isolation, Ash fail-closed gates, A1-A4 read-only analytics, D2 proposal-only scoring, and cost-tracking idempotency"
+    }
+  },
+  "dependency_order": [
+    "project-state-and-evidence-reconciliation",
+    "database-schema-and-integrity",
+    "sql-retrieval-and-reporting",
+    "categorical-model-choice-and-evaluation",
+    "bayesian-model-and-diagnostics",
+    "python-automation-and-tests",
+    "bounded-hermes-integration",
+    "routing-and-optimisation"
+  ],
+  "assessment_priority": [
+    {"course": "Database Concepts", "recovery": "Quiz 3 and Assessment 2 status recovery"},
+    {"course": "Analysis of Categorical Data", "assessment": "Case Studies Assessment", "due": "2026-09-23T23:59:00+10:00", "weighting": "30%"},
+    {"course": "Applied Bayesian Statistics", "assessment": "Assignment 2", "due": "2026-09-28T23:59:00+10:00"},
+    {"course": "Applied Bayesian Statistics", "assessment": "Presentation", "due": "2026-10-30T13:30:00+11:00"},
+    {"course": "Applied Bayesian Statistics", "assessment": "Final written project", "due": "2026-11-05T23:59:00+11:00"}
+  ],
+  "first_block": {
+    "id": "hermes-state-reconciliation-20260910",
+    "reason": "The project frontier is M10 review-wave reconciliation plus A1/D2 integration, and state/evidence separation is the prerequisite for all later course work.",
+    "artifact": "hermes_status_matrix.md",
+    "attempt_required": true,
+    "mastery_before_attempt": "NOT_STARTED"
+  },
+  "operating_rule": "Hermes automation may continue in bounded background lanes, but Acha's active attention is reserved for study. Daily project status is artifact-based and limited to one check."
+}
