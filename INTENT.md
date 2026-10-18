@@ -12,3 +12,7 @@ Note: "no need study plan bcs my uni already over" (2026-10-18) only drops exam-
 5. Personalised learning + data collection (owner 2026-10-18: "the personalised learning which is automated behind the code not in the gui/ui"). Runs in the backend only, no new page, button or setting. After every turn the code itself logs (course, topic, question, answer, quiz result, time) to one SQLite file and updates a per-topic mastery profile; the next turn reads the profile into the system prompt on its own. The existing UI is left as it is. Data goes to the Acha dataset only where the owner says so.
 
 See docs/LEARNING-MAP.md for how the owner Academia learning-agent concept (archive) maps onto steps 3-5.
+
+## Scope reset (owner 2026-10-18, verbatim)
+"it basically just porting deep tutor into lighter sdk" / "why it even asking study plan etc thats drifted way too far"
+So: port DeepTutor's agent core to the pi agent SDK, keep every feature and page, nothing more. The Academia concept parts (selector, deadlines, spaced review, next_block, mastery cascade, Canvas, exam/study plans) are OUT of scope; already-written code for them stays but is not extended. Next step: make the pi engine the default and check every existing page works on it.
