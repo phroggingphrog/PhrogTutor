@@ -1,6 +1,6 @@
 """Terminal panel: a bash shell in the same bwrap sandbox as code cells (no network, memory cap).
 
-The shell's home is one persistent folder (``$PI_TUTOR_RUNCODE_DIR/terminal-home``), so files
+The shell's home is a persistent folder per note (``$PI_TUTOR_RUNCODE_DIR/terminal-home/<note>``), so files
 made there survive between sessions; nothing else on the host is writable. The shell is killed when the
 page closes the connection or after 30 minutes without input.
 """
@@ -11,6 +11,7 @@ import asyncio
 import fcntl
 import json
 import os
+import re
 import pty
 import struct
 import termios
@@ -28,13 +29,19 @@ HOME = RUNCODE_DIR / "terminal-home"
 _IDLE_S = 30 * 60
 
 
-def _argv() -> list[str]:
-    HOME.mkdir(parents=True, exist_ok=True)
+def _home(note: str) -> Path:
+    """One home folder per note (files made in a note's terminal stay with that note)."""
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "_", note).strip("._")[:120] or "_scratch"
+    return HOME / safe
+
+
+def _argv(home: Path) -> list[str]:
+    home.mkdir(parents=True, exist_ok=True)
     argv = BwrapBackend(inherit_virtualenv=False)._build_argv(
         ExecRequest.of_argv(
             ["prlimit", "--as=3221225472", "--nproc=256", "--fsize=200000000", "--", "bash", "--norc", "-i"],
             workdir="/work",
-            mounts=(Mount(str(HOME), "/work", read_only=False), Mount(str(PYLIBS), "/pylibs")),
+            mounts=(Mount(str(home), "/work", read_only=False), Mount(str(PYLIBS), "/pylibs")),
             env={
                 "HOME": "/work", "TERM": "xterm-256color", "PYTHONPATH": "/pylibs", "MPLBACKEND": "Agg",
                 "PS1": r"\[\e[32m\]sandbox\[\e[0m\]:\w$ ",
@@ -55,7 +62,7 @@ async def terminal(websocket: WebSocket):
     await websocket.accept()
     pid, fd = pty.fork()
     if pid == 0:  # child: become the sandboxed shell
-        argv = _argv()
+        argv = _argv(_home(websocket.query_params.get("note", "")))
         os.execvp(argv[0], argv)
     loop = asyncio.get_running_loop()
     output: asyncio.Queue[bytes] = asyncio.Queue()

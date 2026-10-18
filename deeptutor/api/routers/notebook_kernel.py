@@ -169,7 +169,8 @@ async def run_cell(req: CellRequest):
     key = (req.note, lang)
     _reap()
     kernel = _KERNELS.get(key)
-    if kernel is None:
+    new_kernel = kernel is None  # the page re-runs the cells above so variables come back
+    if new_kernel:
         kernel = _KERNELS[key] = await _start(lang)
     async with kernel.lock:
         kernel.used = time.monotonic()
@@ -203,7 +204,7 @@ async def run_cell(req: CellRequest):
             if p.stat().st_size > 0
         ]
         return {"stdout": read("out.txt"), "stderr": read("err.txt"), "images": images,
-                "restarted": False, "cell": kernel.cells}
+                "restarted": False, "cell": kernel.cells, "new_kernel": new_kernel}
 
 
 @router.post("/restart")

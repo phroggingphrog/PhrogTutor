@@ -8,7 +8,7 @@ import "@xterm/xterm/css/xterm.css";
 import { wsUrl } from "@/lib/api";
 
 // A bash shell in the server's code sandbox (no network). Files in its home folder are kept.
-export default function TerminalPanel() {
+export default function TerminalPanel({ note }: { note: string }) {
   const host = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function TerminalPanel() {
     term.loadAddon(fit);
     term.open(host.current);
     fit.fit();
-    const ws = new WebSocket(wsUrl("/ws/terminal"));
+    const ws = new WebSocket(wsUrl(`/ws/terminal?note=${encodeURIComponent(note)}`));
     ws.binaryType = "arraybuffer";
     const resize = () => {
       fit.fit();
@@ -39,7 +39,7 @@ export default function TerminalPanel() {
       ws.close();
       term.dispose();
     };
-  }, []);
+  }, [note]);
 
   return <div ref={host} className="h-64 shrink-0 border-t border-[var(--border)] bg-[#1e1e1e] p-1" />;
 }

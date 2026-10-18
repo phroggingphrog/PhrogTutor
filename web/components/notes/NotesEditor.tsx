@@ -167,7 +167,7 @@ export default function NotesEditor() {
     const cells = [...cellRunners.entries()].sort(([a], [b]) =>
       a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
     );
-    for (const [, run] of cells) await run();
+    for (const [, run] of cells) await run(true);
   };
 
   // Forget all variables: stop this note's Python and R sessions and clear outputs.
@@ -320,7 +320,7 @@ export default function NotesEditor() {
           <div className="m-auto text-[var(--muted-foreground)]">Pick a note or create one.</div>
         )}
       </main>
-      {showTerminal && <TerminalPanel />}
+      {showTerminal && <TerminalPanel key={current ?? ""} note={current ?? ""} />}
       </div>
     </div>
   );

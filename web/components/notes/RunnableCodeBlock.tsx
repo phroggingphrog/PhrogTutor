@@ -17,7 +17,7 @@ const KERNEL = new Set(["python", "py", "python3", "r"]); // these share one ses
 
 // The open note (set by NotesEditor) and every cell's run function, so "Run all" can run them in order.
 export const notebook = { note: "" };
-export const cellRunners = new Map<HTMLElement, () => Promise<void>>();
+export const cellRunners = new Map<HTMLElement, (replayed?: boolean) => Promise<void>>();
 
 type RunResult = {
   stdout: string;
@@ -32,7 +32,7 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
   const [running, setRunning] = useState(false);
   const wrapper = useRef<HTMLDivElement>(null);
 
-  const run = async () => {
+  const run = async (replayed = false) => {
     setRunning(true);
     try {
       const code = node.textContent;
@@ -47,9 +47,21 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ language: lang, code, original: code }),
           });
+      const data = r.ok ? await r.json() : null;
+      // Fresh session (first run, idle stop or server restart): run the cells above first, then this one again,
+      // so variables defined earlier exist — like Jupyter's "Run all above".
+      if (data?.new_kernel && !replayed && wrapper.current) {
+        const above = [...cellRunners.entries()]
+          .filter(([el]) => el !== wrapper.current && el.compareDocumentPosition(wrapper.current!) & Node.DOCUMENT_POSITION_FOLLOWING)
+          .sort(([a], [b]) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+        if (above.length) {
+          for (const [, runAbove] of above) await runAbove(true);
+          return run(true);
+        }
+      }
       setResult(
-        r.ok
-          ? await r.json()
+        data
+          ? data
           : { stdout: "", stderr: "", error: `HTTP ${r.status}` },
       );
     } catch (e) {
@@ -86,7 +98,7 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
         {RUNNABLE.has(lang) && (
           <button
             type="button"
-            onClick={run}
+            onClick={() => run()}
             disabled={running}
             className="ml-auto inline-flex items-center gap-1 rounded px-2 py-0.5 hover:bg-[var(--background)]"
           >
