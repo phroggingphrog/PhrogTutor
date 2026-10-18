@@ -27,6 +27,7 @@ PY_PRELUDE = (
     "        for i, n in enumerate(p.get_fignums()):\n"
     "            p.figure(n).savefig(f'/work/plot_{i:02d}.png', dpi=100)\n"
     "    atexit.register(_save)\n"
+    "    matplotlib.pyplot.show = lambda *a, **k: None\n"  # figures are saved at exit instead
     "except ImportError:\n"
     "    pass\n"
 )
