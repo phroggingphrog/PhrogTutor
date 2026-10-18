@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CodeBlock from "@tiptap/extension-code-block";
 import {
   NodeViewContent,
@@ -13,6 +13,11 @@ import { Play } from "lucide-react";
 import { apiFetch, apiUrl } from "@/lib/api";
 
 const RUNNABLE = new Set(["python", "py", "python3", "r", "sql", "sqlite"]);
+const KERNEL = new Set(["python", "py", "python3", "r"]); // these share one session per note, like Jupyter
+
+// The open note (set by NotesEditor) and every cell's run function, so "Run all" can run them in order.
+export const notebook = { note: "" };
+export const cellRunners = new Map<HTMLElement, () => Promise<void>>();
 
 type RunResult = {
   stdout: string;
@@ -25,16 +30,23 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
   const lang = (node.attrs.language || "").toLowerCase();
   const [result, setResult] = useState<RunResult | null>(null);
   const [running, setRunning] = useState(false);
+  const wrapper = useRef<HTMLDivElement>(null);
 
   const run = async () => {
     setRunning(true);
     try {
       const code = node.textContent;
-      const r = await apiFetch(apiUrl("/api/run-code"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language: lang, code, original: code }),
-      });
+      const r = KERNEL.has(lang)
+        ? await apiFetch(apiUrl("/api/notebook-kernel/cell"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ note: notebook.note, language: lang, code }),
+          })
+        : await apiFetch(apiUrl("/api/run-code"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ language: lang, code, original: code }),
+          });
       setResult(
         r.ok
           ? await r.json()
@@ -47,8 +59,20 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
     }
   };
 
+  useEffect(() => {
+    const el = wrapper.current;
+    if (!el || !RUNNABLE.has(lang)) return;
+    cellRunners.set(el, run);
+    const clear = () => setResult(null);
+    window.addEventListener("notebook-restart", clear);
+    return () => {
+      cellRunners.delete(el);
+      window.removeEventListener("notebook-restart", clear);
+    };
+  });
+
   return (
-    <NodeViewWrapper className="my-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--muted)]">
+    <NodeViewWrapper ref={wrapper} className="my-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--muted)]">
       <div
         contentEditable={false}
         className="flex items-center gap-2 border-b border-[var(--border)] px-3 py-1 text-xs text-[var(--muted-foreground)]"

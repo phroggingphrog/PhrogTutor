@@ -571,6 +571,7 @@ from deeptutor.api.routers import (
     tools as tools_router,
 )
 from deeptutor.api.routers import run_code as run_code_router
+from deeptutor.api.routers import notebook_kernel as notebook_kernel_router
 from deeptutor.api.routers.file_library import router as file_library_router  # noqa: E402
 from deeptutor.api.routers.multi_user import router as multi_user_router  # noqa: E402
 
@@ -753,6 +754,7 @@ app.include_router(
 )
 app.include_router(personas.router, prefix="/api", tags=["personas"], dependencies=_auth)
 app.include_router(run_code_router.router, prefix="/api/run-code", tags=["run-code"], dependencies=_auth)
+app.include_router(notebook_kernel_router.router, prefix="/api/notebook-kernel", tags=["notebook-kernel"], dependencies=_auth)
 app.include_router(tools_router.router, prefix="/api/tools", tags=["tools"], dependencies=_auth)
 app.include_router(system.router, prefix="/api/system", tags=["system"], dependencies=_auth)
 app.include_router(voice.router, prefix="/api/voice", tags=["voice"], dependencies=_auth)

@@ -11,7 +11,7 @@ import { FilePlus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { apiFetch, apiUrl } from "@/lib/api";
-import { RunnableCodeBlock } from "./RunnableCodeBlock";
+import { RunnableCodeBlock, cellRunners, notebook } from "./RunnableCodeBlock";
 
 type NoteMeta = { name: string; updated_at: number };
 
@@ -123,6 +123,27 @@ export default function NotesEditor() {
     } else alert("Could not rename");
   };
 
+  notebook.note = current ?? "";
+
+  // Jupyter-style: run every code cell top to bottom in the note's shared session.
+  const runAll = async () => {
+    const cells = [...cellRunners.entries()].sort(([a], [b]) =>
+      a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
+    );
+    for (const [, run] of cells) await run();
+  };
+
+  // Forget all variables: stop this note's Python and R sessions and clear outputs.
+  const restartKernels = async () => {
+    for (const language of ["python", "r"])
+      await apiFetch(apiUrl("/api/notebook-kernel/restart"), {
+        method: "POST",
+        headers: json,
+        body: JSON.stringify({ note: current, language }),
+      });
+    window.dispatchEvent(new Event("notebook-restart"));
+  };
+
   return (
     <div className="flex h-[calc(100vh-4rem)] text-[var(--foreground)]">
       <aside className="flex w-64 shrink-0 flex-col border-r border-[var(--border)]">
@@ -161,6 +182,12 @@ export default function NotesEditor() {
                 className="min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none"
               />
               <span className="text-xs text-[var(--muted-foreground)]">{status}</span>
+              <button onClick={runAll} title="Run every code cell, top to bottom" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
+                ▶▶ Run all
+              </button>
+              <button onClick={restartKernels} title="Forget all variables and clear outputs" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
+                ↻ Restart
+              </button>
               <button onClick={remove} title="Delete" className="rounded p-1 hover:bg-[var(--muted)]">
                 <Trash2 size={16} />
               </button>
