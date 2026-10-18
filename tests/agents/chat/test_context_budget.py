@@ -15,7 +15,7 @@ from typing import Any
 import pytest
 
 from deeptutor.agents.chat.agentic_pipeline import AgenticChatPipeline
-from deeptutor.agents.loop.agent_loop import MAX_SETTLEMENT_ROUNDS
+MAX_SETTLEMENT_ROUNDS = 3  # pi_engine/loop.ts
 from deeptutor.agents.loop.context_budget import (
     LLMRequestSnapshot,
     build_context_budget,
