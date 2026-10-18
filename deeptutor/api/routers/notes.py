@@ -91,6 +91,32 @@ def list_notes():
     return {"notes": notes, "sources": sorted(_sources())}
 
 
+@router.get("/search")
+def search_notes(q: str = ""):
+    """Notes whose text contains every word of q (case-insensitive), with a short snippet."""
+    words = [w for w in q.lower().split() if w]
+    hits = []
+    if not words:
+        return {"hits": hits}
+    roots = [(None, _dir().resolve()), *_sources().items()]
+    for label, root in roots:
+        for p in root.rglob("*.md"):
+            if any(part.startswith(".") for part in p.relative_to(root).parts):
+                continue
+            try:
+                text = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            low = text.lower()
+            if all(w in low for w in words):
+                at = low.find(words[0])
+                snippet = " ".join(text[max(0, at - 60): at + 100].split())
+                hits.append({"name": _name(root, p, label), "snippet": snippet})
+                if len(hits) >= 50:
+                    return {"hits": hits}
+    return {"hits": hits}
+
+
 @router.get("/{name:path}")
 def read_note(name: str):
     root, path, read_only = _locate(name)

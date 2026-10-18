@@ -572,6 +572,16 @@ export default memo(function ChatComposer({
     if (!capMenuOpen) setMoreCapsOpen(false);
   }
 
+  // "Ask tutor about this note" (Notes page) leaves the note here; put it in the message box once.
+  useEffect(() => {
+    let text: string | null = null;
+    try {
+      text = sessionStorage.getItem("pi-tutor:ask-note");
+      sessionStorage.removeItem("pi-tutor:ask-note");
+    } catch {}
+    if (text) window.requestAnimationFrame(() => inputHandleRef.current?.setValue(text!));
+  }, []);
+
   useEffect(() => {
     if (!prefillInputRef) return;
     prefillInputRef.current = (text: string) => {

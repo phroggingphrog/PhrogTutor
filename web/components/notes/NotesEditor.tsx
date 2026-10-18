@@ -9,7 +9,8 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Mathematics from "@tiptap/extension-mathematics";
 import "katex/dist/katex.min.css";
-import { ChevronDown, ChevronRight, FilePlus, Folder, SquareTerminal, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion, SquareTerminal, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -42,6 +43,26 @@ export default function NotesEditor() {
   const [status, setStatus] = useState("");
   const [readOnly, setReadOnly] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
+  const [query, setQuery] = useState("");
+  const router = useRouter();
+
+  // Open chat with this note in the message box; the learner adds their question.
+  const askTutor = () => {
+    if (!editor || !current) return;
+    const md = editor.getMarkdown().slice(0, 8000);
+    try {
+      sessionStorage.setItem("pi-tutor:ask-note", `About my note "${current}":\n\n${md}\n\nMy question: `);
+    } catch {}
+    router.push("/");
+  };
+  const [hits, setHits] = useState<{ name: string; snippet: string }[] | null>(null);
+
+  // Typing filters by name; Enter also searches inside every note's text (own notes + extra sources).
+  const searchText = async () => {
+    if (!query.trim()) return setHits(null);
+    const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}`));
+    setHits(r.ok ? (await r.json()).hits : []);
+  };
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loading = useRef(false);
@@ -178,6 +199,38 @@ export default function NotesEditor() {
             </button>
           </span>
         </div>
+        <input
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setHits(null);
+          }}
+          onKeyDown={(e) => e.key === "Enter" && searchText()}
+          placeholder="Search notes (Enter = search text)"
+          className="mx-3 mb-2 rounded border border-[var(--border)] bg-transparent px-2 py-1 text-sm outline-none"
+        />
+        {query.trim() ? (
+          <ul className="flex-1 overflow-y-auto pb-2">
+            {[
+              ...notes
+                .filter((n) => n.name.toLowerCase().includes(query.trim().toLowerCase()))
+                .slice(0, 50)
+                .map((n) => ({ name: n.name, snippet: "" })),
+              ...(hits ?? []),
+            ].map((h, i) => (
+              <li key={`${h.name}:${i}`}>
+                <button
+                  onClick={() => open(h.name)}
+                  className={`w-full px-3 py-1.5 text-left text-sm hover:bg-[var(--muted)] ${h.name === current ? "bg-[var(--muted)]" : ""}`}
+                >
+                  <div className="truncate font-medium">{h.name}</div>
+                  {h.snippet && <div className="line-clamp-2 text-xs text-[var(--muted-foreground)]">{h.snippet}</div>}
+                </button>
+              </li>
+            ))}
+            {hits && !hits.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">No text matches.</li>}
+          </ul>
+        ) : (
         <ul className="flex-1 overflow-y-auto pb-2">
           {treeRows(notes, openFolders).map((row) =>
             row.kind === "folder" ? (
@@ -212,6 +265,7 @@ export default function NotesEditor() {
           )}
           {!notes.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">No notes yet.</li>}
         </ul>
+        )}
         <Link href="/notebooks" className="border-t border-[var(--border)] p-3 text-sm text-[var(--muted-foreground)] hover:underline">
           Saved from chat →
         </Link>
@@ -230,6 +284,9 @@ export default function NotesEditor() {
                 className="min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none"
               />
               <span className="text-xs text-[var(--muted-foreground)]">{status}</span>
+              <button onClick={askTutor} title="Ask the tutor about this note" className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
+                <MessageCircleQuestion size={14} /> Ask tutor
+              </button>
               <button onClick={runAll} title="Run every code cell, top to bottom" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
                 ▶▶ Run all
               </button>
