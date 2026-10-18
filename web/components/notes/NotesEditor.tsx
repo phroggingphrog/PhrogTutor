@@ -7,16 +7,22 @@ import { Markdown } from "@tiptap/markdown";
 import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
-import { FilePlus, Trash2 } from "lucide-react";
+import Mathematics from "@tiptap/extension-mathematics";
+import "katex/dist/katex.min.css";
+import { ChevronDown, ChevronRight, FilePlus, Folder, SquareTerminal, Trash2 } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const TerminalPanel = dynamic(() => import("./TerminalPanel"), { ssr: false });
 
 import { apiFetch, apiUrl } from "@/lib/api";
 import { RunnableCodeBlock, cellRunners, notebook } from "./RunnableCodeBlock";
 
-type NoteMeta = { name: string; updated_at: number };
+type NoteMeta = { name: string; updated_at: number; read_only?: boolean };
 
 const api = (path = "") => apiUrl(`/api/notes${path}`);
 const json = { "Content-Type": "application/json" };
+const encPath = (name: string) => name.split("/").map(encodeURIComponent).join("/");
 
 const BUTTONS: [string, string, (e: any) => void, (e: any) => boolean][] = [
   ["H1", "Heading 1", (e) => e.chain().focus().toggleHeading({ level: 1 }).run(), (e) => e.isActive("heading", { level: 1 })],
@@ -26,6 +32,7 @@ const BUTTONS: [string, string, (e: any) => void, (e: any) => boolean][] = [
   ["•", "Bullet list", (e) => e.chain().focus().toggleBulletList().run(), (e) => e.isActive("bulletList")],
   ["1.", "Numbered list", (e) => e.chain().focus().toggleOrderedList().run(), (e) => e.isActive("orderedList")],
   ["☑", "Task list", (e) => e.chain().focus().toggleTaskList().run(), (e) => e.isActive("taskList")],
+  ["∑", "Maths (LaTeX)", (e) => e.chain().focus().insertInlineMath({ latex: "x^2" }).run(), (e) => e.isActive("inlineMath")],
   ["</>", "Code block", (e) => e.chain().focus().toggleCodeBlock({ language: "python" }).run(), (e) => e.isActive("codeBlock")],
 ];
 
@@ -33,6 +40,9 @@ export default function NotesEditor() {
   const [notes, setNotes] = useState<NoteMeta[]>([]);
   const [current, setCurrent] = useState<string | null>(null);
   const [status, setStatus] = useState("");
+  const [readOnly, setReadOnly] = useState(false);
+  const [showTerminal, setShowTerminal] = useState(false);
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loading = useRef(false);
   const currentRef = useRef<string | null>(null);
@@ -45,7 +55,7 @@ export default function NotesEditor() {
 
   const save = useCallback(async (name: string, md: string) => {
     setStatus("Saving…");
-    const r = await apiFetch(api(`/${encodeURIComponent(name)}`), {
+    const r = await apiFetch(api(`/${encPath(name)}`), {
       method: "PUT",
       headers: json,
       body: JSON.stringify({ content: md }),
@@ -61,6 +71,7 @@ export default function NotesEditor() {
       TaskList,
       TaskItem.configure({ nested: true }),
       Placeholder.configure({ placeholder: "Write something…" }),
+      Mathematics,
       Markdown,
     ],
     editorProps: {
@@ -81,12 +92,14 @@ export default function NotesEditor() {
   const open = useCallback(
     async (name: string) => {
       if (!editor) return;
-      const r = await apiFetch(api(`/${encodeURIComponent(name)}`));
+      const r = await apiFetch(api(`/${encPath(name)}`));
       if (!r.ok) return;
-      const { content } = await r.json();
+      const { content, read_only } = await r.json();
       loading.current = true;
       editor.commands.setContent(content, { contentType: "markdown" });
+      editor.setEditable(!read_only);
       loading.current = false;
+      setReadOnly(Boolean(read_only));
       setCurrent(name);
       setStatus("");
     },
@@ -94,8 +107,11 @@ export default function NotesEditor() {
   );
 
   const create = async () => {
-    let n = "Untitled";
-    for (let i = 2; notes.some((x) => x.name === n); i++) n = `Untitled ${i}`;
+    // "folder/name" puts the note in a folder (created if needed).
+    const typed = prompt("New note name (use folder/name for a folder)", "Untitled")?.trim().replace(/^\/+|\/+$/g, "");
+    if (!typed || typed.startsWith("@")) return;
+    let n = typed;
+    for (let i = 2; notes.some((x) => x.name === n); i++) n = `${typed} ${i}`;
     await save(n, "");
     await refresh();
     await open(n);
@@ -103,7 +119,7 @@ export default function NotesEditor() {
 
   const remove = async () => {
     if (!current || !confirm(`Delete "${current}"? (moved to .trash)`)) return;
-    await apiFetch(api(`/${encodeURIComponent(current)}`), { method: "DELETE" });
+    await apiFetch(api(`/${encPath(current)}`), { method: "DELETE" });
     setCurrent(null);
     editor?.commands.clearContent();
     refresh();
@@ -112,7 +128,7 @@ export default function NotesEditor() {
   const rename = async (newName: string) => {
     const name = newName.trim();
     if (!current || !name || name === current) return;
-    const r = await apiFetch(api(`/${encodeURIComponent(current)}/rename`), {
+    const r = await apiFetch(api(`/${encPath(current)}/rename`), {
       method: "POST",
       headers: json,
       body: JSON.stringify({ new_name: name }),
@@ -149,33 +165,65 @@ export default function NotesEditor() {
       <aside className="flex w-64 shrink-0 flex-col border-r border-[var(--border)]">
         <div className="flex items-center justify-between p-3">
           <span className="font-medium">Notes</span>
-          <button onClick={create} title="New note" className="rounded p-1 hover:bg-[var(--muted)]">
-            <FilePlus size={16} />
-          </button>
+          <span className="flex gap-1">
+            <button
+              onClick={() => setShowTerminal((v) => !v)}
+              title="Terminal (sandboxed, no internet)"
+              className={`rounded p-1 hover:bg-[var(--muted)] ${showTerminal ? "bg-[var(--muted)]" : ""}`}
+            >
+              <SquareTerminal size={16} />
+            </button>
+            <button onClick={create} title="New note" className="rounded p-1 hover:bg-[var(--muted)]">
+              <FilePlus size={16} />
+            </button>
+          </span>
         </div>
-        <ul className="flex-1 overflow-y-auto">
-          {notes.map((n) => (
-            <li key={n.name}>
-              <button
-                onClick={() => open(n.name)}
-                className={`w-full truncate px-3 py-1.5 text-left text-sm hover:bg-[var(--muted)] ${n.name === current ? "bg-[var(--muted)] font-medium" : ""}`}
-              >
-                {n.name}
-              </button>
-            </li>
-          ))}
+        <ul className="flex-1 overflow-y-auto pb-2">
+          {treeRows(notes, openFolders).map((row) =>
+            row.kind === "folder" ? (
+              <li key={`f:${row.path}`}>
+                <button
+                  onClick={() =>
+                    setOpenFolders((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(row.path)) next.delete(row.path);
+                      else next.add(row.path);
+                      return next;
+                    })
+                  }
+                  style={{ paddingLeft: 12 + row.depth * 14 }}
+                  className="flex w-full items-center gap-1 truncate py-1 pr-3 text-left text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                >
+                  {openFolders.has(row.path) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  <Folder size={14} /> {row.label}
+                </button>
+              </li>
+            ) : (
+              <li key={row.path}>
+                <button
+                  onClick={() => open(row.path)}
+                  style={{ paddingLeft: 30 + row.depth * 14 }}
+                  className={`w-full truncate py-1.5 pr-3 text-left text-sm hover:bg-[var(--muted)] ${row.path === current ? "bg-[var(--muted)] font-medium" : ""}`}
+                >
+                  {row.label}
+                </button>
+              </li>
+            ),
+          )}
           {!notes.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">No notes yet.</li>}
         </ul>
         <Link href="/notebooks" className="border-t border-[var(--border)] p-3 text-sm text-[var(--muted-foreground)] hover:underline">
           Saved from chat →
         </Link>
       </aside>
-      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
         {current ? (
           <>
             <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-2">
               <input
                 key={current}
+                readOnly={readOnly}
                 defaultValue={current}
                 onBlur={(e) => rename(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
@@ -188,12 +236,16 @@ export default function NotesEditor() {
               <button onClick={restartKernels} title="Forget all variables and clear outputs" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
                 ↻ Restart
               </button>
-              <button onClick={remove} title="Delete" className="rounded p-1 hover:bg-[var(--muted)]">
-                <Trash2 size={16} />
-              </button>
+              {readOnly ? (
+                <span className="text-xs text-[var(--muted-foreground)]">Read-only</span>
+              ) : (
+                <button onClick={remove} title="Delete" className="rounded p-1 hover:bg-[var(--muted)]">
+                  <Trash2 size={16} />
+                </button>
+              )}
             </div>
             <div className="flex flex-wrap gap-1 border-b border-[var(--border)] px-4 py-1">
-              {editor &&
+              {editor && !readOnly &&
                 BUTTONS.map(([label, title, fn, active]) => (
                   <button
                     key={title}
@@ -211,6 +263,8 @@ export default function NotesEditor() {
           <div className="m-auto text-[var(--muted-foreground)]">Pick a note or create one.</div>
         )}
       </main>
+      {showTerminal && <TerminalPanel />}
+      </div>
     </div>
   );
 }
@@ -218,4 +272,31 @@ export default function NotesEditor() {
 // The editor pads blocks with empty paragraphs; keep saved files as plain Markdown would be written by hand.
 function tidyMarkdown(md: string): string {
   return md.replace(/\n+```(\n|$)/g, "\n```$1").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+}
+
+type TreeRow = { kind: "folder" | "note"; path: string; label: string; depth: number };
+
+// Notes named "a/b/c" become folders a and a/b; only folders the user opened show their contents.
+// "@wiki/..." notes sit under a top folder named "@wiki".
+function treeRows(notes: NoteMeta[], open: Set<string>): TreeRow[] {
+  const folders = new Set<string>();
+  for (const n of notes) {
+    const parts = n.name.split("/");
+    for (let i = 1; i < parts.length; i++) folders.add(parts.slice(0, i).join("/"));
+  }
+  const entries: TreeRow[] = [
+    ...[...folders].map((f) => ({ kind: "folder" as const, path: f, label: f.split("/").pop()!, depth: f.split("/").length - 1 })),
+    ...notes.map((n) => ({ kind: "note" as const, path: n.name, label: n.name.split("/").pop()!, depth: n.name.split("/").length - 1 })),
+  ];
+  const key = (r: TreeRow) => {
+    const parts = r.path.split("/");
+    // Folders before notes at the same level; own notes before read-only sources.
+    return parts.map((p, i) => (i === parts.length - 1 ? (r.kind === "folder" ? "0" : "1") : "0") + (p.startsWith("@") ? "~" : "") + p.toLowerCase()).join("/");
+  };
+  entries.sort((a, b) => key(a).localeCompare(key(b)));
+  return entries.filter((r) => {
+    const parts = r.path.split("/");
+    for (let i = 1; i < parts.length; i++) if (!open.has(parts.slice(0, i).join("/"))) return false;
+    return true;
+  });
 }

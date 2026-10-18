@@ -572,6 +572,7 @@ from deeptutor.api.routers import (
 )
 from deeptutor.api.routers import run_code as run_code_router
 from deeptutor.api.routers import notebook_kernel as notebook_kernel_router
+from deeptutor.api.routers import terminal as terminal_router
 from deeptutor.api.routers.file_library import router as file_library_router  # noqa: E402
 from deeptutor.api.routers.multi_user import router as multi_user_router  # noqa: E402
 
@@ -813,6 +814,8 @@ app.include_router(unified_ws.router, tags=["unified-ws"])
 # Quiz AI-judge WebSocket — same caveat as unified_ws above; auth is checked
 # inside the handler so the WS upgrade isn't rejected by an HTTP-style dep.
 app.include_router(quiz_judge.router, prefix="/ws", tags=["quiz-judge"])
+# Sandboxed terminal panel; auth is checked inside the handler like the sockets above.
+app.include_router(terminal_router.router, prefix="/ws", tags=["terminal"])
 
 
 @app.get("/")

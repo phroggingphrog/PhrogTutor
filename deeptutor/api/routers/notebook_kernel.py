@@ -1,7 +1,7 @@
 """Notebook kernels: one long-lived sandboxed Python or R process per note, so cells share variables.
 
 Same bwrap sandbox and limits as /api/run-code (no network, memory cap). A kernel is stopped after
-15 minutes idle, on Restart, or when a cell runs longer than 60 s. At most 4 kernels run at once.
+60 minutes idle, on Restart, or when a cell runs longer than 60 s. At most 4 kernels run at once.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from deeptutor.services.sandbox.spec import ExecRequest, Mount
 
 router = APIRouter()
 
-_IDLE_S, _CELL_S, _MAX = 15 * 60, 60, 4
+_IDLE_S, _CELL_S, _MAX = 60 * 60, 60, 4
 _DONE = "\x1eDONE"
 
 # Each cell: code lines on stdin, then a line "\x1eEND". The driver writes the cell's output to
