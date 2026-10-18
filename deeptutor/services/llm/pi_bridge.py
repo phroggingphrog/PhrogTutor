@@ -20,6 +20,8 @@ from pathlib import Path
 from typing import Any
 
 _LLM_TS = Path(__file__).resolve().parents[3] / "pi_engine" / "llm.ts"
+# The bun binary that runs pi_engine (name it e.g. "pi-engine" via a symlink so OOM killers can spare it).
+_ENGINE_BIN = os.path.expanduser(os.environ.get("PI_TUTOR_ENGINE_BIN", "bun"))
 _PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort")
 
 
@@ -39,7 +41,7 @@ class _PiProcess:
         async with self.lock:
             if self.proc is None or self.proc.returncode is not None:
                 self.proc = await asyncio.create_subprocess_exec(
-                    os.path.expanduser("~/.local/bin/pi-engine"), str(_LLM_TS), "--serve",
+                    _ENGINE_BIN, str(_LLM_TS), "--serve",
                     stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=open(os.environ["PI_TUTOR_DEBUG_LOG"], "a") if os.environ.get("PI_TUTOR_DEBUG_LOG") else asyncio.subprocess.DEVNULL,
                     limit=16 * 1024 * 1024,
                 )

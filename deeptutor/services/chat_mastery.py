@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import logging
 import re
 import sqlite3
@@ -30,7 +31,8 @@ KINDS = {
 }
 _HALF_LIFE_DAYS = 30.0
 _TASKS: set[asyncio.Task] = set()
-_EXTRACT_MODEL = "deepseek-flash"  # OmniRoute combo: cheap, and does not share the chat model's cooldowns
+# A cheap model for the background mastery calls (on PhrogVPS: the OmniRoute combo "deepseek-flash").
+_EXTRACT_MODEL = os.environ.get("PI_TUTOR_EXTRACT_MODEL") or None  # None = the active chat model
 
 _SYSTEM = (
     "You watch one tutoring exchange and record what it shows about the LEARNER's understanding "

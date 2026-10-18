@@ -1,0 +1,61 @@
+{
+  "providers": {
+    "omni": {
+      "baseUrl": "https://api.openai.com/v1",
+      "api": "openai-completions",
+      "apiKey": "YOUR_API_KEY",
+      "models": [
+        {
+          "id": "openai/sol",
+          "name": "openai/sol \u2192 gpt-6.1-sol",
+          "input": [
+            "text"
+          ],
+          "contextWindow": 400000,
+          "cost": {
+            "input": 5,
+            "output": 30,
+            "cacheRead": 0.5,
+            "cacheWrite": 6.25
+          }
+        },
+        {
+          "id": "openai/luna",
+          "name": "openai/luna \u2192 gpt-6-luna",
+          "input": [
+            "text"
+          ],
+          "contextWindow": 400000,
+          "cost": {
+            "input": 0.1,
+            "output": 0.5,
+            "cacheRead": 0.01,
+            "cacheWrite": 0.125
+          }
+        },
+        {
+          "id": "claude/sonnet",
+          "name": "claude/sonnet \u2192 claude-sonnet-5-5",
+          "input": [
+            "text"
+          ],
+          "contextWindow": 1000000,
+          "cost": {
+            "input": 2,
+            "output": 10,
+            "cacheRead": 0.2,
+            "cacheWrite": 2.5
+          }
+        },
+        {
+          "id": "deepseek-flash",
+          "name": "deepseek-flash (OmniRoute combo)",
+          "input": [
+            "text"
+          ],
+          "contextWindow": 128000
+        }
+      ]
+    }
+  }
+}

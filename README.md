@@ -231,6 +231,18 @@
 - **2026-01-01** 🎊 Happy New Year! Join our [Discord](https://discord.gg/eRsjPgMU4t), [WeChat](https://github.com/HKUDS/DeepTutor/issues/78), or [Discussions](https://github.com/HKUDS/DeepTutor/discussions) — let's shape DeepTutor together.
 - **2025-12-29** 🎓 DeepTutor is officially released!
 
+## What pi-tutor adds to DeepTutor
+
+pi-tutor is a fork of [DeepTutor](https://github.com/HKUDS/DeepTutor) (Apache-2.0) with its agent engine rebuilt on the [pi agent SDK](https://github.com/earendil-works/pi).
+
+- **pi engine**: every DeepTutor mode (chat, solve, research, questions, visualize, co-writer, book, partners) runs as a pi agent session (`pi_engine/`); pi plugins load from `pi_engine/agent-dir/extensions`.
+- **Learns from chat, not quizzes**: after each reply a cheap background call records what the learner showed (confusion, misconception, correct use), plus edited code they ran. Each concept gets a decaying mastery score. You can see and fix it on the **What I know** page.
+- **Teaches by mastery**: weak topics get a worked example and then a part-done one; middle topics get one Socratic question; strong topics get a retrieval challenge. Topics are matched by meaning (embeddings). Rules that worked for the learner are written to `teaching_rules.md` and reused.
+- **Runnable code**: Python, R and SQL blocks get a Run button. Notes work like a notebook, with shared variables per note, Run all and Restart. A terminal panel is included. All code runs in a bubblewrap sandbox with no network.
+- **Notes**: an Obsidian-like Markdown editor (Tiptap) over plain `.md` files, with folders, maths, search, "Ask tutor", and extra read-only folders (`PI_TUTOR_NOTE_SOURCES`).
+
+Install: `scripts/install.sh` (run `--check` first), then set the gateway in `.env` / `pi_engine/agent-dir/models.json`. All settings are in `.env.example`.
+
 ## ✨ Key Features
 
 DeepTutor is an agent-native learning workspace that connects tutoring, problem solving, quiz generation, research, visualization, and mastery practice in one extensible system.

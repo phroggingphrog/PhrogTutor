@@ -5,7 +5,13 @@ import { fileURLToPath } from "node:url";
 
 export const HERE = dirname(fileURLToPath(import.meta.url));
 export const AGENT_DIR = join(HERE, "agent-dir");
-export const omni = JSON.parse(readFileSync(join(AGENT_DIR, "models.json"), "utf8")).providers.omni;
+// Model gateway: agent-dir/models.json (copy models.example.json), overridable by env.
+const _omni = JSON.parse(readFileSync(join(AGENT_DIR, "models.json"), "utf8")).providers.omni;
+export const omni = {
+	..._omni,
+	baseUrl: process.env.PI_TUTOR_LLM_BASE_URL || _omni.baseUrl,
+	apiKey: process.env.PI_TUTOR_LLM_API_KEY || _omni.apiKey,
+};
 export const out = (o: any) => process.stdout.write(JSON.stringify(o) + "\n");
 export const tagged = (rid: string) => (c: any) => out({ ...c, rid });
 const finishMap: Record<string, string> = { stop: "stop", length: "length", toolUse: "tool_calls", error: "stop", aborted: "stop" };

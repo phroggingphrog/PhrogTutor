@@ -1,6 +1,6 @@
 """Terminal panel: a bash shell in the same bwrap sandbox as code cells (no network, memory cap).
 
-The shell's home is one persistent folder (``~/.local/share/pi-tutor-runcode/terminal-home``), so files
+The shell's home is one persistent folder (``$PI_TUTOR_RUNCODE_DIR/terminal-home``), so files
 made there survive between sessions; nothing else on the host is writable. The shell is killed when the
 page closes the connection or after 30 minutes without input.
 """
@@ -18,13 +18,13 @@ from pathlib import Path
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from deeptutor.api.routers.run_code import PYLIBS
+from deeptutor.api.routers.run_code import PYLIBS, RUNCODE_DIR
 from deeptutor.services.sandbox.backends import BwrapBackend
 from deeptutor.services.sandbox.spec import ExecRequest, Mount
 
 router = APIRouter()
 
-HOME = Path.home() / ".local/share/pi-tutor-runcode/terminal-home"
+HOME = RUNCODE_DIR / "terminal-home"
 _IDLE_S = 30 * 60
 
 

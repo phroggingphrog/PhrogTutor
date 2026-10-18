@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import os
 from pathlib import Path
 import tempfile
 
@@ -15,7 +16,8 @@ from deeptutor.services.sandbox.spec import ExecRequest, Mount, ResourceLimits
 router = APIRouter()
 
 # Read-only numpy/matplotlib/pandas/scipy, installed once with pip --target (see TASK-89).
-PYLIBS = Path.home() / ".local/share/pi-tutor-runcode/pylibs"
+RUNCODE_DIR = Path(os.environ.get("PI_TUTOR_RUNCODE_DIR", Path.home() / ".local/share/pi-tutor-runcode"))
+PYLIBS = RUNCODE_DIR / "pylibs"
 
 PY_PRELUDE = (
     "try:\n"
