@@ -27,3 +27,7 @@ Focus now (owner 2026-10-18: "so lets focus on the port of deep tutor into pi ag
 ## What "port" means (owner 2026-10-18, verbatim)
 "making the pi as the SDK for the deep tutor that what i mean"
 So pi is the agent SDK UNDER every DeepTutor agent and mode (chat, solve, research, question, visualize, co-writer, book, partners ...), with DeepTutor's own prompts and tools. Not a separate pi chat path with its own prompt. The seam is DeepTutor's model/agent layer: deeptutor/agents/base_agent.py (call_llm, stream_llm) and the agent loop in deeptutor/agents/loop, which every mode already goes through. The step-B pi_engine/turn.ts + TUTOR.md (uni-only prompt that replaces chat) is NOT the target; it is replaced by this.
+
+## Full pi environment (owner 2026-10-18, verbatim)
+"My original plan is to fully adapt it into pi-agent environment"
+So the target is DeepTutor's agent loop running as a pi agent session (pi-agent-core), with DeepTutor's tools as pi tools, so pi extensions/plugins can load. The model-layer bridge (pi_engine/llm.ts) was step 1 of this, not the end.
