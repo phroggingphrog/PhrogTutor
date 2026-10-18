@@ -34,7 +34,7 @@ function getCodeBlockThemeForeground(
   return undefined;
 }
 
-const RUNNABLE = new Set(["python", "py", "python3", "r"]);
+const RUNNABLE = new Set(["python", "py", "python3", "r", "sql", "sqlite"]);
 
 type RunResult = {
   stdout: string;

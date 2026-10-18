@@ -39,6 +39,25 @@ class RunCodeRequest(BaseModel):
     code: str = Field(max_length=50_000)
 
 
+SQL_RUNNER = (
+    "import sqlite3\n"
+    "con = sqlite3.connect(':memory:')\n"
+    "src = open('/work/main.sql').read()\n"
+    "buf = ''\n"
+    "for line in src.splitlines(True):\n"
+    "    buf += line\n"
+    "    if sqlite3.complete_statement(buf):\n"
+    "        cur = con.execute(buf); buf = ''\n"
+    "        if cur.description:\n"
+    "            cols = [d[0] for d in cur.description]; rows = cur.fetchall()\n"
+    "            w = [max(len(str(x)) for x in [c, *[r[i] for r in rows]]) for i, c in enumerate(cols)]\n"
+    "            print(' | '.join(c.ljust(w[i]) for i, c in enumerate(cols)))\n"
+    "            print('-+-'.join('-' * n for n in w))\n"
+    "            for r in rows: print(' | '.join(str(x).ljust(w[i]) for i, x in enumerate(r)))\n"
+    "            print(f'({len(rows)} rows)\\n')\n"
+)
+
+
 @router.post("")
 async def run_code(req: RunCodeRequest):
     lang = req.language.lower()
@@ -46,8 +65,10 @@ async def run_code(req: RunCodeRequest):
         name, prelude, cmd = "main.py", PY_PRELUDE, ["python3", "/work/main.py"]
     elif lang in ("r", "rscript"):
         name, prelude, cmd = "main.R", R_PRELUDE, ["Rscript", "--vanilla", "/work/main.R"]
+    elif lang in ("sql", "sqlite"):  # in-memory SQLite; each SELECT prints a table
+        name, prelude, cmd = "main.sql", "", ["python3", "-c", SQL_RUNNER]
     else:
-        raise HTTPException(400, f"Run supports python and r, not {req.language!r}")
+        raise HTTPException(400, f"Run supports python, r and sql, not {req.language!r}")
     with tempfile.TemporaryDirectory(prefix="runcode-") as tmp:
         work = Path(tmp)
         (work / name).write_text(prelude + req.code, encoding="utf-8")
