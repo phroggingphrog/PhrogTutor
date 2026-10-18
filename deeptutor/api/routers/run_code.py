@@ -37,6 +37,7 @@ R_PRELUDE = 'png("/work/plot_%02d.png", width=720, height=480)\n'
 class RunCodeRequest(BaseModel):
     language: str
     code: str = Field(max_length=50_000)
+    original: str = Field(default="", max_length=50_000)  # the tutor's code, to tell learner edits apart
 
 
 SQL_RUNNER = (
@@ -88,6 +89,10 @@ async def run_code(req: RunCodeRequest):
             for p in sorted(work.glob("plot_*.png"))[:6]
             if p.stat().st_size > 0
         ]
+    if req.original and req.code.strip() != req.original.strip():  # the learner changed it: mastery evidence
+        from deeptutor.services import chat_mastery
+
+        chat_mastery.record_code(lang, req.original, req.code, result.stdout, result.stderr, result.exit_code)
     return {
         "stdout": result.stdout,
         "stderr": result.stderr,

@@ -80,7 +80,7 @@ export default function RichCodeBlock({
       const r = await apiFetch(apiUrl("/api/run-code"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language: normalizedLang, code }),
+        body: JSON.stringify({ language: normalizedLang, code, original: raw }),
       });
       setResult(
         r.ok

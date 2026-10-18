@@ -100,6 +100,17 @@ def record_turn(session_id: str, turn_id: str, user_message: str, answer: str) -
     task.add_done_callback(_TASKS.discard)
 
 
+def record_code(language: str, original: str, code: str, stdout: str, stderr: str, exit_code: int) -> None:
+    """The learner edited a code block and ran it: their edit plus the result is evidence too."""
+    message = (
+        f"(The learner edited the tutor's {language} code and ran it. A typo or unfamiliar syntax is NOT a "
+        "concept gap; only judge what the edit shows they understand.)\n"
+        f"Tutor's code:\n{original[:1500]}\n\nLearner's edited code:\n{code[:2000]}"
+    )
+    result = f"Exit code {exit_code}.\nOutput:\n{stdout[-800:]}\nErrors:\n{stderr[-800:]}"
+    record_turn("run-code", f"run-{int(time.time() * 1000)}", message, result)
+
+
 def mastery() -> list[dict]:
     """Every concept with its decaying Beta mean (0-1) and evidence count, weakest first."""
     with _db() as con:
