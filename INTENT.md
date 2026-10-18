@@ -35,3 +35,7 @@ So the target is DeepTutor's agent loop running as a pi agent session (pi-agent-
 ## Differentiator (owner 2026-10-18, verbatim)
 "this is what my fork will differentiate from deep tutor but i dont want a curriculum planner, but want a self learning agent on the user behavior"
 Approved plan and order: board card TASK-71.4 (starts after the pi port is finished).
+
+## Fully native pi (owner 2026-10-18, verbatim)
+"So then because its a fork and this will be my own version from today now on and I need to maintain it, therefore move all of the remaining deep tutor only rules into pi it should be native fully pi port right and fully remove deeptutor's old engine"
+Size found: engine core ~6k lines Python (agent loop, pipeline, base agent, orchestrator); capabilities + agents ~35k; tools ~10k.
