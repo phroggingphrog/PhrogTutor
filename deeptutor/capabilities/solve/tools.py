@@ -194,7 +194,7 @@ class SolveFinishStepTool(BaseTool):
             ),
         }
         # The checkpoint summary persists this step's outcome while the loop
-        # folds its intermediate tool messages away (see AgentLoop).
+        # folds its intermediate tool messages away (see pi_engine/loop.ts).
         checkpoint = f"[{step.id}] {step.goal} — done. {summary}".strip()
         return _json_result(
             payload,

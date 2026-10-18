@@ -4,7 +4,7 @@ Agents Module - Unified agent system for OpenTutor.
 This module provides a unified BaseAgent class and module-specific agents:
 - research: Deep research agents (DecomposeAgent, ResearchAgent, etc.)
 - question: Question generation agents (ReAct architecture, separate base)
-- loop: ``AgentLoop`` + ``AgenticLoopPipeline`` — the single-loop engine and
+- loop: ``PiTurn`` (pi_engine/loop.ts) + ``AgenticLoopPipeline`` — the pi engine and
   the host that assembles a turn for it
 - chat: ``AgenticChatPipeline`` — chat's binding of that loop (Deep Solve and
   the other chat-protocol modes run here too, via loop capabilities). A mode

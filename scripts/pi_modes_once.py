@@ -30,25 +30,30 @@ async def _counting(request):
 
 
 pi_bridge._chunks = _counting
-_orig_agent = pi_bridge._agent_chunks
+
+# pi agent turns: count each round loop.ts starts
+from deeptutor.agents.loop.pi_turn import PiTurn  # noqa: E402
+
+_orig_round = PiTurn._round_start
 
 
-def _agent_counting(run, request):
-    return _counting_agent(run, request)
-
-
-async def _counting_agent(run, request):
+async def _round_counting(self, data):
     CALLS["n"] += 1
-    t0, finish, tools = time.time(), None, []
-    async for c in _orig_agent(run, request):
-        ch = (c.get("choices") or [{}])[0]
-        tools += [t["function"]["name"] for t in (ch.get("delta") or {}).get("tool_calls") or []]
-        finish = ch.get("finish_reason") or finish
-        yield c
-    TRACE.append(f"pi agent round {CALLS['n']}: {time.time() - t0:.1f}s finish={finish} tools={tools}")  # noqa
+    TRACE.append(f"pi round {CALLS['n']}: mode={data.get('mode')}")
+    return await _orig_round(self, data)
 
 
-pi_bridge._agent_chunks = _agent_counting
+PiTurn._round_start = _round_counting
+_orig_end = PiTurn._round_end
+
+
+async def _end_tracing(self, error):
+    out = await _orig_end(self, error)
+    TRACE.append(f"  -> finish={out.get('finish_reason')} tools={[c['name'] for c in out.get('tool_calls') or []]} text={len(out.get('visible') or '')} chars error={error}")
+    return out
+
+
+PiTurn._round_end = _end_tracing
 
 # vanilla: count DeepTutor's own OpenAI calls the same way
 from openai.resources.chat.completions import AsyncCompletions  # noqa: E402

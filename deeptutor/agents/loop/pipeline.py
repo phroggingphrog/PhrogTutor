@@ -1,9 +1,10 @@
 """Turn assembly for the exploring-loop agent.
 
-This is the loop's *host*: it owns everything :class:`~deeptutor.agents.loop.agent_loop.AgentLoop`
-needs to run a turn — the LLM client, the round and token budgets, the tool
-surface, the message list, tool dispatch and kwargs injection, the capability
-hooks — and none of what makes a turn a *chat* turn.
+This is the loop's *host*: the round rules run in the pi engine
+(``pi_engine/loop.ts``, through :class:`~deeptutor.agents.loop.pi_turn.PiTurn`);
+this class owns what they ask DeepTutor for — the model and token budgets, the
+tool surface, the first message list, tool dispatch and kwargs injection, the
+capability hooks — and none of what makes a turn a *chat* turn.
 
 What a specific loop owns is stated as three class attributes
 (:attr:`~AgenticLoopPipeline.prompt_module`, :attr:`~AgenticLoopPipeline.prompt_agent`,
@@ -41,7 +42,7 @@ from deeptutor.agents._shared.tool_runtime import (
     bind_workspace_tool_runtime,
     drop_unconfigured_generation_tools,
 )
-from deeptutor.agents.loop.agent_loop import AgentLoop
+from deeptutor.agents.loop.pi_turn import PiTurn
 from deeptutor.agents.loop.context_budget import LLMRequestSnapshot, build_context_budget
 from deeptutor.agents.loop.prompt_blocks import LoopPromptAssembler
 from deeptutor.capabilities import (
@@ -62,11 +63,8 @@ from deeptutor.core.trace import (
 from deeptutor.knowledge.manifest import KbManifest, render_manifest_note
 from deeptutor.runtime.agentic import (
     DispatchOutcome,
-    LLMClientConfig,
     UsageTracker,
     build_completion_kwargs,
-    build_openai_client,
-    can_use_native_tool_calling,
     dispatch_tool_calls,
 )
 from deeptutor.runtime.agentic.tool_dispatch import (
@@ -304,17 +302,6 @@ class AgenticLoopPipeline:
             prompts=self._prompts,
             language=self.language,
         )
-        self._client_config = LLMClientConfig(
-            binding=self.binding,
-            model=self.model,
-            api_key=self.api_key,
-            base_url=self.base_url,
-            api_version=self.api_version,
-            extra_headers=self.extra_headers or None,
-            reasoning_effort=self.reasoning_effort,
-            wire_api=getattr(self.llm_config, "wire_api", None) or "auto",
-            api_format=getattr(self.llm_config, "api_format", None) or "auto",
-        )
 
     def _load_prompt_pack(self) -> dict[str, Any]:
         """This loop's copy, with :attr:`prompt_base_module` merged underneath."""
@@ -407,10 +394,8 @@ class AgenticLoopPipeline:
         await self._prepare_kb_manifests(context)
         self._exec_enabled = await self._exec_allowed(context)
         enabled_tools = self._compose_enabled_tools(context)
-        use_native_tools = bool(enabled_tools) and self._can_use_native_tool_calling()
-        tool_schemas = (
-            self._build_llm_tool_schemas(enabled_tools, context) if use_native_tools else None
-        )
+        # pi always calls tools natively (pi_engine/loop.ts)
+        tool_schemas = self._build_llm_tool_schemas(enabled_tools, context) if enabled_tools else None
         if tool_schemas is not None and self._tool_view is not None:
             self._tool_view.attach(tool_schemas)
         if tool_schemas:
@@ -420,12 +405,11 @@ class AgenticLoopPipeline:
             order = {item["function"]["name"]: i for i, item in enumerate(prior)}
             tool_schemas.sort(key=lambda item: order.get(item["function"]["name"], len(order)))
 
-        loop = AgentLoop(
+        loop = PiTurn(
             pipeline=self,
             context=context,
             stream=stream,
-            client=self._build_openai_client(),
-            enabled_tools=enabled_tools if use_native_tools else [],
+            enabled_tools=enabled_tools,
             tool_schemas=tool_schemas,
         )
         self.last_result = await loop.run()
@@ -1711,9 +1695,6 @@ class AgenticLoopPipeline:
 
     # ---- LLM client ------------------------------------------------------
 
-    def _build_openai_client(self):
-        return build_openai_client(self._client_config)
-
     def _completion_kwargs(self, max_tokens: int) -> dict[str, Any]:
         return build_completion_kwargs(
             temperature=self._chat_temperature,
@@ -1722,9 +1703,6 @@ class AgenticLoopPipeline:
             binding=self.binding,
             reasoning_effort=self.reasoning_effort,
         )
-
-    def _can_use_native_tool_calling(self) -> bool:
-        return can_use_native_tool_calling(binding=self.binding, model=self.model)
 
     # ---- small helpers ---------------------------------------------------
 

@@ -1,13 +1,12 @@
 """DeepTutor on the pi SDK (TASK-71), through one long-lived ``bun pi_engine/llm.ts --serve``.
 
-* Agent runs: every :class:`~deeptutor.agents.loop.agent_loop.AgentLoop` run is one pi agent session
-  (``createAgentSession``). :func:`agent_run` marks the run; inside it, each
-  ``client.chat.completions.create`` is one pi round, carrying DeepTutor's full next context (and the
-  results of the tools pi just ran). pi plugins in ``pi_engine/agent-dir`` load for these sessions.
+* Agent turns: :func:`loop_turn` runs one DeepTutor agent turn in ``pi_engine/loop.ts`` (a pi agent
+  session whose extension holds the round rules); ``deeptutor.agents.loop.pi_turn`` answers its asks
+  (render a round, capability finish hooks, tool dispatch). pi plugins in ``pi_engine/agent-dir`` load.
 * Single model calls: :func:`complete` / :func:`stream` (``services.llm.factory``: BaseAgent.call_llm /
-  stream_llm) and any create() outside an agent run use pi's model layer (pi-ai ``stream``).
+  stream_llm) and :class:`PiClient` ``create()`` use pi's model layer (pi-ai ``stream``).
 
-On by default; ``PI_TUTOR_SDK=0`` sends everything back to DeepTutor's own OpenAI clients.
+Agent turns always run on pi. ``PI_TUTOR_SDK=0`` only sends single model calls back to DeepTutor's own clients.
 """
 
 from __future__ import annotations
@@ -17,8 +16,6 @@ import json
 import os
 import uuid
 from collections.abc import AsyncGenerator, AsyncIterator
-from contextlib import asynccontextmanager
-from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
 
@@ -81,34 +78,34 @@ class _PiProcess:
         proc.stdin.write((json.dumps(obj) + "\n").encode())
         await proc.stdin.drain()
 
-    async def agent_round(self, run: dict[str, Any], request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
-        """One pi round of an agent run: start the session on the first call, else hand pi the next context."""
-        queue = self.queues.setdefault(run["rid"], asyncio.Queue())
-        req = {k: request[k] for k in _PASS if request.get(k) is not None}
-        await self._send({"rid": run["rid"], "kind": "next" if run["started"] else "agent", "req": req})
-        run["started"] = True
-        while not ((msg := await queue.get()).get("round_end") or msg.get("end")):
-            yield msg
-        if msg.get("end"):
-            run["started"] = False  # pi ended the session; a later round starts a new one
-        if msg.get("error"):
-            raise RuntimeError(f"pi SDK agent round failed: {msg['error'][-500:]}")
-
-    async def agent_end(self, run: dict[str, Any]) -> None:
-        queue = self.queues.get(run["rid"])
+    async def loop_turn(self, request: dict[str, Any], cfg: dict[str, Any], host: Any) -> dict[str, Any]:
+        """Run one agent turn in ``pi_engine/loop.ts``; answer its asks with ``host`` until it ends."""
+        rid = uuid.uuid4().hex
+        queue: asyncio.Queue = asyncio.Queue()
+        self.queues[rid] = queue
         try:
-            if run["started"] and queue is not None:
-                await self._send({"rid": run["rid"], "kind": "end"})
-                while not (await queue.get()).get("end"):
-                    pass
+            req = {k: request[k] for k in _PASS if request.get(k) is not None}
+            await self._send({"rid": rid, "kind": "loop", "req": req, "cfg": cfg})
+            while True:
+                msg = await queue.get()
+                if msg.get("end"):
+                    return msg.get("outcome") or {
+                        "error": msg.get("error") or "pi agent turn ended", "error_kind": "transport", "partial": True,
+                    }
+                if "ask" in msg:
+                    data = await host.ask(msg.pop("ask"), msg)
+                    await self._send({"rid": rid, "kind": "reply", "seq": msg["seq"], "data": data or {}})
+                elif "notice" in msg:
+                    await host.notice(msg["notice"], msg.get("vars") or {})
+                elif msg.get("release"):
+                    await host.release()
+                else:
+                    await host.chunk(msg)
         finally:
-            self.queues.pop(run["rid"], None)
+            self.queues.pop(rid, None)
 
 
 _PROCS: dict[int, _PiProcess] = {}
-_AGENT_RUN: ContextVar[dict[str, Any] | None] = ContextVar("pi_agent_run", default=None)
-
-
 def _proc() -> _PiProcess:
     return _PROCS.setdefault(id(asyncio.get_running_loop()), _PiProcess())
 
@@ -117,28 +114,8 @@ def _chunks(request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
     return _proc().chunks(request)
 
 
-def _agent_chunks(run: dict[str, Any], request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
-    return _proc().agent_round(run, request)
-
-
-@asynccontextmanager
-async def agent_run():
-    """Wrap one DeepTutor agent loop run: its model rounds become one pi agent session."""
-    if not pi_sdk_enabled():
-        yield
-        return
-    run = {"rid": uuid.uuid4().hex, "started": False}
-    token = _AGENT_RUN.set(run)
-    try:
-        yield
-    finally:
-        _AGENT_RUN.reset(token)
-        await _proc().agent_end(run)
-
-
-def _source(kwargs: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
-    run = _AGENT_RUN.get()
-    return _agent_chunks(run, kwargs) if run is not None else _chunks(kwargs)
+async def loop_turn(request: dict[str, Any], cfg: dict[str, Any], host: Any) -> dict[str, Any]:
+    return await _proc().loop_turn(request, cfg, host)
 
 
 def _messages(prompt: str, system_prompt: str, messages: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
@@ -172,12 +149,12 @@ class _Completions:
 
         if kwargs.get("stream"):
             async def gen() -> AsyncIterator[ChatCompletionChunk]:
-                async for chunk in _source(kwargs):
+                async for chunk in _chunks(kwargs):
                     yield ChatCompletionChunk.model_validate(chunk)
 
             return gen()
         text, tool_calls, finish, usage, base = [], {}, "stop", None, None
-        async for chunk in _source(kwargs):
+        async for chunk in _chunks(kwargs):
             base = base or chunk
             choice = chunk["choices"][0]
             delta = choice.get("delta") or {}

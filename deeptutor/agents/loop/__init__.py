@@ -1,7 +1,7 @@
 """The agent loop and its host.
 
-One turn = one loop over one growing conversation (see
-:mod:`deeptutor.agents.loop.agent_loop`). :class:`AgenticLoopPipeline` is the
+One turn = one pi agent session over one growing conversation; its round
+rules live in ``pi_engine/loop.ts`` (see :mod:`deeptutor.agents.loop.pi_turn`). :class:`AgenticLoopPipeline` is the
 host that assembles a turn for it — tools, prompt, budgets, dispatch — and is
 subclassed by each loop that has its own protocol:
 
