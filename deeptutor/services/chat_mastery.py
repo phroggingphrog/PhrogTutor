@@ -143,10 +143,18 @@ def prompt_block(user_message: str, limit: int = 4) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
     hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))][:limit]
+    practice = bool(re.search(r"\b(practi[cs]e|quiz|exercises?|questions?|test me|drill)\b", user_message, re.I))
+    if practice and not hits:  # "give me practice" with no topic: practise the weakest concepts
+        hits = mastery()[:3]
     if not hits:
         return _RULES
     lines = []
     for m in hits:
         band, how = _method(m["mastery"])
         lines.append(f"- {m['concept']} ({band}, from {m['evidence']} past chat signals): {how}")
-    return _RULES + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines)
+    extra = (
+        "\nThey asked for practice: make the questions about these concepts, easiest for weak ones, "
+        "a harder twist for strong ones."
+        if practice else ""
+    )
+    return _RULES + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra
