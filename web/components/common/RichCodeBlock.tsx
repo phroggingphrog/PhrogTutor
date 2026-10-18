@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+
+import { apiFetch, apiUrl } from "@/lib/api";
 
 import {
   getCodeBlockTheme,
@@ -31,6 +34,17 @@ function getCodeBlockThemeForeground(
   return undefined;
 }
 
+const RUNNABLE = new Set(["python", "py", "python3", "r"]);
+
+type RunResult = {
+  stdout: string;
+  stderr: string;
+  exit_code: number;
+  timed_out: boolean;
+  error: string;
+  images: string[];
+};
+
 export default function RichCodeBlock({
   raw,
   lang,
@@ -50,6 +64,31 @@ export default function RichCodeBlock({
   const textColor =
     getCodeBlockThemeForeground(syntaxTheme) ?? DEFAULT_CODE_BLOCK_FOREGROUND;
   const syntaxLanguage = isPlain ? "text" : normalizedLang;
+  const runnable = RUNNABLE.has(normalizedLang);
+  const [code, setCode] = useState(raw);
+  const [editing, setEditing] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<RunResult | null>(null);
+
+  const run = async () => {
+    setRunning(true);
+    try {
+      const r = await apiFetch(apiUrl("/api/run-code"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: normalizedLang, code }),
+      });
+      setResult(
+        r.ok
+          ? await r.json()
+          : { stdout: "", stderr: "", exit_code: 1, timed_out: false, error: `HTTP ${r.status}`, images: [] },
+      );
+    } catch (e) {
+      setResult({ stdout: "", stderr: "", exit_code: 1, timed_out: false, error: String(e), images: [] });
+    } finally {
+      setRunning(false);
+    }
+  };
 
   return (
     <div
@@ -60,12 +99,41 @@ export default function RichCodeBlock({
     >
       {!isPlain ? (
         <div
-          className="border-b border-[var(--border)] px-3 py-2 text-[11px] font-medium uppercase tracking-wider"
-          style={{ color: textColor, opacity: 0.8 }}
+          className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2 text-[11px] font-medium uppercase tracking-wider"
+          style={{ color: textColor }}
         >
-          {normalizedLang}
+          <span style={{ opacity: 0.8 }}>{normalizedLang}</span>
+          {runnable ? (
+            <span className="flex gap-2 normal-case">
+              <button
+                type="button"
+                onClick={() => setEditing((v) => !v)}
+                className="rounded px-2 py-0.5 text-[11px] hover:bg-white/10"
+              >
+                {editing ? "Done" : "Edit"}
+              </button>
+              <button
+                type="button"
+                onClick={run}
+                disabled={running}
+                className="rounded bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
+              >
+                {running ? "Running…" : "▶ Run"}
+              </button>
+            </span>
+          ) : null}
         </div>
       ) : null}
+      {editing ? (
+        <textarea
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          spellCheck={false}
+          rows={Math.min(24, code.split("\n").length + 1)}
+          className="block w-full resize-y bg-transparent p-4 text-sm outline-none"
+          style={{ fontFamily: MONOSPACE, color: textColor, lineHeight: 1.7 }}
+        />
+      ) : (
       <SyntaxHighlighter
         language={syntaxLanguage}
         style={syntaxTheme}
@@ -107,8 +175,24 @@ export default function RichCodeBlock({
             : undefined
         }
       >
-        {raw}
+        {code}
       </SyntaxHighlighter>
+      )}
+      {result ? (
+        <div className="border-t border-[var(--border)] bg-black/30 p-3 text-xs" style={{ fontFamily: MONOSPACE }}>
+          {result.stdout ? <pre className="whitespace-pre-wrap">{result.stdout}</pre> : null}
+          {result.stderr ? <pre className="whitespace-pre-wrap text-red-400">{result.stderr}</pre> : null}
+          {result.error ? <pre className="whitespace-pre-wrap text-red-400">{result.error}</pre> : null}
+          {result.timed_out ? <pre className="text-amber-400">Timed out.</pre> : null}
+          {result.images.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img key={i} src={src} alt={`plot ${i + 1}`} className="mt-2 max-w-full rounded bg-white" />
+          ))}
+          {!result.stdout && !result.stderr && !result.error && !result.images.length ? (
+            <span className="opacity-60">(no output)</span>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
