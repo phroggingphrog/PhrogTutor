@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import { apiFetch, apiUrl } from "@/lib/api";
@@ -69,6 +69,10 @@ export default function RichCodeBlock({
   const [editing, setEditing] = useState(false);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
+  // Follow the streamed answer until the learner starts editing.
+  useEffect(() => {
+    if (!editing) setCode(raw);
+  }, [raw, editing]);
 
   const run = async () => {
     setRunning(true);

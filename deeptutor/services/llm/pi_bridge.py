@@ -39,7 +39,7 @@ class _PiProcess:
         async with self.lock:
             if self.proc is None or self.proc.returncode is not None:
                 self.proc = await asyncio.create_subprocess_exec(
-                    "bun", str(_LLM_TS), "--serve",
+                    os.path.expanduser("~/.local/bin/pi-engine"), str(_LLM_TS), "--serve",
                     stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=open(os.environ["PI_TUTOR_DEBUG_LOG"], "a") if os.environ.get("PI_TUTOR_DEBUG_LOG") else asyncio.subprocess.DEVNULL,
                     limit=16 * 1024 * 1024,
                 )
