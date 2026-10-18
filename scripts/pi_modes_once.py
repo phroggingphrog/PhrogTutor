@@ -104,6 +104,7 @@ TURN_MODES = {
     "solve": ("deep_solve", "Solve: a fair coin is tossed 3 times. What is P(at least 2 heads)?"),
     "research": ("deep_research", "Briefly research: what is a highest density interval? Keep it short.", {"mode": "notes", "depth": "quick"}),
     "question": ("deep_question", "Make one multiple-choice question about Bayes' theorem."),
+    "ask": ("ask_questions", "Help me pick a statistics topic to revise."),
     "visualize": ("visualize", "Visualize a normal distribution with mean 0 and sd 1."),
 }
 

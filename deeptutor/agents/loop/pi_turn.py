@@ -183,6 +183,8 @@ class PiTurn:
                 }
                 cfg = {
                     "budget": max(1, self.pipeline.effective_max_rounds(self.context)),
+                    # first round must call this tool (Ask Questions forces ask_user)
+                    "initial_tool_choice": self.pipeline.initial_tool_choice,
                     "texts": {
                         "settle": self.pipeline._settle_exhausted_instruction(),
                         "finish_exhausted": self.pipeline._finish_exhausted_instruction(),

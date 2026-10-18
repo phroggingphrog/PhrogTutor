@@ -192,6 +192,15 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 			const { system, messages } = convert({ messages: transcript }, model.id);
 			return { messages: [{ ...ev.messages[0], sections: { preamble: system } }, ...messages] };
 		});
+		pi.on("before_provider_request", (ev: any) => {
+			// DeepTutor forces a named tool on the first round (Ask Questions -> ask_user); pi-ai has only auto/none.
+			const name = cfg.initial_tool_choice;
+			const p = ev.payload;
+			if (s.rounds === 0 && name && p && Array.isArray(p.tools) && p.tools.some((t: any) => t.function?.name === name)) {
+				if (process.env.PI_TUTOR_DEBUG) process.stderr.write(`[tool_choice] forced ${name}\n`);
+				return { ...p, tool_choice: { type: "function", function: { name } } };
+			}
+		});
 		pi.on("message_start", (ev: any) => { if (ev.message?.role === "assistant") { roundError = ""; writer = chunkWriter(model.id, host.write); } });
 		pi.on("message_update", (ev: any) => { if (ev.message?.role === "assistant") writer?.event(ev.assistantMessageEvent); });
 		pi.on("message_end", (ev: any) => {
