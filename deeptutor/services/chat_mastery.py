@@ -114,16 +114,39 @@ def mastery() -> list[dict]:
     return sorted(out, key=lambda r: r["mastery"])
 
 
+# The learner's own rules (docs/learner-analysis-2026-10-19.md), always on.
+_RULES = """How to teach this learner (always):
+1. Open with a 1-2 sentence plain answer, then one small worked example with real numbers; add only what the concept method below asks for.
+2. Explain why each step follows before any formula or syntax; never answer "look it up".
+3. If they say they still don't understand, switch representation (numbers, a picture, their own code); do not reword the same explanation.
+4. When they share their own answer or code, walk through it line by line before showing a model solution.
+5. At most one meaning-based check question; never "do you understand?", never supervisory phrases like "Your turn" or "Try it yourself", no praise before checking a claim.
+6. Short replies and keyword fragments are complete answers; let them set the pace.
+7. Use their course notation (explicit H0/Ha, an HDI probability sentence for each Bayesian parameter, ER multiplicity at the opposite end); label invented numbers as hypothetical.
+8. For graded work, make them say why each choice was made and what each output shows.
+9. Stay short, finish what was asked, note side detours instead of following them.
+10. Never mention mastery scores or turn the chat into a quiz."""
+
+# Method by mastery band, rewritten in our own words from worked-example fading, Socratic questioning and retrieval practice.
+_METHODS = (
+    (0.45, "weak", "worked example then fading: show one fully worked example step by step, then end with a near-identical second example where every step is given except the last, phrased as an open question"),
+    (0.70, "middle", "Socratic: give the key idea briefly, then ask ONE question that makes them take the next step themselves"),
+    (1.01, "strong", "retrieval challenge: answer briefly, then pose one slightly harder twist for them to try from memory"),
+)
+
+
+def _method(score: float) -> tuple[str, str]:
+    return next((band, how) for limit, band, how in _METHODS if score < limit)
+
+
 def prompt_block(user_message: str, limit: int = 4) -> str:
-    """The weakest concepts that share a word with the new message, as a short note for the tutor."""
+    """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
-    weak = [m for m in mastery() if m["mastery"] < 0.6 and words & set(re.findall(r"[a-z0-9]+", m["concept"]))][:limit]
-    if not weak:
-        return ""
-    lines = [f"- {m['concept']}: mastery {m['mastery']} from {m['evidence']} past chat signals" for m in weak]
-    return (
-        "Learned from this learner's earlier chats (weak spots relevant to this message; 0 = shaky, 1 = solid). "
-        "For these weak topics: start from the basic idea in plain words before any jargon, then walk through "
-        "one small worked example with real numbers step by step. Do not mention scores or quiz them:\n"
-        + "\n".join(lines)
-    )
+    hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))][:limit]
+    if not hits:
+        return _RULES
+    lines = []
+    for m in hits:
+        band, how = _method(m["mastery"])
+        lines.append(f"- {m['concept']} ({band}, from {m['evidence']} past chat signals): {how}")
+    return _RULES + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines)
