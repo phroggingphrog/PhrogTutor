@@ -37,6 +37,8 @@ _SYSTEM = (
     "- concept: a short specific topic name, lowercase, 1-5 words (e.g. \"bayes theorem\", \"foreign keys\").\n"
     f"- kind: one of {', '.join(KINDS)}.\n"
     "- quote: the learner's own words (max 200 chars) that show it.\n"
+    "Only academic or technical subject matter counts (maths, statistics, programming, databases, science...). "
+    "Never record project planning, writing style, formatting, app usage or instructions as a concept.\n"
     "Only record what the learner's message itself shows. Asking for an explanation of something new is "
     "hint_seeking only if they are stuck on it. Small talk or no learning signal: {\"evidence\": []}."
 )
@@ -58,7 +60,10 @@ def _db() -> sqlite3.Connection:
 async def _extract(session_id: str, turn_id: str, user_message: str, answer: str) -> None:
     from deeptutor.services.llm import complete
 
-    prompt = f"LEARNER:\n{user_message[:4000]}\n\nTUTOR:\n{answer[:3000]}"
+    with _db() as con:
+        known = [r[0] for r in con.execute("SELECT DISTINCT concept FROM evidence ORDER BY ts DESC LIMIT 80")]
+    reuse = f"Concepts already tracked (reuse a name when it is the same idea): {', '.join(known)}\n\n" if known else ""
+    prompt = reuse + f"LEARNER:\n{user_message[:4000]}\n\nTUTOR:\n{answer[:3000]}"
     raw = await asyncio.wait_for(
         complete(prompt=prompt, system_prompt=_SYSTEM, temperature=0, max_tokens=400, reasoning_effort="none"),
         timeout=60,
