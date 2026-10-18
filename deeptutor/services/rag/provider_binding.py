@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from deeptutor.services.rag.factory import DEFAULT_PROVIDER, normalize_provider_name
+from deeptutor.services.rag.factory import default_provider, normalize_provider_name
 
 
 def load_kb_config_entry(kb_base_dir: str | Path, kb_name: str) -> dict[str, Any]:
@@ -60,7 +60,9 @@ def resolve_bound_provider(kb_base_dir: str | Path, kb_name: str | None) -> str:
         if metadata_provider:
             return metadata_provider
 
-    return DEFAULT_PROVIDER
+    # An explicit binding always wins. ``PI_TUTOR_RAG=wiki`` only moves the
+    # fallback, so no KB is silently re-pointed at the wiki.
+    return default_provider()
 
 
 __all__ = [

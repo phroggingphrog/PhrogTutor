@@ -24,6 +24,9 @@ today:
 * ``kiwix``               — retrieval from one ZIM already served by
                             kiwix-serve. Only matched articles are fetched;
                             no local archive or index copy is made.
+* ``wiki``                — retrieval from the local wiki qmd MCP server the
+                            pi turn engine also uses. No local index or
+                            document copy; selected with ``PI_TUTOR_RAG=wiki``.
 
 A KB is bound to one provider at creation time; later adds and retrieval always
 go through that same pipeline (enforced upstream in the knowledge router).
@@ -43,6 +46,7 @@ LIGHTRAG_SERVER_PROVIDER = "lightrag-server"
 IMA_PROVIDER = "ima"
 WEKNORA_PROVIDER = "weknora"
 KIWIX_PROVIDER = "kiwix"
+WIKI_PROVIDER = "wiki"
 
 # Providers the factory can instantiate. Unknown / legacy strings fall back to
 # the default with a re-index hint upstream.
@@ -57,6 +61,7 @@ KNOWN_PROVIDERS = frozenset(
         IMA_PROVIDER,
         WEKNORA_PROVIDER,
         KIWIX_PROVIDER,
+        WIKI_PROVIDER,
     }
 )
 
@@ -74,14 +79,31 @@ def normalize_provider_name(name: Optional[str] = None) -> str:
     return candidate if candidate in KNOWN_PROVIDERS else DEFAULT_PROVIDER
 
 
+def env_selected_provider() -> Optional[str]:
+    """Return the provider ``PI_TUTOR_RAG`` asks for, or None when it is unset.
+
+    Step D part 1: ``PI_TUTOR_RAG=wiki`` moves retrieval onto the local wiki qmd
+    index. Unset (or any other value) leaves LlamaIndex/faiss as the default, so
+    nothing changes until the operator opts in.
+    """
+    from .pipelines.wiki.pipeline import wiki_rag_enabled
+
+    return WIKI_PROVIDER if wiki_rag_enabled() else None
+
+
+def default_provider() -> str:
+    """The provider to use when a KB has no explicit binding."""
+    return env_selected_provider() or DEFAULT_PROVIDER
+
+
 def provider_uses_embedding_versions(provider: Optional[str]) -> bool:
     """Whether this provider's index versions are keyed by embedding signature.
 
     Today only the LlamaIndex pipeline uses DeepTutor's active embedding
-    signature to select/read index versions. PageIndex, GraphRAG and LightRAG
-    write synthetic provider signatures (``pageindex``/``graphrag``/``lightrag``)
-    and should not be marked stale merely because the active embedding profile
-    changed.
+    signature to select/read index versions. PageIndex, GraphRAG, LightRAG and
+    wiki write synthetic provider signatures (``pageindex``/``graphrag``/
+    ``lightrag``/``wiki``) and should not be marked stale merely because the
+    active embedding profile changed.
     """
     return normalize_provider_name(provider) == DEFAULT_PROVIDER
 
@@ -102,6 +124,7 @@ def version_matches_provider(entry: dict[str, Any], provider: Optional[str]) -> 
             IMA_PROVIDER,
             WEKNORA_PROVIDER,
             KIWIX_PROVIDER,
+            WIKI_PROVIDER,
         }
 
     return entry_provider == resolved or signature == resolved
@@ -182,6 +205,13 @@ def _build_pipeline(provider: str, kb_base_dir: Optional[str], **kwargs: Any):
         if kb_base_dir is not None:
             kwargs.setdefault("kb_base_dir", kb_base_dir)
         return KiwixPipeline(**kwargs)
+
+    if provider == WIKI_PROVIDER:
+        from .pipelines.wiki.pipeline import WikiQmdPipeline
+
+        if kb_base_dir is not None:
+            kwargs.setdefault("kb_base_dir", kb_base_dir)
+        return WikiQmdPipeline(**kwargs)
 
     from .pipelines.llamaindex.pipeline import LlamaIndexPipeline
 
@@ -345,6 +375,18 @@ def list_pipelines() -> List[Dict[str, Any]]:
             "configured": True,
             "requires_api_key": True,
         },
+        {
+            "id": WIKI_PROVIDER,
+            "name": "Wiki (qmd)",
+            "description": (
+                "Retrieval from the owner's local wiki index (qmd, the same "
+                "server the pi turn engine searches). No local index, embedding "
+                "or document copy. Read-only: add markdown to the wiki and let "
+                "qmd index it. Enabled with PI_TUTOR_RAG=wiki."
+            ),
+            "configured": env_selected_provider() == WIKI_PROVIDER,
+            "requires_api_key": False,
+        },
     ]
 
 
@@ -357,7 +399,11 @@ __all__ = [
     "LIGHTRAG_SERVER_PROVIDER",
     "IMA_PROVIDER",
     "WEKNORA_PROVIDER",
+    "KIWIX_PROVIDER",
+    "WIKI_PROVIDER",
     "KNOWN_PROVIDERS",
+    "default_provider",
+    "env_selected_provider",
     "get_pipeline",
     "has_ready_provider_index",
     "list_pipelines",
