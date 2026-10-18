@@ -150,10 +150,41 @@ def _method(score: float) -> tuple[str, str]:
     return next((band, how) for limit, band, how in _METHODS if score < limit)
 
 
-def prompt_block(user_message: str, limit: int = 4) -> str:
+_MATCH = 0.6  # cosine similarity between the message and a concept name
+
+
+def _cos(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    return dot / ((sum(x * x for x in a) ** 0.5) * (sum(y * y for y in b) ** 0.5) or 1)
+
+
+async def _related(user_message: str) -> set[str]:
+    """Concepts whose meaning is close to the message. Concept vectors are cached in the same database."""
+    from deeptutor.services.embedding.client import get_embedding_client
+
+    with _db() as con:
+        con.execute("CREATE TABLE IF NOT EXISTS concept_vec (concept TEXT PRIMARY KEY, vec TEXT)")
+        cached = {c: json.loads(v) for c, v in con.execute("SELECT concept, vec FROM concept_vec")}
+        concepts = [r[0] for r in con.execute("SELECT DISTINCT concept FROM evidence")]
+    missing = [c for c in concepts if c not in cached]
+    vecs = await get_embedding_client().embed([user_message[:2000], *missing])
+    if missing:
+        with _db() as con:
+            con.executemany("INSERT OR REPLACE INTO concept_vec VALUES (?, ?)", [(c, json.dumps(v)) for c, v in zip(missing, vecs[1:])])
+        cached.update(zip(missing, vecs[1:]))
+    return {c for c in concepts if _cos(vecs[0], cached[c]) >= _MATCH}
+
+
+async def prompt_block(user_message: str, limit: int = 4) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
-    hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))][:limit]
+    hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))]
+    try:  # also match by meaning ("beta-binomial updating" -> "conjugate priors")
+        near = await asyncio.wait_for(_related(user_message), timeout=3)
+        hits += [m for m in mastery() if m["concept"] in near and m not in hits]
+    except Exception:
+        logger.debug("chat mastery: meaning match skipped", exc_info=True)
+    hits = hits[:limit]
     practice = bool(re.search(r"\b(practi[cs]e|quiz|exercises?|questions?|test me|drill)\b", user_message, re.I))
     if practice and not hits:  # "give me practice" with no topic: practise the weakest concepts
         hits = mastery()[:3]
