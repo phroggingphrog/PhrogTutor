@@ -29,6 +29,7 @@ RUNTIME_BLOCK_NAMES = frozenset(
         "runtime_context",
         "memory",
         "learner_profile",
+        "chat_mastery",
         "sources",
         "notebooks",
         "workspace",
@@ -155,6 +156,9 @@ class LoopPromptAssembler:
         learner_profile = str((context.metadata or {}).get("learner_profile_prompt") or "")
         if learner_profile:
             blocks.append(PromptBlock("learner_profile", learner_profile))
+        chat_mastery = str((context.metadata or {}).get("chat_mastery_prompt") or "")
+        if chat_mastery:
+            blocks.append(PromptBlock("chat_mastery", chat_mastery))
         if context.persona_context:
             blocks.append(PromptBlock("persona_style", context.persona_context))
         partner_policy = self._partner_turn_policy(context)

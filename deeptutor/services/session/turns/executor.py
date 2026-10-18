@@ -954,6 +954,7 @@ class TurnExecutor:
                     "course_conventions": str(payload.get("course_conventions") or ""),
                     "reading_references": reading_references,
                     "learner_profile_prompt": learner_profile_prompt,
+                    "chat_mastery_prompt": _chat_mastery_prompt(raw_user_content),
                     "mastery_path_id": _mastery_path_id(payload.get("mastery_path_id")),
                     "mastery_mode": workspace_mode == WORKSPACE_MODE_MASTERY,
                     # What this conversation is doing. It picks the tutor's
@@ -1203,6 +1204,9 @@ class TurnExecutor:
             stream_done_sent = True
             await self._flush_buffered_events(execution)
             if not is_regenerate and turn_status == "completed":
+                from deeptutor.services import chat_mastery
+
+                chat_mastery.record_turn(session_id, turn_id, raw_user_content, assistant_content)
                 # Title generation is post-turn metadata. Keep it after DONE
                 # so the composer and duration clock stop as soon as the
                 # assistant answer is saved; the frontend keeps this socket
@@ -1436,3 +1440,13 @@ class TurnExecutor:
             from deeptutor.runtime.memory_reclaim import schedule_memory_reclaim
 
             schedule_memory_reclaim()
+
+
+def _chat_mastery_prompt(user_message: str) -> str:
+    try:
+        from deeptutor.services import chat_mastery
+
+        return chat_mastery.prompt_block(user_message)
+    except Exception:
+        logger.warning("chat mastery prompt failed", exc_info=True)
+        return ""
