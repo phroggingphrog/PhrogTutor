@@ -1,19 +1,23 @@
 /**
  * pi-tutor model bridge: every DeepTutor model call (BaseAgent.call_llm / stream_llm and the agent
  * loop) runs through the pi SDK's model layer (@earendil-works/pi-ai `stream`).
- * Input  (stdin, JSON): OpenAI chat-completions request {model, messages, tools?, temperature?, max_tokens?, reasoning_effort?}
- * Output (stdout): one OpenAI `chat.completion.chunk` JSON object per line, so DeepTutor's code reads it unchanged.
+ * One-shot:  stdin = one OpenAI chat-completions request; stdout = one `chat.completion.chunk` JSON per line.
+ * --serve:   one long-lived process. stdin = one {"rid", "req"} JSON per line (many at once);
+ *            stdout = chunk lines tagged with "rid", then {"rid", "end": true, "error"?} per request.
  * Model access: the "omni" provider in agent-dir/models.json (OmniRoute; key never printed).
  */
 import { stream } from "@earendil-works/pi-ai/compat";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const req = JSON.parse(readFileSync(0, "utf8"));
 const omni = JSON.parse(readFileSync(join(HERE, "agent-dir", "models.json"), "utf8")).providers.omni;
-const known = new Set<string>(omni.models.map((m: any) => m.id));
+const out = (o: any) => process.stdout.write(JSON.stringify(o) + "\n");
+
+/** Run one request; `write` gets each OpenAI chunk. Returns an error message, or "" when it finished cleanly. */
+async function handle(req: any, write: (chunk: any) => void): Promise<string> {
 // Any OmniRoute model or combo name passes through (DeepTutor's own catalog picks it); known ones get their limits/costs.
 const modelId: string = req.model || process.env.PI_TUTOR_MODEL || "openai/luna";
 const spec = omni.models.find((m: any) => m.id === modelId) ?? {};
@@ -47,7 +51,9 @@ const system: string[] = [];
 const messages: any[] = [];
 const toolNames = new Map<string, string>();
 for (const m of req.messages ?? []) {
-	if (m.role === "system" || m.role === "developer") system.push(text(m.content));
+	// pi has one system prompt: leading system messages go there; a later one (DeepTutor's step notes) stays in place as a user turn.
+	if ((m.role === "system" || m.role === "developer") && messages.length === 0) system.push(text(m.content));
+	else if (m.role === "system" || m.role === "developer") messages.push({ role: "user", content: `[System note]\n${text(m.content)}`, timestamp: Date.now() });
 	else if (m.role === "user") messages.push({ role: "user", content: userContent(m.content), timestamp: Date.now() });
 	else if (m.role === "assistant") {
 		const content: any[] = [];
@@ -72,14 +78,15 @@ const tools = (req.tools ?? []).map((t: any) => ({ name: t.function.name, descri
 const id = `pi-${Date.now()}`;
 const created = Math.floor(Date.now() / 1000);
 const emit = (delta: any, finish: string | null = null, usage: any = undefined) =>
-	process.stdout.write(JSON.stringify({ id, object: "chat.completion.chunk", created, model: modelId,
-		choices: [{ index: 0, delta, finish_reason: finish }], ...(usage ? { usage } : {}) }) + "\n");
+	write({ id, object: "chat.completion.chunk", created, model: modelId,
+		choices: [{ index: 0, delta, finish_reason: finish }], ...(usage ? { usage } : {}) });
 
 const options: any = { apiKey: omni.apiKey };
 if (req.temperature != null) options.temperature = req.temperature;
 if (req.reasoning_effort) options.reasoningEffort = req.reasoning_effort;
 
 let toolIndex = 0;
+let error = "";
 const finishMap: Record<string, string> = { stop: "stop", length: "length", toolUse: "tool_calls", error: "stop", aborted: "stop" };
 const events = stream(model, { systemPrompt: system.join("\n\n") || undefined, messages, tools: tools.length ? tools : undefined }, options);
 emit({ role: "assistant", content: "" });
@@ -91,9 +98,23 @@ for await (const ev of events as any) {
 		emit({ tool_calls: [{ index: toolIndex++, id: tc.id, type: "function", function: { name: tc.name, arguments: JSON.stringify(tc.arguments ?? {}) } }] });
 	} else if (ev.type === "done" || ev.type === "error") {
 		const msg = ev.type === "done" ? ev.message : ev.error;
-		if (ev.type === "error") process.stderr.write(`pi model error: ${msg?.errorMessage ?? "unknown"}\n`);
+		if (ev.type === "error") error = `pi model error: ${msg?.errorMessage ?? "unknown"}`;
 		const u = msg?.usage ?? {};
 		emit({}, finishMap[msg?.stopReason] ?? "stop", { prompt_tokens: u.input ?? 0, completion_tokens: u.output ?? 0, total_tokens: u.totalTokens ?? 0 });
-		process.exitCode = ev.type === "error" ? 1 : 0;
 	}
+}
+return error;
+}
+
+if (process.argv.includes("--serve")) {
+	for await (const line of createInterface({ input: process.stdin })) {
+		if (!line.trim()) continue;
+		const { rid, req } = JSON.parse(line);
+		handle(req, (c) => out({ ...c, rid }))
+			.then((error) => out({ rid, end: true, ...(error ? { error } : {}) }))
+			.catch((e) => out({ rid, end: true, error: String(e?.message ?? e) }));
+	}
+} else {
+	const error = await handle(JSON.parse(readFileSync(0, "utf8")), out);
+	if (error) { process.stderr.write(error + "\n"); process.exitCode = 1; }
 }

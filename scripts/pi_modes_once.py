@@ -2,6 +2,7 @@
 Usage: PYTHONPATH=. DEEPTUTOR_WORKSPACE_ROOT=<dir> .venv/bin/python scripts/pi_modes_once.py [mode ...]
 """
 import asyncio
+import os
 import sys
 import time
 import traceback
@@ -12,13 +13,54 @@ CALLS = {"n": 0}
 _orig = pi_bridge._chunks
 
 
+TRACE = []
+
+
 async def _counting(request):
     CALLS["n"] += 1
+    t0, finish, tools, n_chars = time.time(), None, [], 0
     async for c in _orig(request):
+        ch = (c.get("choices") or [{}])[0]
+        d = ch.get("delta") or {}
+        n_chars += len(d.get("content") or "")
+        tools += [t["function"]["name"] for t in d.get("tool_calls") or []]
+        finish = ch.get("finish_reason") or finish
         yield c
+    TRACE.append(f"pi call {CALLS['n']}: {time.time() - t0:.1f}s finish={finish} tools={tools} text={n_chars} chars, roles={[m.get('role') for m in request.get('messages') or []]}")
 
 
 pi_bridge._chunks = _counting
+
+# vanilla: count DeepTutor's own OpenAI calls the same way
+from openai.resources.chat.completions import AsyncCompletions  # noqa: E402
+
+_orig_create = AsyncCompletions.create
+
+
+async def _vanilla_create(self, *a, **kw):
+    CALLS["n"] += 1
+    TRACE.append(f"vanilla call {CALLS['n']}: stream={kw.get('stream')} msgs_in={len(kw.get('messages') or [])} tools_offered={len(kw.get('tools') or [])}")
+    return await _orig_create(self, *a, **kw)
+
+
+AsyncCompletions.create = _vanilla_create
+
+# RUN_MODEL=<OmniRoute model or combo>: use it instead of the catalog's active model, for this run only
+if os.environ.get("RUN_MODEL"):
+    from deeptutor.services.config.model_catalog import ModelCatalogService
+
+    _orig_load = ModelCatalogService.load
+
+    def _load(self, *a, **kw):
+        cat = _orig_load(self, *a, **kw)
+        llm = cat.get("services", {}).get("llm", {})
+        for prof in llm.get("profiles", []):
+            for m in prof.get("models", []):
+                if m.get("id") == llm.get("active_model_id"):
+                    m["model"] = os.environ["RUN_MODEL"]
+        return cat
+
+    ModelCatalogService.load = _load
 
 TURN_MODES = {
     "solve": ("deep_solve", "Solve: a fair coin is tossed 3 times. What is P(at least 2 heads)?"),
@@ -67,9 +109,9 @@ def api_mode(name: str) -> str:
         elif name == "book":
             r = c.post("/api/books", json={"user_intent": "A two-page intro to Bayes' theorem.", "depth": "quick"})
         else:  # partners
-            r = c.post("/api/partners", json={"name": "pi-check-partner", "description": "test partner for the pi port"})
+            r = c.post("/api/partners", json={"name": f"check-partner-{int(time.time())}", "description": "test partner for the pi port"})
             if r.status_code < 300:
-                pid = r.json().get("partner_id") or r.json().get("id") or "pi-check-partner"
+                pid = r.json().get("partner_id") or r.json().get("id")
                 r = c.post(f"/api/partners/{pid}/chat", json={"content": "Say hello in five words."})
         if r.status_code >= 300:
             raise RuntimeError(f"HTTP {r.status_code}: {r.text[:300]}")
@@ -82,12 +124,16 @@ async def main() -> None:
         CALLS["n"], t0 = 0, time.time()
         try:
             out = await turn_mode(*TURN_MODES[m]) if m in TURN_MODES else await asyncio.to_thread(api_mode, m)
-            status = "OK" if CALLS["n"] else "OK-but-no-pi-call"
-            snippet = " ".join(out.split())[:160]
+            status = "OK"
+            snippet = " ".join(out.split())[:400]
         except Exception as exc:  # noqa: BLE001
             status, snippet = "FAIL", f"{type(exc).__name__}: {exc}"[:300]
             traceback.print_exc(file=sys.stderr)
-        print(f"RESULT {m}: {status} | pi calls {CALLS['n']} | {time.time() - t0:.0f}s | {snippet}", flush=True)
+        engine = "pi" if pi_bridge.pi_sdk_enabled() else "vanilla"
+        if os.environ.get("TRACE_CALLS"):
+            print("\n".join(TRACE), flush=True)
+        TRACE.clear()
+        print(f"RESULT {engine} {m}: {status} | model calls {CALLS['n']} | {time.time() - t0:.0f}s | {snippet}", flush=True)
 
 
 asyncio.run(main())

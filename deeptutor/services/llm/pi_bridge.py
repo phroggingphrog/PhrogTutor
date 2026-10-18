@@ -16,6 +16,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import uuid
 from collections.abc import AsyncGenerator, AsyncIterator
 from pathlib import Path
 from typing import Any
@@ -28,22 +29,58 @@ def pi_sdk_enabled() -> bool:
     return os.environ.get("PI_TUTOR_SDK", "1").lower() not in ("0", "false", "no")
 
 
-async def _chunks(request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
-    payload = json.dumps({k: request[k] for k in _PASS if request.get(k) is not None}).encode()
-    proc = await asyncio.create_subprocess_exec(
-        "bun", str(_LLM_TS),
-        stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
-        limit=16 * 1024 * 1024,
-    )
-    proc.stdin.write(payload)
-    await proc.stdin.drain()
-    proc.stdin.close()
-    async for line in proc.stdout:
-        if line.strip():
-            yield json.loads(line)
-    err = (await proc.stderr.read()).decode(errors="replace").strip()
-    if await proc.wait() != 0:
-        raise RuntimeError(f"pi SDK model call failed: {err[-500:] or 'no output'}")
+class _PiProcess:
+    """One long-lived ``bun llm.ts --serve`` per event loop; requests share it, tagged by ``rid``."""
+
+    def __init__(self) -> None:
+        self.proc: asyncio.subprocess.Process | None = None
+        self.queues: dict[str, asyncio.Queue] = {}
+        self.lock = asyncio.Lock()
+
+    async def _ensure(self) -> asyncio.subprocess.Process:
+        async with self.lock:
+            if self.proc is None or self.proc.returncode is not None:
+                self.proc = await asyncio.create_subprocess_exec(
+                    "bun", str(_LLM_TS), "--serve",
+                    stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,
+                    limit=16 * 1024 * 1024,
+                )
+                asyncio.create_task(self._read(self.proc))
+            return self.proc
+
+    async def _read(self, proc: asyncio.subprocess.Process) -> None:
+        async for line in proc.stdout:
+            if line.strip():
+                msg = json.loads(line)
+                queue = self.queues.get(msg.pop("rid", ""))
+                if queue is not None:
+                    queue.put_nowait(msg)
+        for queue in self.queues.values():  # the process died: end every open request
+            queue.put_nowait({"end": True, "error": "pi SDK process exited"})
+
+    async def chunks(self, request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+        rid = uuid.uuid4().hex
+        queue: asyncio.Queue = asyncio.Queue()
+        self.queues[rid] = queue
+        try:
+            proc = await self._ensure()
+            req = {k: request[k] for k in _PASS if request.get(k) is not None}
+            proc.stdin.write((json.dumps({"rid": rid, "req": req}) + "\n").encode())
+            await proc.stdin.drain()
+            while not (msg := await queue.get()).get("end"):
+                yield msg
+            if msg.get("error"):
+                raise RuntimeError(f"pi SDK model call failed: {msg['error'][-500:]}")
+        finally:
+            self.queues.pop(rid, None)
+
+
+_PROCS: dict[int, _PiProcess] = {}
+
+
+def _chunks(request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+    loop_id = id(asyncio.get_running_loop())
+    return _PROCS.setdefault(loop_id, _PiProcess()).chunks(request)
 
 
 def _messages(prompt: str, system_prompt: str, messages: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
