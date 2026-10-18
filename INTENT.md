@@ -31,3 +31,7 @@ So pi is the agent SDK UNDER every DeepTutor agent and mode (chat, solve, resear
 ## Full pi environment (owner 2026-10-18, verbatim)
 "My original plan is to fully adapt it into pi-agent environment"
 So the target is DeepTutor's agent loop running as a pi agent session (pi-agent-core), with DeepTutor's tools as pi tools, so pi extensions/plugins can load. The model-layer bridge (pi_engine/llm.ts) was step 1 of this, not the end.
+
+## Differentiator (owner 2026-10-18, verbatim)
+"this is what my fork will differentiate from deep tutor but i dont want a curriculum planner, but want a self learning agent on the user behavior"
+Approved plan and order: board card TASK-71.4 (starts after the pi port is finished).
