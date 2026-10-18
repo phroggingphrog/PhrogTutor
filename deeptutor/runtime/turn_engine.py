@@ -15,6 +15,12 @@ class TurnEngine:
         self.capability_registry = capability_registry
 
     async def execute(self, context: UnifiedContext) -> AsyncIterator[StreamEvent]:
+        from deeptutor.runtime.pi_turn_engine import pi_engine_enabled, run_pi_turn
+
+        if pi_engine_enabled():  # PI_TUTOR_ENGINE=1: one pi SDK session per turn (pi_engine/turn.ts)
+            async for event in run_pi_turn(context):
+                yield event
+            return
         # Lazy loading avoids provider/plugin import side effects at process
         # boot and leaves one stable patch point for tests and embedders.
         from deeptutor.runtime.orchestrator import ChatOrchestrator

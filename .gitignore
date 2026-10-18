@@ -285,3 +285,10 @@ dmypy.json
 *.mp3
 *.wav
 *.ogg
+
+# pi_engine: local-only (models.json holds the OmniRoute key; node_modules is a symlink to the global pi SDK)
+pi_engine/agent-dir/models.json
+pi_engine/agent-dir/auth.json
+pi_engine/agent-dir/mcp-auth.json
+pi_engine/agent-dir/models-store.json
+pi_engine/node_modules
