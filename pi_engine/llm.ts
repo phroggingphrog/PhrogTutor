@@ -46,9 +46,9 @@ const pending = new Map<string, (data: any) => void>();
 let seq = 0;
 const host = (rid: string) => ({
 	write: tagged(rid),
-	ask: (ask: string, data: any = {}) => new Promise<any>((res) => {
+	ask: (ask: string, data: any = {}) => new Promise<any>((res, rej) => {
 		const n = ++seq;
-		pending.set(`${rid}:${n}`, res);
+		pending.set(`${rid}:${n}`, (data) => (data?._error ? rej(new Error(data._error)) : res(data)));
 		out({ ...data, rid, ask, seq: n });
 	}),
 });

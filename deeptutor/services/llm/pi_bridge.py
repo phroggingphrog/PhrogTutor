@@ -93,7 +93,11 @@ class _PiProcess:
                         "error": msg.get("error") or "pi agent turn ended", "error_kind": "transport", "partial": True,
                     }
                 if "ask" in msg:
-                    data = await host.ask(msg.pop("ask"), msg)
+                    try:
+                        data = await host.ask(msg.pop("ask"), msg)
+                    except BaseException as exc:  # end the pi session too, then fail the turn here
+                        await self._send({"rid": rid, "kind": "reply", "seq": msg["seq"], "data": {"_error": str(exc)}})
+                        raise
                     await self._send({"rid": rid, "kind": "reply", "seq": msg["seq"], "data": data or {}})
                 elif "notice" in msg:
                     await host.notice(msg["notice"], msg.get("vars") or {})
