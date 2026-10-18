@@ -100,7 +100,11 @@ for await (const ev of events as any) {
 		const msg = ev.type === "done" ? ev.message : ev.error;
 		if (ev.type === "error") error = `pi model error: ${msg?.errorMessage ?? "unknown"}`;
 		const u = msg?.usage ?? {};
-		emit({}, finishMap[msg?.stopReason] ?? "stop", { prompt_tokens: u.input ?? 0, completion_tokens: u.output ?? 0, total_tokens: u.totalTokens ?? 0 });
+		// OpenAI shape: prompt_tokens includes cached ones; cached_tokens is what DeepTutor's "Cache hit rate" reads.
+		const cached = u.cacheRead ?? 0;
+		const prompt = (u.input ?? 0) + cached + (u.cacheWrite ?? 0);
+		emit({}, finishMap[msg?.stopReason] ?? "stop", { prompt_tokens: prompt, completion_tokens: u.output ?? 0,
+			total_tokens: prompt + (u.output ?? 0), prompt_tokens_details: { cached_tokens: cached } });
 	}
 }
 return error;
