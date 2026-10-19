@@ -215,7 +215,8 @@ _RULES = """How to teach this learner (always):
 7. Use their course notation (explicit H0/Ha, an HDI probability sentence for each Bayesian parameter, ER multiplicity at the opposite end); label invented numbers as hypothetical.
 8. For graded work, make them say why each choice was made and what each output shows.
 9. Stay short, finish what was asked, note side detours instead of following them.
-10. Never mention mastery scores or turn the chat into a quiz."""
+10. Never mention mastery scores or turn the chat into a quiz.
+11. When a process, flow, structure or relationship is easier to see than read, include one small diagram as a ```mermaid code block (flowchart, sequence or ER diagram, under 12 nodes), then explain it."""
 
 # Method by mastery band, rewritten in our own words from worked-example fading, Socratic questioning and retrieval practice.
 _METHODS = (
