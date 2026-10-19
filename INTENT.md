@@ -45,3 +45,7 @@ Owner choice 2026-10-18: "Engine native, rest stays". Rewrite the engine core (a
 - "i think mind atlas suppose to be in settings dont you think bcs current state i dont think the user should read in that state it should be somethign AI digest"
 - "maybe under personalised learning? and under personalised learning there should be an option to drop raw knowledge e.g. pdf slides, book, websites, etc to be parsed and with consent check list box that you understand that you own all of the course content copyright for this used to be used with ai with an option for local models or will this bloatedup the code? TREAT THIS as intent first some features when i want to publish the full fork under git"
 - "note user friendly, shouldnt Markdown note suppose to be integrated with it? and co-writer and markdown note basically same features and need to be merged under one page"
+
+## 2026-10-19 — decision (owner: "ok agree")
+- Editor: keep Tiptap (most mature); borrow ideas (slash menu, drag handle) from Novel, links/backlinks from SilverBullet.
+- Repo understanding: Graphify first, imported as files only (pinned version, never run inside DeepTutor); Understand-Anything's tour format as an idea; archify optional later. All three are young and fast-moving (research: docs/research/understand-repos/).
