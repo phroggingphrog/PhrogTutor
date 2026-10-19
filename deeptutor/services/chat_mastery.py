@@ -42,6 +42,9 @@ _SYSTEM = (
     "- quote: the learner's own words (max 200 chars) that show it.\n"
     "Only academic or technical subject matter counts (maths, statistics, programming, databases, science...). "
     "Never record project planning, writing style, formatting, app usage or instructions as a concept.\n"
+    "Judge reasoning, not wording: explained_correctly needs the learner's own why/how (a reason, a link "
+    "between ideas, a new example or a prediction). Reciting a definition, correct jargon or the tutor's words "
+    "back is NOT evidence. applied_correctly needs them to use it on a problem the tutor did not solve for them.\n"
     "Only record what the learner's message itself shows. Asking for an explanation of something new is "
     "hint_seeking only if they are stuck on it. Small talk or no learning signal: {\"evidence\": []}."
 )
