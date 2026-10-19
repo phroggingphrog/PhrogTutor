@@ -37,7 +37,9 @@ const BUTTONS: [string, string, (e: any) => void, (e: any) => boolean][] = [
   ["</>", "Code block", (e) => e.chain().focus().toggleCodeBlock({ language: "python" }).run(), (e) => e.isActive("codeBlock")],
 ];
 
-export default function NotesEditor() {
+// compact: the chat side panel's view (note list folds away behind a button, toolbar wraps).
+export default function NotesEditor({ compact = false }: { compact?: boolean }) {
+  const [showList, setShowList] = useState(!compact);
   const [notes, setNotes] = useState<NoteMeta[]>([]);
   const [current, setCurrent] = useState<string | null>(null);
   const [status, setStatus] = useState("");
@@ -54,6 +56,26 @@ export default function NotesEditor() {
       sessionStorage.setItem("pi-tutor:ask-note", `About my note "${current}":\n\n${md}\n\nMy question: `);
     } catch {}
     router.push("/");
+  };
+  // Co-Writer inside Notes: rewrite the selection (or the whole note) by an instruction.
+  const aiEdit = async () => {
+    if (!editor || readOnly) return;
+    const { from, to } = editor.state.selection;
+    const whole = from === to;
+    const text = whole ? editor.getMarkdown() : editor.state.doc.textBetween(from, to, "\n");
+    const instruction = window.prompt(whole ? "AI edit the whole note — what should change?" : "AI edit the selection — what should change?");
+    if (!instruction) return;
+    setStatus("AI editing…");
+    const r = await apiFetch(apiUrl("/api/documents/actions/edit"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.slice(0, 50000), instruction, action: "rewrite" }),
+    });
+    if (!r.ok) return setStatus("AI edit failed");
+    const edited = (await r.json()).edited_text as string;
+    if (whole) editor.commands.setContent(edited, { contentType: "markdown" });
+    else editor.chain().focus().insertContentAt({ from, to }, edited, { contentType: "markdown" }).run();
+    setStatus("AI edited — Ctrl+Z to undo");
   };
   const [hits, setHits] = useState<{ name: string; snippet: string }[] | null>(null);
 
@@ -182,8 +204,9 @@ export default function NotesEditor() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] text-[var(--foreground)]">
-      <aside className="flex w-64 shrink-0 flex-col border-r border-[var(--border)]">
+    <div className={`relative flex ${compact ? "h-full" : "h-[calc(100vh-4rem)]"} text-[var(--foreground)]`}>
+      {showList && (
+      <aside className={`flex w-64 shrink-0 flex-col border-r border-[var(--border)] ${compact ? "absolute inset-y-0 left-0 z-10 bg-[var(--background)] shadow-lg" : ""}`}>
         <div className="flex items-center justify-between p-3">
           <span className="font-medium">Notes</span>
           <span className="flex gap-1">
@@ -220,7 +243,7 @@ export default function NotesEditor() {
             ].map((h, i) => (
               <li key={`${h.name}:${i}`}>
                 <button
-                  onClick={() => open(h.name)}
+                  onClick={() => { open(h.name); if (compact) setShowList(false); }}
                   className={`w-full px-3 py-1.5 text-left text-sm hover:bg-[var(--muted)] ${h.name === current ? "bg-[var(--muted)]" : ""}`}
                 >
                   <div className="truncate font-medium">{h.name}</div>
@@ -254,7 +277,7 @@ export default function NotesEditor() {
             ) : (
               <li key={row.path}>
                 <button
-                  onClick={() => open(row.path)}
+                  onClick={() => { open(row.path); if (compact) setShowList(false); }}
                   style={{ paddingLeft: 30 + row.depth * 14 }}
                   className={`w-full truncate py-1.5 pr-3 text-left text-sm hover:bg-[var(--muted)] ${row.path === current ? "bg-[var(--muted)] font-medium" : ""}`}
                 >
@@ -270,11 +293,17 @@ export default function NotesEditor() {
           Saved from chat →
         </Link>
       </aside>
+      )}
       <div className="flex min-w-0 flex-1 flex-col">
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
         {current ? (
           <>
-            <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-2">
+            <div className="flex flex-wrap items-center gap-2 whitespace-nowrap border-b border-[var(--border)] px-4 py-2">
+              {compact && (
+                <button onClick={() => setShowList((v) => !v)} title="All notes" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
+                  ☰
+                </button>
+              )}
               <input
                 key={current}
                 readOnly={readOnly}
@@ -287,6 +316,11 @@ export default function NotesEditor() {
               <button onClick={askTutor} title="Ask the tutor about this note" className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
                 <MessageCircleQuestion size={14} /> Ask tutor
               </button>
+              {!readOnly && (
+                <button onClick={aiEdit} title="AI edit: select text first, or edit the whole note" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
+                  ✨ AI edit
+                </button>
+              )}
               <button onClick={runAll} title="Run every code cell, top to bottom" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
                 ▶▶ Run all
               </button>
@@ -317,7 +351,10 @@ export default function NotesEditor() {
             <EditorContent editor={editor} />
           </>
         ) : (
-          <div className="m-auto text-[var(--muted-foreground)]">Pick a note or create one.</div>
+          <div className="m-auto flex flex-col items-center gap-2 text-[var(--muted-foreground)]">
+            Pick a note or create one.
+            {compact && <button onClick={() => setShowList(true)} className="rounded border border-[var(--border)] px-3 py-1 text-sm">Open notes</button>}
+          </div>
         )}
       </main>
       {showTerminal && <TerminalPanel key={current ?? ""} note={current ?? ""} />}

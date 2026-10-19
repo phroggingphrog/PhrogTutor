@@ -637,7 +637,7 @@ function SessionViewerPanelInner(
     () => ({
       openFileTab,
       openWebTab,
-      openMarkdownNoteTab,
+      openMarkdownNoteTab: openNotesTab,
       openQuizFollowupTab,
       openSelectionTutorTab,
       openGeogebraTab,
@@ -791,7 +791,7 @@ function SessionViewerPanelInner(
             className="h-full w-full border-0 bg-white"
           />
         ) : activeTab?.kind === "notes" ? (
-          <div className="h-full overflow-hidden"><NotesEditor /></div>
+          <div className="h-full overflow-hidden"><NotesEditor compact /></div>
         ) : activeTab?.kind === "terminal" ? (
           <TerminalPanel note={`chat-${sessionId ?? "scratch"}`} className="h-full bg-[#1e1e1e] p-1" />
         ) : activeTab?.kind === "quiz-followup" ? (
@@ -814,7 +814,6 @@ function SessionViewerPanelInner(
               onOpenLocalFile={(file) =>
                 openFromNewTab(() => openLocalFile(file))
               }
-              onOpenMarkdownNote={() => openFromNewTab(openMarkdownNoteTab)}
               onOpenTerminal={() => openFromNewTab(openTerminalTab)}
               onOpenNotes={() => openFromNewTab(openNotesTab)}
             />

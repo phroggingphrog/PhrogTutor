@@ -81,3 +81,45 @@ async def gaps():
             status, via = "not_started", ""
         courses.setdefault(course, []).append({"page": page, "title": titles[page], "status": status, "via": via})
     return {"courses": courses}
+
+
+# Mind Atlas digest: the records above, read by the AI and told back in a few plain lines.
+# Cached until the records change, so opening the page costs one cheap call at most.
+@router.get("/digest")
+async def digest():
+    import hashlib
+    import json
+
+    from deeptutor.services.llm import complete
+
+    rows = chat_mastery.mastery()
+    if not rows:
+        return {"digest": ""}
+    facts = "\n".join(f"- {m['concept']}: {m['mastery']:.2f} from {m['evidence']} signals" for m in rows[:40])
+    key = hashlib.sha256(facts.encode()).hexdigest()
+    with chat_mastery._db() as con:
+        con.execute("CREATE TABLE IF NOT EXISTS digest_cache (key TEXT PRIMARY KEY, text TEXT)")
+        hit = con.execute("SELECT text FROM digest_cache WHERE key=?", (key,)).fetchone()
+    if hit:
+        return {"digest": hit[0]}
+    text = await complete(
+        prompt=f"Mastery per concept (0 = shaky, 1 = solid):\n{facts}",
+        system_prompt=(
+            "Tell the learner, in 4 short plain lines, where they stand: 1) what they are solid on, "
+            "2) what is shaky and the likely reason (shared underlying idea), 3) the one concept to study next and why, "
+            "4) one encouraging fact about their progress. No numbers, no jargon, second person. Plain text, one line each."
+        ),
+        model=chat_mastery._EXTRACT_MODEL, temperature=0.3, max_tokens=300, reasoning_effort="none",
+    )
+    text = (text or "").strip()
+    with chat_mastery._db() as con:
+        con.execute("INSERT OR REPLACE INTO digest_cache VALUES (?,?)", (key, text))
+    return {"digest": text}
+
+
+# Course material drop: which model the "process with a local model" switch uses (none = switch off).
+@router.get("/course-material-options")
+def course_material_options():
+    import os
+
+    return {"local_model": os.environ.get("PI_TUTOR_LOCAL_MODEL", "").strip()}
