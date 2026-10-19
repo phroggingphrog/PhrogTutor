@@ -394,11 +394,19 @@ def _project_map(user_message: str) -> str:
             return (
                 "\n\nProject map of the learner's own project (from its code; INFERRED links are guesses):\n"
                 + p.read_text(encoding="utf-8")[:6000]
-                + "\nTour mode: take ONE area at a time, most connected first. Show its real files and one Mermaid "
+                + "\nTour mode: take ONE area at a time, most connected first. Read its real files with read_project_file, quote the key lines, show one Mermaid "
                 "diagram of how it connects to the next area, then ask the learner to explain in their own words what "
                 "the area does and why it exists before moving on. Never claim they understand it; their explanation decides."
             )
-    return ""
+    listing = []
+    for p in sorted(d.glob("*.md")) if d.is_dir() else []:
+        src = re.search(r"^Source: (\S+)", p.read_text(encoding="utf-8"), re.M)
+        listing.append(f"{p.stem} ({src.group(1) if src else '?'})")
+    return (
+        "\n\nThe learner's mapped projects: " + ", ".join(listing) + ". If they refer to one (even by description), "
+        "call map_project with its name to load the map and tour it; to understand any other codebase (a folder or a git URL), "
+        "call map_project with that source. Use read_project_file to quote the real code; never ask the learner to paste it."
+    ) if listing else ""
 
 
 async def prompt_block(user_message: str, limit: int = 4) -> str:

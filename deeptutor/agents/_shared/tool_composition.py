@@ -259,7 +259,7 @@ def compose_enabled_tools(
         if getattr(mount_flags, flag) and _builtin_allowed(tool_name):
             composed.append(tool_name)
     composed.extend(str(name) for name in capability_owned if str(name).strip())
-    for always_on in ("write_memory", "web_fetch", "github", "ask_user", "cron"):
+    for always_on in ("write_memory", "web_fetch", "github", "ask_user", "cron", "map_project", "read_project_file"):
         if _builtin_allowed(always_on):
             composed.append(always_on)
     return _finalize([*WORKSPACE_BASELINE_TOOLS, *composed], forced, suppressed)

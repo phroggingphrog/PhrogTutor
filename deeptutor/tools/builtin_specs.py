@@ -71,6 +71,8 @@ BUILTIN_TOOL_SPECS: tuple[BuiltinToolSpec, ...] = (
         ),
     ),
     BuiltinToolSpec("exec", "deeptutor.tools.exec_tool:ExecTool"),
+    BuiltinToolSpec("map_project", "deeptutor.tools.project_map:MapProjectTool"),
+    BuiltinToolSpec("read_project_file", "deeptutor.tools.project_map:ReadProjectFileTool"),
     *_specs(
         "deeptutor.tools.workspace",
         (
