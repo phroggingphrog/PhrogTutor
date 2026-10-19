@@ -38,6 +38,7 @@ const RichCodeBlockPreview = dynamic(
 );
 
 const FONTS = [
+  ["system", "System (like ChatGPT)"],
   ["lexend", "Lexend"],
   ["atkinson", "Atkinson Hyperlegible"],
   ["inter", "Inter"],
@@ -46,8 +47,8 @@ const FONTS = [
 ] as const;
 
 function FontRow() {
-  const [font, setFont] = useState("lexend");
-  useEffect(() => setFont(document.documentElement.dataset.font || "lexend"), []);
+  const [font, setFont] = useState("system");
+  useEffect(() => setFont(document.documentElement.dataset.font || "system"), []);
   const choose = (next: string) => {
     setFont(next);
     document.documentElement.dataset.font = next;  // applies at once, no Apply needed

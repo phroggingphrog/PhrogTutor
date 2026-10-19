@@ -11,9 +11,9 @@ export default function ThemeScript() {
   const themeScript = `
     (function() {
       try {
-        document.documentElement.dataset.font = localStorage.getItem('phrogtutor-font') || 'lexend';
+        document.documentElement.dataset.font = localStorage.getItem('phrogtutor-font') || 'system';
       } catch (e) {
-        document.documentElement.dataset.font = 'lexend';
+        document.documentElement.dataset.font = 'system';
       }
       try {
         const stored = localStorage.getItem('deeptutor-theme');

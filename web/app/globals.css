@@ -1406,3 +1406,4 @@ html[data-font="lexend"] { --font-sans: var(--font-lexend); --font-serif: var(--
 html[data-font="atkinson"] { --font-sans: var(--font-atkinson); --font-serif: var(--font-atkinson); }
 html[data-font="inter"] { --font-sans: var(--font-inter); --font-serif: var(--font-inter); }
 html[data-font="geist"] { --font-serif: var(--font-sans); }
+html[data-font="system"] { --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --font-serif: var(--font-sans); }
