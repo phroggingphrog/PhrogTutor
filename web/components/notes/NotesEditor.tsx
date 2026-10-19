@@ -9,7 +9,10 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Mathematics from "@tiptap/extension-mathematics";
 import "katex/dist/katex.min.css";
-import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion, SquareTerminal, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion,
+  MoreHorizontal,
+  PanelLeft,
+  WandSparkles, SquareTerminal, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -323,8 +326,8 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
           <>
             <div className="flex flex-wrap items-center gap-2 whitespace-nowrap border-b border-[var(--border)] px-4 py-2">
               {compact && (
-                <button onClick={() => setShowList((v) => !v)} title="All notes" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                  ☰
+                <button onClick={() => setShowList((v) => !v)} title="All notes" className="rounded p-1 hover:bg-[var(--muted)]">
+                  <PanelLeft size={16} />
                 </button>
               )}
               <input
@@ -336,16 +339,16 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
                 className="min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none"
               />
               <span className="text-xs text-[var(--muted-foreground)]">{status}</span>
-              <button onClick={askTutor} title="Ask the tutor about the selection (or the whole note)" className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                <MessageCircleQuestion size={14} /> Ask
+              <button onClick={askTutor} title="Ask the tutor about the selection (or the whole note)" className="rounded p-1 hover:bg-[var(--muted)]">
+                <MessageCircleQuestion size={16} />
               </button>
               {!readOnly && (
-                <button onClick={aiEdit} title="AI edit: select text first, or edit the whole note" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                  ✨ Edit
+                <button onClick={aiEdit} title="AI edit: select text first, or edit the whole note" className="rounded p-1 hover:bg-[var(--muted)]">
+                  <WandSparkles size={16} />
                 </button>
               )}
               <span className="relative">
-                <button onClick={() => setMenu((v) => !v)} title="More" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">⋯</button>
+                <button onClick={() => setMenu((v) => !v)} title="More" className="rounded p-1 hover:bg-[var(--muted)]"><MoreHorizontal size={16} /></button>
                 {menu && (
                   <div onClick={() => setMenu(false)} className="absolute right-0 z-20 mt-1 flex w-44 flex-col rounded-md border border-[var(--border)] bg-[var(--background)] py-1 text-sm shadow-lg">
                     <button onClick={() => setShowFormat((v) => !v)} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">{showFormat ? "Hide" : "Show"} formatting bar</button>
