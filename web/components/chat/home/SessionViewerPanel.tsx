@@ -41,6 +41,7 @@ import {
   Loader2,
   MessageSquarePlus,
   NotebookPen,
+  SquareTerminal,
   Paperclip,
   Plus,
   X,
@@ -153,6 +154,8 @@ type ViewerTab =
   | { kind: "file"; id: string; label: string; source: FilePreviewSource }
   | { kind: "web"; id: string; label: string; url: string }
   | { kind: "markdown-note"; id: string; label: string }
+  | { kind: "terminal"; id: string; label: string }
+  | { kind: "notes"; id: string; label: string }
   | {
       kind: "quiz-followup";
       id: string;
@@ -221,6 +224,9 @@ function webTabIdFor(url: string): string {
 }
 
 const markdownNoteTabId = "markdown-note";
+const terminalTabId = "terminal";
+const NotesEditor = dynamic(() => import("@/components/notes/NotesEditor"), { ssr: false });
+const TerminalPanel = dynamic(() => import("@/components/notes/TerminalPanel"), { ssr: false });
 
 /** One launcher tab at a time — a second "+" focuses it instead of piling
  *  up blank tabs. */
@@ -431,6 +437,24 @@ function SessionViewerPanelInner(
       setActiveTabId(markdownNoteTabId);
       return [...prev, next];
     });
+    onAutoOpen();
+  }, [onAutoOpen, t]);
+
+  const openTerminalTab = useCallback(() => {
+    setTabs((prev) =>
+      prev.some((tab) => tab.id === terminalTabId)
+        ? prev
+        : [...prev, { kind: "terminal", id: terminalTabId, label: t("Terminal") }],
+    );
+    setActiveTabId(terminalTabId);
+    onAutoOpen();
+  }, [onAutoOpen, t]);
+
+  const openNotesTab = useCallback(() => {
+    setTabs((prev) =>
+      prev.some((tab) => tab.id === "notes") ? prev : [...prev, { kind: "notes", id: "notes", label: t("Notes") }],
+    );
+    setActiveTabId("notes");
     onAutoOpen();
   }, [onAutoOpen, t]);
 
@@ -743,6 +767,10 @@ function SessionViewerPanelInner(
             key={`${activeTab.id}:${sessionId ?? "pending"}`}
             sessionId={sessionId}
           />
+        ) : activeTab?.kind === "notes" ? (
+          <div className="h-full overflow-hidden"><NotesEditor /></div>
+        ) : activeTab?.kind === "terminal" ? (
+          <TerminalPanel note={`chat-${sessionId ?? "scratch"}`} className="h-full bg-[#1e1e1e] p-1" />
         ) : activeTab?.kind === "quiz-followup" ? (
           <QuizFollowupTabBody
             key={activeTab.context.questionKey}
@@ -764,6 +792,8 @@ function SessionViewerPanelInner(
                 openFromNewTab(() => openLocalFile(file))
               }
               onOpenMarkdownNote={() => openFromNewTab(openMarkdownNoteTab)}
+              onOpenTerminal={() => openFromNewTab(openTerminalTab)}
+              onOpenNotes={() => openFromNewTab(openNotesTab)}
             />
           </div>
         ) : activeTab?.kind === "subagent" ? (
@@ -852,6 +882,10 @@ function TabBar({
           const Icon =
             tab.kind === "web"
               ? Globe
+              : tab.kind === "terminal"
+                ? SquareTerminal
+              : tab.kind === "notes"
+                ? NotebookPen
               : tab.kind === "markdown-note"
                 ? NotebookPen
                 : tab.kind === "selection-tutor"
@@ -980,6 +1014,8 @@ function ActivityOpener({
   onOpenWebTab,
   onOpenLocalFile,
   onOpenMarkdownNote,
+  onOpenTerminal,
+  onOpenNotes,
   autoFocus = false,
 }: {
   onOpenWebTab: (url: string) => void;
@@ -987,6 +1023,8 @@ function ActivityOpener({
   /** Offered on the "+" launcher tab; the Activity home has its own route to
    *  the note (the chat header's note button). */
   onOpenMarkdownNote?: () => void;
+  onOpenTerminal?: () => void;
+  onOpenNotes?: () => void;
   autoFocus?: boolean;
 }) {
   const { t } = useTranslation();
@@ -1063,6 +1101,26 @@ function ActivityOpener({
             <NotebookPen size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
             <span className="min-w-0 flex-1 truncate">{t("Markdown note")}</span>
             <ChevronRight size={14} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+          </button>
+        ) : null}
+        {onOpenNotes ? (
+          <button
+            type="button"
+            onClick={onOpenNotes}
+            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
+          >
+            <NotebookPen size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
+            <span className="min-w-0 flex-1 truncate">{t("My notes (notebook)")}</span>
+          </button>
+        ) : null}
+        {onOpenTerminal ? (
+          <button
+            type="button"
+            onClick={onOpenTerminal}
+            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
+          >
+            <SquareTerminal size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
+            <span className="min-w-0 flex-1 truncate">{t("Terminal")}</span>
           </button>
         ) : null}
       </div>
