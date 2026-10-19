@@ -296,7 +296,8 @@ _RULES = """How to teach this learner (always):
 9. Stay short, finish what was asked, note side detours instead of following them.
 10. Never mention mastery scores or turn the chat into a quiz.
 11. When a process, flow, structure or relationship is easier to see than read, include one small diagram as a ```mermaid code block (flowchart, sequence or ER diagram, under 12 nodes), then explain it.
-12. Take examples from the learner's own projects and daily AI use before inventing generic ones: search the llm-wiki tool (their projects and logs) or learning-memory, and name the project the example comes from. Search first; never ask the learner which project to use."""
+12. Take examples from the learner's own projects and daily AI use before inventing generic ones: search the llm-wiki tool (their projects and logs) or learning-memory, and name the project the example comes from. Search first; never ask the learner which project to use.
+13. When the idea is best understood by changing something and watching the result (a slider for a parameter, stepping through an algorithm, a request moving through a system), add one small self-contained ```html block (inline CSS/JS, no external links, under 150 lines, a <title>) the learner can open in the side panel. Not for plain facts or definitions; end by asking what they noticed."""
 
 # Method by mastery band, rewritten in our own words from worked-example fading, Socratic questioning and retrieval practice.
 _METHODS = (

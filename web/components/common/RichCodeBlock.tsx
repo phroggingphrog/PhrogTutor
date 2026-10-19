@@ -118,6 +118,16 @@ export default function RichCodeBlock({
         >
           <span style={{ opacity: 0.8 }}>{normalizedLang}</span>
           <span className="flex gap-2 normal-case">
+            {normalizedLang === "html" ? (
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent("pi-tutor:open-html", { detail: { html: code } }))}
+                title="Open this as a live, sandboxed page in the side panel"
+                className="rounded bg-violet-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-violet-500"
+              >
+                ▶ Open in panel
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={saveToDictionary}

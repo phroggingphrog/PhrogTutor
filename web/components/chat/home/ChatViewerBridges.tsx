@@ -30,5 +30,11 @@ export function ChatViewerBridges({
     return () => geogebra.setOpenHandler(null);
   }, [geogebra, viewerPanelRef]);
 
+  useEffect(() => {
+    const onOpen = (e: Event) => viewerPanelRef.current?.openHtmlTab(String((e as CustomEvent).detail?.html ?? ""));
+    window.addEventListener("pi-tutor:open-html", onOpen);
+    return () => window.removeEventListener("pi-tutor:open-html", onOpen);
+  }, [viewerPanelRef]);
+
   return null;
 }

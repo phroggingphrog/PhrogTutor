@@ -2985,6 +2985,12 @@ function GeogebraTabBridge({
     });
     return () => controller.setOpenHandler(null);
   }, [controller, viewerPanelRef]);
+  // "Open in panel" on a chat ```html block (RichCodeBlock dispatches this).
+  useEffect(() => {
+    const onOpen = (e: Event) => viewerPanelRef.current?.openHtmlTab(String((e as CustomEvent).detail?.html ?? ""));
+    window.addEventListener("pi-tutor:open-html", onOpen);
+    return () => window.removeEventListener("pi-tutor:open-html", onOpen);
+  }, [viewerPanelRef]);
   return null;
 }
 

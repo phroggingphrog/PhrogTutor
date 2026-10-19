@@ -42,6 +42,7 @@ import {
   MessageSquarePlus,
   NotebookPen,
   SquareTerminal,
+  Sparkles,
   Paperclip,
   Plus,
   X,
@@ -156,6 +157,7 @@ type ViewerTab =
   | { kind: "markdown-note"; id: string; label: string }
   | { kind: "terminal"; id: string; label: string }
   | { kind: "notes"; id: string; label: string }
+  | { kind: "html"; id: string; label: string; html: string }
   | {
       kind: "quiz-followup";
       id: string;
@@ -197,6 +199,7 @@ export interface SessionViewerPanelHandle {
   ): void;
   /** Opens (or focuses) an interactive GeoGebra applet tab. */
   openGeogebraTab(payload: GeogebraTabPayload): void;
+  openHtmlTab(html: string): void;
   /** Opens (first time) or live-updates a connected subagent's run tab. */
   openSubagentTab(callId: string, label: string, events: StreamEvent[], focus?: boolean): void;
   /** Opens the panel and switches to the Activity home (where the
@@ -458,6 +461,17 @@ function SessionViewerPanelInner(
     onAutoOpen();
   }, [onAutoOpen, t]);
 
+  // "Open in panel" on a chat ```html block: a live page in a sandboxed frame (scripts run, no access to the app).
+  const openHtmlTab = useCallback(
+    (html: string) => {
+      const title = html.match(/<title>([^<]{1,40})/i)?.[1] ?? t("Interactive");
+      setTabs((prev) => [...prev.filter((tab) => tab.id !== "html"), { kind: "html", id: "html", label: title, html }]);
+      setActiveTabId("html");
+      onAutoOpen();
+    },
+    [onAutoOpen, t],
+  );
+
   const openQuizFollowupTab = useCallback(
     (context: QuizFollowupTabContext) => {
       setTabs((prev) => {
@@ -627,6 +641,7 @@ function SessionViewerPanelInner(
       openQuizFollowupTab,
       openSelectionTutorTab,
       openGeogebraTab,
+      openHtmlTab,
       openSubagentTab,
       focusActivityHome,
     }),
@@ -637,6 +652,7 @@ function SessionViewerPanelInner(
       openQuizFollowupTab,
       openSelectionTutorTab,
       openGeogebraTab,
+      openHtmlTab,
       openSubagentTab,
       focusActivityHome,
     ],
@@ -767,6 +783,13 @@ function SessionViewerPanelInner(
             key={`${activeTab.id}:${sessionId ?? "pending"}`}
             sessionId={sessionId}
           />
+        ) : activeTab?.kind === "html" ? (
+          <iframe
+            title={activeTab.label}
+            srcDoc={activeTab.html}
+            sandbox="allow-scripts allow-modals"
+            className="h-full w-full border-0 bg-white"
+          />
         ) : activeTab?.kind === "notes" ? (
           <div className="h-full overflow-hidden"><NotesEditor /></div>
         ) : activeTab?.kind === "terminal" ? (
@@ -886,6 +909,8 @@ function TabBar({
                 ? SquareTerminal
               : tab.kind === "notes"
                 ? NotebookPen
+              : tab.kind === "html"
+                ? Sparkles
               : tab.kind === "markdown-note"
                 ? NotebookPen
                 : tab.kind === "selection-tutor"
