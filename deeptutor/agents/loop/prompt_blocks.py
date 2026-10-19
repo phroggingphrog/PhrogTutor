@@ -156,9 +156,6 @@ class LoopPromptAssembler:
         learner_profile = str((context.metadata or {}).get("learner_profile_prompt") or "")
         if learner_profile:
             blocks.append(PromptBlock("learner_profile", learner_profile))
-        chat_mastery = str((context.metadata or {}).get("chat_mastery_prompt") or "")
-        if chat_mastery:
-            blocks.append(PromptBlock("chat_mastery", chat_mastery))
         if context.persona_context:
             blocks.append(PromptBlock("persona_style", context.persona_context))
         partner_policy = self._partner_turn_policy(context)
@@ -183,6 +180,11 @@ class LoopPromptAssembler:
             blocks.append(PromptBlock("notebooks", notebook_manifest))
         if workspace_note:
             blocks.append(PromptBlock("workspace", workspace_note))
+        # Chat mastery changes with every message, so it goes last: everything above stays a
+        # cacheable prefix (DeepSeek caches by prefix; mid-prompt it broke the tools manifest cache).
+        chat_mastery = str((context.metadata or {}).get("chat_mastery_prompt") or "")
+        if chat_mastery:
+            blocks.append(PromptBlock("chat_mastery", chat_mastery))
         # Volatile content deliberately gets NO system block: the KB seed
         # rides in the trailing user message, so the system prompt stays
         # byte-stable for the whole turn (every loop round shares one prefix).

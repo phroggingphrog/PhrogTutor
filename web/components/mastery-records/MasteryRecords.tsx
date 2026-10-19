@@ -46,7 +46,7 @@ export default function MasteryRecords() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8 text-[var(--foreground)]">
-      <h1 className="text-2xl font-semibold">What the tutor knows about you</h1>
+      <h1 className="text-2xl font-semibold">Mind Atlas</h1>
       <p className="mt-1 text-sm text-[var(--muted-foreground)]">
         Learned from your chats and code runs. 0 = shaky, 1 = solid; older signals count less. Wrong? Delete the record.
       </p>
