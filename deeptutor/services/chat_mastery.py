@@ -460,9 +460,32 @@ def _code_examples(concepts: list[str]) -> dict[str, str]:
             continue
         best = max(((_cos(cvec[c], a["vec"]), m, a) for m, (_, areas) in tagged.items() for a in areas if a.get("vec")),
                    default=(0, "", {}), key=lambda x: x[0])
-        if best[0] >= 0.55:
-            out[c] = f"{best[1]}: {best[2]['area']} (teaches {', '.join(best[2]['concepts'])})"
+        if best[0] >= 0.4:
+            out[c] = f"{best[1]}: {best[2]['area']} (teaches {', '.join(best[2]['concepts'])})" + _snippet(d / f"{best[1]}.md", best[2]["area"], c)
     return out
+
+
+def _snippet(map_path: Path, area_file: str, concept: str) -> str:
+    """~25 real lines from the area's file, around the lines that share the most words with the concept."""
+    src = re.search(r"^Source: (\S+)", map_path.read_text(encoding="utf-8"), re.M)
+    if not src:
+        return ""
+    root = Path(src.group(1))
+    path = next((p for p in (root / area_file, root / "src" / area_file) if p.is_file()), None)
+    if path is None:
+        hits = list(root.rglob(Path(area_file).name))
+        path = hits[0] if hits else None
+    if path is None:
+        return ""
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    words = {w for w in re.findall(r"[a-z0-9]+", concept.lower()) if len(w) > 2}
+    words |= {w.rstrip("s") for w in words}
+    score = [sum(w in ln.lower() for w in words) for ln in lines]
+    best = max(range(len(lines)), key=lambda i: sum(score[i:i + 25]), default=0)
+    body = "\n".join(f"{i + 1}: {ln}" for i, ln in enumerate(lines[best:best + 25], best))
+    rel = path.relative_to(root)
+    return (f"\n  REAL CODE from {rel} (lines {best + 1}-{best + len(lines[best:best + 25])}). Quote and explain these real lines "
+            f"FIRST, before any made-up example; say which file they come from:\n```\n{body}\n```")
 
 
 async def prompt_block(user_message: str, limit: int = 4) -> str:
