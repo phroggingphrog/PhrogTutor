@@ -38,11 +38,11 @@ const RichCodeBlockPreview = dynamic(
 );
 
 const FONTS = [
-  ["lexend", "Lexend — made for easy reading (default)"],
-  ["atkinson", "Atkinson Hyperlegible — very clear letters"],
-  ["inter", "Inter — neutral"],
-  ["geist", "Geist — sharp, compact"],
-  ["classic", "Classic — Geist menus, Lora serif answers"],
+  ["lexend", "Lexend"],
+  ["atkinson", "Atkinson Hyperlegible"],
+  ["inter", "Inter"],
+  ["geist", "Geist"],
+  ["classic", "Classic"],
 ] as const;
 
 function FontRow() {
@@ -58,7 +58,6 @@ function FontRow() {
   return (
     <SettingRow
       title="Font"
-      description="Used for menus and answers. Changes straight away, on this device."
       control={
         <select value={font} onChange={(e) => choose(e.target.value)} className={`${selectClass} min-w-[260px] pr-8`}>
           {FONTS.map(([id, label]) => (
