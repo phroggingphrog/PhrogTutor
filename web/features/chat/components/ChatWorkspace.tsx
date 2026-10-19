@@ -2991,6 +2991,14 @@ function GeogebraTabBridge({
     window.addEventListener("pi-tutor:open-html", onOpen);
     return () => window.removeEventListener("pi-tutor:open-html", onOpen);
   }, [viewerPanelRef]);
+  // Full-page Notes "Ask": open that note beside this chat (the Notes tab reads which note from sessionStorage).
+  useEffect(() => {
+    let pending = false;
+    try {
+      pending = !!sessionStorage.getItem("pi-tutor:open-note");
+    } catch {}
+    if (pending) window.setTimeout(() => viewerPanelRef.current?.openMarkdownNoteTab(), 300);
+  }, [viewerPanelRef]);
   return null;
 }
 

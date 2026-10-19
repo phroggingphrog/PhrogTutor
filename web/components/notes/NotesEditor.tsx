@@ -51,12 +51,23 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   // Open chat with this note in the message box; the learner adds their question.
   const askTutor = () => {
     if (!editor || !current) return;
-    const md = editor.getMarkdown().slice(0, 8000);
+    const { from, to } = editor.state.selection;
+    const quote = from === to ? "" : editor.state.doc.textBetween(from, to, "\n");
+    const text = quote
+      ? `In my note "${current}" I highlighted:\n> ${quote.slice(0, 2000).replace(/\n/g, "\n> ")}\n\nMy question: `
+      : `About my note "${current}":\n\n${editor.getMarkdown().slice(0, 8000)}\n\nMy question: `;
+    if (compact) {  // already beside a chat: annotate into it, no new session
+      window.dispatchEvent(new CustomEvent("pi-tutor:prefill-composer", { detail: { text } }));
+      return;
+    }
     try {
-      sessionStorage.setItem("pi-tutor:ask-note", `About my note "${current}":\n\n${md}\n\nMy question: `);
+      sessionStorage.setItem("pi-tutor:ask-note", text);
+      sessionStorage.setItem("pi-tutor:open-note", current);
     } catch {}
     router.push("/");
   };
+  const [menu, setMenu] = useState(false);
+  const [showFormat, setShowFormat] = useState(false);
   // Co-Writer inside Notes: rewrite the selection (or the whole note) by an instruction.
   const aiEdit = async () => {
     if (!editor || readOnly) return;
@@ -86,6 +97,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     setHits(r.ok ? (await r.json()).hits : []);
   };
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const openRef = useRef<((name: string) => Promise<void>) | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loading = useRef(false);
   const currentRef = useRef<string | null>(null);
@@ -131,6 +143,16 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   useEffect(() => {
     refresh();
   }, [refresh]);
+  // Opened from a full-page "Ask": show that note here beside the chat.
+  useEffect(() => {
+    if (!compact || !editor) return;
+    let name: string | null = null;
+    try {
+      name = sessionStorage.getItem("pi-tutor:open-note");
+      sessionStorage.removeItem("pi-tutor:open-note");
+    } catch {}
+    if (name) void openRef.current?.(name);
+  }, [compact, editor]);
 
   const open = useCallback(
     async (name: string) => {
@@ -148,6 +170,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     },
     [editor],
   );
+  openRef.current = open;
 
   const create = async () => {
     // "folder/name" puts the note in a folder (created if needed).
@@ -313,28 +336,28 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
                 className="min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none"
               />
               <span className="text-xs text-[var(--muted-foreground)]">{status}</span>
-              <button onClick={askTutor} title="Ask the tutor about this note" className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                <MessageCircleQuestion size={14} /> Ask tutor
+              <button onClick={askTutor} title="Ask the tutor about the selection (or the whole note)" className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
+                <MessageCircleQuestion size={14} /> Ask
               </button>
               {!readOnly && (
                 <button onClick={aiEdit} title="AI edit: select text first, or edit the whole note" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                  ✨ AI edit
+                  ✨ Edit
                 </button>
               )}
-              <button onClick={runAll} title="Run every code cell, top to bottom" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                ▶▶ Run all
-              </button>
-              <button onClick={restartKernels} title="Forget all variables and clear outputs" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">
-                ↻ Restart
-              </button>
-              {readOnly ? (
-                <span className="text-xs text-[var(--muted-foreground)]">Read-only</span>
-              ) : (
-                <button onClick={remove} title="Delete" className="rounded p-1 hover:bg-[var(--muted)]">
-                  <Trash2 size={16} />
-                </button>
-              )}
+              <span className="relative">
+                <button onClick={() => setMenu((v) => !v)} title="More" className="rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)]">⋯</button>
+                {menu && (
+                  <div onClick={() => setMenu(false)} className="absolute right-0 z-20 mt-1 flex w-44 flex-col rounded-md border border-[var(--border)] bg-[var(--background)] py-1 text-sm shadow-lg">
+                    <button onClick={() => setShowFormat((v) => !v)} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">{showFormat ? "Hide" : "Show"} formatting bar</button>
+                    <button onClick={runAll} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">▶▶ Run all cells</button>
+                    <button onClick={restartKernels} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">↻ Restart cells</button>
+                    {!readOnly && <button onClick={remove} className="px-3 py-1.5 text-left text-red-500 hover:bg-[var(--muted)]">Delete note</button>}
+                    {readOnly && <span className="px-3 py-1.5 text-xs text-[var(--muted-foreground)]">Read-only note</span>}
+                  </div>
+                )}
+              </span>
             </div>
+            {showFormat && (
             <div className="flex flex-wrap gap-1 border-b border-[var(--border)] px-4 py-1">
               {editor && !readOnly &&
                 BUTTONS.map(([label, title, fn, active]) => (
@@ -348,6 +371,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
                   </button>
                 ))}
             </div>
+            )}
             <EditorContent editor={editor} />
           </>
         ) : (

@@ -582,6 +582,16 @@ export default memo(function ChatComposer({
     if (text) window.requestAnimationFrame(() => inputHandleRef.current?.setValue(text!));
   }, []);
 
+  // Notes in the side panel: "Ask" puts the highlighted text into this message box (same chat, no new session).
+  useEffect(() => {
+    const onPrefill = (e: Event) => {
+      const text = String((e as CustomEvent).detail?.text ?? "");
+      if (text) inputHandleRef.current?.setValue(text);
+    };
+    window.addEventListener("pi-tutor:prefill-composer", onPrefill);
+    return () => window.removeEventListener("pi-tutor:prefill-composer", onPrefill);
+  }, []);
+
   useEffect(() => {
     if (!prefillInputRef) return;
     prefillInputRef.current = (text: string) => {
