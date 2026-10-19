@@ -24,8 +24,10 @@ from deeptutor.runtime.home import get_runtime_home
 from deeptutor.runtime.process import is_process_alive
 from deeptutor.services.file_io import atomic_write_json
 
-GITHUB_LATEST_RELEASE_URL = "https://api.github.com/repos/HKUDS/DeepTutor/releases/latest"
-GITHUB_LATEST_RELEASE_WEB_URL = "https://github.com/HKUDS/DeepTutor/releases/latest"
+# pi-tutor is a fork: never offer upstream DeepTutor releases. Set PI_TUTOR_UPDATE_REPO=owner/name to check your own.
+_UPDATE_REPO = os.environ.get("PI_TUTOR_UPDATE_REPO", "").strip()
+GITHUB_LATEST_RELEASE_URL = f"https://api.github.com/repos/{_UPDATE_REPO}/releases/latest"
+GITHUB_LATEST_RELEASE_WEB_URL = f"https://github.com/{_UPDATE_REPO}/releases/latest"
 VERSION_CHECK_TTL_SECONDS = 24 * 60 * 60
 LAUNCHER_PID_ENV = "DEEPTUTOR_LAUNCHER_PID"
 SYSTEMD_UPDATE_REASON = (
@@ -319,6 +321,8 @@ class VersionCheckService:
         async with self._lock:
             if not force and (cached := self.cached()) is not None:
                 return cached
+            if not _UPDATE_REPO:
+                raise VersionCheckError("Update checks are off: this is the pi-tutor fork (set PI_TUTOR_UPDATE_REPO)")
             release = await self._fetch()
             result = VersionCheckResult(
                 current_version=__version__,
