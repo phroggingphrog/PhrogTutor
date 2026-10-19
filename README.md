@@ -1,11 +1,11 @@
-# pi-tutor
+# PhrogTutor
 
 A personal AI tutor that learns how you think. It tracks what you understand from ordinary chat (no quizzes),
 teaches each concept the way that worked for you before, and explains your own projects through their real code.
 
 ## What it does
 
-pi-tutor has its agent engine rebuilt on the [pi agent SDK](https://github.com/earendil-works/pi).
+PhrogTutor has its agent engine rebuilt on the [pi agent SDK](https://github.com/earendil-works/pi).
 
 - **pi engine**: every DeepTutor mode (chat, solve, research, questions, visualize, co-writer, book, partners) runs as a pi agent session (`pi_engine/`); pi plugins load from `pi_engine/agent-dir/extensions`.
 - **Learns from chat, not quizzes**: after each reply a cheap background call records what the learner showed (confusion, misconception, correct use), plus edited code they ran. Each concept gets a decaying mastery score. You can see and fix it on the **What I know** page.
