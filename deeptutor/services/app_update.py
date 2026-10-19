@@ -226,7 +226,7 @@ def detect_installation() -> Installation:
             mode="docker",
             current_version=__version__,
             automatic_update=False,
-            command="docker pull ghcr.io/hkuds/deeptutor:latest",
+            command="docker compose build && docker compose up -d",
             reason="Container images are updated and recreated by the Docker host.",
         )
 
@@ -391,7 +391,7 @@ def _release_from_payload(payload: Any) -> ReleaseInfo:
     except ValueError:
         raise VersionCheckError("The latest release has an invalid version") from None
     url = str(payload.get("html_url") or "").strip()
-    if not url.startswith("https://github.com/HKUDS/DeepTutor/releases/"):
+    if not url.startswith(f"https://github.com/{_UPDATE_REPO}/releases/"):
         raise VersionCheckError("The latest release has an invalid URL")
     body = str(payload.get("body") or "").replace("\r\n", "\n").replace("\r", "\n").strip()
     excerpt = _plain_release_excerpt(body)
@@ -420,7 +420,7 @@ def _release_from_latest_url(value: str) -> ReleaseInfo:
         port = parsed.port
     except ValueError:
         raise VersionCheckError("The latest release has an invalid URL") from None
-    prefix = "/HKUDS/DeepTutor/releases/tag/"
+    prefix = f"/{_UPDATE_REPO}/releases/tag/"
     if (
         parsed.scheme != "https"
         or parsed.hostname != "github.com"

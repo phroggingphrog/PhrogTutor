@@ -60,7 +60,7 @@ def _update_result() -> VersionCheckResult:
             version="1.7.0",
             name="DeepTutor 1.7",
             published_at="2026-08-30T00:00:00Z",
-            url="https://github.com/HKUDS/DeepTutor/releases/tag/v1.7.0",
+            url="https://github.com/example/pi-tutor/releases/tag/v1.7.0",
             excerpt="A stable release.",
             migration_warning=False,
         ),

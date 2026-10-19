@@ -51,7 +51,7 @@ decisions when appropriate.
 ## Scope
 
 This Code of Conduct applies within all community spaces — including the
-[GitHub repository](https://github.com/HKUDS/DeepTutor) (issues, pull requests,
+[GitHub repository](this repository) (issues, pull requests,
 discussions, and code review), the
 [Discord server](https://discord.gg/eRsjPgMU4t), and the WeChat group — and also
 applies when an individual is officially representing the community in public

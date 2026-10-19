@@ -408,7 +408,7 @@ app = FastAPI(
     # Disable automatic trailing slash redirects to prevent protocol downgrade issues
     # when deployed behind HTTPS reverse proxies (e.g., nginx).
     # Without this, FastAPI's 307 redirects may change HTTPS to HTTP.
-    # See: https://github.com/HKUDS/DeepTutor/issues/112
+    # See:
     redirect_slashes=False,
 )
 app.add_middleware(WorkspaceActivityMiddleware)

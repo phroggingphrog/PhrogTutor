@@ -17,8 +17,8 @@ from deeptutor_cli.skill_login import (
 
 def test_hub_origin_from_base() -> None:
     assert (
-        hub_origin_from_base("https://eduhub.deeptutor.info/api/v1")
-        == "https://eduhub.deeptutor.info"
+        hub_origin_from_base("https://hub.example.com/api/v1")
+        == "https://hub.example.com"
     )
     assert hub_origin_from_base("https://x.test/api/") == "https://x.test"
     assert hub_origin_from_base("https://x.test") == "https://x.test"

@@ -58,7 +58,7 @@ _SAFE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 #: How DeepTutor introduces itself on a consent screen.
 CLIENT_NAME = "DeepTutor"
-CLIENT_URI = "https://deeptutor.info"
+CLIENT_URI = os.environ.get("PI_TUTOR_PUBLIC_URL", "http://localhost:3782")
 
 
 class AuthorizationRequired(RuntimeError):

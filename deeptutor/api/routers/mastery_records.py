@@ -88,7 +88,6 @@ async def gaps():
 @router.get("/digest")
 async def digest():
     import hashlib
-    import json
 
     from deeptutor.services.llm import complete
 

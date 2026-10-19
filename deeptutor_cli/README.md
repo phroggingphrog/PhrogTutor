@@ -9,7 +9,7 @@ Agent-first 的命令行界面。两条核心路径：
 
 ```bash
 # 仅 CLI（本地源码安装，含 RAG / 文档解析 / 各家 LLM provider SDK）
-git clone https://github.com/HKUDS/DeepTutor.git
+git clone https://github.com/example/pi-tutor.git
 cd DeepTutor
 python3 -m venv .venv-cli
 source .venv-cli/bin/activate

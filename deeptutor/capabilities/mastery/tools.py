@@ -294,7 +294,7 @@ def _shuffle_choice_options(
 
     Models put the correct option first the overwhelming majority of the time,
     and the registration order is exactly what the card renders — so an unmixed
-    session reads A = correct on quiz after quiz (HKUDS/DeepTutor#1691). The
+    session reads A = correct on quiz after quiz (upstream#1691). The
     shuffle runs after validation and echo stripping, so every contract
     invariant still holds on the payload that gets persisted: bodies stay
     unique, labels are re-issued positionally, and ``expected`` follows its

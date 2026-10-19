@@ -44,7 +44,7 @@ class LoginResult:
 def hub_origin_from_base(base_url: str) -> str:
     """Derive the web origin from a hub's ``/api/v1`` base URL.
 
-    ``https://eduhub.deeptutor.info/api/v1`` -> ``https://eduhub.deeptutor.info``.
+    ``<your skill hub>`` -> ``<your skill hub>``.
     """
     b = base_url.rstrip("/")
     for suffix in ("/api/v1", "/api"):

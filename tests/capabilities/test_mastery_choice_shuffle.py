@@ -1,6 +1,6 @@
 """Choice options are shuffled on registration so the correct answer moves.
 
-HKUDS/DeepTutor#1691: models put the correct option first nearly always, and
+example/pi-tutor#1691: models put the correct option first nearly always, and
 the registration order is exactly what the card renders, so quiz after quiz
 read A = correct. The shuffle lives in the tool layer, after validation and
 echo stripping; these tests pin the label remapping, its determinism under a

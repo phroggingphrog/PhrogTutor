@@ -135,7 +135,7 @@ services:
   # the supervisord children's environment, so changing ports/auth/providers
   # means editing JSONs + `podman compose restart`.
   deeptutor:
-    image: ghcr.io/hkuds/deeptutor:latest
+    image: pi-tutor:latest
     container_name: deeptutor
     pull_policy: always
     restart: unless-stopped

@@ -47,7 +47,7 @@ The <abbr title="Large Language Model">LLM</abbr> layer powers DeepTutor while t
 
 [DeepTutor Learning Note](#deeptutor-learning-note)
 
-[DeepTutor Website](https://deeptutor.info)
+[DeepTutor Website](https://example.com/)
 
 [Reference link][deeptutor-doc]
 

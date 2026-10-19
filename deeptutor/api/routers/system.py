@@ -20,6 +20,7 @@ from deeptutor.api.contracts.turn_protocol import (
 from deeptutor.api.routers.auth import require_admin
 from deeptutor.multi_user.context import get_current_user
 from deeptutor.runtime import memory_probe
+from deeptutor.services.app_update import _UPDATE_REPO
 from deeptutor.services.app_update import (
     SYSTEMD_UPDATE_REASON,
     Installation,
@@ -173,6 +174,7 @@ def _update_payload(
     return {
         "current_version": result.current_version if result else installation.current_version,
         "check_enabled": check_enabled,
+        "update_repo": _UPDATE_REPO,
         "checked_at": result.checked_at if result else "",
         "cached": result.cached if result else False,
         "check_error": check_error,
@@ -203,7 +205,7 @@ def _update_payload(
 
 async def _checked_update_payload(*, force: bool = False) -> dict[str, Any]:
     settings = get_runtime_settings_service().load_system()
-    enabled = bool(settings["version_check_enabled"])
+    enabled = bool(settings["version_check_enabled"]) and bool(_UPDATE_REPO)
     installation = get_update_installation()
     service = get_version_check_service()
     if not enabled:

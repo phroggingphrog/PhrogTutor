@@ -315,7 +315,7 @@ MODEL_OVERRIDES: dict[str, dict[str, object]] = {
     # handled by PROVIDER_CAPABILITIES["anthropic"] / ["claude"] above.
     # Only model-intrinsic capabilities (like has_thinking_tags) belong here.
     # Reasoning models - only support temperature=1.0
-    # See: https://github.com/HKUDS/DeepTutor/issues/141
+    # See:
     "gpt-5": {
         "forced_temperature": 1.0,
     },

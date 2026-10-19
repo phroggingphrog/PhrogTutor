@@ -56,8 +56,8 @@ def test_to_filename_root():
 
 def test_to_filename_no_prefix_collision():
     """Full-path filenames must differ across sources with same leaf segment."""
-    en = _to_filename("https://docs.deeptutor.info/docs/intro", "/")
-    zh = _to_filename("https://docs.deeptutor.info/zh-cn/docs/intro", "/zh-cn/")
+    en = _to_filename("https://docs.example.com/docs/intro", "/")
+    zh = _to_filename("https://docs.example.com/zh-cn/docs/intro", "/zh-cn/")
     assert en == "docs/intro.md"
     assert zh == "zh-cn/docs/intro.md"
     assert en != zh

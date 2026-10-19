@@ -43,7 +43,7 @@ def _mock_provider() -> ClawHubProvider:
                             "stats": {"downloads": 8, "stars": 2},
                             "owner": {
                                 "displayName": "DeepTutor",
-                                "htmlUrl": "https://deeptutor.info",
+                                "htmlUrl": "https://example.com",
                             },
                         }
                     ]
@@ -61,7 +61,7 @@ def _mock_provider() -> ClawHubProvider:
                         "tags": ["tutor"],
                         "stats": {"downloads": 8, "stars": 2},
                     },
-                    "owner": {"displayName": "DeepTutor", "htmlUrl": "https://deeptutor.info"},
+                    "owner": {"displayName": "DeepTutor", "htmlUrl": "https://example.com"},
                     "distTags": {"latest": "1.0.0"},
                 },
             )
@@ -69,7 +69,7 @@ def _mock_provider() -> ClawHubProvider:
 
     return ClawHubProvider(
         "eduhub",
-        base_url="https://eduhub.deeptutor.info/api/v1",
+        base_url="https://hub.example.com/api/v1",
         client=httpx.Client(transport=httpx.MockTransport(handler)),
     )
 
@@ -88,7 +88,7 @@ def test_hub_catalog_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
     assert resp.status_code == 200
     data = resp.json()
     assert data["hub"] == "eduhub"
-    assert data["web_url"] == "https://eduhub.deeptutor.info"
+    assert data["web_url"] == "https://hub.example.com"
     row = data["skills"][0]
     assert row["slug"] == "socratic-tutor"
     assert row["downloads"] == 8 and row["stars"] == 2
@@ -103,4 +103,4 @@ def test_hub_detail_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
     data = resp.json()
     assert data["version"] == "1.0.0"
     assert "# Body" in data["content"]
-    assert data["web_url"] == "https://eduhub.deeptutor.info/skills/socratic-tutor"
+    assert data["web_url"] == "https://hub.example.com/skills/socratic-tutor"

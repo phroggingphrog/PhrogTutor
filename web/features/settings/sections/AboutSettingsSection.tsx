@@ -64,6 +64,8 @@ export default function AboutSettingsPage() {
   const [requesting, setRequesting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState("");
+  // pi-tutor fork: without PI_TUTOR_UPDATE_REPO there is nothing to check against, so the update UI is hidden.
+  const forkOnly = !status?.update_repo;
 
   const load = useCallback(async () => {
     try {
@@ -225,7 +227,7 @@ export default function AboutSettingsPage() {
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </a>
             )}
-            {status?.is_admin && (
+            {status?.is_admin && !forkOnly && (
               <Button
                 type="button"
                 size="sm"
@@ -252,7 +254,7 @@ export default function AboutSettingsPage() {
         </div>
       </section>
 
-      {error && (
+      {error && !forkOnly && (
         <div className="mb-7 flex items-start gap-2 border-l-2 border-red-500/70 py-1 pl-3 text-[12.5px] leading-relaxed text-red-600 dark:text-red-400">
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
@@ -275,7 +277,7 @@ export default function AboutSettingsPage() {
             </span>
           }
         />
-        <SettingRow
+        {!forkOnly && <SettingRow
           title={t("Release channel")}
           description={t(
             "Only stable, published DeepTutor releases are considered.",
@@ -285,9 +287,10 @@ export default function AboutSettingsPage() {
               {t("Stable")}
             </span>
           }
-        />
+        />}
       </SettingSection>
 
+      {!forkOnly && (<>
       <SettingSection
         title={t("Updates")}
         description={t(
@@ -391,20 +394,9 @@ export default function AboutSettingsPage() {
         )}
       </SettingSection>
 
-      <SettingSection title={t("Project")}>
-        <ResourceRow
-          title={t("GitHub")}
-          description={t("Source code, issues, and contributions")}
-          href="https://github.com/HKUDS/DeepTutor"
-          icon={<Github className="h-4 w-4" />}
-        />
-        <ResourceRow
-          title={t("Documentation")}
-          description={t("Installation, configuration, and guides")}
-          href="https://docs.deeptutor.info"
-          icon={<ArrowUpRight className="h-4 w-4" />}
-        />
-      </SettingSection>
+      </>)}
+
+
 
       <ConfirmDialog
         open={confirmOpen}

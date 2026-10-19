@@ -47,6 +47,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
 import logging
+import os
 from pathlib import Path
 import re
 import shlex
@@ -66,9 +67,10 @@ logger = logging.getLogger(__name__)
 
 # DeepTutor ships pointing at EduHub, its native open skill registry: a bare
 # ``install <slug>`` with no ``<hub>:`` prefix resolves here.
-DEFAULT_HUB = "eduhub"
+DEFAULT_HUB = "eduhub" if os.environ.get("PI_TUTOR_SKILL_HUB_URL") else "clawhub"
 _CLAWHUB_BASE_URL = "https://clawhub.ai/api/v1"
-_EDUHUB_BASE_URL = "https://eduhub.deeptutor.info/api/v1"
+# pi-tutor fork: no hub of the original project; set PI_TUTOR_SKILL_HUB_URL to use one.
+_EDUHUB_BASE_URL = os.environ.get("PI_TUTOR_SKILL_HUB_URL", "")
 _HUBS_SETTINGS_FILE = "skill_hubs"
 
 # Hubs available out of the box, no settings file required. Both speak the
@@ -76,7 +78,7 @@ _HUBS_SETTINGS_FILE = "skill_hubs"
 # override any entry (e.g. point ``eduhub`` at a local dev server).
 _BUILTIN_HUBS: dict[str, dict[str, str]] = {
     "clawhub": {"type": "clawhub", "base_url": _CLAWHUB_BASE_URL},
-    "eduhub": {"type": "clawhub", "base_url": _EDUHUB_BASE_URL},
+    **({"eduhub": {"type": "clawhub", "base_url": _EDUHUB_BASE_URL}} if _EDUHUB_BASE_URL else {}),
 }
 
 _REF_RE = re.compile(

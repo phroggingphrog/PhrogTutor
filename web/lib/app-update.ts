@@ -33,6 +33,7 @@ export interface UpdateJob {
 export interface AppUpdateStatus {
   current_version: string;
   check_enabled: boolean;
+  update_repo?: string;
   checked_at: string;
   cached: boolean;
   check_error: string;

@@ -85,7 +85,7 @@ at http://localhost:3784 (API :8000). No remote deployment was performed.
   destination without changing data. Ports 3024/8024 and QA
   build directories were cleaned up.
 - Private full-data backup verified with SHA-256 and tar listing:
-  `/Users/frank/HKUDS/DeepTutor-backups/workspace-isolation-20260919-023534/`.
+  `/Users/frank/example/pi-tutor-backups/workspace-isolation-20260919-023534/`.
 
 Browser artifacts are under `output/playwright/`: `workspace-migration-production.png`,
 `workspace-attachment-restored.png`, and `workspace-draft-restored.png`.
