@@ -58,26 +58,27 @@
 
   /* Dark — warm near-black, same terracotta family as Cream. */
   .dark {
+    /* Flat neutral dark in the spirit of ChatGPT: no tint, panels told apart by shade, borders barely there. */
     color-scheme: dark;
-    --background: #1a1918;
-    --foreground: #e8e4de;
-    --card: #242220;
-    --card-foreground: #e8e4de;
-    --popover: #242220;
-    --popover-foreground: #e8e4de;
-    --primary: #d4734b;
-    --primary-foreground: #1a1918;
-    --secondary: #2a2725;
-    --secondary-foreground: #e8e4de;
-    --muted: #2a2725;
-    --muted-foreground: #9b9590;
-    --accent: #302d2a;
-    --accent-foreground: #e8e4de;
-    --destructive: #d44a3c;
+    --background: #212121;
+    --foreground: #ececec;
+    --card: #2a2a2a;
+    --card-foreground: #ececec;
+    --popover: #2a2a2a;
+    --popover-foreground: #ececec;
+    --primary: #ececec;
+    --primary-foreground: #0d0d0d;
+    --secondary: #303030;
+    --secondary-foreground: #ececec;
+    --muted: #2a2a2a;
+    --muted-foreground: #a3a3a3;
+    --accent: #333333;
+    --accent-foreground: #ececec;
+    --destructive: #ef4444;
     --destructive-foreground: #ffffff;
-    --border: #3a3634;
-    --input: #3a3634;
-    --ring: #d4734b;
+    --border: #2f2f2f;
+    --input: #3a3a3a;
+    --ring: #8f8f8f;
     --overlay: rgba(0, 0, 0, 0.6);
     --success: #5fd08a;
     --success-foreground: #bbf7d0;
@@ -88,9 +89,10 @@
     --info: #7ba7ff;
     --info-foreground: #bfdbfe;
     --info-surface: #172641;
-    --surface-raised: #2a2826;
-    --shadow-raised: 0 16px 44px rgba(0, 0, 0, 0.32);
+    --surface-raised: #2a2a2a;
+    --shadow-raised: 0 16px 44px rgba(0, 0, 0, 0.4);
   }
+
 
   /* Default — pure-white neutral canvas (theme id "snow" kept for stored
      preferences). No tint anywhere: flat #fff bg, plain grey surfaces and

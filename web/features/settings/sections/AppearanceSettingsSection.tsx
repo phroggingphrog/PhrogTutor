@@ -133,7 +133,7 @@ export default function AppearanceSettingsPage() {
           </div>
           <p className="mt-4 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]/80">
             {t(
-              "Default is a clean pure-white theme with a blue accent. Cream is warm and paper-like with a terracotta accent. Dark keeps Cream's warmth on near-black. Glass adds translucent purple panels on a deep gradient.",
+              "Default is a clean pure-white theme with a blue accent. Cream is warm and paper-like with a terracotta accent. Dark is flat neutral grey. Glass adds translucent purple panels on a deep gradient.",
             )}
           </p>
         </div>

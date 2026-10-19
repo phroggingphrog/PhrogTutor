@@ -2490,7 +2490,7 @@ export default function ChatWorkspace({
                     onKeyDown={handleSessionTitleKeyDown}
                     disabled={sessionTitleSaving}
                     aria-label={t("Session title")}
-                    className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 font-serif text-[17px] font-semibold tracking-[-0.01em] text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20 disabled:opacity-60"
+                    className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 font-sans text-[16px] font-medium tracking-[-0.005em] text-[var(--foreground)] shadow-sm outline-none transition focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20 disabled:opacity-60"
                     maxLength={100}
                   />
                 ) : (
@@ -2504,7 +2504,7 @@ export default function ChatWorkspace({
                       type="button"
                       onClick={startSessionTitleEdit}
                       disabled={!canRenameSession}
-                      className="inline-flex min-w-0 max-w-full items-center gap-2 rounded-xl px-2 py-1 text-left font-serif text-[17px] font-semibold tracking-[-0.01em] text-[var(--foreground)] transition hover:bg-[var(--muted)]/55 disabled:cursor-default disabled:hover:bg-transparent"
+                      className="inline-flex min-w-0 max-w-full items-center gap-2 rounded-xl px-2 py-1 text-left font-sans text-[16px] font-medium tracking-[-0.005em] text-[var(--foreground)] transition hover:bg-[var(--muted)]/55 disabled:cursor-default disabled:hover:bg-transparent"
                     >
                       <span className="truncate">{displaySessionTitle}</span>
                       {canRenameSession ? (
@@ -2575,7 +2575,7 @@ export default function ChatWorkspace({
                       className="h-10 w-10 select-none"
                       draggable={false}
                     />
-                    <h1 className="font-serif text-[40px] font-medium leading-[1.1] tracking-[-0.015em] text-[var(--foreground)]">
+                    <h1 className="font-sans text-[32px] font-normal leading-[1.15] tracking-[-0.01em] text-[var(--foreground)]">
                       {t(welcomeGreeting)}
                     </h1>
                   </div>

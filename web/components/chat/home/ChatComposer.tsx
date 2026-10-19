@@ -1015,10 +1015,10 @@ export default memo(function ChatComposer({
 
       <div className="relative">
         <div
-          className={`${styles.surface} relative rounded-[26px] border bg-[var(--card)] shadow-[0_1px_2px_rgba(0,0,0,0.025),0_10px_28px_-10px_rgba(0,0,0,0.08)] transition-colors ${
+          className={`${styles.surface} relative rounded-[28px] border bg-[var(--secondary)] transition-colors ${
             dragging
               ? "border-[var(--primary)] bg-[var(--primary)]/[0.03]"
-              : "border-[var(--border)]/55"
+              : "border-transparent"
           }`}
           onDragEnter={onDragEnter}
           onDragLeave={onDragLeave}
