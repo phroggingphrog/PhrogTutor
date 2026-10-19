@@ -383,6 +383,24 @@ def _not_started(limit: int = 2) -> list[str]:
     return out[:limit]
 
 
+def _project_map(user_message: str) -> str:
+    """The project map (made by the `project-map` command with Graphify) for a project named in the message."""
+    from deeptutor.services.path_service import get_path_service
+
+    d = get_path_service().user_data_dir / "project-maps"
+    low = re.sub(r"[^a-z0-9]", "", user_message.lower())
+    for p in sorted(d.glob("*.md")) if d.is_dir() else []:
+        if re.sub(r"[^a-z0-9]", "", p.stem.lower()) in low:
+            return (
+                "\n\nProject map of the learner's own project (from its code; INFERRED links are guesses):\n"
+                + p.read_text(encoding="utf-8")[:6000]
+                + "\nTour mode: take ONE area at a time, most connected first. Show its real files and one Mermaid "
+                "diagram of how it connects to the next area, then ask the learner to explain in their own words what "
+                "the area does and why it exists before moving on. Never claim they understand it; their explanation decides."
+            )
+    return ""
+
+
 async def prompt_block(user_message: str, limit: int = 4) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
@@ -400,7 +418,7 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
     if practice and not hits:  # "give me practice" with no topic: practise the weakest concepts
         hits = mastery()[:3]
     if not hits:
-        return _RULES + _learned_rules()
+        return _RULES + _learned_rules() + _project_map(user_message)
     lines = []
     for m in hits:
         band, how = _method(m["mastery"])
@@ -413,4 +431,4 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
         + (f" Add one starter question on a topic they have not touched yet: {'; '.join(fresh)}." if (fresh := _not_started()) else "")
         if practice else ""
     )
-    return _RULES + _learned_rules() + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra
+    return _RULES + _learned_rules() + _project_map(user_message) + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra
