@@ -7,6 +7,7 @@ import {
   LayoutGrid,
   NotebookPen,
   Gauge,
+  SquareTerminal,
   ListTodo,
   PenLine,
   Settings,
@@ -51,6 +52,7 @@ export const PRIMARY_NAV: NavEntry[] = [
   },
   { href: '/space', label: 'Learning Space', icon: LayoutGrid, tooltipKey: 'Space tooltip' },
   { href: '/notes', label: 'Notes', icon: NotebookPen, tooltipKey: 'Your own Markdown notes' },
+  { href: '/terminal', label: 'Terminal', icon: SquareTerminal, tooltipKey: 'A sandboxed shell (no network)' },
   { href: '/what-i-know', label: 'Mind Atlas', icon: Gauge, tooltipKey: 'What the tutor learned about you' },
   { href: '/kanban', label: 'Task Board', icon: ListTodo, tooltipKey: 'kanban.intro' },
   {

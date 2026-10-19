@@ -8,7 +8,7 @@ import "@xterm/xterm/css/xterm.css";
 import { wsUrl } from "@/lib/api";
 
 // A bash shell in the server's code sandbox (no network). Files in its home folder are kept.
-export default function TerminalPanel({ note }: { note: string }) {
+export default function TerminalPanel({ note, className }: { note: string; className?: string }) {
   const host = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,5 +41,5 @@ export default function TerminalPanel({ note }: { note: string }) {
     };
   }, [note]);
 
-  return <div ref={host} className="h-64 shrink-0 border-t border-[var(--border)] bg-[#1e1e1e] p-1" />;
+  return <div ref={host} className={className ?? "h-64 shrink-0 border-t border-[var(--border)] bg-[#1e1e1e] p-1"} />;
 }
