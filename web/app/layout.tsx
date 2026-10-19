@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Lora } from "next/font/google";
+import { Atkinson_Hyperlegible, Geist, Inter, Lexend, Lora } from "next/font/google";
 import "./globals.css";
 import ThemeScript from "@/components/ThemeScript";
 import ToastViewport from "@/components/common/ToastViewport";
@@ -23,6 +23,11 @@ const fontSerif = Lora({
   variable: "--font-serif",
 });
 
+// Font choice (Settings > Appearance > Font): each option is loaded once; html[data-font] picks one (globals.css).
+const fontLexend = Lexend({ subsets: ["latin"], display: "swap", variable: "--font-lexend" });
+const fontAtkinson = Atkinson_Hyperlegible({ subsets: ["latin"], weight: ["400", "700"], display: "swap", variable: "--font-atkinson" });
+const fontInter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+
 export const metadata: Metadata = {
   title: "PhrogTutor",
   description: "Agent-native intelligent learning companion",
@@ -45,7 +50,7 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${fontSans.variable} ${fontSerif.variable}`}
+      className={`${fontSans.variable} ${fontSerif.variable} ${fontLexend.variable} ${fontAtkinson.variable} ${fontInter.variable}`}
     >
       <head>
         <ThemeScript />

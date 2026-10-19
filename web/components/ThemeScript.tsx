@@ -11,6 +11,11 @@ export default function ThemeScript() {
   const themeScript = `
     (function() {
       try {
+        document.documentElement.dataset.font = localStorage.getItem('phrogtutor-font') || 'lexend';
+      } catch (e) {
+        document.documentElement.dataset.font = 'lexend';
+      }
+      try {
         const stored = localStorage.getItem('deeptutor-theme');
 
         document.documentElement.classList.remove('dark', 'theme-glass', 'theme-snow');

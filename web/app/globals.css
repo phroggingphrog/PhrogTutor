@@ -1400,3 +1400,9 @@ a[href^="#dt-locator-"]:hover {
 .notes-prose code:not(pre code) { background: var(--muted); padding: .1em .3em; border-radius: 4px; }
 .notes-prose blockquote { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
 .notes-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--muted-foreground); pointer-events: none; }
+
+/* Font choice (Settings > Appearance > Font). "classic" keeps the original Geist UI + Lora reading font. */
+html[data-font="lexend"] { --font-sans: var(--font-lexend); --font-serif: var(--font-lexend); }
+html[data-font="atkinson"] { --font-sans: var(--font-atkinson); --font-serif: var(--font-atkinson); }
+html[data-font="inter"] { --font-sans: var(--font-inter); --font-serif: var(--font-inter); }
+html[data-font="geist"] { --font-serif: var(--font-sans); }

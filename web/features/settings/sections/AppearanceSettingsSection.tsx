@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { CodeBlockThemeId } from "@/components/common/code-block-themes";
@@ -35,6 +36,39 @@ const RichCodeBlockPreview = dynamic(
   () => import("@/components/common/RichCodeBlock"),
   { ssr: false },
 );
+
+const FONTS = [
+  ["lexend", "Lexend — made for easy reading (default)"],
+  ["atkinson", "Atkinson Hyperlegible — very clear letters"],
+  ["inter", "Inter — neutral"],
+  ["geist", "Geist — sharp, compact"],
+  ["classic", "Classic — Geist menus, Lora serif answers"],
+] as const;
+
+function FontRow() {
+  const [font, setFont] = useState("lexend");
+  useEffect(() => setFont(document.documentElement.dataset.font || "lexend"), []);
+  const choose = (next: string) => {
+    setFont(next);
+    document.documentElement.dataset.font = next;  // applies at once, no Apply needed
+    try {
+      localStorage.setItem("phrogtutor-font", next);
+    } catch {}
+  };
+  return (
+    <SettingRow
+      title="Font"
+      description="Used for menus and answers. Changes straight away, on this device."
+      control={
+        <select value={font} onChange={(e) => choose(e.target.value)} className={`${selectClass} min-w-[260px] pr-8`}>
+          {FONTS.map(([id, label]) => (
+            <option key={id} value={id}>{label}</option>
+          ))}
+        </select>
+      }
+    />
+  );
+}
 
 export default function AppearanceSettingsPage() {
   const { t } = useTranslation();
@@ -103,6 +137,10 @@ export default function AppearanceSettingsPage() {
             )}
           </p>
         </div>
+      </SettingSection>
+
+      <SettingSection title="Text">
+        <FontRow />
       </SettingSection>
 
       <SettingSection
