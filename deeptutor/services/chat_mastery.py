@@ -148,11 +148,87 @@ async def _learn_from(concept: str, kind: str, quote: str, session_id: str) -> N
         ),
         timeout=60,
     )
+    await _draft_understood(concept, prev[1], prev[0], quote)
     rule = " ".join((rule or "").split()).strip("-• ")
     if rule and rule.upper() != "SKIP":
         with path.open("a", encoding="utf-8") as f:
             f.write(f"- {today} ({concept}): {rule}\n")
         logger.info("chat mastery: new teaching rule from %s", concept)
+
+
+# The learner's own view of a concept, written when they master it (see docs/second-brain-proposal.md).
+# Course pages (the AI view) are read from PI_TUTOR_COURSE_CONCEPTS (<dir>/<course>/<concept>.md).
+# Drafts are written inside pi-tutor's own data; a filer outside pi-tutor moves them into the second brain.
+def _course_pages() -> dict[str, str]:
+    root = os.environ.get("PI_TUTOR_COURSE_CONCEPTS", "")
+    if not root or not Path(root).expanduser().is_dir():
+        return {}
+    base = Path(root).expanduser()
+    return {p.relative_to(base).with_suffix("").as_posix(): p.read_text(encoding="utf-8", errors="replace")[:300]
+            for p in sorted(base.glob("*/*.md"))}
+
+
+def _drafts_dir() -> Path:
+    from deeptutor.services.path_service import get_path_service
+
+    return get_path_service().user_data_dir / "understood-drafts"
+
+
+async def _draft_understood(concept: str, stuck_quote: str, tutor_answer: str, success_quote: str) -> None:
+    from deeptutor.services.llm import complete
+
+    pages = _course_pages()
+    listing = "\n".join(pages) or "(no course pages)"
+    raw = await asyncio.wait_for(
+        complete(
+            prompt=(
+                f"Concept the learner just mastered: {concept}\n"
+                f"Where they were stuck: \"{stuck_quote}\"\n"
+                f"The explanation that worked:\n{tutor_answer[:2500]}\n"
+                f"What they later showed on their own: \"{success_quote}\"\n\n"
+                f"Course concept pages (course/page):\n{listing}"
+            ),
+            system_prompt=(
+                "Write the learner's own revision page for this concept. Reply with JSON only: "
+                '{"page": "<course/page from the list that this concept belongs to, or empty>", '
+                '"slug": "<lowercase-hyphen file name for the concept>", "title": "<concept title>", '
+                '"in_my_words": "<1-2 sentences, plain, in the learner\'s voice>", '
+                '"example": "<the small worked example that clicked, with numbers>", '
+                '"watch_out": "<one common mistake to avoid, or empty>"}'
+            ),
+            model=_EXTRACT_MODEL, temperature=0, max_tokens=500, reasoning_effort="none",
+        ),
+        timeout=60,
+    )
+    match = re.search(r"\{.*\}", raw or "", re.S)
+    data = json.loads(match.group(0)) if match else {}
+    slug = re.sub(r"[^a-z0-9-]+", "-", str(data.get("slug") or concept).lower()).strip("-")[:80]
+    page = str(data.get("page") or "")
+    course = page.split("/")[0] if page in pages else "general"
+    link = f"[[university/concepts/{page}]]" if page in pages else ""
+    today = time.strftime("%Y-%m-%d")
+    body = "\n".join([
+        "---",
+        f"title: {data.get('title') or concept} — how I understood it",
+        "type: understood",
+        f"course: {course}",
+        f"concept: {link}",
+        f"mastered: {today}",
+        "---",
+        f"**In my words:** {data.get('in_my_words', '')}",
+        "",
+        f"**The example that clicked:** {data.get('example', '')}",
+        "",
+        f"**Where I got stuck before:** \"{stuck_quote}\"",
+        "",
+        f"**What I showed later:** \"{success_quote}\"",
+        *([""] + [f"**Watch out:** {data['watch_out']}"] if data.get("watch_out") else []),
+        "",
+    ])
+    out = _drafts_dir() / course / f"{slug}.md"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(body, encoding="utf-8")
+    logger.info("chat mastery: understood draft %s", out)
 
 
 def _learned_rules() -> str:
@@ -274,6 +350,34 @@ def start_match(user_message: str) -> None:
         _PENDING[user_message] = asyncio.create_task(_related(user_message))
 
 
+def _understood(concept: str) -> str:
+    """Short excerpt of the learner's own "how I understood it" page for a concept, if they have one."""
+    d = Path(os.environ.get("PI_TUTOR_UNDERSTOOD_DIR", "")).expanduser()
+    if not os.environ.get("PI_TUTOR_UNDERSTOOD_DIR") or not d.is_dir():
+        return ""
+    words = set(re.findall(r"[a-z0-9]+", concept.lower()))
+    for p in d.rglob("*.md"):
+        text = p.read_text(encoding="utf-8", errors="replace")
+        title = (re.search(r"^title:\s*(.+)$", text, re.M) or [None, p.stem])[1].lower()
+        if words and words <= set(re.findall(r"[a-z0-9]+", title + " " + p.stem.replace("-", " "))):
+            body = text.split("---", 2)[-1].strip()
+            return " ".join(body.split())[:400]
+    return ""
+
+
+def _not_started(limit: int = 2) -> list[str]:
+    """Course concept pages that share no word with anything tracked yet (the gap list's not-started ones)."""
+    seen = set()
+    for m in mastery():
+        seen |= {w for w in re.findall(r"[a-z0-9]+", m["concept"].lower()) if len(w) > 3}
+    out = []
+    for page, text in _course_pages().items():
+        title = (re.search(r"^title:\s*(.+)$", text, re.M) or [None, page.split("/")[-1].replace("-", " ")])[1]
+        if not seen & {w for w in re.findall(r"[a-z0-9]+", title.lower()) if len(w) > 3}:
+            out.append(title.strip())
+    return out[:limit]
+
+
 async def prompt_block(user_message: str, limit: int = 4) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
@@ -296,9 +400,12 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
     for m in hits:
         band, how = _method(m["mastery"])
         lines.append(f"- {m['concept']} ({band}, from {m['evidence']} past chat signals): {how}")
+        if mine := _understood(m["concept"]):
+            lines.append(f"  Their own page on it (reuse its words and example): {mine}")
     extra = (
         "\nThey asked for practice: make the questions about these concepts, easiest for weak ones, "
         "a harder twist for strong ones."
+        + (f" Add one starter question on a topic they have not touched yet: {'; '.join(fresh)}." if (fresh := _not_started()) else "")
         if practice else ""
     )
     return _RULES + _learned_rules() + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra

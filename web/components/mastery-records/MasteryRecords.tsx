@@ -6,6 +6,10 @@ import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { apiFetch, apiUrl } from "@/lib/api";
 
 type Rec = { id: number; ts: number; kind: string; quote: string };
+type Gap = { page: string; title: string; status: string; via: string };
+const DOT: Record<string, string> = { mastered: "🟢", strong: "🟢", middle: "🟡", weak: "🔴", not_started: "⚪" };
+const ORDER = ["weak", "middle", "not_started", "strong", "mastered"];
+
 type Concept = { concept: string; mastery: number; evidence: number; records: Rec[] };
 
 const KIND: Record<string, string> = {
@@ -21,6 +25,11 @@ const KIND: Record<string, string> = {
 export default function MasteryRecords() {
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [open, setOpen] = useState<string | null>(null);
+  const [gaps, setGaps] = useState<Record<string, Gap[]>>({});
+
+  useEffect(() => {
+    apiFetch(apiUrl("/api/mastery-records/gaps")).then(async (r) => r.ok && setGaps((await r.json()).courses));
+  }, []);
 
   const load = useCallback(async () => {
     const r = await apiFetch(apiUrl("/api/mastery-records"));
@@ -79,6 +88,30 @@ export default function MasteryRecords() {
         ))}
         {!concepts.length && <li className="px-4 py-6 text-sm text-[var(--muted-foreground)]">Nothing learned yet — just chat.</li>}
       </ul>
+
+      <h2 className="mt-10 text-xl font-semibold">Study list: course topics vs what you know</h2>
+      <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+        Every topic page in your wiki. ⚪ not started · 🔴 weak · 🟡 middle · 🟢 strong or you have your own page on it.
+      </p>
+      {Object.entries(gaps).map(([course, pages]) => (
+        <details key={course} className="mt-4 rounded-lg border border-[var(--border)]">
+          <summary className="cursor-pointer px-4 py-3 font-medium">
+            {course}{" "}
+            <span className="text-sm font-normal text-[var(--muted-foreground)]">
+              {pages.filter((p) => p.status === "mastered" || p.status === "strong").length}/{pages.length} done
+            </span>
+          </summary>
+          <ul className="px-4 pb-3">
+            {[...pages].sort((a, b) => ORDER.indexOf(a.status) - ORDER.indexOf(b.status)).map((p) => (
+              <li key={p.page} className="flex gap-3 py-1 text-sm">
+                <span>{DOT[p.status]}</span>
+                <span className="flex-1">{p.title}</span>
+                {p.via && <span className="text-xs text-[var(--muted-foreground)]">from “{p.via}”</span>}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
     </div>
   );
 }
