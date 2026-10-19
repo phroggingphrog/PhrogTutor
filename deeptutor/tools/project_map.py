@@ -16,6 +16,7 @@ from typing import Any
 from deeptutor.core.tool_protocol import BaseTool, ToolDefinition, ToolParameter, ToolResult
 from deeptutor.services.path_service import get_path_service
 
+_RUNNING: set = set()
 _CMD = os.environ.get("PI_TUTOR_PROJECT_MAP_BIN", str(Path.home() / ".local/bin/project-map"))
 
 
@@ -60,7 +61,14 @@ class MapProjectTool(BaseTool):
             if not folder.is_dir():
                 return ToolResult(content=f"No folder at {source}", success=False)
         proc = await asyncio.create_subprocess_exec(_CMD, str(folder), name, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        out, err = await asyncio.wait_for(proc.communicate(), timeout=900)
+        job = asyncio.ensure_future(proc.communicate())
+        _RUNNING.add(job)
+        job.add_done_callback(_RUNNING.discard)
+        try:  # big repos keep mapping in the background; the chat is not held up
+            out, err = await asyncio.wait_for(asyncio.shield(job), timeout=60)
+        except asyncio.TimeoutError:
+            return ToolResult(content=f"Mapping '{name}' is still running (big repo, a few minutes). Tell the learner it is "
+                                      f"being mapped and to ask again shortly; then call map_project with source='{name}'.")
         if proc.returncode:
             return ToolResult(content=f"Mapping failed: {err.decode()[-400:]}", success=False)
         text = Path(out.decode().strip().splitlines()[-1]).read_text(encoding="utf-8")

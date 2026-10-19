@@ -409,6 +409,62 @@ def _project_map(user_message: str) -> str:
     ) if listing else ""
 
 
+# Code examples for any concept, from the learner's own mapped projects (topic-agnostic): once per map, a cheap call
+# names what each code area teaches; areas and tracked concepts are then matched by meaning.
+_AREA_JOBS: dict[str, asyncio.Task] = {}
+
+
+async def _tag_areas(path: Path) -> None:
+    from deeptutor.services.embedding.client import get_embedding_client
+    from deeptutor.services.llm import complete
+
+    text = path.read_text(encoding="utf-8")
+    raw = await complete(
+        prompt=text[:7000],
+        system_prompt=(
+            "For each numbered main area of this code project map, name 1-4 general concepts (any subject: programming, "
+            "databases, statistics, networking, design...) a student would learn by reading that code. Reply with JSON only: "
+            '{"areas": [{"area": "<the bold area title>", "concepts": ["..."]}]}'
+        ),
+        model=_EXTRACT_MODEL, temperature=0, max_tokens=900, reasoning_effort="none",
+    )
+    match = re.search(r"\{.*\}", raw or "", re.S)
+    areas = (json.loads(match.group(0)) if match else {}).get("areas", [])
+    areas = [a for a in areas if a.get("area") and a.get("concepts")]
+    vecs = await get_embedding_client().embed([f"{', '.join(a['concepts'])}" for a in areas]) if areas else []
+    for a, v in zip(areas, vecs):
+        a["vec"] = v
+    with _db() as con:
+        con.execute("CREATE TABLE IF NOT EXISTS area_concepts (map TEXT PRIMARY KEY, mtime REAL, data TEXT)")
+        con.execute("INSERT OR REPLACE INTO area_concepts VALUES (?,?,?)", (path.stem, path.stat().st_mtime, json.dumps(areas)))
+
+
+def _code_examples(concepts: list[str]) -> dict[str, str]:
+    """concept -> "project: area (what it teaches)" for the best-matching area of any mapped project."""
+    from deeptutor.services.path_service import get_path_service
+
+    d = get_path_service().user_data_dir / "project-maps"
+    if not d.is_dir():
+        return {}
+    with _db() as con:
+        con.execute("CREATE TABLE IF NOT EXISTS area_concepts (map TEXT PRIMARY KEY, mtime REAL, data TEXT)")
+        tagged = {m: (t, json.loads(x)) for m, t, x in con.execute("SELECT map, mtime, data FROM area_concepts")}
+        cvec = {c: json.loads(v) for c, v in con.execute("SELECT concept, vec FROM concept_vec")} if con.execute(
+            "SELECT name FROM sqlite_master WHERE name='concept_vec'").fetchone() else {}
+    for p in d.glob("*.md"):
+        if tagged.get(p.stem, (0,))[0] != p.stat().st_mtime and (p.stem not in _AREA_JOBS or _AREA_JOBS[p.stem].done()):
+            _AREA_JOBS[p.stem] = asyncio.create_task(_tag_areas(p))  # ready from the next message on
+    out = {}
+    for c in concepts:
+        if c not in cvec:
+            continue
+        best = max(((_cos(cvec[c], a["vec"]), m, a) for m, (_, areas) in tagged.items() for a in areas if a.get("vec")),
+                   default=(0, "", {}), key=lambda x: x[0])
+        if best[0] >= 0.55:
+            out[c] = f"{best[1]}: {best[2]['area']} (teaches {', '.join(best[2]['concepts'])})"
+    return out
+
+
 async def prompt_block(user_message: str, limit: int = 4) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
@@ -428,11 +484,18 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
     if not hits:
         return _RULES + _learned_rules() + _project_map(user_message)
     lines = []
+    try:
+        examples = _code_examples([m["concept"] for m in hits])
+    except Exception:
+        logger.debug("chat mastery: code examples skipped", exc_info=True)
+        examples = {}
     for m in hits:
         band, how = _method(m["mastery"])
         lines.append(f"- {m['concept']} ({band}, from {m['evidence']} past chat signals): {how}")
         if mine := _understood(m["concept"]):
             lines.append(f"  Their own page on it (reuse its words and example): {mine}")
+        if ex := examples.get(m["concept"]):
+            lines.append(f"  Example from their own code: {ex}. Read it with read_project_file and teach the concept through it.")
     extra = (
         "\nThey asked for practice: make the questions about these concepts, easiest for weak ones, "
         "a harder twist for strong ones."
