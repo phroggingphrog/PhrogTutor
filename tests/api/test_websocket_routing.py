@@ -9,6 +9,7 @@ def test_websocket_routes_share_one_canonical_namespace() -> None:
     expected_paths = {
         "/ws",
         "/ws/books",
+        "/ws/terminal",
         "/ws/questions/mimic",
         "/ws/questions/generate",
         "/ws/questions/judge",

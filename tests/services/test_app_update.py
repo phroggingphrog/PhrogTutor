@@ -10,6 +10,15 @@ from deeptutor.services import app_update
 from deeptutor.services.app_update import UpdateJobStore, VersionCheckError, VersionCheckService
 
 
+@pytest.fixture(autouse=True)
+def _update_repo(monkeypatch):
+    # The fork turns update checks off unless PI_TUTOR_UPDATE_REPO is set; tests use a fixed repo.
+    repo = "example/pi-tutor"
+    monkeypatch.setattr(app_update, "_UPDATE_REPO", repo)
+    monkeypatch.setattr(app_update, "GITHUB_LATEST_RELEASE_URL", f"https://api.github.com/repos/{repo}/releases/latest")
+    monkeypatch.setattr(app_update, "GITHUB_LATEST_RELEASE_WEB_URL", f"https://github.com/{repo}/releases/latest")
+
+
 def _client_factory(payload: dict, *, status_code: int = 200):
     def handler(_request: httpx.Request) -> httpx.Response:
         return httpx.Response(status_code, json=payload)

@@ -86,6 +86,7 @@ async def test_update_status_combines_cached_release_and_installation(
 ) -> None:
     version_service = _VersionService(_update_result())
     monkeypatch.setattr(system_router, "get_runtime_settings_service", _UpdateSettings)
+    monkeypatch.setattr(system_router, "_UPDATE_REPO", "example/pi-tutor")
     monkeypatch.setattr(system_router, "get_version_check_service", lambda: version_service)
     monkeypatch.setattr(system_router, "get_update_installation", _pypi_installation)
     monkeypatch.setattr(system_router, "launcher_available", lambda: True)

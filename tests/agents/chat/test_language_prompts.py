@@ -73,7 +73,7 @@ def test_agentic_chat_final_prompt_uses_selected_language(
     # Persona phrasing differs by language so the prompts are not just
     # English text with a Chinese tail appended.
     assert "你是 DeepTutor" in zh_prompt
-    assert "You are DeepTutor" in en_prompt
+    assert "You are PhrogTutor" in en_prompt
 
 
 def test_mastery_plugin_system_prompt_uses_localized_fallback(

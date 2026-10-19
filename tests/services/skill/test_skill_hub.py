@@ -184,9 +184,8 @@ def test_parse_hub_ref_forms() -> None:
     )
     assert split_owner_slug("acme/my-skill") == ("acme", "my-skill")
     assert split_owner_slug("my-skill") == ("", "my-skill")
-    # No prefix resolves to the built-in default hub (EduHub).
-    assert parse_hub_ref("my-skill") == ("eduhub", "my-skill", None)
-    assert parse_hub_ref("eduhub:my-skill") == ("eduhub", "my-skill", None)
+    # No prefix resolves to the built-in default hub (ClawHub in the fork).
+    assert parse_hub_ref("my-skill") == ("clawhub", "my-skill", None)
     assert parse_hub_ref("other:pkg@1.2.0") == ("other", "pkg", "1.2.0")
     with pytest.raises(HubError):
         parse_hub_ref("Bad Name!")
@@ -526,10 +525,6 @@ def test_command_provider_failure_cleans_up() -> None:
 
 def test_get_hub_provider_default_and_unknown() -> None:
     assert isinstance(get_hub_provider("clawhub"), ClawHubProvider)
-    # EduHub is a built-in hub: resolvable with no settings file.
-    eduhub = get_hub_provider("eduhub")
-    assert isinstance(eduhub, ClawHubProvider)
-    assert eduhub.name == "eduhub"
     # Empty name falls back to the default hub, which is also a provider.
     assert isinstance(get_hub_provider(""), ClawHubProvider)
     with pytest.raises(HubError):

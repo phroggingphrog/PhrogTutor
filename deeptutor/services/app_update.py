@@ -293,15 +293,15 @@ class VersionCheckService:
     def __init__(
         self,
         *,
-        api_url: str = GITHUB_LATEST_RELEASE_URL,
-        latest_url: str = GITHUB_LATEST_RELEASE_WEB_URL,
+        api_url: str | None = None,
+        latest_url: str | None = None,
         timeout: float = 8.0,
         ttl_seconds: float = VERSION_CHECK_TTL_SECONDS,
         clock: Callable[[], float] = time.time,
         client_factory: Callable[[], httpx.AsyncClient] | None = None,
     ) -> None:
-        self._api_url = api_url
-        self._latest_url = latest_url
+        self._api_url = api_url or GITHUB_LATEST_RELEASE_URL
+        self._latest_url = latest_url or GITHUB_LATEST_RELEASE_WEB_URL
         self._timeout = timeout
         self._ttl_seconds = ttl_seconds
         self._clock = clock

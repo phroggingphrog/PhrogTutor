@@ -43,6 +43,7 @@ class TestPipelineFactory:
         assert isinstance(pipelines, list)
         assert {p["id"] for p in pipelines} == {
             DEFAULT_PROVIDER,
+            "wiki",
             "pageindex",
             "pageindex-oss",
             "graphrag",
@@ -81,6 +82,7 @@ class TestRAGServiceClassHelpers:
         providers = RAGService.list_providers()
         assert {p["id"] for p in providers} == {
             DEFAULT_PROVIDER,
+            "wiki",
             "pageindex",
             "pageindex-oss",
             "graphrag",
