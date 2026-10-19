@@ -40,3 +40,8 @@ Approved plan and order: board card TASK-71.4 (starts after the pi port is finis
 "So then because its a fork and this will be my own version from today now on and I need to maintain it, therefore move all of the remaining deep tutor only rules into pi it should be native fully pi port right and fully remove deeptutor's old engine"
 Size found: engine core ~6k lines Python (agent loop, pipeline, base agent, orchestrator); capabilities + agents ~35k; tools ~10k.
 Owner choice 2026-10-18: "Engine native, rest stays". Rewrite the engine core (agent loop, pipeline round rules, base agent model calls, orchestrator routing) as pi extensions in TypeScript (pi_engine/), delete the Python engine. Modes and tools stay Python and are called by pi as tools. Port mode by mode; after each, rerun the vanilla-vs-pi comparison (scripts/pi_modes_once.py, throwaway DEEPTUTOR_HOME, 3 runs) and keep every mode working.
+
+## 2026-10-19 — owner, verbatim (publish-the-fork features)
+- "i think mind atlas suppose to be in settings dont you think bcs current state i dont think the user should read in that state it should be somethign AI digest"
+- "maybe under personalised learning? and under personalised learning there should be an option to drop raw knowledge e.g. pdf slides, book, websites, etc to be parsed and with consent check list box that you understand that you own all of the course content copyright for this used to be used with ai with an option for local models or will this bloatedup the code? TREAT THIS as intent first some features when i want to publish the full fork under git"
+- "note user friendly, shouldnt Markdown note suppose to be integrated with it? and co-writer and markdown note basically same features and need to be merged under one page"
