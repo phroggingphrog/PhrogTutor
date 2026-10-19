@@ -68,6 +68,16 @@ export default function RichCodeBlock({
   const [code, setCode] = useState(raw);
   const [editing, setEditing] = useState(false);
   const [running, setRunning] = useState(false);
+  const [saved, setSaved] = useState("");
+  const saveToDictionary = async () => {
+    setSaved("Saving…");
+    const r = await apiFetch(apiUrl("/api/dictionary"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, language: normalizedLang }),
+    });
+    setSaved(r.ok ? `Saved to ${(await r.json()).topic}` : "Save failed");
+  };
   const [result, setResult] = useState<RunResult | null>(null);
   // Follow the streamed answer until the learner starts editing.
   useEffect(() => {
@@ -107,6 +117,16 @@ export default function RichCodeBlock({
           style={{ color: textColor }}
         >
           <span style={{ opacity: 0.8 }}>{normalizedLang}</span>
+          <span className="flex gap-2 normal-case">
+            <button
+              type="button"
+              onClick={saveToDictionary}
+              disabled={!!saved}
+              title="Save this command to your coding dictionary (wiki cheatsheets)"
+              className="rounded px-2 py-0.5 text-[11px] hover:bg-white/10 disabled:opacity-70"
+            >
+              {saved || "📖 Save to dictionary"}
+            </button>
           {runnable ? (
             <span className="flex gap-2 normal-case">
               <button
@@ -126,6 +146,7 @@ export default function RichCodeBlock({
               </button>
             </span>
           ) : null}
+          </span>
         </div>
       ) : null}
       {editing ? (
