@@ -25,6 +25,20 @@ Source: Consensus paper search (3 queries, top 20 each). Papers cited by number 
 - Gen-AI has a moderate positive effect on higher-order thinking, strongest for problem solving, and it works better over 8 to 16 weeks and for people who self-regulate well (Zhao 2025, DOI 10.3390/jintelligence13120160).
 - Offloading is not one thing: dependent and autonomous offloading differ (Zhu 2026, Frontiers in Psychology).
 
+## Second round (2026-10-20): how to build critical reasoning, and AI as a discussion partner
+- A Socratic tutor made students better at using AI on their own later, even though they found it slower (Brender 2026, DOI 10.1007/978-3-032-29763-1_37).
+- Problem-solving before instruction has a moderate benefit over 53 studies (g 0.36, higher with high-fidelity productive failure) (Sinha 2021, DOI 10.3102/00346543211019105). Unassisted discovery does not help; feedback, worked examples and scaffolding do (Alfieri 2011, DOI 10.1037/a0021017).
+- Forcing a pause before showing the AI answer reduces blind acceptance but people rate it worst (Buçinca-style cognitive forcing, 2021, DOI 10.1145/3449287). An assumption-check prompt cut over-reliance without extra load (Ghosh 2026, DOI 10.48550/arxiv.2601.18033).
+- Help-seeking differs by person: top students ask for ideas and checks, weaker ones delegate the whole task; the AI mirrors the student's intent (Rinja 2026, DOI 10.1007/978-3-032-29763-1_35).
+- Support should rise when the learner fails and fade when they take it up (Hou 2026, DOI 10.48550/arxiv.2609.22993). Rules such as attempt-before-hint work best enforced by code with the LLM only wording them (Kadir 2026, DOI 10.1007/978-3-032-29744-0_7).
+- Risks: Socratic-sounding questions can mimic reasoning (Sánchez 2026, DOI 10.2196/102958), and tracking can make people perform instead of think, so what the tutor learns must be visible and deletable.
+
+## What was built from it
+- **Usage style** (not mastery): each chat turn gets one label (tried_first, asked_for_answer, pushed_back, accepted, own_idea) in the same background call; shown and deletable in Settings, Conversation. The tutor adapts once one style reaches 40% of at least 8 signals. Kept apart from the mastery page on purpose.
+- **Discussion modes** in the composer: Think-first (you try, then it helps), Critic (it argues the other side), Teach-back (you explain, it plays a novice). The mode block goes last in the prompt so it overrides the general teaching rules. A short assumption or what-if check runs only while a mode is on.
+- **Baseline method** (private, not in this repo): a sample of the owner's short typed messages from ChatGPT, Claude and Gemini exports labelled with the same five labels by Gemini Flash.
+- **Not built:** a code-enforced hint cap (attempt-before-hint as a hard rule), and a before/after comparison over two weeks of live use.
+
 ## What this means for PhrogTutor (already built vs next)
 | Finding | Status in PhrogTutor |
 |---|---|
