@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -55,6 +56,14 @@ export default function RegisterPage() {
     <div className="w-full max-w-sm">
       {/* Logo / Title */}
       <div className="text-center mb-8">
+        <Image
+          src="/logo.png"
+          alt=""
+          width={56}
+          height={56}
+          priority
+          className="mx-auto mb-3 h-14 w-14"
+        />
         <h1 className="font-serif text-2xl font-semibold text-[var(--foreground)] tracking-tight">
           PhrogTutor
         </h1>
