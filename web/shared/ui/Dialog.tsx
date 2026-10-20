@@ -133,14 +133,14 @@ export function Dialog({
         tabIndex={-1}
         onKeyDown={handleKeyDown}
         className={cn(
-          "surface-raised flex max-h-[min(90vh,52rem)] w-full flex-col overflow-hidden rounded-2xl border border-border text-foreground",
+          "surface-raised flex max-h-[min(90vh,52rem)] w-full flex-col overflow-hidden rounded-[20px] border border-border text-foreground",
           widths[size],
           className,
         )}
       >
         <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
           <div className="min-w-0">
-            <h2 id={titleId} className="text-base font-semibold leading-6">
+            <h2 id={titleId} className="font-serif text-xl font-medium leading-7">
               {title}
             </h2>
             {description ? (

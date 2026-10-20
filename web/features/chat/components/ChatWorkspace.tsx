@@ -2575,7 +2575,7 @@ export default function ChatWorkspace({
                       className="h-10 w-10 select-none"
                       draggable={false}
                     />
-                    <h1 className="font-sans text-[32px] font-normal leading-[1.15] tracking-[-0.01em] text-[var(--foreground)]">
+                    <h1 className="font-serif text-[36px] font-normal leading-[1.2] tracking-normal text-[var(--foreground)]">
                       {t(welcomeGreeting)}
                     </h1>
                   </div>

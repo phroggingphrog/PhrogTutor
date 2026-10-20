@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
-import { X } from "lucide-react";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/shared/ui/Button";
+import { Dialog } from "@/shared/ui/Dialog";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -41,76 +42,38 @@ export function ConfirmDialog({
   const { t } = useTranslation();
   const resolvedCancelLabel = cancelLabel ?? t("Cancel");
 
-  useEffect(() => {
-    if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !busy) onCancel();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, busy, onCancel]);
-
-  if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay)] px-4"
-      role="alertdialog"
-      aria-modal="true"
-      aria-label={title}
-      onClick={() => {
-        if (!busy) onCancel();
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-xl"
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {title}
-          </h2>
-          <button
-            type="button"
+    <Dialog
+      open={open}
+      title={title}
+      onClose={onCancel}
+      size="sm"
+      alert
+      busy={busy}
+      closeLabel={t("Close")}
+      footer={
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onCancel}
             disabled={busy}
-            className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--background)] hover:text-[var(--foreground)] disabled:opacity-40"
-            aria-label={t("Close")}
-          >
-            <X size={16} />
-          </button>
-        </div>
-
-        {children && (
-          <div className="mb-4 text-sm text-[var(--muted-foreground)]">
-            {children}
-          </div>
-        )}
-
-        <div className="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={busy}
-            autoFocus
-            className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-40"
+            data-autofocus
           >
             {resolvedCancelLabel}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant={tone === "danger" ? "danger" : "primary"}
+            size="sm"
             onClick={onConfirm}
             disabled={busy}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium disabled:opacity-40 transition-colors ${
-              tone === "danger"
-                ? "bg-destructive text-white hover:bg-destructive"
-                : "bg-[var(--foreground)] text-[var(--background)] hover:opacity-90"
-            }`}
           >
             {busy ? (busyLabel ?? confirmLabel) : confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </>
+      }
+    >
+      {children}
+    </Dialog>
   );
 }
