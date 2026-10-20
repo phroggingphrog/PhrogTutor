@@ -26,12 +26,12 @@ const PALETTES: Record<Theme, Palette> = {
   // theme id "light" applies no class → :root Cream palette (warm parchment,
   // the default; renamed from generic "Light" to honestly signal its warmth)
   light: {
-    bg: "#fdfcf9",
-    fg: "#1c1816",
+    bg: "#faf9f5",
+    fg: "#141413",
     card: "#ffffff",
-    primary: "#b0501e",
-    muted: "#f1ede2",
-    border: "#e6decc",
+    primary: "#b5502f",
+    muted: "#f0eee6",
+    border: "#e3e0d4",
   },
   // theme id "snow" applies the .theme-snow class → "Default": pure-white
   // neutral palette, grey surfaces, blue primary (Codex-style chrome)

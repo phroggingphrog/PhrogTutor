@@ -17,32 +17,34 @@
                      (replaces hardcoded bg-black/40 in components)
    ──────────────────────────────────────────────────────────────────────── */
 
-  /* Cream — near-white warm canvas. Reads as off-white at first glance;
+  /* Cream — Claude palette: Ivory #faf9f5 canvas, Slate #141413 text, warm
+     grays, and a darkened Clay primary (white text 5.1:1, on Ivory 4.8:1;
+     plain Clay #d97757 is only 3:1). Near-white warm canvas. Reads as off-white at first glance;
      the warm tint only surfaces on filled blocks (selected nav, panels)
      and against the terracotta primary. Inspired by Claude's chrome:
      keep bg essentially white, save the visible warmth for accents. */
   :root {
     color-scheme: light;
-    --background: #fdfcf9;
-    --foreground: #1c1816;
+    --background: #faf9f5;
+    --foreground: #141413;
     --card: #ffffff;
-    --card-foreground: #1c1816;
+    --card-foreground: #141413;
     --popover: #ffffff;
-    --popover-foreground: #1c1816;
-    --primary: #b0501e;
+    --popover-foreground: #141413;
+    --primary: #b5502f;
     --primary-foreground: #ffffff;
-    --secondary: #f5f2ea;
-    --secondary-foreground: #1c1816;
-    --muted: #f1ede2;
-    --muted-foreground: #6d645a;
-    --accent: #ece7d8;
-    --accent-foreground: #1c1816;
+    --secondary: #f5f4ed;
+    --secondary-foreground: #141413;
+    --muted: #f0eee6;
+    --muted-foreground: #5e5d59;
+    --accent: #e8e6dc;
+    --accent-foreground: #141413;
     --destructive: #c53a2c;
     --destructive-foreground: #ffffff;
-    --border: #e6decc;
-    --input: #e6decc;
-    --ring: #b0501e;
-    --overlay: rgba(28, 24, 22, 0.42);
+    --border: #e3e0d4;
+    --input: #d1cfc5;
+    --ring: #b5502f;
+    --overlay: rgba(20, 20, 19, 0.45);
     --success: #237a4b;
     --success-foreground: #14532d;
     --success-surface: #ecf8f0;
@@ -53,7 +55,7 @@
     --info-foreground: #1e3a8a;
     --info-surface: #eff6ff;
     --surface-raised: #ffffff;
-    --shadow-raised: 0 16px 40px rgba(69, 49, 31, 0.12);
+    --shadow-raised: 0 16px 40px rgba(20, 20, 19, 0.12);
   }
 
   /* Dark — warm near-black, same terracotta family as Cream. */
