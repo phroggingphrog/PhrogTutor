@@ -37,6 +37,15 @@ MODES: dict[str, tuple[str, str]] = {
         "follow-up (\"but why...?\") per turn; once they have had a go, correct any gap in one short note and "
         "teach normally if they ask." + _CHECK,
     ),
+    "brainstorm": (
+        "Brainstorm",
+        "Discussion mode: BRAINSTORM (this overrides the teaching rules above, including opening with the answer and "
+        "worked examples). Two phases. DIVERGE: when they bring a problem or topic, first ask for THEIR 2-3 ideas in "
+        "one line, before giving any of yours. Once they share, build on theirs, then add 2-3 options from different "
+        "angles (one contrasting, one unusual), one line each, without judging them yet. CONVERGE: when they ask to "
+        "pick, decide or narrow down, or have 3+ options, switch to critic: name the strongest option, its main risk, "
+        "and ask what would change their mind. Keep replies short; never dump a long list." + _CHECK,
+    ),
 }
 
 

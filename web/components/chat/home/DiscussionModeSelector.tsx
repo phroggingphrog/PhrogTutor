@@ -19,6 +19,7 @@ const LABELS: Record<DiscussionMode, string> = {
   think_first: "Think-first",
   critic: "Critic",
   teach_back: "Teach-back",
+  brainstorm: "Brainstorm",
 };
 
 const HINTS: Record<DiscussionMode, string> = {
@@ -26,6 +27,7 @@ const HINTS: Record<DiscussionMode, string> = {
   think_first: "You try first, then it helps",
   critic: "It argues the other side",
   teach_back: "You explain, it plays a novice",
+  brainstorm: "Your ideas first, then wider options",
 };
 
 export default function DiscussionModeSelector() {

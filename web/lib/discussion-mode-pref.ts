@@ -1,7 +1,7 @@
 // The composer's discussion mode, remembered per browser. "" means Auto (the tutor adapts to how you use it).
 // Sent with every turn as `discussion_mode`.
 
-export const DISCUSSION_MODES = ["", "think_first", "critic", "teach_back"] as const;
+export const DISCUSSION_MODES = ["", "think_first", "critic", "teach_back", "brainstorm"] as const;
 export type DiscussionMode = (typeof DISCUSSION_MODES)[number];
 
 const KEY = "phrog.discussionMode";
