@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 # OpenRouter attributes traffic to an app by these headers; sent whenever the
 # endpoint is theirs, whatever binding the profile was typed under.
 OPENROUTER_ATTRIBUTION_HEADERS: dict[str, str] = {
-    "HTTP-Referer": "https://deeptutor.phroggingphrog.com",
-    "X-OpenRouter-Title": "pi-tutor",
+    "HTTP-Referer": __import__("os").environ.get("PI_TUTOR_PUBLIC_URL", "http://localhost:3782"),
+    "X-OpenRouter-Title": "PhrogTutor",
 }
 
 _warning_lock = threading.Lock()

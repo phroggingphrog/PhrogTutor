@@ -62,7 +62,7 @@ export default function CourseMaterialDrop() {
         PDFs, slides, books or a website. It is parsed into a knowledge base the tutor can search.
       </p>
       <div className="grid gap-2 text-sm">
-        <input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="Course or topic name (e.g. MATH2269)"
+        <input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="Course or topic name (e.g. Statistics 101)"
           className="rounded border border-[var(--border)] bg-transparent px-2 py-1.5 outline-none" />
         <input type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx,.epub,.md,.txt,.html" onChange={(e) => setFiles(e.target.files)} />
         <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…or a website URL (optional)"

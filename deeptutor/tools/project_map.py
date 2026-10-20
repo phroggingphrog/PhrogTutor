@@ -86,7 +86,7 @@ class ReadProjectFileTool(BaseTool):
                 "path is relative to the project root, as shown in the project map. Leave path empty to list folders."
             ),
             parameters=[
-                ToolParameter(name="project", type="string", description="Mapped project name, e.g. jobwatch."),
+                ToolParameter(name="project", type="string", description="Mapped project name, e.g. my-app."),
                 ToolParameter(name="path", type="string", description="File or folder path inside the project.", required=False),
                 ToolParameter(name="start", type="integer", description="First line (1-based).", required=False),
                 ToolParameter(name="lines", type="integer", description="How many lines (max 300).", required=False),
