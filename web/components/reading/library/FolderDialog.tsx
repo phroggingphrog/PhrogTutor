@@ -129,7 +129,7 @@ export function FolderDialog({
         </div>
 
         <fieldset className="mt-4">
-          <legend className="text-[11.5px] font-medium text-[var(--muted-foreground)]">
+          <legend className="text-[12px] font-medium text-[var(--muted-foreground)]">
             {t("Color")}
           </legend>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -158,7 +158,7 @@ export function FolderDialog({
 
         {askWorkspace && (
           <label className="mt-4 block">
-            <span className="text-[11.5px] font-medium text-[var(--muted-foreground)]">
+            <span className="text-[12px] font-medium text-[var(--muted-foreground)]">
               {t("Workspace")}
             </span>
             <select

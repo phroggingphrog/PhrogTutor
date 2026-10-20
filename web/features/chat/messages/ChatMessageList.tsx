@@ -549,7 +549,7 @@ export function GeneratedFileCards({
               />
               <span className="flex items-center justify-between gap-2 px-3 py-2">
                 <span className="min-w-0">
-                  <span className="block truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                  <span className="block truncate text-[13px] font-medium text-[var(--foreground)]">
                     {a.title || humanizeFilename(filename)}
                   </span>
                   {caption ? (
@@ -584,7 +584,7 @@ export function GeneratedFileCards({
                 className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition hover:bg-[var(--muted)]/30"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                  <span className="block truncate text-[13px] font-medium text-[var(--foreground)]">
                     {a.title || humanizeFilename(filename)}
                   </span>
                   {caption ? (
@@ -623,7 +623,7 @@ export function GeneratedFileCards({
                 {size ? ` · ${size}` : ""}
               </span>
             </span>
-            <span className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--foreground)] transition group-hover:bg-[var(--muted)]/40">
+            <span className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] font-medium text-[var(--foreground)] transition group-hover:bg-[var(--muted)]/40">
               {t("Open")}
             </span>
           </button>
@@ -1485,7 +1485,7 @@ function BranchNavigator({
   const nextId =
     nextIdx < info.siblingIds.length ? info.siblingIds[nextIdx] : null;
   return (
-    <div className="inline-flex items-center gap-0.5 text-[10.5px] text-[var(--muted-foreground)]">
+    <div className="inline-flex items-center gap-0.5 text-[11px] text-[var(--muted-foreground)]">
       <button
         type="button"
         onClick={() => prevId !== null && onSwitch(prevId)}
@@ -1746,7 +1746,7 @@ export const UserMessage = memo(function UserMessage({
       >
         {showModeBadge && (
           <div className="flex justify-end pr-1">
-            <span className="text-[10px] tracking-wide text-[var(--muted-foreground)]">
+            <span className="text-[11px] tracking-wide text-[var(--muted-foreground)]">
               {t(getModeBadgeLabel(msg.capability))}
             </span>
           </div>
@@ -1775,7 +1775,7 @@ export const UserMessage = memo(function UserMessage({
               className="w-full resize-none border-0 bg-transparent text-[14px] leading-relaxed text-[var(--foreground)] outline-none focus:outline-none"
             />
             <div className="mt-1 flex items-center justify-between gap-2">
-              <span className="text-[10.5px] text-[var(--muted-foreground)]/80">
+              <span className="text-[11px] text-[var(--muted-foreground)]/80">
                 {t("Use the arrows below to switch between branches.")}
               </span>
               <div className="flex shrink-0 items-center gap-1.5">
@@ -1879,7 +1879,7 @@ UserMessage.displayName = "UserMessage";
 function ReadingPassageQuote({ quote, href }: { quote: string; href?: string }) {
   const { t } = useTranslation();
   const className =
-    "mb-1.5 block border-l-2 border-[color-mix(in_srgb,var(--primary)_45%,transparent)] pl-2.5 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]";
+    "mb-1.5 block border-l-2 border-[color-mix(in_srgb,var(--primary)_45%,transparent)] pl-2.5 text-[13px] leading-relaxed text-[var(--muted-foreground)]";
   const text = <span className="line-clamp-3">{quote}</span>;
   return href ? (
     <a
@@ -2232,7 +2232,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                     <button
                       type="button"
                       onClick={onResendLastTurn}
-                      className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
+                      className="shrink-0 rounded-md px-2 py-1 text-[12px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
                     >
                       {t("Retry")}
                     </button>
@@ -2343,7 +2343,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                     <button
                       type="button"
                       onClick={() => onRegenerateMessage()}
-                      className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
+                      className="shrink-0 rounded-md px-2 py-1 text-[12px] font-medium text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
                     >
                       {t("Retry")}
                     </button>
@@ -2352,7 +2352,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                     <button
                       type="button"
                       onClick={() => onResendLastTurn?.()}
-                      className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--foreground)] hover:bg-[var(--muted)]"
+                      className="shrink-0 rounded-md px-2 py-1 text-[12px] font-medium text-[var(--foreground)] hover:bg-[var(--muted)]"
                     >
                       {t("Resend")}
                     </button>

@@ -121,7 +121,7 @@ export default function ConceptGraphBlock({
           {index.chapters.map((chapter, idx) => {
             const label = (
               <span className="flex items-baseline gap-2">
-                <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
+                <span className="text-[11px] font-mono text-[var(--muted-foreground)]">
                   {String(idx + 1).padStart(2, "0")}
                 </span>
                 <span className="text-xs font-medium leading-snug text-[var(--foreground)]">

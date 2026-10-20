@@ -112,7 +112,7 @@ export function LearningDashboard() {
         <>
           {(todos.reviews.length > 0 || todos.books.length > 0) && (
             <section aria-labelledby="learning-todos" className="mb-9">
-              <h2 id="learning-todos" className="mb-3 text-[13.5px] font-semibold">
+              <h2 id="learning-todos" className="mb-3 text-[14px] font-semibold">
                 {t('What needs your attention')}
               </h2>
               <div className="grid gap-3 md:grid-cols-2">
@@ -159,7 +159,7 @@ export function LearningDashboard() {
           )}
           {recent.length > 0 && (
             <section aria-labelledby="learning-recent">
-              <h2 id="learning-recent" className="mb-3 text-[13.5px] font-semibold">
+              <h2 id="learning-recent" className="mb-3 text-[14px] font-semibold">
                 {t('Recent activity')}
               </h2>
               <div className="grid gap-3 md:grid-cols-2">

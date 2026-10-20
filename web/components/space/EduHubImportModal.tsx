@@ -295,10 +295,10 @@ function ListView({
             <Loader2 size={20} className="animate-spin" />
           </div>
         ) : error ? (
-          <div className="mx-auto max-w-md rounded-lg border border-warning/20 bg-warning/10 px-4 py-3 text-center text-[12.5px] text-warning">
+          <div className="mx-auto max-w-md rounded-lg border border-warning/20 bg-warning/10 px-4 py-3 text-center text-[13px] text-warning">
             <AlertTriangle size={16} className="mx-auto mb-1.5" />
             <p>{tr("无法连接 EduHub。", "Couldn't reach EduHub.")}</p>
-            <p className="mt-0.5 break-words text-[11.5px] opacity-80">
+            <p className="mt-0.5 break-words text-[12px] opacity-80">
               {error}
             </p>
             <button
@@ -376,7 +376,7 @@ function SkillCard({
                 {skill.name}
               </span>
               {installed ? (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[10px] font-medium text-success">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[11px] font-medium text-success">
                   <CheckCircle2 size={9} />
                   {tr("已导入", "Installed")}
                 </span>
@@ -457,7 +457,7 @@ function DetailView({
       <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] px-5 py-2.5">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[12.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
         >
           <ArrowLeft size={13} />
           {tr("返回", "Back")}
@@ -487,12 +487,12 @@ function DetailView({
             {skill.name}
           </h2>
           {version ? (
-            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
               v{version}
             </span>
           ) : null}
         </div>
-        <div className="mb-4 flex flex-wrap items-center gap-3 text-[11.5px] text-[var(--muted-foreground)]">
+        <div className="mb-4 flex flex-wrap items-center gap-3 text-[12px] text-[var(--muted-foreground)]">
           <span className="inline-flex items-center gap-1">
             <Download size={12} />
             {skill.downloads} {tr("次下载", "downloads")}
@@ -509,7 +509,7 @@ function DetailView({
             {detail.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full border border-[var(--border)]/60 bg-[var(--muted)]/40 px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]"
+                className="inline-flex items-center rounded-full border border-[var(--border)]/60 bg-[var(--muted)]/40 px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]"
               >
                 {tag}
               </span>
@@ -529,11 +529,11 @@ function DetailView({
             <Loader2 size={18} className="animate-spin" />
           </div>
         ) : error ? (
-          <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-[12.5px] text-warning">
+          <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-[13px] text-warning">
             {error}
           </div>
         ) : detail ? (
-          <div className="prose-skill text-[13.5px] leading-relaxed text-[var(--foreground)]">
+          <div className="prose-skill text-[14px] leading-relaxed text-[var(--foreground)]">
             <SkillMarkdown content={stripFrontmatter(detail.content)} />
           </div>
         ) : null}

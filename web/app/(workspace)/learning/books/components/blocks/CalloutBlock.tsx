@@ -59,7 +59,7 @@ export default function CalloutBlock({ block }: CalloutBlockProps) {
         >
           {label}
         </div>
-        <div className="text-[14.5px] leading-relaxed">{body}</div>
+        <div className="text-[14px] leading-relaxed">{body}</div>
       </div>
     </aside>
   );

@@ -173,7 +173,7 @@ export default function KbDocumentsSection({
         <div className="text-[13px] font-medium text-[var(--foreground)]">
           {t("Add documents")}
         </div>
-        <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+        <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
           {t(
             providerUsesEmbeddingMetadata(provider)
               ? "Drop files here to add them to this knowledge base. New files use its bound embedding model."
@@ -210,7 +210,7 @@ export default function KbDocumentsSection({
                 type="button"
                 onClick={handleRetry}
                 disabled={!canRetry || retrySubmitting}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[11.5px] font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[12px] font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
               >
                 {retrySubmitting || isRetryingHere ? (
                   <Loader2 className="h-3 w-3 animate-spin" />

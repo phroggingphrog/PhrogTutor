@@ -292,7 +292,7 @@ export default function BookLibrary({
                         progress={(book.reading?.percent ?? 0) / 100}
                       />
                     </div>
-                    <div className="mt-auto flex items-center justify-between text-[10px] text-[var(--muted-foreground)]/80">
+                    <div className="mt-auto flex items-center justify-between text-[11px] text-[var(--muted-foreground)]/80">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                         {/* Only the states worth acting on. A "Ready" pill on
                             every card in a library of ready books is a word
@@ -302,14 +302,14 @@ export default function BookLibrary({
                             keeps one baseline. */}
                         {book.status !== 'ready' && (
                           <span
-                            className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${status.className}`}
+                            className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-medium ${status.className}`}
                           >
                             <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
                             {t(status.label)}
                           </span>
                         )}
                         {book.source === 'shared' && (
-                          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+                          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                             {book.can_edit ? t('Shared · edit') : t('Shared · read')}
                           </span>
                         )}

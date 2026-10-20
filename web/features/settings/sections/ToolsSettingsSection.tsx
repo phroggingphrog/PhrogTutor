@@ -290,7 +290,7 @@ export default function ToolsSettingsPage() {
       )}
 
       {filteredSections && query.trim() && filteredSections.length === 0 && (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-8 text-center text-[12.5px] text-[var(--muted-foreground)]">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-8 text-center text-[13px] text-[var(--muted-foreground)]">
           {t("No tools match “{{query}}”.", { query: query.trim() })}
         </div>
       )}
@@ -307,7 +307,7 @@ export default function ToolsSettingsPage() {
                     <h2 className="text-[14px] font-semibold tracking-tight text-[var(--foreground)]">
                       {section.label}
                     </h2>
-                    <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+                    <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
                       {section.hint}
                     </p>
                   </div>
@@ -368,25 +368,25 @@ export default function ToolsSettingsPage() {
                                   {tool.name}
                                 </span>
                                 {tool.aliases.length > 0 && (
-                                  <span className="text-[10.5px] text-[var(--muted-foreground)]/70">
+                                  <span className="text-[11px] text-[var(--muted-foreground)]/70">
                                     {tool.aliases.join(" · ")}
                                   </span>
                                 )}
                                 {isComingSoon && (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--muted)]/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--muted)]/40 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                                     {language === "zh"
                                       ? "敬请期待"
                                       : "Coming soon"}
                                   </span>
                                 )}
                                 {availability && !isComingSoon && (
-                                  <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
+                                  <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning">
                                     {availability.badge}
                                   </span>
                                 )}
                               </div>
                               <p
-                                className={`mt-1 text-[12.5px] leading-relaxed ${
+                                className={`mt-1 text-[13px] leading-relaxed ${
                                   isComingSoon
                                     ? "text-[var(--muted-foreground)]/70"
                                     : "text-[var(--muted-foreground)]"
@@ -395,7 +395,7 @@ export default function ToolsSettingsPage() {
                                 {hints.short_description || tool.description}
                               </p>
                               {availability && !isComingSoon && (
-                                <p className="mt-1 text-[11.5px] leading-relaxed text-warning">
+                                <p className="mt-1 text-[12px] leading-relaxed text-warning">
                                   {availability.detail}{" "}
                                   {availability.href && (
                                     <Link
@@ -456,7 +456,7 @@ export default function ToolsSettingsPage() {
                                 <span
                                   role="note"
                                   tabIndex={0}
-                                  className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)]/40 px-2 py-0.5 text-[10.5px] text-[var(--muted-foreground)]"
+                                  className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)]/40 px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]"
                                 >
                                   <Lock className="h-3 w-3" />
                                   {t("Always on")}
@@ -466,7 +466,7 @@ export default function ToolsSettingsPage() {
                           </div>
                         </div>
                         {isOpen && (
-                          <div className="space-y-4 border-t border-[var(--border)]/40 bg-[var(--background)]/40 px-5 py-4 text-[12.5px] leading-relaxed">
+                          <div className="space-y-4 border-t border-[var(--border)]/40 bg-[var(--background)]/40 px-5 py-4 text-[13px] leading-relaxed">
                             {hints.when_to_use && (
                               <Field
                                 label={t("When to use")}
@@ -491,7 +491,7 @@ export default function ToolsSettingsPage() {
                             )}
                             {tool.parameters.length > 0 && (
                               <div>
-                                <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
+                                <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
                                   {t("Parameters")}
                                 </div>
                                 <ul className="space-y-1.5">
@@ -503,7 +503,7 @@ export default function ToolsSettingsPage() {
                                       <span className="font-mono text-[12px] text-[var(--foreground)]">
                                         {p.name}
                                       </span>
-                                      <span className="text-[10.5px] text-[var(--muted-foreground)]/70">
+                                      <span className="text-[11px] text-[var(--muted-foreground)]/70">
                                         {p.type}
                                         {p.required
                                           ? ""
@@ -579,11 +579,11 @@ function Field({
 }) {
   return (
     <div>
-      <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
+      <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
         {label}
       </div>
       <p
-        className={`whitespace-pre-wrap text-[12.5px] leading-relaxed text-[var(--foreground)]/90 ${
+        className={`whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--foreground)]/90 ${
           mono ? "font-mono" : ""
         }`}
       >

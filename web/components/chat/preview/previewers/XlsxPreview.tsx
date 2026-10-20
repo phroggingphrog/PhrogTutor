@@ -117,7 +117,7 @@ export default function XlsxPreview({ url }: { url: string }) {
           <tbody>
             {sheet.rows.map((cells, r) => (
               <tr key={r}>
-                <td className="sticky left-0 z-10 border border-[var(--border)]/50 bg-[var(--muted)]/55 px-2 py-1 text-right text-[10px] tabular-nums text-[var(--muted-foreground)]/70">
+                <td className="sticky left-0 z-10 border border-[var(--border)]/50 bg-[var(--muted)]/55 px-2 py-1 text-right text-[11px] tabular-nums text-[var(--muted-foreground)]/70">
                   {r + 1}
                 </td>
                 {cells.map((cell, c) => (
@@ -153,7 +153,7 @@ export default function XlsxPreview({ url }: { url: string }) {
                 type="button"
                 onClick={() => setActive(i)}
                 aria-label={s.name}
-                className={`shrink-0 rounded-md px-2.5 py-1 text-[11.5px] font-medium transition-colors ${
+                className={`shrink-0 rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors ${
                   i === active
                     ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
                     : "text-[var(--muted-foreground)] hover:bg-[var(--card)]/70 hover:text-[var(--foreground)]"

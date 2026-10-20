@@ -51,7 +51,7 @@ function Section({
             {title}
           </h3>
           {description && (
-            <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
               {description}
             </p>
           )}
@@ -530,7 +530,7 @@ export default function PartnerConfigure({
           )}
 
           {assetRows.length === 0 ? (
-            <p className="text-[12.5px] text-[var(--muted-foreground)]">
+            <p className="text-[13px] text-[var(--muted-foreground)]">
               {t(
                 "Nothing assigned yet — this partner only knows what you tell it.",
               )}

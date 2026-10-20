@@ -147,7 +147,7 @@ export default function GroupSessionPicker({
                           <span className="block truncate text-[12px] text-[var(--foreground)]">
                             {item.title || t("New discussion")}
                           </span>
-                          <span className="block text-[10px] text-[var(--muted-foreground)]">
+                          <span className="block text-[11px] text-[var(--muted-foreground)]">
                             {t("{{count}} messages", {
                               count: item.message_count,
                             })}

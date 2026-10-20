@@ -285,7 +285,7 @@ export default function PartnerChannels({
                       {entry.display_name}
                     </span>
                     {enabled && (
-                      <span className="inline-flex shrink-0 items-center gap-1 text-[10px] text-success">
+                      <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-success">
                         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
                         {t("Enabled")}
                       </span>

@@ -164,7 +164,7 @@ export function DimensionField({
           <button
             type="button"
             onClick={() => onChangeDimension(String(detected))}
-            className="rounded-md border border-[var(--border)]/60 px-1.5 py-0.5 text-[10px] text-[var(--foreground)] transition-colors hover:border-[var(--border)]"
+            className="rounded-md border border-[var(--border)]/60 px-1.5 py-0.5 text-[11px] text-[var(--foreground)] transition-colors hover:border-[var(--border)]"
             disabled={disabled}
           >
             {t("Use this")}

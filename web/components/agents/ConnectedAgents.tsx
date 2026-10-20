@@ -123,14 +123,14 @@ export default function ConnectedAgents() {
           {tr({ zh: "检测可用智能体…", en: "Detecting available agents…" })}
         </div>
       ) : !canConnect ? (
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-4 py-5 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-4 py-5 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {tr({
             zh: "未检测到可用的本机智能体或已配置的远程 Hermes 网关。安装并登录受支持的 CLI 或配置远程网关，即可连接。",
             en: "No supported local agent or configured remote Hermes gateway is available. Set up a local CLI or configure the gateway to connect one.",
           })}
         </div>
       ) : connections.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-4 py-5 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-4 py-5 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {tr({
             zh: "尚未连接任何智能体。点击「连接智能体」接入本机智能体或远程 Hermes 网关。",
             en: "No agents connected yet. Click “Connect agent” to add a local agent or remote Hermes gateway.",
@@ -153,10 +153,10 @@ export default function ConnectedAgents() {
                     )}
                   </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[13.5px] font-semibold tracking-tight text-[var(--foreground)]">
+                  <div className="truncate text-[14px] font-semibold tracking-tight text-[var(--foreground)]">
                     {conn.name}
                   </div>
-                  <div className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
+                  <div className="mt-0.5 truncate text-[12px] text-[var(--muted-foreground)]">
                     {backendLabel(conn.agent_kind)}
                     {conn.cwd ? ` · ${conn.cwd}` : ""}
                   </div>
@@ -292,7 +292,7 @@ function ConnectModal({
                     key={opt.kind}
                     type="button"
                     onClick={() => setKind(opt.kind)}
-                    className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[12.5px] font-medium transition-colors ${
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-medium transition-colors ${
                       kind === opt.kind
                         ? "border-[var(--primary)] bg-[var(--primary)]/[0.07] text-[var(--foreground)]"
                         : "border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--border)] hover:text-[var(--foreground)]"
@@ -356,7 +356,7 @@ function ConnectModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             {tr({ zh: "取消", en: "Cancel" })}
           </button>
@@ -364,7 +364,7 @@ function ConnectModal({
             type="button"
             onClick={() => void submit()}
             disabled={submitting}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--background)] shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--foreground)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--background)] shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />

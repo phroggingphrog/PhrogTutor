@@ -121,7 +121,7 @@ function ViewTab({
     <Link
       href={href}
       aria-current={active ? 'page' : undefined}
-      className={`-mb-px flex items-center gap-1.5 border-b-2 px-3 pb-2.5 pt-2 text-[12.5px] transition ${
+      className={`-mb-px flex items-center gap-1.5 border-b-2 px-3 pb-2.5 pt-2 text-[13px] transition ${
         active
           ? 'border-[var(--primary)] font-semibold text-[var(--foreground)]'
           : 'border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
@@ -129,7 +129,7 @@ function ViewTab({
     >
       {label}
       {typeof count === 'number' && (
-        <span className="text-[10.5px] tabular-nums text-[var(--muted-foreground)]">{count}</span>
+        <span className="text-[11px] tabular-nums text-[var(--muted-foreground)]">{count}</span>
       )}
     </Link>
   )

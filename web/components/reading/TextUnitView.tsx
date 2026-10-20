@@ -602,7 +602,7 @@ export function TextUnitView({
                       loading="lazy"
                       className="max-h-[70vh] w-auto max-w-full rounded-lg border border-[var(--border)]"
                     />
-                    <figcaption className="mt-1.5 text-center text-[10.5px] text-[var(--muted-foreground)]">
+                    <figcaption className="mt-1.5 text-center text-[11px] text-[var(--muted-foreground)]">
                       {item.name}
                     </figcaption>
                   </figure>

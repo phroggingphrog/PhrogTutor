@@ -625,7 +625,7 @@ export default function CreateKbModal({
             type="button"
             onClick={handleClose}
             disabled={submitting}
-            className="rounded-md px-3 py-1.5 text-[12.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
+            className="rounded-md px-3 py-1.5 text-[13px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
           >
             {t("Cancel")}
           </button>
@@ -633,7 +633,7 @@ export default function CreateKbModal({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={!canSubmit}
-            className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {submitting ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -974,18 +974,18 @@ function NewModeFields({
                       <span className="truncate">{p.name}</span>
                     </span>
                     {needsKey ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-warning-surface px-1.5 py-0.5 text-[10px] font-medium text-warning">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-warning-surface px-1.5 py-0.5 text-[11px] font-medium text-warning">
                         {t("Needs key")}
                       </span>
                     ) : unavailable ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                         {t("Not installed")}
                       </span>
                     ) : selected ? (
                       <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
                     ) : null}
                   </div>
-                  <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+                  <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
                     {p.description}
                   </span>
                 </button>
@@ -994,7 +994,7 @@ function NewModeFields({
                     href="https://dash.pageindex.ai/api-keys"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-1 text-[10.5px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    className="inline-flex items-center gap-1 px-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   >
                     {t("PageIndex API plans")}
                     <ExternalLink className="h-3 w-3" />
@@ -1021,7 +1021,7 @@ function NewModeFields({
               <button
                 type="button"
                 onClick={() => onConfigureProvider(provider)}
-                className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-warning underline-offset-2 hover:underline"
+                className="shrink-0 rounded-md px-2 py-1 text-[12px] font-medium text-warning underline-offset-2 hover:underline"
               >
                 {t("Configure")}
               </button>
@@ -1047,7 +1047,7 @@ function NewModeFields({
               <button
                 type="button"
                 onClick={() => onConfigureProvider(provider)}
-                className="inline-flex shrink-0 items-center gap-1 text-[11.5px] font-medium text-[var(--primary)] hover:underline"
+                className="inline-flex shrink-0 items-center gap-1 text-[12px] font-medium text-[var(--primary)] hover:underline"
               >
                 {t("Edit defaults")}
                 <ChevronRight className="h-3 w-3" />
@@ -1059,7 +1059,7 @@ function NewModeFields({
               {engineDefaultSummary.map((item) => (
                 <span
                   key={item}
-                  className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[10.5px] text-[var(--muted-foreground)]"
+                  className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[11px] text-[var(--muted-foreground)]"
                 >
                   {item}
                 </span>
@@ -1080,7 +1080,7 @@ function NewModeFields({
             value={retrievalMode}
             onChange={(event) => setRetrievalMode(event.target.value)}
             disabled={submitting}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           >
             <option value="">
               {t("Use engine default: {{mode}}", {
@@ -1115,7 +1115,7 @@ function NewModeFields({
               setPageIndexMode(event.target.value as "" | "flash" | "standard")
             }
             disabled={submitting}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           >
             <option value="">
               {t("Default — Flash, summaries and full optimization")}
@@ -1203,7 +1203,7 @@ function LightRagServerFields({
             onChange={(event) => setServerUrl(event.target.value)}
             disabled={submitting}
             placeholder={EXAMPLE_SERVER_URL}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           />
           <button
             type="button"
@@ -1246,7 +1246,7 @@ function LightRagServerFields({
           type="password"
           autoComplete="off"
           placeholder={t("Only if your server requires one")}
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
         />
       </div>
 
@@ -1287,7 +1287,7 @@ function ServerProbeVerdict({
         <Check className="h-3.5 w-3.5 shrink-0" />
         {t("Connected to LightRAG server")}
       </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--muted-foreground)]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--muted-foreground)]">
         {probe.core_version && (
           <span>{t("Core {{version}}", { version: probe.core_version })}</span>
         )}
@@ -1343,7 +1343,7 @@ function WeKnoraFields({
             onChange={(event) => setServerUrl(event.target.value)}
             disabled={submitting}
             placeholder={EXAMPLE_SERVER_URL}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           />
           <button
             type="button"
@@ -1377,7 +1377,7 @@ function WeKnoraFields({
           type="password"
           autoComplete="off"
           placeholder={t("Required to access your WeKnora knowledge base")}
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
         />
       </div>
 
@@ -1392,7 +1392,7 @@ function WeKnoraFields({
             onChange={(event) => setKnowledgeBaseId(event.target.value)}
             disabled={submitting}
             placeholder={t("WeKnora knowledge base ID")}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-9 pr-3 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-9 pr-3 font-mono text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
           />
         </div>
       </div>
@@ -1421,7 +1421,7 @@ function WeKnoraProbeVerdict({ probe, t }: { probe: WeKnoraProbe; t: TFn }) {
         <Check className="h-3.5 w-3.5 shrink-0" />
         {t("Connected to WeKnora")}
       </div>
-      <div className="text-[11.5px] text-[var(--muted-foreground)]">
+      <div className="text-[12px] text-[var(--muted-foreground)]">
         {probe.knowledge_base_name
           ? t("Knowledge base {{name}}", {
               name: probe.knowledge_base_name,
@@ -1501,16 +1501,16 @@ function LinkModeFields({
                     {selected ? (
                       <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
                     ) : !enabled ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                         {t("Cloud index")}
                       </span>
                     ) : p.id === IMA_PROVIDER ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
                         {t("Read only")}
                       </span>
                     ) : null}
                   </div>
-                  <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+                  <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
                     {p.description}
                   </span>
                 </button>
@@ -1538,7 +1538,7 @@ function LinkModeFields({
                 <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
               )}
             </div>
-            <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+            <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
               {t(
                 "A live Obsidian vault — browsed and edited in place, no index.",
               )}
@@ -1565,7 +1565,7 @@ function LinkModeFields({
                 <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
               )}
             </div>
-            <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+            <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
               {t(
                 "Notes, excerpts and cards pushed in by the MarginNote 4 add-on.",
               )}
@@ -1577,7 +1577,7 @@ function LinkModeFields({
       {linkIsIma ? (
         connectionForm
       ) : linkIsMarginNote ? (
-        <p className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
           {t(
             "The library starts empty. Pair a device from its Devices tab, then enter the token in the MarginNote 4 add-on to start syncing.",
           )}
@@ -1596,7 +1596,7 @@ function LinkModeFields({
                 placeholder={
                   linkIsObsidian ? EXAMPLE_VAULT_PATH : EXAMPLE_INDEX_PATH
                 }
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25 disabled:opacity-50"
               />
               {!linkIsObsidian && (
                 <button
@@ -1652,7 +1652,7 @@ function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
         <Check className="h-3.5 w-3.5 shrink-0" />
         {t("Ready index found")}
       </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--muted-foreground)]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--muted-foreground)]">
         {probe.version && <span className="font-mono">{probe.version}</span>}
         {probe.doc_count != null && (
           <span>{t("{{count}} documents", { count: probe.doc_count })}</span>

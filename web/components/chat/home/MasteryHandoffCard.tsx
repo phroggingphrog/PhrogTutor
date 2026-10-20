@@ -144,7 +144,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
                 <span aria-hidden>·</span>
                 {/* The lesson is the whole point of a request like "review
                     lesson one", so it is a chip rather than more grey prose. */}
-                <span className="rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-1.5 py-[1px] text-[10.5px] font-medium text-[color-mix(in_srgb,var(--primary)_75%,var(--foreground))]">
+                <span className="rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-1.5 py-[1px] text-[11px] font-medium text-[color-mix(in_srgb,var(--primary)_75%,var(--foreground))]">
                   {data.module_name}
                 </span>
               </>
@@ -162,7 +162,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
 
           {draft || data.opening_message ? (
             <label className="mt-3 block">
-              <span className="text-[10.5px] text-[color-mix(in_srgb,var(--muted-foreground)_80%,transparent)]">
+              <span className="text-[11px] text-[color-mix(in_srgb,var(--muted-foreground)_80%,transparent)]">
                 {t("Opens with")}
               </span>
               <textarea
@@ -178,7 +178,7 @@ const MasteryHandoff = memo(function MasteryHandoff({
             <button
               type="button"
               onClick={go}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90"
             >
               {resuming ? (
                 <RotateCcw size={12} strokeWidth={2} />

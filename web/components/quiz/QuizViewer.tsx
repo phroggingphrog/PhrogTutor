@@ -825,7 +825,7 @@ export default function QuizViewer({
                   : "incorrect"
                 : null;
             const baseChip =
-              "flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold transition-all";
+              "flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-all";
             const chipClass = isCurrent
               ? `${baseChip} bg-[var(--primary)] text-white shadow-sm`
               : correctness === "correct"
@@ -890,12 +890,12 @@ export default function QuizViewer({
       <div className="px-4 py-3">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase text-[var(--muted-foreground)]">
+            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase text-[var(--muted-foreground)]">
               Q{idx + 1}
             </span>
             {q.difficulty && (
               <span
-                className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase ${
+                className={`rounded-md px-1.5 py-0.5 text-[11px] font-medium uppercase ${
                   q.difficulty === "hard"
                     ? "bg-destructive/10 text-destructive"
                     : q.difficulty === "medium"
@@ -906,7 +906,7 @@ export default function QuizViewer({
                 {q.difficulty}
               </span>
             )}
-            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
               {q.question_type}
             </span>
           </div>
@@ -952,7 +952,7 @@ export default function QuizViewer({
                         (m) => m.role !== "system",
                       ).length ?? 0;
                     return tcount > 0 ? (
-                      <span className="rounded-full bg-[var(--primary)]/25 px-1.5 py-0 text-[10px]">
+                      <span className="rounded-full bg-[var(--primary)]/25 px-1.5 py-0 text-[11px]">
                         {tcount}
                       </span>
                     ) : null;
@@ -1077,7 +1077,7 @@ export default function QuizViewer({
           // learner sees in the rendered question above; this is just
           // where they type the missing word/phrase.
           <div>
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]/70">
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]/70">
               {t("Fill in the Blank")}
             </div>
             <input
@@ -1154,11 +1154,11 @@ export default function QuizViewer({
                           className="h-24 w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-24 w-full items-center justify-center text-[10px] text-[var(--muted-foreground)]">
+                        <div className="flex h-24 w-full items-center justify-center text-[11px] text-[var(--muted-foreground)]">
                           {image.filename}
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-0.5 text-[10px] text-white">
+                      <div className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-0.5 text-[11px] text-white">
                         {image.filename}
                       </div>
                       {!ans.submitted && (
@@ -1330,7 +1330,7 @@ export default function QuizViewer({
                     onClick={toggleCollapsed}
                     className="flex w-full items-center gap-1 pb-1.5 text-left"
                   >
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                       {hasJudgment ? t("AI Judgment") : t("Reference Answer")}
                     </span>
                     <ChevronDown
@@ -1344,7 +1344,7 @@ export default function QuizViewer({
 
                 {collapsed ? null : hasJudgment && view === "judgment" ? (
                   <div>
-                    <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                       <Sparkles size={10} />
                       {t("AI Judgment")}
                       {judgment.isStreaming && (
@@ -1376,7 +1376,7 @@ export default function QuizViewer({
                   <>
                     {showReferenceAnswer && (
                       <div>
-                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                           {t("Reference Answer")}
                         </div>
                         <div className="text-[13px] leading-relaxed text-[var(--foreground)]">
@@ -1395,7 +1395,7 @@ export default function QuizViewer({
                     )}
                     {q.explanation && (
                       <div>
-                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                           {t("Explanation")}
                         </div>
                         <div className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">

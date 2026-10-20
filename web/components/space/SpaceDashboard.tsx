@@ -368,7 +368,7 @@ function DashboardCard({
           <Icon size={18} strokeWidth={1.7} />
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[14.5px] font-medium leading-tight tracking-tight text-[var(--foreground)]">
+          <h3 className="truncate text-[14px] font-medium leading-tight tracking-tight text-[var(--foreground)]">
             {tr(item.title)}
           </h3>
           {item.unit ? (
@@ -393,7 +393,7 @@ function DashboardCard({
           className="shrink-0 text-[var(--muted-foreground)]/40 transition-colors group-hover:text-[var(--foreground)]"
         />
       </div>
-      <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mt-3 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {tr(item.blurb)}
       </p>
       {item.credit ? (

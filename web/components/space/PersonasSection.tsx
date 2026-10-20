@@ -247,14 +247,14 @@ export default function PersonasSection() {
           "Behavior presets that shape the assistant's tone and style. Apply one per chat turn from the composer.",
         )}
         meta={
-          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
             {personas.length} {t("personas.count.suffix")}
           </span>
         }
         action={
           <button
             onClick={openCreate}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
           >
             <Plus size={13} strokeWidth={2} />
             {t("New persona")}
@@ -280,14 +280,14 @@ export default function PersonasSection() {
           <p className="text-[14px] font-medium text-[var(--foreground)]">
             {t("No personas yet")}
           </p>
-          <p className="mx-auto mt-1 max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mx-auto mt-1 max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Create a persona to define a reusable behavior preset (e.g. a patient tutor, a blunt code reviewer).",
             )}
           </p>
           <button
             onClick={openCreate}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
           >
             <Plus size={13} strokeWidth={2} />
             {t("Create your first persona")}
@@ -324,7 +324,7 @@ export default function PersonasSection() {
                             {persona.name}
                           </span>
                           {persona.source === "admin" ? (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                               {readOnly ? <Lock size={9} /> : null}
                               {t("Preset")}
                             </span>
@@ -408,7 +408,7 @@ export default function PersonasSection() {
                   {viewer.name}
                 </h3>
                 {viewer.readOnly ? (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                     <Lock size={9} />
                     {t("Preset")}
                   </span>
@@ -449,11 +449,11 @@ export default function PersonasSection() {
                   <Loader2 size={18} className="animate-spin" />
                 </div>
               ) : viewer.error ? (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12.5px] text-destructive">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive">
                   {viewer.error}
                 </div>
               ) : (
-                <div className="prose-skill text-[13.5px] leading-relaxed text-[var(--foreground)]">
+                <div className="prose-skill text-[14px] leading-relaxed text-[var(--foreground)]">
                   <PersonaMarkdown content={stripFrontmatter(viewer.content)} />
                 </div>
               )}

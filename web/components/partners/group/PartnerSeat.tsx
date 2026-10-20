@@ -93,16 +93,16 @@ export default function PartnerSeat({
       />
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
-          <span className="text-[11.5px] font-medium text-[var(--foreground)]">
+          <span className="text-[12px] font-medium text-[var(--foreground)]">
             {name}
           </span>
           {kindLabel ? (
-            <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[9.5px] text-[var(--muted-foreground)]">
+            <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
               {kindLabel}
             </span>
           ) : null}
           {working ? (
-            <span className="inline-flex items-center gap-1 text-[10.5px] text-[var(--muted-foreground)]">
+            <span className="inline-flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
               <Loader2 size={9} className="animate-spin" />
               {seat.status === "waiting" ? t("Waiting…") : t("Thinking…")}
             </span>
@@ -111,7 +111,7 @@ export default function PartnerSeat({
             <button
               type="button"
               onClick={onOpenTrace}
-              className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[10.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+              className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-[11px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               <Waypoints size={10} />
               {t("Reasoning steps")}
@@ -141,7 +141,7 @@ export default function PartnerSeat({
             <button
               type="button"
               onClick={copy}
-              className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+              className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
               {copied ? <Check size={11} /> : <Copy size={11} />}
               {copied ? t("Copied") : t("Copy")}
@@ -151,7 +151,7 @@ export default function PartnerSeat({
                 <button
                   type="button"
                   onClick={() => onQuote(member, body)}
-                  className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                  className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <CornerUpRight size={11} />
                   {t("Follow up")}
@@ -163,7 +163,7 @@ export default function PartnerSeat({
                 <button
                   type="button"
                   onClick={() => setAskOpen((value) => !value)}
-                  className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                  className="inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 >
                   <Users size={11} />
                   {t("Ask a peer")}
@@ -173,7 +173,7 @@ export default function PartnerSeat({
                     className="absolute bottom-full left-0 z-30 mb-1 w-[210px] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1 shadow-xl"
                     onMouseLeave={() => setAskOpen(false)}
                   >
-                    <div className="px-2.5 pb-1 pt-0.5 text-[9.5px] text-[var(--muted-foreground)]">
+                    <div className="px-2.5 pb-1 pt-0.5 text-[11px] text-[var(--muted-foreground)]">
                       {t("Who should respond to {{name}}?", { name })}
                     </div>
                     {peers.map((peer) => (
@@ -193,7 +193,7 @@ export default function PartnerSeat({
                           image={peer.avatar}
                           size={18}
                         />
-                        <span className="truncate text-[11.5px] text-[var(--foreground)]">
+                        <span className="truncate text-[12px] text-[var(--foreground)]">
                           {peer.name}
                         </span>
                       </button>

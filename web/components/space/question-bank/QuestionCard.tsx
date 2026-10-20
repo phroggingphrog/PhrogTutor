@@ -138,7 +138,7 @@ function AnswerBlock({
 
   return (
     <div className={`rounded-lg border px-3 py-2 ${toneClass}`}>
-      <div className={`mb-1 text-[10.5px] font-medium uppercase tracking-wide ${labelClass}`}>
+      <div className={`mb-1 text-[11px] font-medium uppercase tracking-wide ${labelClass}`}>
         {label}
       </div>
       <div className="text-[13px] text-[var(--foreground)]">
@@ -229,13 +229,13 @@ export default function QuestionCard({
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
             <span
-              className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${badge.className}`}
+              className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${badge.className}`}
             >
               {t(badge.label)}
             </span>
             {entry.difficulty && (
               <span
-                className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase ${
+                className={`rounded-md px-1.5 py-0.5 text-[11px] font-medium uppercase ${
                   entry.difficulty === "hard"
                     ? "bg-destructive/10 text-destructive"
                     : entry.difficulty === "medium"
@@ -247,26 +247,26 @@ export default function QuestionCard({
               </span>
             )}
             {entry.question_type && (
-              <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+              <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                 {t(QUESTION_TYPE_LABELS[entry.question_type] || entry.question_type)}
               </span>
             )}
-            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
               {t(SOURCE_LABELS[entry.source] || "Unknown Source")}
             </span>
             {entry.assessment_type && ASSESSMENT_TYPE_LABELS[entry.assessment_type] ? (
-              <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+              <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                 {t(ASSESSMENT_TYPE_LABELS[entry.assessment_type])}
               </span>
             ) : null}
             {entry.score_trend && (
-              <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+              <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                 {t(TREND_LABELS[entry.score_trend] || "First Attempt")}
               </span>
             )}
             {showReviewState && (
               <span
-                className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+                className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
                   entry.resolved
                     ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
                     : "bg-warning-surface text-warning"
@@ -396,12 +396,12 @@ export default function QuestionCard({
                     />
                   </div>
                   {isCorrectAnswer && (
-                    <span className="mt-px shrink-0 text-[10px] font-medium text-green-600 dark:text-green-400">
+                    <span className="mt-px shrink-0 text-[11px] font-medium text-green-600 dark:text-green-400">
                       ✓ {t("Correct")}
                     </span>
                   )}
                   {isWrongPick && (
-                    <span className="mt-px shrink-0 text-[10px] font-medium text-destructive">
+                    <span className="mt-px shrink-0 text-[11px] font-medium text-destructive">
                       ✗ {t("Your pick")}
                     </span>
                   )}
@@ -442,7 +442,7 @@ export default function QuestionCard({
 
           {entry.explanation && (
             <div className="rounded-lg border border-blue-200/60 bg-blue-50/30 px-3 py-2 dark:border-blue-900/40 dark:bg-blue-950/15">
-              <div className="mb-1 text-[10.5px] font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
+              <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
                 {t("Explanation")}
               </div>
               <div className="text-[13px] leading-relaxed text-[var(--foreground)]">

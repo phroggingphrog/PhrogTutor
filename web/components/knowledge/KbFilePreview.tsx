@@ -178,7 +178,7 @@ export default function KbFilePreview({
             <div className="text-[13px] font-medium text-[var(--foreground)]">
               {t("Select a file to preview")}
             </div>
-            <p className="mt-1 max-w-xs text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+            <p className="mt-1 max-w-xs text-[12px] leading-relaxed text-[var(--muted-foreground)]">
               {t(
                 "Pick any document from the list on the left to view it here without leaving the knowledge base.",
               )}
@@ -238,10 +238,10 @@ export default function KbFilePreview({
           <HeaderIcon size={15} strokeWidth={1.6} className={spec.tint} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
+          <div className="truncate text-[13px] font-medium text-[var(--foreground)]">
             {source.filename}
           </div>
-          <div className="truncate text-[10.5px] uppercase tracking-wide text-[var(--muted-foreground)]">
+          <div className="truncate text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
             {sizeLabel ? `${spec.label} · ${sizeLabel}` : spec.label}
           </div>
         </div>

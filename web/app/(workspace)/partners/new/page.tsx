@@ -276,7 +276,7 @@ export default function NewPartnerPage() {
                     )}
                   </span>
                   <span
-                    className={`hidden text-[12.5px] transition-colors sm:block ${
+                    className={`hidden text-[13px] transition-colors sm:block ${
                       index === stepIndex
                         ? "font-medium text-[var(--foreground)]"
                         : "text-[var(--muted-foreground)] group-enabled:group-hover:text-[var(--foreground)]"
@@ -312,7 +312,7 @@ export default function NewPartnerPage() {
               <h1 className="text-[22px] font-semibold tracking-tight text-[var(--foreground)]">
                 {stepTitle[step].title}
               </h1>
-              <p className="mt-1 text-[13.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <p className="mt-1 text-[14px] leading-relaxed text-[var(--muted-foreground)]">
                 {stepTitle[step].subtitle}
               </p>
             </div>
@@ -482,16 +482,16 @@ export default function NewPartnerPage() {
                     key={label}
                     className="flex items-baseline gap-4 px-4 py-3"
                   >
-                    <dt className="w-24 shrink-0 text-[12.5px] text-[var(--muted-foreground)]">
+                    <dt className="w-24 shrink-0 text-[13px] text-[var(--muted-foreground)]">
                       {label}
                     </dt>
-                    <dd className="min-w-0 truncate text-[13.5px] text-[var(--foreground)]">
+                    <dd className="min-w-0 truncate text-[14px] text-[var(--foreground)]">
                       {valueText}
                     </dd>
                   </div>
                 ))}
               </dl>
-              <p className="text-[12.5px] text-[var(--muted-foreground)]">
+              <p className="text-[13px] text-[var(--muted-foreground)]">
                 {t(
                   "You can connect Feishu, Telegram, Slack and more right after creating.",
                 )}
@@ -513,7 +513,7 @@ export default function NewPartnerPage() {
             type="button"
             onClick={goBack}
             disabled={stepIndex === 0}
-            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[13.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:invisible"
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[14px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:invisible"
           >
             <ArrowLeft className="h-4 w-4" />
             {t("Back")}
@@ -523,7 +523,7 @@ export default function NewPartnerPage() {
               type="button"
               onClick={() => void submit()}
               disabled={creating || !name.trim()}
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-[13.5px] font-medium text-[var(--primary-foreground)] shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-[14px] font-medium text-[var(--primary-foreground)] shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
             >
               {creating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -537,7 +537,7 @@ export default function NewPartnerPage() {
               type="button"
               onClick={goNext}
               disabled={!canContinue}
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-[13.5px] font-medium text-[var(--primary-foreground)] shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-[14px] font-medium text-[var(--primary-foreground)] shadow-sm transition-all duration-150 hover:opacity-90 active:scale-[0.98] disabled:opacity-40"
             >
               {t("Continue")}
               <ArrowRight className="h-4 w-4" />

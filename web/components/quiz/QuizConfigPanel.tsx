@@ -226,7 +226,7 @@ export default memo(function QuizConfigPanel({
 
           {showRatioBar && (
             <div className="rounded-lg border border-[var(--border)]/30 bg-[var(--background)]/40 p-2.5">
-              <div className="mb-1.5 flex items-center justify-between text-[10px] font-medium text-[var(--muted-foreground)]/60">
+              <div className="mb-1.5 flex items-center justify-between text-[11px] font-medium text-[var(--muted-foreground)]/60">
                 <span>{t("Type Mix")}</span>
                 <span className="tabular-nums">
                   {totalCount}/{value.num_questions}

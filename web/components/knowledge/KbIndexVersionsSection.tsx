@@ -192,9 +192,9 @@ export default function KbIndexVersionsSection({
         <div className="flex items-center gap-2">
           <Layers className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
           <div>
-            <div className="text-[12.5px] font-medium text-[var(--foreground)]">
+            <div className="text-[13px] font-medium text-[var(--foreground)]">
               {t("Index versions")}
-              <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
+              <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal text-[var(--muted-foreground)]">
                 {versions.length}
               </span>
             </div>
@@ -305,7 +305,7 @@ export default function KbIndexVersionsSection({
           </div>
         )}
 
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 py-2 text-[11.5px] text-[var(--muted-foreground)]">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 py-2 text-[12px] text-[var(--muted-foreground)]">
         <Clock className="h-3.5 w-3.5 shrink-0" />
         <span>
           {t("Last indexed")}:{" "}
@@ -513,7 +513,7 @@ function IndexVersionRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span
-            className={`truncate text-[12.5px] font-medium ${
+            className={`truncate text-[13px] font-medium ${
               isPhantom
                 ? "text-warning line-through decoration-amber-400/70"
                 : "text-[var(--foreground)]"
@@ -522,32 +522,32 @@ function IndexVersionRow({
             {title}
           </span>
           {isActive && (
-            <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[10px] font-medium text-success">
+            <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[11px] font-medium text-success">
               {t("Active")}
             </span>
           )}
           {isPhantom && (
-            <span className="rounded-full bg-warning-surface px-1.5 py-0.5 text-[10px] font-medium text-warning">
+            <span className="rounded-full bg-warning-surface px-1.5 py-0.5 text-[11px] font-medium text-warning">
               {t("Stale")}
             </span>
           )}
           {isLegacy && !isActive && (
-            <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+            <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
               {t("Legacy")}
             </span>
           )}
           {isFailedLightRagCandidate && (
-            <span className="rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+            <span className="rounded-full bg-destructive/10 px-1.5 py-0.5 text-[11px] font-medium text-destructive">
               {t("Not published")}
             </span>
           )}
           {isBuildingLightRagCandidate && (
-            <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
+            <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
               {t("Building")}
             </span>
           )}
         </div>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-[var(--muted-foreground)]">
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[var(--muted-foreground)]">
           {typeof version.dimension === "number" && (
             <span>
               {version.dimension}

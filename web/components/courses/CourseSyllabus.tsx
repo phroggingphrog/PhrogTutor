@@ -119,7 +119,7 @@ export default function CourseSyllabus({
             <ListTree size={15} strokeWidth={1.7} />
             {t("Syllabus")}
           </h2>
-          <p className="mt-0.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {syllabus.total > 0
               ? t("{{covered}} of {{total}} units covered", {
                   covered: syllabus.covered,
@@ -133,7 +133,7 @@ export default function CourseSyllabus({
         <button
           type="button"
           onClick={() => setEditing((open) => !open)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50"
         >
           <Pencil size={12} />
           {editing ? t("Cancel") : syllabus.total > 0 ? t("Edit") : t("Add")}
@@ -171,14 +171,14 @@ export default function CourseSyllabus({
               type="button"
               onClick={save}
               disabled={saving}
-              className="rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--background)] transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-[12px] font-medium text-[var(--background)] transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {saving ? t("Saving") : t("Save")}
             </button>
           </div>
         </div>
       ) : units.length === 0 ? (
-        <p className="mt-3 rounded-xl border border-dashed border-[var(--border)] px-3 py-4 text-center text-[11.5px] text-[var(--muted-foreground)]">
+        <p className="mt-3 rounded-xl border border-dashed border-[var(--border)] px-3 py-4 text-center text-[12px] text-[var(--muted-foreground)]">
           {t(
             "Paste the course outline and every number on this page gains a denominator.",
           )}
@@ -214,7 +214,7 @@ export default function CourseSyllabus({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span
-                      className={`block text-[12.5px] ${
+                      className={`block text-[13px] ${
                         unit.covered
                           ? "text-[var(--muted-foreground)] line-through"
                           : "text-[var(--foreground)]"
@@ -223,7 +223,7 @@ export default function CourseSyllabus({
                       {unit.position + 1}. {unit.title}
                     </span>
                     {unit.topics.length > 0 ? (
-                      <span className="mt-0.5 block truncate text-[10.5px] text-[var(--muted-foreground)]/80">
+                      <span className="mt-0.5 block truncate text-[11px] text-[var(--muted-foreground)]/80">
                         {unit.topics.join(" · ")}
                       </span>
                     ) : null}
@@ -235,7 +235,7 @@ export default function CourseSyllabus({
                       )}
                       side="top"
                     >
-                      <span className="mt-0.5 shrink-0 text-[10.5px] text-[var(--muted-foreground)]">
+                      <span className="mt-0.5 shrink-0 text-[11px] text-[var(--muted-foreground)]">
                         {t("{{count}} wrong", { count: unit.wrong_questions })}
                       </span>
                     </Tooltip>

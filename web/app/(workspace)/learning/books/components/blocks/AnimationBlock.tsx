@@ -77,7 +77,7 @@ export default function AnimationBlock({ block }: AnimationBlockProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t("Open in new tab")}
-                className="inline-flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-[10px] font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+                className="inline-flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-[11px] font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
               >
                 <ExternalLink size={11} strokeWidth={1.8} />
                 {t("Open")}
@@ -89,7 +89,7 @@ export default function AnimationBlock({ block }: AnimationBlockProps) {
                   href={primary}
                   download={filename || true}
                   aria-label={t("Download video")}
-                  className="inline-flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-[10px] font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+                  className="inline-flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-[11px] font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
                 >
                   <Download size={11} strokeWidth={1.8} />
                 </a>

@@ -16,7 +16,7 @@ export function Field({
 }) {
   return (
     <label className={`flex min-w-0 flex-col ${width || ""}`}>
-      <span className="mb-0.5 text-[10px] font-medium text-[var(--muted-foreground)]/60">
+      <span className="mb-0.5 text-[11px] font-medium text-[var(--muted-foreground)]/60">
         {label}
       </span>
       {children}
@@ -57,11 +57,11 @@ export function CollapsibleConfigSection({
           size={10}
           className={`shrink-0 text-[var(--muted-foreground)]/40 transition-transform ${collapsed ? "-rotate-90" : ""}`}
         />
-        <span className="text-[10px] font-medium text-[var(--muted-foreground)]/55">
+        <span className="text-[11px] font-medium text-[var(--muted-foreground)]/55">
           {t("Settings")}
         </span>
         {collapsed && summary && (
-          <span className="min-w-0 truncate text-[10px] text-[var(--muted-foreground)]/30">
+          <span className="min-w-0 truncate text-[11px] text-[var(--muted-foreground)]/30">
             — {summary}
           </span>
         )}

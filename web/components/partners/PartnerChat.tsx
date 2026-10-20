@@ -286,7 +286,7 @@ function AttachmentStrip({
               <div className="truncate text-[11px] font-medium text-[var(--foreground)]">
                 {attachment.filename}
               </div>
-              <div className="truncate text-[9px] uppercase text-[var(--muted-foreground)]">
+              <div className="truncate text-[11px] uppercase text-[var(--muted-foreground)]">
                 {sizeLabel ? `${spec.label} · ${sizeLabel}` : spec.label}
               </div>
             </div>
@@ -1210,7 +1210,7 @@ export default function PartnerChat({
               <p className="text-[15px] font-medium text-[var(--foreground)]">
                 {partnerName}
               </p>
-              <p className="mt-1 max-w-sm text-[12.5px] text-[var(--muted-foreground)]">
+              <p className="mt-1 max-w-sm text-[13px] text-[var(--muted-foreground)]">
                 {t(
                   "Say hello — channels are optional, and any connected channel shares this partner's memory.",
                 )}

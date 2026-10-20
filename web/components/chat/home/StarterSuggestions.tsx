@@ -218,7 +218,7 @@ export default function StarterSuggestions({
           type="button"
           onClick={() => void generate()}
           disabled={view.kind === "working" || disabled}
-          className={`inline-flex items-center gap-1.5 text-[11.5px] transition-all duration-200 hover:text-[var(--foreground)] disabled:cursor-default ${
+          className={`inline-flex items-center gap-1.5 text-[12px] transition-all duration-200 hover:text-[var(--foreground)] disabled:cursor-default ${
             // While there are lines this is a quiet reroll that surfaces on
             // hover; with nothing to show it is the only way forward, so it
             // stays visible.
@@ -240,12 +240,12 @@ export default function StarterSuggestions({
         </button>
 
         {view.kind === "idle" && view.note === "error" && (
-          <span role="status" className="text-[11.5px] text-[var(--muted-foreground)]">
+          <span role="status" className="text-[12px] text-[var(--muted-foreground)]">
             {t("Suggestions could not be generated. Please try again.")}
           </span>
         )}
         {view.kind === "idle" && view.note === "no-material" && (
-          <span className="text-[11.5px] text-[color-mix(in_srgb,var(--muted-foreground)_70%,transparent)]">
+          <span className="text-[12px] text-[color-mix(in_srgb,var(--muted-foreground)_70%,transparent)]">
             {t("Not enough history yet — have a conversation first.")}
           </span>
         )}

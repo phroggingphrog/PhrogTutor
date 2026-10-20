@@ -96,7 +96,7 @@ export default function KbSettingsSection({
           <div className="text-[13px] font-medium text-[var(--foreground)]">
             {t("Overview")}
           </div>
-          <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
             {t("Read-only metadata. Use the actions below to manage this KB.")}
           </p>
         </div>
@@ -114,14 +114,14 @@ export default function KbSettingsSection({
           {isMarginNote
             ? meta.db_path && (
                 <Field label={t("Synced store")} className="sm:col-span-2">
-                  <span className="font-mono text-[10.5px] text-[var(--muted-foreground)]">
+                  <span className="font-mono text-[11px] text-[var(--muted-foreground)]">
                     {meta.db_path}
                   </span>
                 </Field>
               )
             : kb.path && (
                 <Field label={t("On-disk path")} className="sm:col-span-2">
-                  <span className="font-mono text-[10.5px] text-[var(--muted-foreground)]">
+                  <span className="font-mono text-[11px] text-[var(--muted-foreground)]">
                     {kb.path}
                   </span>
                 </Field>
@@ -131,10 +131,10 @@ export default function KbSettingsSection({
 
       <section className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
         <div>
-          <div className="text-[12.5px] font-medium text-[var(--foreground)]">
+          <div className="text-[13px] font-medium text-[var(--foreground)]">
             {t("Default knowledge base")}
           </div>
-          <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
             {t("The default KB is selected automatically in chat & partners.")}
           </p>
         </div>
@@ -158,10 +158,10 @@ export default function KbSettingsSection({
       {!kb.read_only && onMove && sourceWorkspaceId !== null && (
         <section className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
           <div>
-            <div className="text-[12.5px] font-medium text-[var(--foreground)]">
+            <div className="text-[13px] font-medium text-[var(--foreground)]">
               {t("Move knowledge base")}
             </div>
-            <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
               {t("Move this knowledge base with its documents, settings, and indexes. Existing workspace assignments are updated.")}
             </p>
           </div>
@@ -190,7 +190,7 @@ export default function KbSettingsSection({
             {t("Review move")}
           </button>
           {movePreview && (
-            <div className="space-y-2 text-[11.5px] text-[var(--muted-foreground)]">
+            <div className="space-y-2 text-[12px] text-[var(--muted-foreground)]">
               <p>{t("{{count}} files · {{bytes}} bytes", { count: movePreview.files, bytes: movePreview.bytes })}</p>
               {movePreview.assignments.length > 0 && (
                 <p>{t("Assignments updated: {{names}}", { names: movePreview.assignments.map((row) => row.display_name).join(", ") })}</p>
@@ -211,16 +211,16 @@ export default function KbSettingsSection({
               )}
             </div>
           )}
-          {moveError && <p role="alert" className="text-[11.5px] text-destructive">{moveError}</p>}
+          {moveError && <p role="alert" className="text-[12px] text-destructive">{moveError}</p>}
         </section>
       )}
 
       <section className="space-y-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
         <div>
-          <div className="text-[12.5px] font-medium text-destructive">
+          <div className="text-[13px] font-medium text-destructive">
             {t("Danger zone")}
           </div>
-          <p className="mt-0.5 text-[11.5px] text-destructive/80">
+          <p className="mt-0.5 text-[12px] text-destructive/80">
             {isMarginNote
               ? t(
                   "Deleting this library removes its synced objects and unpairs every device. Nothing in MarginNote 4 itself is touched.",
@@ -254,10 +254,10 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <dt className="text-[10.5px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
+      <dt className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
         {label}
       </dt>
-      <dd className="mt-1 text-[12.5px] text-[var(--foreground)]">
+      <dd className="mt-1 text-[13px] text-[var(--foreground)]">
         {children}
       </dd>
     </div>

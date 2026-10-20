@@ -65,7 +65,7 @@ export default function McpServerList({
         <div className="text-[14px] font-medium text-[var(--foreground)]">
           {t("No MCP servers yet")}
         </div>
-        <p className="max-w-md text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="max-w-md text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {t(
             "Add a server to expose its tools to the chat agent. Test the connection first, then save.",
           )}

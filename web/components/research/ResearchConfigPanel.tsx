@@ -61,7 +61,7 @@ function NumberSlider({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="shrink-0 text-[10px] text-[var(--muted-foreground)]/60">
+      <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]/60">
         {label}
       </span>
       <input

@@ -150,7 +150,7 @@ export default function DocumentParsingSettingsPage() {
               <h2 className="text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
                 {t("Engine")}
               </h2>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
                 {t(
                   "The active engine handles all parsing. Text-only is built in and extracts plain text; markitdown is lightweight and optional; MinerU and Docling produce richer structure, while Tika provides broad remote text extraction.",
                 )}
@@ -181,12 +181,12 @@ export default function DocumentParsingSettingsPage() {
                           {nameKey ? t(nameKey) : engine.name}
                         </span>
                         {active && (
-                          <span className="rounded-full bg-[var(--foreground)] px-2 py-0.5 text-[10px] font-medium text-[var(--background)]">
+                          <span className="rounded-full bg-[var(--foreground)] px-2 py-0.5 text-[11px] font-medium text-[var(--background)]">
                             {t("Active")}
                           </span>
                         )}
                         {!engine.available && (
-                          <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                          <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                             {t("Not installed")}
                           </span>
                         )}

@@ -56,7 +56,7 @@ export default function SettingsPresetsPanel({ enabled }: { enabled: boolean }) 
           >
             {t("settings.presets.title")}
           </h2>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {t("settings.presets.blurb")}
           </p>
         </div>
@@ -65,7 +65,7 @@ export default function SettingsPresetsPanel({ enabled }: { enabled: boolean }) 
           onClick={() => void refresh()}
           disabled={loading || !enabled}
           aria-label={t("Refresh")}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -77,7 +77,7 @@ export default function SettingsPresetsPanel({ enabled }: { enabled: boolean }) 
       </header>
 
       {error && (
-        <p role="alert" className="py-3 text-[12.5px] text-warning">
+        <p role="alert" className="py-3 text-[13px] text-warning">
           {t("settings.presets.error")}
         </p>
       )}
@@ -94,7 +94,7 @@ export default function SettingsPresetsPanel({ enabled }: { enabled: boolean }) 
       )}
 
       {presets && presets.length === 0 && (
-        <p className="py-3 text-[12.5px] text-[var(--muted-foreground)]">
+        <p className="py-3 text-[13px] text-[var(--muted-foreground)]">
           {t("settings.presets.empty")}
         </p>
       )}
@@ -118,7 +118,7 @@ export default function SettingsPresetsPanel({ enabled }: { enabled: boolean }) 
                 {t(preset.description)}
               </p>
 
-              <dl className="mt-3 space-y-1.5 text-[11.5px]">
+              <dl className="mt-3 space-y-1.5 text-[12px]">
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <dt className="text-[var(--muted-foreground)]">
                     {t("settings.presets.parser")}

@@ -315,7 +315,7 @@ function Header({
           <h1 className="font-serif text-[16px] font-semibold tracking-tight text-[var(--foreground)]">
             {t("Memory graph")}
           </h1>
-          <p className="text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="text-[12px] text-[var(--muted-foreground)]">
             {t(
               "L3 synthesis at the centre, L2 facts in the middle ring, L1 traces on the outside.",
             )}
@@ -827,7 +827,7 @@ function Controls({
             key={layer}
             type="button"
             onClick={() => setLayerOn({ ...layerOn, [layer]: !layerOn[layer] })}
-            className="group inline-flex items-center gap-2 rounded-md px-2 py-1 text-[11.5px] text-[var(--foreground)] transition hover:bg-[var(--muted)]"
+            className="group inline-flex items-center gap-2 rounded-md px-2 py-1 text-[12px] text-[var(--foreground)] transition hover:bg-[var(--muted)]"
           >
             <span
               className="inline-block h-2 w-2 rounded-full"
@@ -891,7 +891,7 @@ function Legend({ graph }: { graph: MemoryGraph }) {
   }, [graph.nodes]);
 
   return (
-    <div className="pointer-events-none absolute bottom-4 left-4 max-w-md rounded-lg border border-[var(--border)] bg-[var(--card)]/92 p-3 text-[11.5px] shadow-sm backdrop-blur">
+    <div className="pointer-events-none absolute bottom-4 left-4 max-w-md rounded-lg border border-[var(--border)] bg-[var(--card)]/92 p-3 text-[12px] shadow-sm backdrop-blur">
       <div className="mb-2 flex items-center gap-3 text-[var(--muted-foreground)]">
         {(["L3", "L2", "L1"] as const).map((layer) => (
           <span key={layer} className="inline-flex items-center gap-1.5">
@@ -937,7 +937,7 @@ function HoverCard({ hover, view }: { hover: HoverState; view: ViewState }) {
       className="pointer-events-none fixed z-50 max-w-sm rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-[12px] shadow-lg"
       style={style}
     >
-      <div className="mb-1 flex items-center gap-2 text-[10.5px] uppercase tracking-wider text-[var(--muted-foreground)]">
+      <div className="mb-1 flex items-center gap-2 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
         <span
           className="inline-block h-2 w-2 rounded-full"
           style={{ background: LAYER_COLOR[node.layer] }}
@@ -955,7 +955,7 @@ function HoverCard({ hover, view }: { hover: HoverState; view: ViewState }) {
       <p className="leading-relaxed text-[var(--foreground)] line-clamp-6">
         {node.preview || node.label}
       </p>
-      <p className="mt-2 text-[10.5px] text-[var(--muted-foreground)]">
+      <p className="mt-2 text-[11px] text-[var(--muted-foreground)]">
         {t("Click to lock · open in workbench")}
       </p>
     </div>

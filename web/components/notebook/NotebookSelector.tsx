@@ -197,7 +197,7 @@ export default function NotebookSelector({
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center gap-2">
                                         <span
-                                          className={`shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-bold uppercase ${getTypeColor(record.type)}`}
+                                          className={`shrink-0 rounded border px-1.5 py-0.5 text-[11px] font-bold uppercase ${getTypeColor(record.type)}`}
                                         >
                                           {record.type}
                                         </span>

@@ -78,14 +78,14 @@ function OptionRow({
     >
       <span
         className={
-          "relative top-px flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border text-[10.5px] font-semibold transition-colors " +
+          "relative top-px flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold transition-colors " +
           marker
         }
       >
         {letter}
       </span>
       {/* The body is the option. It is never printed beside its own letter. */}
-      <span className={"min-w-0 flex-1 text-[13.5px] leading-relaxed " + body}>
+      <span className={"min-w-0 flex-1 text-[14px] leading-relaxed " + body}>
         <InlineMarkdown content={option.body} />
       </span>
     </button>
@@ -229,7 +229,7 @@ export const MasteryQuestionCard = memo(function MasteryQuestionCard({
               placeholder={t("Write your answer…")}
               rows={hasChoices ? 2 : 3}
               disabled={locked}
-              className="w-full resize-y rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-2 text-[13.5px] leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)] focus:border-[color-mix(in_srgb,var(--foreground)_35%,transparent)] disabled:opacity-60"
+              className="w-full resize-y rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-2 text-[14px] leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)] focus:border-[color-mix(in_srgb,var(--foreground)_35%,transparent)] disabled:opacity-60"
             />
           ) : (
             <button
@@ -238,7 +238,7 @@ export const MasteryQuestionCard = memo(function MasteryQuestionCard({
               disabled={locked}
               className="-mx-2 flex items-baseline gap-3 rounded-lg px-2 py-1.5 text-left text-[13px] text-[var(--muted-foreground)] transition-colors hover:bg-[color-mix(in_srgb,var(--foreground)_3.5%,transparent)] hover:text-[var(--foreground)] disabled:cursor-default"
             >
-              <span className="relative top-px flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border border-dashed border-[var(--border)] text-[10.5px] font-semibold">
+              <span className="relative top-px flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border border-dashed border-[var(--border)] text-[11px] font-semibold">
                 +
               </span>
               {t("Answer in my own words")}
@@ -250,7 +250,7 @@ export const MasteryQuestionCard = memo(function MasteryQuestionCard({
       {/* The ruling, as prose under a hairline — not another coloured panel. */}
       {grade ? (
         <div className="mt-3 border-t border-[var(--border)] pt-2.5">
-          <div className="text-[12.5px] leading-relaxed">
+          <div className="text-[13px] leading-relaxed">
             <span
               className={
                 "font-semibold " +
@@ -269,7 +269,7 @@ export const MasteryQuestionCard = memo(function MasteryQuestionCard({
             ) : null}
           </div>
           {grade.explanation ? (
-            <div className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+            <div className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
               <InlineMarkdown content={grade.explanation} />
             </div>
           ) : null}

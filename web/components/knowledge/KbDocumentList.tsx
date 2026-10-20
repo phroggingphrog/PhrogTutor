@@ -352,7 +352,7 @@ export default function KbDocumentList({
               <div className="truncate text-[12px] font-medium text-[var(--foreground)]">
                 {node.name}
               </div>
-              <div className="truncate text-[10px] text-[var(--muted-foreground)]">
+              <div className="truncate text-[11px] text-[var(--muted-foreground)]">
                 {file.size ? formatBytes(file.size) : ""}
                 {file.modified ? ` · ${formatRelative(file.modified)}` : ""}
               </div>
@@ -360,7 +360,7 @@ export default function KbDocumentList({
           </button>
           {confirmDeleteFor === node.path ? (
             <div className="flex shrink-0 items-center gap-0.5 pr-0.5">
-              <span className="px-0.5 text-[10px] font-medium text-destructive">
+              <span className="px-0.5 text-[11px] font-medium text-destructive">
                 {t("Delete?")}
               </span>
               <Tooltip label={t("Confirm delete")} side="top">
@@ -426,7 +426,7 @@ export default function KbDocumentList({
               onClick={() => setMoveMenuFor(null)}
             />
             <div className="absolute right-1 top-8 z-20 max-h-60 w-44 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg">
-              <div className="px-2.5 py-1 text-[10px] uppercase tracking-wide text-[var(--muted-foreground)]">
+              <div className="px-2.5 py-1 text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
                 {t("Move to")}
               </div>
               {parentOf(node.path) !== "" && (
@@ -469,7 +469,7 @@ export default function KbDocumentList({
           <span className="text-[12px] font-medium text-[var(--foreground)]">
             {t("Files")}
           </span>
-          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0 text-[10px] text-[var(--muted-foreground)]">
+          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0 text-[11px] text-[var(--muted-foreground)]">
             {fileEntries.length}
           </span>
         </div>

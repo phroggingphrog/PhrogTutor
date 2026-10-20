@@ -61,7 +61,7 @@ export function MenuItem({
       <span className="min-w-0 flex-1">
         <span className="block">{label}</span>
         {hint ? (
-          <span className="mt-0.5 block text-[10.5px] leading-snug text-[var(--muted-foreground)]">
+          <span className="mt-0.5 block text-[11px] leading-snug text-[var(--muted-foreground)]">
             {hint}
           </span>
         ) : null}
@@ -81,7 +81,7 @@ export function CompanionWelcome({ hasMaterial }: { hasMaterial: boolean }) {
       <p className="mt-5 font-serif text-[18px] font-medium tracking-[-0.01em] text-[var(--foreground)]">
         {t("Read and ask as you go")}
       </p>
-      <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mt-2 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {hasMaterial
           ? t(
               "Select any passage to ask about it, explain it or translate it — or just ask below. Answers point back to the page they come from.",
@@ -176,7 +176,7 @@ export function MaterialProcessing({
       <p className="mt-4 font-serif text-[18px] font-medium">
         {t("Preparing {{title}}", { title: material.title })}
       </p>
-      <p className="mt-2 text-[10.5px] text-[var(--muted-foreground)]">
+      <p className="mt-2 text-[11px] text-[var(--muted-foreground)]">
         {t("Extracting structure and grounded passages…")} {material.progress}%
       </p>
     </div>
@@ -216,12 +216,12 @@ export function MaterialFailure({
       <p className="mt-4 font-serif text-[18px] font-medium">
         {t("This material could not be prepared")}
       </p>
-      <p className="mt-2 max-w-lg text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mt-2 max-w-lg text-[11px] leading-relaxed text-[var(--muted-foreground)]">
         {readingFailureMessage(material, t) ||
           t("Try importing this material again.")}
       </p>
       {retryError && (
-        <p className="mt-2 max-w-lg text-[10.5px] text-destructive">{retryError}</p>
+        <p className="mt-2 max-w-lg text-[11px] text-destructive">{retryError}</p>
       )}
       <button
         type="button"

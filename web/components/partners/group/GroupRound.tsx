@@ -73,7 +73,7 @@ export default function GroupRound(props: RoundProps) {
       ) : null}
 
       {round.live && progress && progress.total > 1 ? (
-        <div className="flex items-center gap-2 text-[10.5px] text-[var(--muted-foreground)]">
+        <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground)]">
           <span>
             {progress.clash
               ? t("Clash round · {{done}} of {{total}}", progress)
@@ -95,7 +95,7 @@ export default function GroupRound(props: RoundProps) {
       ) : null}
 
       {round.stopped ? (
-        <div className="flex items-center gap-2 text-[10.5px] text-[var(--muted-foreground)]">
+        <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground)]">
           <span className="h-px flex-1 bg-[var(--border)]" />
           <span>{t("You stopped this round")}</span>
           <span className="h-px flex-1 bg-[var(--border)]" />
@@ -137,7 +137,7 @@ function FollowupRound(props: RoundProps) {
         type="button"
         onClick={() => setOpen((value) => !value)}
         data-turn-bubble
-        className="group/head flex w-full items-center gap-1.5 rounded py-1 text-left text-[10.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+        className="group/head flex w-full items-center gap-1.5 rounded py-1 text-left text-[11px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
       >
         <ChevronDown
           size={12}

@@ -40,7 +40,7 @@ export function LogoutButton({ collapsed = false }: LogoutButtonProps) {
   return (
     <button
       onClick={handleLogout}
-      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)]/50 hover:text-destructive"
+      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[14px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--background)]/50 hover:text-destructive"
     >
       <LogOut size={16} strokeWidth={1.5} />
       <span>{t("Sign out")}</span>

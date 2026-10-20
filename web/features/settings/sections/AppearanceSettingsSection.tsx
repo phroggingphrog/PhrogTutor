@@ -131,7 +131,7 @@ export default function AppearanceSettingsPage() {
               />
             ))}
           </div>
-          <p className="mt-4 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]/80">
+          <p className="mt-4 text-[12px] leading-relaxed text-[var(--muted-foreground)]/80">
             {t(
               "Default is a clean pure-white theme with a blue accent. Cream is warm and paper-like with a terracotta accent. Dark is flat neutral grey. Glass adds translucent purple panels on a deep gradient.",
             )}
@@ -150,7 +150,7 @@ export default function AppearanceSettingsPage() {
         )}
       >
         <div className="border-t border-[var(--border)]/50 py-3.5 first:border-t-0">
-          <div className="text-[13.5px] font-medium text-[var(--foreground)]">
+          <div className="text-[14px] font-medium text-[var(--foreground)]">
             {t("Preview")}
           </div>
           <p className="mb-3 mt-1 text-[12px] leading-relaxed text-[var(--muted-foreground)]">

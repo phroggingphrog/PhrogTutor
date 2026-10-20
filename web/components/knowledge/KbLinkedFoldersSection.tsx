@@ -208,7 +208,7 @@ export default function KbLinkedFoldersSection({
             <FolderSync className="h-4 w-4 text-[var(--muted-foreground)]" />
             {t("Linked folders")}
           </div>
-          <p className="mt-0.5 max-w-2xl text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-0.5 max-w-2xl text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Keep a local folder as a document source and sync new or modified supported files when you choose.",
             )}
@@ -235,7 +235,7 @@ export default function KbLinkedFoldersSection({
       </div>
 
       {readOnly && (
-        <div className="rounded-md border border-warning/30 bg-warning-surface px-3 py-2 text-[11.5px] text-warning">
+        <div className="rounded-md border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
           {t("This knowledge base is read-only. Linked folders can be viewed but not changed.")}
         </div>
       )}
@@ -243,7 +243,7 @@ export default function KbLinkedFoldersSection({
       {error && (
         <div
           role="alert"
-          className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[11.5px] text-destructive"
+          className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[12px] text-destructive"
         >
           <span className="min-w-0 flex-1 break-words">{error}</span>
           {loadError && (
@@ -349,7 +349,7 @@ function LinkedFolderCard({
             <FolderSync className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)]" />
             <code
               title={folder.path}
-              className="min-w-0 break-all text-[12.5px] font-medium text-[var(--foreground)]"
+              className="min-w-0 break-all text-[13px] font-medium text-[var(--foreground)]"
             >
               {folder.path}
             </code>
@@ -377,7 +377,7 @@ function LinkedFolderCard({
               type="button"
               onClick={onSync}
               disabled={actionDisabled}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 text-[11.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-45"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-45"
             >
               {syncing ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -409,7 +409,7 @@ function LinkedFolderCard({
         <div
           role="status"
           aria-live="polite"
-          className="mt-3 flex items-start gap-2 rounded-md border border-success/30 bg-success-surface px-2.5 py-2 text-[11.5px] text-success"
+          className="mt-3 flex items-start gap-2 rounded-md border border-success/30 bg-success-surface px-2.5 py-2 text-[12px] text-success"
         >
           <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span className="min-w-0 break-words">

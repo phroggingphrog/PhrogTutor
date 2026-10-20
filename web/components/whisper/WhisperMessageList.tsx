@@ -103,7 +103,7 @@ export default function WhisperMessageList({
               }`}
             >
               {showMeta && (
-                <div className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-wide opacity-70">
+                <div className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[11px] uppercase tracking-wide opacity-70">
                   {isWhisper && (
                     <span className="inline-flex items-center gap-1 font-semibold text-warning">
                       <Lock className="h-3 w-3" aria-hidden />

@@ -174,7 +174,7 @@ export default function UsageSettingsSection() {
                         >
                           <span className="block">{model.model}</span>
                           {model.provider && (
-                            <span className="mt-1 block text-[10px] font-normal text-[var(--muted-foreground)]">
+                            <span className="mt-1 block text-[11px] font-normal text-[var(--muted-foreground)]">
                               {model.provider}
                             </span>
                           )}

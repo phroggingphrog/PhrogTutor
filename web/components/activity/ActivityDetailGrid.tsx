@@ -38,7 +38,7 @@ export function ActivityDetailGrid({
     >
       {rows.map(({ key, value, mono }) => (
         <Fragment key={key}>
-          <dt className="pt-[1px] font-mono text-[10.5px] not-italic leading-[1.7] text-[var(--muted-foreground)]/40">
+          <dt className="pt-[1px] font-mono text-[11px] not-italic leading-[1.7] text-[var(--muted-foreground)]/40">
             {key}
           </dt>
           <dd

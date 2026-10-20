@@ -384,7 +384,7 @@ export default function MasteryTopicPage() {
                 {sourceLabels.map((source) => (
                   <span
                     key={source.id}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)] px-2.5 py-1 text-[10px] text-[var(--muted-foreground)]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)] px-2.5 py-1 text-[11px] text-[var(--muted-foreground)]"
                   >
                     <BookOpen className="h-3 w-3" /> {source.label}
                   </span>

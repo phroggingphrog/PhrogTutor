@@ -130,10 +130,10 @@ export default function LearningCapturePanel({
                 className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-2"
               >
                 <div className="mb-1 flex items-start justify-between gap-2 text-[11px]">
-                  <span className="rounded-md bg-[var(--muted)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                  <span className="rounded-md bg-[var(--muted)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                     {statusText(capture.status, t)}
                   </span>
-                  <span className="text-[10px] text-[var(--muted-foreground)]">
+                  <span className="text-[11px] text-[var(--muted-foreground)]">
                     {capture.chapter_title || t("Unknown chapter")}
                   </span>
                 </div>

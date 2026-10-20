@@ -85,7 +85,7 @@ function BulletLine({
   return (
     <div className="flex gap-2 leading-[1.65] text-[var(--foreground)]">
       <span
-        className={`mt-[3px] shrink-0 text-[10px] leading-[1.5] ${bulletClass}`}
+        className={`mt-[3px] shrink-0 text-[11px] leading-[1.5] ${bulletClass}`}
       >
         ●
       </span>

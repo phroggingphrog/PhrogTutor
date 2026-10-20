@@ -193,7 +193,7 @@ function QuotedPassage({
   const { t } = useTranslation();
   return (
     <div className="flex items-start gap-1.5 px-4 pt-3">
-      <p className="line-clamp-2 min-w-0 flex-1 border-l-2 border-[color-mix(in_srgb,var(--primary)_45%,transparent)] pl-2.5 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="line-clamp-2 min-w-0 flex-1 border-l-2 border-[color-mix(in_srgb,var(--primary)_45%,transparent)] pl-2.5 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {quote}
       </p>
       <Tooltip label={t("Remove quoted passage")}>

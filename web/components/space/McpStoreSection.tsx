@@ -44,7 +44,7 @@ export default function McpStoreSection() {
           "Connect hosted MCP services to your account — their tools become available to the chat agent.",
         )}
         meta={
-          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
             {maxServers > 0
               ? t("{{used}} / {{max}} connected", {
                   used: mcp.serverNames.length,
@@ -142,7 +142,7 @@ export default function McpStoreSection() {
                       type="button"
                       onClick={mcp.startAdding}
                       disabled={mcp.saving || atCapacity}
-                      className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       {t("Add a server by URL")}
@@ -150,12 +150,12 @@ export default function McpStoreSection() {
                     <button
                       type="button"
                       onClick={() => setTab("store")}
-                      className="text-[12.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+                      className="text-[13px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                     >
                       {t("Browse the store")}
                     </button>
                     {atCapacity && (
-                      <span className="text-[11.5px] text-warning">
+                      <span className="text-[12px] text-warning">
                         {t(
                           "You have reached your MCP server limit. Remove one first.",
                         )}
@@ -174,7 +174,7 @@ export default function McpStoreSection() {
 
                 {/* Where these live, in the same spirit as the settings
                     toolbar's storage line. The file is per account. */}
-                <p className="text-[11.5px] text-[var(--muted-foreground)]">
+                <p className="text-[12px] text-[var(--muted-foreground)]">
                   {t("Saved to")}{" "}
                   <span className="font-mono text-[var(--foreground)]/65">
                     {"data/system/user-mcp/<your account>.json"}
@@ -252,7 +252,7 @@ function RejectedServers({
               type="button"
               disabled={busy}
               onClick={() => onRemove(row.name)}
-              className="shrink-0 rounded-md px-2 py-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive disabled:opacity-50"
+              className="shrink-0 rounded-md px-2 py-1 text-[12px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive disabled:opacity-50"
             >
               {t("Remove")}
             </button>
@@ -286,7 +286,7 @@ function TabButton({
     >
       {label}
       {typeof count === "number" && (
-        <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
+        <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal text-[var(--muted-foreground)]">
           {count}
         </span>
       )}

@@ -32,7 +32,7 @@ export default function McpStatusBadge({
     <span
       role={status === "error" && error ? "note" : undefined}
       tabIndex={status === "error" && error ? 0 : undefined}
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]"
     >
       <span
         className={`h-1.5 w-1.5 rounded-full ${dotClass[status]}`}

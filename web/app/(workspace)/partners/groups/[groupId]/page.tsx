@@ -123,7 +123,7 @@ export default function PartnerGroupPage() {
             <h1 className="truncate text-[14px] font-semibold text-[var(--foreground)]">
               {group.name}
             </h1>
-            <div className="mt-0.5 flex items-center gap-2 text-[10.5px] text-[var(--muted-foreground)]">
+            <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--muted-foreground)]">
               <span>
                 {t("{{count}} members", { count: group.member_ids.length })}
               </span>
@@ -339,7 +339,7 @@ function ManageGroupDialog({
           <span className="text-[11px] font-medium text-[var(--muted-foreground)]">
             {t("Members")}
           </span>
-          <span className="text-[10.5px] text-[var(--muted-foreground)]">
+          <span className="text-[11px] text-[var(--muted-foreground)]">
             {t("{{count}} selected · at least 2", { count: members.size })}
           </span>
         </div>
@@ -364,7 +364,7 @@ function ManageGroupDialog({
                   image={partner.avatar}
                   size={26}
                 />
-                <span className="min-w-0 flex-1 truncate text-[11.5px] text-[var(--foreground)]">
+                <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--foreground)]">
                   {partner.name}
                 </span>
               </button>

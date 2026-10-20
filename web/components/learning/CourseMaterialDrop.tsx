@@ -57,7 +57,7 @@ export default function CourseMaterialDrop() {
 
   return (
     <section className="mb-9 rounded-xl border border-[var(--border)] p-4">
-      <h2 className="mb-1 text-[13.5px] font-semibold">Add course material</h2>
+      <h2 className="mb-1 text-[14px] font-semibold">Add course material</h2>
       <p className="mb-3 text-xs text-[var(--muted-foreground)]">
         PDFs, slides, books or a website. It is parsed into a knowledge base the tutor can search.
       </p>

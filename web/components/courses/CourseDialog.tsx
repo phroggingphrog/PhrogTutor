@@ -156,7 +156,7 @@ export default function CourseDialog({
           </legend>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-1.5 block text-[11.5px] text-[var(--muted-foreground)]">
+              <span className="mb-1.5 block text-[12px] text-[var(--muted-foreground)]">
                 {t("Mode")}
               </span>
               <select
@@ -172,7 +172,7 @@ export default function CourseDialog({
               </select>
             </label>
             <label className="block">
-              <span className="mb-1.5 block text-[11.5px] text-[var(--muted-foreground)]">
+              <span className="mb-1.5 block text-[12px] text-[var(--muted-foreground)]">
                 {t("Persona")}
               </span>
               <input

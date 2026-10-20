@@ -80,7 +80,7 @@ export function ReviewTrail({
           </span>
         </div>
       </div>
-      <p id="review-retention-hint" className="shrink-0 px-4 pt-2 text-[10px] text-[var(--muted-foreground)]">
+      <p id="review-retention-hint" className="shrink-0 px-4 pt-2 text-[11px] text-[var(--muted-foreground)]">
         {t("Higher targets schedule reviews sooner.")}
       </p>
       {retentionError && (
@@ -113,7 +113,7 @@ export function ReviewTrail({
                 <span className="block truncate text-xs font-medium text-[var(--foreground)]">
                   {review.knowledge_point_name}
                 </span>
-                <span className="text-[10px] text-[var(--muted-foreground)]">
+                <span className="text-[11px] text-[var(--muted-foreground)]">
                   {review.due
                     ? t("Ready now")
                     : formatRelative(review.due_at, zh)}
@@ -124,7 +124,7 @@ export function ReviewTrail({
                     </span>
                   )}
                 </span>
-                <span className="block truncate text-[10px] text-[var(--muted-foreground)]">
+                <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
                   {review.reason}
                 </span>
               </button>

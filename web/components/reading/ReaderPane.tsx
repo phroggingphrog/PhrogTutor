@@ -962,7 +962,7 @@ export function ReaderPane({
             as a checksum. The filename is worth keeping for uploads, where it
             is what the learner recognises, so it stays as the tooltip. */}
         <span
-          className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--foreground)]"
+          className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--foreground)]"
           title={material?.filename || material?.title}
         >
           {material?.title || material?.filename || t("Immersive reading")}
@@ -998,7 +998,7 @@ export function ReaderPane({
             {/* The one place the reader's position is stated. Monospace is for
                 code, not for a line of UI copy; tabular figures alone stop the
                 number from jittering as the learner scrolls. */}
-            <span className="hidden shrink-0 whitespace-nowrap px-1 text-[11.5px] tabular-nums text-[var(--muted-foreground)] md:inline">
+            <span className="hidden shrink-0 whitespace-nowrap px-1 text-[12px] tabular-nums text-[var(--muted-foreground)] md:inline">
               {isEpub ? (
                 <>
                   <span className="max-w-[180px] truncate">
@@ -1123,10 +1123,10 @@ export function ReaderPane({
                   }`}
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[11.5px] font-medium">
+                    <span className="block truncate text-[12px] font-medium">
                       {entry.title}
                     </span>
-                    <span className="block truncate font-mono text-[10px] text-[var(--muted-foreground)]">
+                    <span className="block truncate font-mono text-[11px] text-[var(--muted-foreground)]">
                       {t(unitLabel(entry.source?.unit || "section"))}{" "}
                       {entry.locator}
                       {unavailable ? ` · ${t("Unavailable")}` : ""}
@@ -1143,7 +1143,7 @@ export function ReaderPane({
           role="alert"
           className="flex items-start gap-2 border-b border-[color-mix(in_srgb,var(--destructive)_25%,transparent)] bg-[var(--destructive)]/[0.06] px-3 py-2"
         >
-          <p className="flex-1 text-[11.5px] leading-relaxed text-[var(--destructive)]">
+          <p className="flex-1 text-[12px] leading-relaxed text-[var(--destructive)]">
             {notice}
           </p>
           <button
@@ -1177,13 +1177,13 @@ export function ReaderPane({
             </div>
           ) : !material ? (
             <div className="flex h-full flex-col items-center justify-center gap-1 px-6 text-center">
-              <p className="text-[12.5px] text-[var(--muted-foreground)]">
+              <p className="text-[13px] text-[var(--muted-foreground)]">
                 {t("This document could not be opened.")}
               </p>
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[11.5px] font-medium text-[var(--primary)] underline-offset-2 hover:underline"
+                className="text-[12px] font-medium text-[var(--primary)] underline-offset-2 hover:underline"
               >
                 {t("Back to the library")}
               </button>
@@ -1370,7 +1370,7 @@ function MenuToolButton({
       <span className="min-w-0 flex-1">
         <span className="block truncate">{label}</span>
         {hint ? (
-          <span className="block text-[10.5px] leading-snug opacity-75">
+          <span className="block text-[11px] leading-snug opacity-75">
             {hint}
           </span>
         ) : null}

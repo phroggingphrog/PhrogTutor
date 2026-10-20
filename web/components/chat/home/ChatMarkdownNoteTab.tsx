@@ -179,7 +179,7 @@ export default function ChatMarkdownNoteTab({
         onKeyDown={handleKeyDown}
         placeholder={t("Start writing in Markdown...")}
         aria-label={t("Markdown")}
-        className="min-h-0 flex-1 resize-none bg-[var(--card)] px-3 py-3 font-mono text-[12.5px] leading-relaxed text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/60"
+        className="min-h-0 flex-1 resize-none bg-[var(--card)] px-3 py-3 font-mono text-[13px] leading-relaxed text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/60"
       />
     </form>
   );

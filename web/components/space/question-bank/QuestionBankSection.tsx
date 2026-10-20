@@ -103,11 +103,11 @@ export default function QuestionBankSection({
           )}
           meta={
             <>
-              <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+              <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                 {bank.stats.total} {t("questions.count.suffix")}
               </span>
               {courseId ? (
-                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--card)] py-0.5 pl-2 pr-1 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--card)] py-0.5 pl-2 pr-1 text-[11px] font-medium text-[var(--muted-foreground)]">
                   <Link
                     href={`/courses/${courseId}`}
                     className="inline-flex items-center gap-1 transition-colors hover:text-[var(--foreground)]"

@@ -173,7 +173,7 @@ export default function DshPlanCard({ raw, className = "" }: { raw: string; clas
                   <span>
                     <span className="block text-sm font-medium">
                       {m.name}
-                      {m.id === "ask" && <span className="ml-2 rounded-full border border-[var(--border)] px-1.5 text-[10px]">Default</span>}
+                      {m.id === "ask" && <span className="ml-2 rounded-full border border-[var(--border)] px-1.5 text-[11px]">Default</span>}
                     </span>
                     <span className="block text-xs text-[var(--muted-foreground)]">{m.help}</span>
                   </span>

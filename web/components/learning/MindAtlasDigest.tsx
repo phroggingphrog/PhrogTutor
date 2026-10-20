@@ -16,7 +16,7 @@ export default function MindAtlasDigest() {
   return (
     <section className="mb-9 rounded-xl border border-[var(--border)] p-4">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-[13.5px] font-semibold">Mind Atlas — where you stand</h2>
+        <h2 className="text-[14px] font-semibold">Mind Atlas — where you stand</h2>
         <Link href="/what-i-know" className="text-xs text-[var(--muted-foreground)] hover:underline">
           Study list and evidence →
         </Link>

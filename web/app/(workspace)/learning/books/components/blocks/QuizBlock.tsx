@@ -214,7 +214,7 @@ function QuizQuestionCard({
           </div>
         </div>
         {question.difficulty && (
-          <span className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+          <span className="rounded-full bg-[var(--muted)] px-2 py-0.5 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
             {question.difficulty}
           </span>
         )}

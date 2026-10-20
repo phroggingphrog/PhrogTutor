@@ -162,7 +162,7 @@ export default function NotebookRecordActions({
                         panel === "move" ? "move" : "copy",
                       );
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/70"
+                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/70"
                   >
                     <span
                       aria-hidden
@@ -172,7 +172,7 @@ export default function NotebookRecordActions({
                     <span className="min-w-0 flex-1 truncate">
                       {notebook.name}
                     </span>
-                    <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--muted-foreground)]">
+                    <span className="shrink-0 text-[11px] tabular-nums text-[var(--muted-foreground)]">
                       {notebook.record_count ?? 0}
                     </span>
                   </button>
@@ -204,7 +204,7 @@ function MenuItem({
       type="button"
       role="menuitem"
       onClick={onClick}
-      className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[12.5px] transition-colors ${
+      className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[13px] transition-colors ${
         tone === "danger"
           ? "text-[var(--destructive)] hover:bg-[var(--destructive)]/10"
           : "text-[var(--foreground)] hover:bg-[var(--muted)]/70"

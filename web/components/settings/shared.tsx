@@ -1,5 +1,6 @@
 "use client";
 
+import { PAGE_TITLE_CLASS } from "@/components/layout/FeaturePage";
 import type {
   CatalogProfile,
   ServiceName,
@@ -125,14 +126,14 @@ export function labelClass(
   language: AppLanguage,
 ): string {
   if (language === "zh") {
-    if (size === "sm") return "text-[10.5px] font-medium";
+    if (size === "sm") return "text-[11px] font-medium";
     if (size === "lg") return "text-[12px] font-medium";
     return "text-[11px] font-medium";
   }
   if (size === "sm")
-    return "text-[9.5px] font-semibold uppercase tracking-[0.16em]";
+    return "text-[11px] font-semibold uppercase tracking-[0.16em]";
   if (size === "lg") return "text-[11px] uppercase tracking-[0.16em]";
-  return "text-[10px] font-semibold uppercase tracking-[0.16em]";
+  return "text-[11px] font-semibold uppercase tracking-[0.16em]";
 }
 
 // One-row settings group used on simple pages (Appearance, Status etc.).
@@ -150,7 +151,7 @@ export function SettingRow({
   return (
     <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-6 border-t border-[color-mix(in_srgb,var(--border)_50%,transparent)] py-3.5 first:border-t-0">
       <div className="min-w-0 flex-1">
-        <div className="text-[13.5px] font-medium text-[var(--foreground)]">
+        <div className="text-[14px] font-medium text-[var(--foreground)]">
           {title}
         </div>
         {description && (
@@ -181,7 +182,7 @@ export function SettingSection({
           {title}
         </h2>
         {description && (
-          <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {description}
           </p>
         )}
@@ -219,7 +220,7 @@ export function SettingsPageHeader({
       <div className="min-w-0">
         <h1
           data-tour="tour-page-heading"
-          className="text-[26px] font-semibold tracking-tight text-[var(--foreground)]"
+          className={PAGE_TITLE_CLASS}
         >
           {title}
         </h1>

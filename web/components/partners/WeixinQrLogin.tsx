@@ -149,7 +149,7 @@ export default function WeixinQrLogin({
             {/* Without the server-side `qrcode` library there is no image to
                 draw, so show the payload rather than an empty box. */}
             {!svg && session.scan_payload && session.status !== "confirmed" && (
-              <p className="mt-1 break-all font-mono text-[10px] opacity-80">
+              <p className="mt-1 break-all font-mono text-[11px] opacity-80">
                 {session.scan_payload}
               </p>
             )}

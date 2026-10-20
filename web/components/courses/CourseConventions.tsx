@@ -59,14 +59,14 @@ export default function CourseConventions({
           <h2 className="font-serif text-[16px] font-semibold text-[var(--foreground)]">
             {t("Course conventions")}
           </h2>
-          <p className="mt-0.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Notation, the teacher's angle, how you want to be taught. Every conversation in this course starts knowing this.",
             )}
           </p>
         </div>
         {!dirty && justSaved ? (
-          <span className="shrink-0 text-[11.5px] text-[var(--muted-foreground)]">
+          <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">
             {t("Saved")}
           </span>
         ) : null}
@@ -75,7 +75,7 @@ export default function CourseConventions({
             type="button"
             onClick={save}
             disabled={saving}
-            className="shrink-0 rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--background)] transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="shrink-0 rounded-lg bg-[var(--foreground)] px-3 py-1.5 text-[12px] font-medium text-[var(--background)] transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {saving ? t("Saving") : t("Save")}
           </button>
@@ -91,16 +91,16 @@ export default function CourseConventions({
         placeholder={t(
           "e.g. Use C for examples. Focus on POSIX. Exams are proof-based.",
         )}
-        className="mt-3 w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-[12.5px] leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--ring)]"
+        className="mt-3 w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-[13px] leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--ring)]"
       />
 
       {agentNotes ? (
         <details className="group mt-3">
-          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]">
             <Sparkles size={12} strokeWidth={1.8} />
             {t("What DeepTutor has noticed")}
           </summary>
-          <div className="mt-2 whitespace-pre-line rounded-xl border border-dashed border-[var(--border)] px-3 py-2.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <div className="mt-2 whitespace-pre-line rounded-xl border border-dashed border-[var(--border)] px-3 py-2.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {agentNotes}
           </div>
         </details>

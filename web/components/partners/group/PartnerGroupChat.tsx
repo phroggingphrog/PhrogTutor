@@ -248,7 +248,7 @@ export default function PartnerGroupChat({
                     className="mt-0.5 shrink-0 text-destructive"
                   />
                   <div className="min-w-0">
-                    <p className="text-[11.5px] font-medium text-destructive">
+                    <p className="text-[12px] font-medium text-destructive">
                       {t("This round could not finish")}
                     </p>
                     <p className="mt-0.5 break-words text-[11px] leading-relaxed text-[var(--muted-foreground)]">

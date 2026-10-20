@@ -263,7 +263,7 @@ export default function AttachmentSettingsPage() {
             />
           </SettingSection>
 
-          <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Note: images are sent to the model provider as-is — provider-side size limits still apply regardless of these caps.",
             )}

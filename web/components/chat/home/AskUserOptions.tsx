@@ -1200,7 +1200,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
   return (
     <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3.5 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.04),0_4px_14px_rgba(0,0,0,0.04)]">
       {payload.intro || totalQuestions === 0 ? (
-        <div className="text-[12.5px] leading-snug text-[var(--muted-foreground)]">
+        <div className="text-[13px] leading-snug text-[var(--muted-foreground)]">
           {payload.intro ? (
             <InlineMarkdown content={payload.intro} />
           ) : (
@@ -1233,7 +1233,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
                 onClick={() => setActiveIdx(idx)}
                 disabled={locked}
                 className={
-                  "flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11.5px] font-medium transition-all " +
+                  "flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[12px] font-medium transition-all " +
                   (isActive
                     ? "border-[var(--foreground)]/35 bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[var(--foreground)]"
                     : "border-[var(--border)] bg-transparent text-[var(--muted-foreground)] hover:border-[var(--foreground)]/25 hover:text-[var(--foreground)]") +
@@ -1242,7 +1242,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               >
                 <span
                   className={
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] " +
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[11px] " +
                     (answered
                       ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                       : "bg-[var(--muted)]/60 text-[var(--muted-foreground)]")
@@ -1300,7 +1300,7 @@ const InteractiveAskUserCard = memo(function InteractiveAskUserCard({
               <span>{t("Previous question")}</span>
             </button>
           ) : (
-            <div className="text-[11.5px] text-[var(--muted-foreground)]">
+            <div className="text-[12px] text-[var(--muted-foreground)]">
               {/* Only a multi-question card needs telling how its parts add
                   up; a single question says it with the Skip control alone. */}
               {streaming || totalQuestions < 2
@@ -1448,7 +1448,7 @@ const QuestionBody = memo(function QuestionBody({
                     <InlineMarkdown content={option.label} />
                   </span>
                   {option.description ? (
-                    <span className="mt-0.5 block text-[12.5px] leading-snug text-[var(--muted-foreground)]">
+                    <span className="mt-0.5 block text-[13px] leading-snug text-[var(--muted-foreground)]">
                       <InlineMarkdown content={option.description} />
                     </span>
                   ) : null}
@@ -1565,7 +1565,7 @@ const ResolvedAskUserCard = memo(function ResolvedAskUserCard({
               collapsed ? "-rotate-90" : ""
             }`}
           />
-          <span className="text-[12.5px] font-medium text-[var(--muted-foreground)]">
+          <span className="text-[13px] font-medium text-[var(--muted-foreground)]">
             {t("Your answers")}
           </span>
           {collapsed && (
@@ -1581,7 +1581,7 @@ const ResolvedAskUserCard = memo(function ResolvedAskUserCard({
             const value = (byId.get(q.id) ?? "").trim();
             return (
               <div key={q.id} className="space-y-0.5">
-                <div className="text-[12.5px] leading-snug text-[var(--muted-foreground)]">
+                <div className="text-[13px] leading-snug text-[var(--muted-foreground)]">
                   <InlineMarkdown content={q.prompt} />
                 </div>
                 <div className="text-[14px] font-medium leading-snug text-[var(--foreground)]">

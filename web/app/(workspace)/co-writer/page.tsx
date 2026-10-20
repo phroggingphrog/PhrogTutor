@@ -125,7 +125,7 @@ export default function CoWriterHomePage() {
       <p className="text-[14px] font-medium text-[var(--foreground)]">
         {t("No drafts yet")}
       </p>
-      <p className="mt-1.5 max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {t("Start a new markdown draft to begin writing.")}
       </p>
       <div className="mt-4 flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function CoWriterHomePage() {
           type="button"
           onClick={() => handleCreate(false)}
           disabled={creating || importing}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
         >
           {creating ? (
             <Loader2 size={14} className="animate-spin" />
@@ -146,7 +146,7 @@ export default function CoWriterHomePage() {
           type="button"
           onClick={() => handleCreate(true)}
           disabled={creating || importing}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
         >
           <FileText size={14} />
           {t("Start from template")}
@@ -155,7 +155,7 @@ export default function CoWriterHomePage() {
           type="button"
           onClick={() => importInputRef.current?.click()}
           disabled={creating || importing}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
         >
           {importing ? (
             <Loader2 size={14} className="animate-spin" />
@@ -187,7 +187,7 @@ export default function CoWriterHomePage() {
             <h1 className="text-[19px] font-semibold tracking-tight text-[var(--foreground)]">
               {t("Co-Writer")}
             </h1>
-            <p className="mt-1 text-[12.5px] text-[var(--muted-foreground)]">
+            <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
               {t("Manage your markdown drafts and projects.")}
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function CoWriterHomePage() {
               type="button"
               onClick={() => importInputRef.current?.click()}
               disabled={creating || importing}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
             >
               {importing ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -209,7 +209,7 @@ export default function CoWriterHomePage() {
               type="button"
               onClick={() => handleCreate(true)}
               disabled={creating || importing}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60"
             >
               <FileText size={14} />
               {t("From template")}
@@ -218,7 +218,7 @@ export default function CoWriterHomePage() {
               type="button"
               onClick={() => handleCreate(false)}
               disabled={creating || importing}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               {creating ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -237,7 +237,7 @@ export default function CoWriterHomePage() {
         ) : null}
 
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-20 text-[12.5px] text-[var(--muted-foreground)]">
+          <div className="flex items-center justify-center gap-2 py-20 text-[13px] text-[var(--muted-foreground)]">
             <Loader2 size={16} className="animate-spin" />
             {t("Loading drafts…")}
           </div>

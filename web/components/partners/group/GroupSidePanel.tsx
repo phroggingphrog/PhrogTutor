@@ -159,7 +159,7 @@ export default function GroupSidePanel({
                           ? t("Follow-up")
                           : labelFor(seat.message?.kind);
                         return label ? (
-                          <span className="shrink-0 text-[9.5px] text-[var(--muted-foreground)]">
+                          <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
                             {label}
                           </span>
                         ) : null;
@@ -182,7 +182,7 @@ export default function GroupSidePanel({
           <Empty>{t("Nothing shared yet")}</Empty>
         ) : (
           <div className="space-y-2">
-            <p className="px-0.5 pb-1 text-[10px] leading-relaxed text-[var(--muted-foreground)]">
+            <p className="px-0.5 pb-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
               {t("Visible to every Partner in this group")}
             </p>
             {entries.map((entry) => (
@@ -215,7 +215,7 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg px-2.5 py-1.5 text-[11.5px] font-medium transition-colors ${
+      className={`rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors ${
         active
           ? "bg-[var(--muted)] text-[var(--foreground)]"
           : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"

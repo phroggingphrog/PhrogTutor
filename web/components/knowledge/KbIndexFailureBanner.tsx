@@ -37,7 +37,7 @@ export default function KbIndexFailureBanner({
         {failure.requiresModelChange && (
           <Link
             href={failure.settingsHref || "/settings#models"}
-            className="inline-flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[11.5px] font-medium text-destructive transition-colors hover:bg-destructive/20"
+            className="inline-flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[12px] font-medium text-destructive transition-colors hover:bg-destructive/20"
           >
             <Settings className="h-3 w-3" />
             {t("Open model settings")}

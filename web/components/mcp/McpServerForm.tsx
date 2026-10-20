@@ -219,7 +219,7 @@ export default function McpServerForm({
 
       {showStdio && (
         <div className="space-y-4 rounded-lg border border-[var(--border)]/50 bg-[var(--card)]/30 px-4 py-4">
-          <div className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
             {t("Standard I/O (local process)")}
           </div>
           <div>
@@ -270,7 +270,7 @@ export default function McpServerForm({
 
       {showRemote && (
         <div className="space-y-4 rounded-lg border border-[var(--border)]/50 bg-[var(--card)]/30 px-4 py-4">
-          <div className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
             {t("Remote (SSE / streamable HTTP)")}
           </div>
           <div>
@@ -346,7 +346,7 @@ export default function McpServerForm({
                     {tool.name}
                   </span>
                   {tool.description && (
-                    <span className="text-[11.5px] text-[var(--muted-foreground)]">
+                    <span className="text-[12px] text-[var(--muted-foreground)]">
                       — {tool.description}
                     </span>
                   )}
@@ -367,7 +367,7 @@ export default function McpServerForm({
           type="button"
           onClick={handleTest}
           disabled={testing || saving}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {testing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {t("Test connection")}
@@ -376,7 +376,7 @@ export default function McpServerForm({
           type="button"
           onClick={handleSave}
           disabled={saving || testing}
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {t("Save")}
@@ -385,7 +385,7 @@ export default function McpServerForm({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="rounded-lg px-3.5 py-2 text-[12.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {t("Cancel")}
         </button>

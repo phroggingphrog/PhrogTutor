@@ -477,7 +477,7 @@ export default function PageReader({
               {page.title || t("Untitled chapter")}
             </h1>
             {!headerCollapsed && page.learning_objectives.length > 0 && (
-              <ul className="mt-3 space-y-0.5 text-[12.5px] text-[var(--muted-foreground)]">
+              <ul className="mt-3 space-y-0.5 text-[13px] text-[var(--muted-foreground)]">
                 {page.learning_objectives.map((obj, idx) => (
                   <li key={idx}>• {obj}</li>
                 ))}
@@ -741,12 +741,12 @@ export default function PageReader({
               onNavigate={onNavigate}
             />
             <div className="flex min-w-0 shrink-0 flex-col items-center gap-1">
-              <span className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]/70">
+              <span className="text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]/70">
                 {t("← / → to turn pages")}
               </span>
               {chapterHasScroll && (
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[var(--muted-foreground)]/70">
+                  <span className="text-[11px] text-[var(--muted-foreground)]/70">
                     {t("Chapter progress: {{percent}}%", {
                       percent: readingPercent,
                     })}
@@ -815,7 +815,7 @@ function NavButton({
         >
           {!isNext && <ChevronLeft className="h-3.5 w-3.5 shrink-0" />}
           <span className="min-w-0">
-            <span className="block text-[10px] uppercase tracking-wider opacity-70">
+            <span className="block text-[11px] uppercase tracking-wider opacity-70">
               {label}
             </span>
             <span className="block truncate">{page.title}</span>

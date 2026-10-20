@@ -118,7 +118,7 @@ export default function ChannelRuntimeStatus({
           className="mt-2 h-[148px] w-[148px] rounded-md bg-white p-1.5"
         />
       ) : setup.qr_payload ? (
-        <p className="mt-2 break-all font-mono text-[10px]">
+        <p className="mt-2 break-all font-mono text-[11px]">
           {setup.qr_payload}
         </p>
       ) : null}

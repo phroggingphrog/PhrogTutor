@@ -384,7 +384,7 @@ export function AddMaterialsDialog({
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder={t("Optional — taken from the first material")}
-                className="mt-1.5 h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
+                className="mt-1.5 h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--ring)]"
               />
             </label>
           )}
@@ -419,10 +419,10 @@ export function AddMaterialsDialog({
               className="flex w-full flex-col items-center"
             >
               <Upload size={18} className="text-[var(--primary)]" />
-              <span className="mt-2.5 text-[12.5px] font-semibold">
+              <span className="mt-2.5 text-[13px] font-semibold">
                 {t("Drop PDF, EPUB, Word, slides, audio or video here")}
               </span>
-              <span className="mt-1 text-[10.5px] text-[var(--muted-foreground)]">
+              <span className="mt-1 text-[11px] text-[var(--muted-foreground)]">
                 {t("or click to choose files")}
               </span>
             </button>
@@ -442,7 +442,7 @@ export function AddMaterialsDialog({
                 }}
                 onBlur={addLink}
                 placeholder={t("or paste a link — web page, YouTube, Bilibili")}
-                className="min-w-0 flex-1 bg-transparent text-[11.5px] outline-none placeholder:text-[var(--muted-foreground)]"
+                className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[var(--muted-foreground)]"
               />
               {!!linkDraft && (
                 <button
@@ -459,7 +459,7 @@ export function AddMaterialsDialog({
           <button
             type="button"
             onClick={() => setShowInvidious(true)}
-            className="mt-3 flex w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[11.5px] text-[var(--muted-foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+            className="mt-3 flex w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12px] text-[var(--muted-foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
           >
             <Rss size={13} />
             {t("Browse Invidious")}
@@ -479,7 +479,7 @@ export function AddMaterialsDialog({
           )}
 
           {checking && (
-            <p className="mt-2.5 flex items-center gap-1.5 text-[10.5px] text-[var(--muted-foreground)]">
+            <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
               <Loader2 size={11} className="animate-spin" />
               {t("Checking your library for duplicates…")}
             </p>
@@ -488,7 +488,7 @@ export function AddMaterialsDialog({
           <button
             type="button"
             onClick={() => setShowPicker((current) => !current)}
-            className="mt-4 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3.5 text-[11.5px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            className="mt-4 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3.5 text-[12px] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           >
             <Library size={13} />
             {t("Choose from material you already uploaded")}
@@ -507,7 +507,7 @@ export function AddMaterialsDialog({
           <button
             type="button"
             onClick={onClose}
-            className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+            className="h-8 rounded-lg px-3 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             {t("Cancel")}
           </button>
@@ -515,7 +515,7 @@ export function AddMaterialsDialog({
             type="button"
             onClick={() => void submit()}
             disabled={working || !items.length}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 text-[11.5px] font-semibold text-[var(--primary-foreground)] disabled:opacity-50"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 text-[12px] font-semibold text-[var(--primary-foreground)] disabled:opacity-50"
           >
             {working && <Loader2 size={12} className="animate-spin" />}
             {mode === "create"
@@ -573,11 +573,11 @@ function PendingRow({
             className="shrink-0 text-[var(--muted-foreground)]"
           />
         )}
-        <span className="min-w-0 flex-1 truncate text-[11.5px]">
+        <span className="min-w-0 flex-1 truncate text-[12px]">
           {item.label}
         </span>
         {!!item.sizeBytes && (
-          <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]">
+          <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
             {formatBytes(item.sizeBytes)}
           </span>
         )}
@@ -592,7 +592,7 @@ function PendingRow({
       </div>
 
       {matched && item.match?.kind === "same_content" && (
-        <p className="mt-1.5 flex flex-wrap items-center gap-1.5 pl-5 text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="mt-1.5 flex flex-wrap items-center gap-1.5 pl-5 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
           <Check size={11} className="text-[var(--primary)]" />
           {/* Naming the match matters: the file the user picked and the copy
               already in the library often have different names. */}
@@ -621,7 +621,7 @@ function PendingRow({
 
       {matched && item.match?.kind === "same_name" && (
         <div className="mt-1.5 pl-5">
-          <p className="text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
             {where
               ? t(
                   "A material with this name is already in {{where}}, but its content differs.",
@@ -682,12 +682,12 @@ function DecisionChip({
           : "border-[var(--border)] text-[var(--muted-foreground)]"
       }`}
     >
-      <span className="flex items-center gap-1.5 text-[10.5px] font-semibold">
+      <span className="flex items-center gap-1.5 text-[11px] font-semibold">
         {active && <Check size={10} className="text-[var(--primary)]" />}
         {label}
       </span>
       {!!detail && (
-        <span className="mt-0.5 block truncate text-[10px] text-[var(--muted-foreground)]">
+        <span className="mt-0.5 block truncate text-[11px] text-[var(--muted-foreground)]">
           {detail}
         </span>
       )}
@@ -738,16 +738,16 @@ function LibraryPicker({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t("Search your library")}
-          className="min-w-0 flex-1 bg-transparent text-[11.5px] outline-none placeholder:text-[var(--muted-foreground)]"
+          className="min-w-0 flex-1 bg-transparent text-[12px] outline-none placeholder:text-[var(--muted-foreground)]"
         />
       </label>
       <div className="max-h-44 overflow-y-auto">
         {loading ? (
-          <p className="px-3 py-3 text-[10.5px] text-[var(--muted-foreground)]">
+          <p className="px-3 py-3 text-[11px] text-[var(--muted-foreground)]">
             {t("Loading…")}
           </p>
         ) : !filtered.length ? (
-          <p className="px-3 py-3 text-[10.5px] text-[var(--muted-foreground)]">
+          <p className="px-3 py-3 text-[11px] text-[var(--muted-foreground)]">
             {t("Nothing here yet.")}
           </p>
         ) : (
@@ -764,10 +764,10 @@ function LibraryPicker({
                 className="shrink-0 text-[var(--muted-foreground)]"
               />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[11.5px]">
+                <span className="block truncate text-[12px]">
                   {material.title}
                 </span>
-                <span className="block truncate text-[10px] text-[var(--muted-foreground)]">
+                <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
                   {materialDetail(material) ||
                     t(sourceKindKey[material.source_kind])}
                 </span>

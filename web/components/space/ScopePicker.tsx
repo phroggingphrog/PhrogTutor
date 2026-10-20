@@ -66,7 +66,7 @@ export default function ScopePicker({
   return (
     <div className="space-y-2.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[11.5px] text-[var(--muted-foreground)]">
+        <span className="text-[12px] text-[var(--muted-foreground)]">
           {unit === "dates"
             ? t("{{days}} days · {{sessions}} conversations", {
                 days: groups.length,
@@ -82,7 +82,7 @@ export default function ScopePicker({
             </span>
           ) : null}
         </span>
-        <div className="flex items-center gap-1 text-[11.5px] font-medium">
+        <div className="flex items-center gap-1 text-[12px] font-medium">
           <button
             type="button"
             onClick={onSelectAll}
@@ -148,19 +148,19 @@ export default function ScopePicker({
                     className="shrink-0 text-[var(--muted-foreground)]"
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                    <span className="block truncate text-[13px] font-medium text-[var(--foreground)]">
                       {unit === "dates"
                         ? formatDay(group.label, lang)
                         : group.label}
                     </span>
                     {group.sublabel ? (
-                      <span className="block truncate text-[10.5px] text-[var(--muted-foreground)]/80">
+                      <span className="block truncate text-[11px] text-[var(--muted-foreground)]/80">
                         {group.sublabel}
                       </span>
                     ) : null}
                   </span>
                 </button>
-                <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]">
+                <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
                   {t("{{count}} chats", { count: group.sessions.length })}
                 </span>
               </div>
@@ -175,7 +175,7 @@ export default function ScopePicker({
                       <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--muted-foreground)]">
                         {session.provisionalTitle || t("Untitled conversation")}
                       </span>
-                      <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]/70">
+                      <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]/70">
                         {formatRelativeTime(session.lastModified / 1000, lang)}
                       </span>
                     </li>

@@ -204,7 +204,7 @@ export function MaterialLibraryPage() {
       )}
 
       <div
-        className={`${GRID} mt-5 border-b border-[var(--border)] pb-2 text-[10.5px] text-[var(--muted-foreground)]`}
+        className={`${GRID} mt-5 border-b border-[var(--border)] pb-2 text-[11px] text-[var(--muted-foreground)]`}
       >
         <span />
         <span className="min-w-0">{t("reading.column.material")}</span>
@@ -396,23 +396,23 @@ function MaterialRow({
 
         <button type="button" onClick={open} className="min-w-0 text-left">
           <span className="flex min-w-0 items-center gap-1.5">
-            <span className="min-w-0 truncate text-[12.5px] font-medium">
+            <span className="min-w-0 truncate text-[13px] font-medium">
               {material.title}
             </span>
             {preparing && (
-              <span className="shrink-0 rounded px-1.5 py-px text-[10px] text-[var(--primary)]">
+              <span className="shrink-0 rounded px-1.5 py-px text-[11px] text-[var(--primary)]">
                 {material.progress}%
               </span>
             )}
             {failed && (
-              <span className="shrink-0 rounded px-1.5 py-px text-[10px] text-[var(--destructive)]">
+              <span className="shrink-0 rounded px-1.5 py-px text-[11px] text-[var(--destructive)]">
                 {t("Failed")}
               </span>
             )}
             {quizStars > 0 && (
               <span
                 aria-label={t("Quiz stars: {{count}}", { count: quizStars })}
-                className="inline-flex shrink-0 items-center gap-0.5 text-[10px] font-semibold text-warning"
+                className="inline-flex shrink-0 items-center gap-0.5 text-[11px] font-semibold text-warning"
               >
                 <Star size={11} fill="currentColor" aria-hidden="true" />
                 <span aria-hidden="true" className="tabular-nums">
@@ -424,7 +424,7 @@ function MaterialRow({
           {/* Narrow screens lose the type and collection columns, so those
               facts lead the second line: they are short and certain, while the
               file name is the part that can afford to be cut. */}
-          <span className="mt-0.5 flex min-w-0 items-baseline gap-1 text-[10.5px] text-[var(--muted-foreground)]">
+          <span className="mt-0.5 flex min-w-0 items-baseline gap-1 text-[11px] text-[var(--muted-foreground)]">
             {!!typeTail && !failed && (
               <span className="shrink-0 lg:hidden">{typeTail} ·</span>
             )}
@@ -460,7 +460,7 @@ function MaterialRow({
                 <Link
                   key={row.workspace_id}
                   href={readingFolderRoute(row.workspace_id, material.content_workspace_id ?? "")}
-                  className={`min-w-0 truncate rounded-full border border-[var(--border)] px-2 py-0.5 text-[10.5px] hover:border-[var(--primary)] hover:text-[var(--primary)] ${
+                  className={`min-w-0 truncate rounded-full border border-[var(--border)] px-2 py-0.5 text-[11px] hover:border-[var(--primary)] hover:text-[var(--primary)] ${
                     index === 0 ? "shrink" : "max-w-[96px] shrink-0"
                   }`}
                 >
@@ -468,7 +468,7 @@ function MaterialRow({
                 </Link>
               ))}
               {collections.length > 2 && (
-                <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]">
+                <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
                   +{collections.length - 2}
                 </span>
               )}
@@ -477,7 +477,7 @@ function MaterialRow({
             <button
               type="button"
               onClick={onAssign}
-              className="flex items-center gap-1 rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[10.5px] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+              className="flex items-center gap-1 rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
             >
               <FolderPlus size={10} />
               {t("Add to a collection")}
@@ -485,7 +485,7 @@ function MaterialRow({
           )}
         </span>
 
-        <span className="text-right text-[10.5px] text-[var(--muted-foreground)]">
+        <span className="text-right text-[11px] text-[var(--muted-foreground)]">
           {failed ? (
             <button
               type="button"
@@ -514,7 +514,7 @@ function MaterialRow({
       </div>
 
       {menuOpen && (
-        <div className="absolute right-1 top-[calc(100%-8px)] z-10 w-44 rounded-lg border border-[var(--border)] bg-[var(--card)] p-1 text-[11.5px] shadow-md dark:bg-[var(--popover)]">
+        <div className="absolute right-1 top-[calc(100%-8px)] z-10 w-44 rounded-lg border border-[var(--border)] bg-[var(--card)] p-1 text-[12px] shadow-md dark:bg-[var(--popover)]">
           <button
             type="button"
             onClick={onAssign}
@@ -626,7 +626,7 @@ function AssignDialog({
                   <span className="block truncate font-serif text-[13px] font-semibold">
                     {collection.title}
                   </span>
-                  <span className="block truncate text-[10.5px] text-[var(--muted-foreground)]">
+                  <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
                     {t("{{count}} materials", {
                       count: collection.tabs.length,
                     })}
@@ -638,7 +638,7 @@ function AssignDialog({
               </button>
             ))
           ) : (
-            <p className="px-3 py-6 text-center text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="px-3 py-6 text-center text-[12px] text-[var(--muted-foreground)]">
               {collections.length
                 ? t("It is already in every collection you have.")
                 : t("You have no collections yet.")}
@@ -654,14 +654,14 @@ function AssignDialog({
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="text-[11.5px] font-semibold text-[var(--primary)]"
+            className="text-[12px] font-semibold text-[var(--primary)]"
           >
             {t("New collection…")}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+            className="h-8 rounded-lg px-3 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             {t("Cancel")}
           </button>
@@ -711,7 +711,7 @@ function DeleteMaterialDialog({
           <button
             type="button"
             onClick={onClose}
-            className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+            className="h-8 rounded-lg px-3 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             {t("Cancel")}
           </button>
@@ -732,7 +732,7 @@ function DeleteMaterialDialog({
                 )
                 .finally(() => setWorking(false));
             }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--destructive)] px-3.5 text-[11.5px] font-semibold text-[var(--destructive-foreground)] disabled:opacity-50"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--destructive)] px-3.5 text-[12px] font-semibold text-[var(--destructive-foreground)] disabled:opacity-50"
           >
             {working && <Loader2 size={12} className="animate-spin" />}
             {t("Delete")}

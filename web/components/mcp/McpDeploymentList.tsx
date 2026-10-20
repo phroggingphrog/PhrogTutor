@@ -31,7 +31,7 @@ export default function McpDeploymentList({
         <h3 className="text-[13px] font-semibold text-[var(--foreground)]">
           {t("Provided by this deployment")}
         </h3>
-        <span className="text-[11.5px] text-[var(--muted-foreground)]">
+        <span className="text-[12px] text-[var(--muted-foreground)]">
           {t("Read-only")}
         </span>
       </div>
@@ -49,7 +49,7 @@ export default function McpDeploymentList({
               <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-[var(--foreground)]">
                 {name}
               </span>
-              <span className="shrink-0 text-[11.5px] text-[var(--muted-foreground)]">
+              <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">
                 {t("{{count}} tools", { count: row?.tools.length ?? 0 })}
               </span>
               <McpStatusBadge

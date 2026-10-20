@@ -368,7 +368,7 @@ export function ReadingCompanion({
         <div className="relative z-50 h-0">
           <div className="fixed inset-0" onClick={closeTurns} />
           <div className="absolute right-2 top-2 w-60 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-1.5 text-[12px] shadow-[0_20px_50px_rgba(0,0,0,.18)] dark:border-[var(--border)] dark:bg-[var(--popover)]">
-            <p className="flex w-full items-center gap-1.5 px-2.5 py-2 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <p className="flex w-full items-center gap-1.5 px-2.5 py-2 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
               <ListOrdered size={11} />
               {t("Jump to a question")}
             </p>
@@ -383,10 +383,10 @@ export function ReadingCompanion({
                   }}
                   className="flex w-full items-start gap-2 rounded-md px-2.5 py-2 text-left transition hover:bg-[var(--muted)]"
                 >
-                  <span className="mt-[1px] shrink-0 text-[9px] tabular-nums text-[var(--muted-foreground)]">
+                  <span className="mt-[1px] shrink-0 text-[11px] tabular-nums text-[var(--muted-foreground)]">
                     {entry.ordinal}
                   </span>
-                  <span className="line-clamp-2 min-w-0 flex-1 text-[10.5px] leading-relaxed text-[var(--foreground)]">
+                  <span className="line-clamp-2 min-w-0 flex-1 text-[11px] leading-relaxed text-[var(--foreground)]">
                     {entry.title}
                   </span>
                 </button>

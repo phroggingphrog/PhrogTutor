@@ -46,7 +46,7 @@ export const SetupCredentialCard = memo(function SetupCredentialCard({
           <button
             type="button"
             onClick={() => router.push(data.settingsPath)}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
           >
             {t("Open settings")}
             <span aria-hidden>→</span>

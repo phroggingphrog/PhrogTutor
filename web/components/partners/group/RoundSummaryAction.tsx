@@ -32,7 +32,7 @@ export default function RoundSummaryAction({
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] transition-opacity hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus:opacity-100 sm:opacity-0 sm:group-hover/round:opacity-100"
+        className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] text-[var(--muted-foreground)] transition-opacity hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus:opacity-100 sm:opacity-0 sm:group-hover/round:opacity-100"
       >
         <ListChecks size={11} />
         {t("Summarise this round")}
@@ -43,7 +43,7 @@ export default function RoundSummaryAction({
           className="absolute bottom-full z-30 mb-1 w-[210px] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--popover)] py-1 shadow-xl"
           onMouseLeave={() => setOpen(false)}
         >
-          <div className="px-2.5 pb-1 pt-0.5 text-[9.5px] text-[var(--muted-foreground)]">
+          <div className="px-2.5 pb-1 pt-0.5 text-[11px] text-[var(--muted-foreground)]">
             {t("Who should sum it up?")}
           </div>
           {members.map((member) => (
@@ -63,7 +63,7 @@ export default function RoundSummaryAction({
                 image={member.avatar}
                 size={18}
               />
-              <span className="truncate text-[11.5px] text-[var(--foreground)]">
+              <span className="truncate text-[12px] text-[var(--foreground)]">
                 {member.name}
               </span>
             </button>

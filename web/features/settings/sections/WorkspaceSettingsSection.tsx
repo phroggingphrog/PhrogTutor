@@ -53,8 +53,8 @@ function WorkspaceRow({ row, run, busy }: { row: ChatWorkspaceRegistration; run:
         </div>
       </div>
       <div className="mt-1.5 min-w-0 sm:pl-[30px]">
-        {!custom && <p className="mb-2 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">{row.kind === 'system' ? t('Sanitized configuration snapshots, Skill files and MCP inventory. API keys and tokens remain in private configuration.') : t('Conversations without a selected workspace share files in this folder.')}</p>}
-        <p className="select-all break-all font-mono text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">{row.path}</p>
+        {!custom && <p className="mb-2 text-[13px] leading-relaxed text-[var(--muted-foreground)]">{row.kind === 'system' ? t('Sanitized configuration snapshots, Skill files and MCP inventory. API keys and tokens remain in private configuration.') : t('Conversations without a selected workspace share files in this folder.')}</p>}
+        <p className="select-all break-all font-mono text-[12px] leading-relaxed text-[var(--muted-foreground)]">{row.path}</p>
         {row.archived && <p className="mt-1 text-xs text-[var(--muted-foreground)]">{t('Archived. Existing conversations and files are kept.')}</p>}
         {resourcesOpen && (
           <form className={`${subPanelClass} mt-3 space-y-3 p-4`} onSubmit={async event => { event.preventDefault(); if (await run(() => saveWorkspace({ resources }, row.workspace_id))) setResourcesOpen(false) }}>

@@ -135,7 +135,7 @@ function CapMenuItem({
         className={`shrink-0 ${selected ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}`}
       />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
+        <div className="truncate text-[13px] font-medium leading-snug text-[var(--foreground)]">
           {t(cap.label)}
         </div>
         <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">
@@ -1197,7 +1197,7 @@ export default memo(function ChatComposer({
                                   className={`shrink-0 ${loopSelected ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}`}
                                 />
                                 <div className="min-w-0 flex-1">
-                                  <div className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
+                                  <div className="truncate text-[13px] font-medium leading-snug text-[var(--foreground)]">
                                     {t("More Capabilities")}
                                   </div>
                                   <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">

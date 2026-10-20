@@ -60,7 +60,7 @@ export default function PartnerModelSelect({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] px-3.5 py-2.5 text-[13.5px] text-[var(--muted-foreground)]">
+      <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] px-3.5 py-2.5 text-[14px] text-[var(--muted-foreground)]">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
         {t("Loading models…")}
       </div>
@@ -114,11 +114,11 @@ export default function PartnerModelSelect({
         }`}
       >
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13.5px] font-medium text-[var(--foreground)]">
+          <span className="block truncate text-[14px] font-medium text-[var(--foreground)]">
             {currentTitle}
           </span>
           {currentSubtitle && (
-            <span className="block truncate text-[11.5px] text-[var(--muted-foreground)]">
+            <span className="block truncate text-[12px] text-[var(--muted-foreground)]">
               {currentSubtitle}
             </span>
           )}
@@ -186,17 +186,17 @@ function DropdownRow({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13.5px] text-[var(--foreground)]">
+        <span className="block truncate text-[14px] text-[var(--foreground)]">
           {title}
         </span>
         {subtitle && (
-          <span className="block truncate text-[11.5px] text-[var(--muted-foreground)]">
+          <span className="block truncate text-[12px] text-[var(--muted-foreground)]">
             {subtitle}
           </span>
         )}
       </span>
       {trailing && (
-        <span className="shrink-0 text-[11.5px] text-[var(--muted-foreground)]">
+        <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">
           {trailing}
         </span>
       )}

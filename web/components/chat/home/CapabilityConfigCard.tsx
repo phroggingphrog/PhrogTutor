@@ -77,12 +77,12 @@ function CapabilityConfigCardInner({
           {t(label)}
         </span>
         {confirmed ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-[2px] text-[10px] font-semibold text-[var(--primary)]">
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-[2px] text-[11px] font-semibold text-[var(--primary)]">
             <Check size={10} strokeWidth={2.5} />
             {t("Confirmed")}
           </span>
         ) : (
-          <span className="shrink-0 rounded-full bg-[var(--muted)]/55 px-1.5 py-[1px] text-[10px] font-semibold text-[var(--muted-foreground)]">
+          <span className="shrink-0 rounded-full bg-[var(--muted)]/55 px-1.5 py-[1px] text-[11px] font-semibold text-[var(--muted-foreground)]">
             {t("Required")}
           </span>
         )}
@@ -97,7 +97,7 @@ function CapabilityConfigCardInner({
         </ul>
       ) : null}
       <footer className="flex items-center justify-between gap-2 border-t border-[var(--border)]/35 bg-[var(--background)]/40 px-3.5 py-2">
-        <span className="min-w-0 flex-1 truncate text-[10.5px] text-[var(--muted-foreground)]/75">
+        <span className="min-w-0 flex-1 truncate text-[11px] text-[var(--muted-foreground)]/75">
           {confirmed
             ? t("Edit any field to update settings.")
             : t("Confirm settings to enable sending.")}

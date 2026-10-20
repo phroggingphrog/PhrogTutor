@@ -189,7 +189,7 @@ export default function KbWebSourcesSection({
           <div className="text-[13px] font-medium text-[var(--foreground)]">
             {t("Web Sources")}
           </div>
-          <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
             {t(
               "Crawl a documentation website on demand with bounded depth and page limits.",
             )}
@@ -221,7 +221,7 @@ export default function KbWebSourcesSection({
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[11.5px] text-destructive">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[12px] text-destructive">
           {error}
         </div>
       )}
@@ -237,7 +237,7 @@ export default function KbWebSourcesSection({
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder={t("https://example.com/")}
-              className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
             />
           </label>
           <label className="block">
@@ -250,7 +250,7 @@ export default function KbWebSourcesSection({
               max={5}
               value={maxDepth}
               onChange={(e) => setMaxDepth(Number(e.target.value) || 3)}
-              className="w-24 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              className="w-24 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
             />
           </label>
           <div className="flex items-center gap-2">
@@ -365,7 +365,7 @@ function WebSourceCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <Globe className="h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)]" />
-          <span className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
+          <span className="truncate text-[13px] font-medium text-[var(--foreground)]">
             {source.url}
           </span>
         </div>

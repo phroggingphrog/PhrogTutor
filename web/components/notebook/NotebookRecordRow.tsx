@@ -239,7 +239,7 @@ export default function NotebookRecordRow({
             className={`shrink-0 text-[var(--muted-foreground)] transition-transform duration-200 ${expanded ? "rotate-90" : ""}`}
           />
           <span
-            className={`inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[10.5px] font-medium ${badge?.className ?? FALLBACK_BADGE.className}`}
+            className={`inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium ${badge?.className ?? FALLBACK_BADGE.className}`}
           >
             <BadgeIcon size={10} />
             {badgeLabel}
@@ -311,7 +311,7 @@ export default function NotebookRecordRow({
           ) : (
             <>
               {record.summary && (
-                <p className="mb-2.5 text-[12.5px] leading-6 text-[var(--foreground)]/80">
+                <p className="mb-2.5 text-[13px] leading-6 text-[var(--foreground)]/80">
                   {record.summary}
                 </p>
               )}
@@ -325,7 +325,7 @@ export default function NotebookRecordRow({
                 <button
                   type="button"
                   onClick={() => onOpenSession(sessionId)}
-                  className="mb-2.5 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--foreground)] transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.98] hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
+                  className="mb-2.5 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.98] hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                 >
                   <ExternalLink size={12} />
                   {t("Open chat session")}
@@ -335,7 +335,7 @@ export default function NotebookRecordRow({
                 <MarkdownRenderer
                   content={record.output || ""}
                   variant="prose"
-                  className="text-[12.5px] leading-relaxed text-[var(--foreground)]"
+                  className="text-[13px] leading-relaxed text-[var(--foreground)]"
                 />
               </div>
             </>
@@ -420,7 +420,7 @@ function RecordEditor({
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder={t("Record title")}
           aria-label={t("Record title")}
-          className="w-full border-0 bg-transparent p-0 text-[13.5px] font-semibold text-[var(--foreground)] outline-none placeholder:font-normal placeholder:text-[var(--muted-foreground)]"
+          className="w-full border-0 bg-transparent p-0 text-[14px] font-semibold text-[var(--foreground)] outline-none placeholder:font-normal placeholder:text-[var(--muted-foreground)]"
         />
         <textarea
           value={summary}
@@ -428,12 +428,12 @@ function RecordEditor({
           placeholder={t("Short summary")}
           aria-label={t("Short summary")}
           rows={2}
-          className="w-full resize-none border-0 bg-transparent p-0 text-[12.5px] leading-6 text-[var(--foreground)]/80 outline-none placeholder:text-[var(--muted-foreground)]"
+          className="w-full resize-none border-0 bg-transparent p-0 text-[13px] leading-6 text-[var(--foreground)]/80 outline-none placeholder:text-[var(--muted-foreground)]"
         />
       </div>
 
       <div className="flex items-center justify-between border-b border-[var(--border)]/70 bg-[var(--muted)]/25 px-3 py-1.5">
-        <span className="text-[10.5px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
           {t("Body")}
         </span>
         {/* A segmented switch rather than a toggling button: both states stay
@@ -472,7 +472,7 @@ function RecordEditor({
           <MarkdownRenderer
             content={output || t("Nothing to preview yet.")}
             variant="prose"
-            className="text-[12.5px] leading-relaxed text-[var(--foreground)]"
+            className="text-[13px] leading-relaxed text-[var(--foreground)]"
           />
         </div>
       ) : (
@@ -496,7 +496,7 @@ function RecordEditor({
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="rounded-lg px-2.5 py-1.5 text-[12.5px] text-[var(--muted-foreground)] transition-colors duration-150 hover:text-[var(--foreground)] disabled:opacity-40"
+          className="rounded-lg px-2.5 py-1.5 text-[13px] text-[var(--muted-foreground)] transition-colors duration-150 hover:text-[var(--foreground)] disabled:opacity-40"
         >
           {t("Cancel")}
         </button>
@@ -504,7 +504,7 @@ function RecordEditor({
           type="button"
           onClick={onSave}
           disabled={busy || !dirty}
-          className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {t("Save")}
         </button>

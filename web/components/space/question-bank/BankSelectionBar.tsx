@@ -42,7 +42,7 @@ export default function BankSelectionBar({
 
   return (
     <div className="sticky bottom-4 z-20 mx-auto flex w-fit max-w-full flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 shadow-lg">
-      <span className="text-[12.5px] font-medium text-[var(--foreground)]">
+      <span className="text-[13px] font-medium text-[var(--foreground)]">
         {count} {t("selected")}
       </span>
 
@@ -73,7 +73,7 @@ export default function BankSelectionBar({
         <button
           type="button"
           onClick={() => void onUnfileFromCurrent()}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2 py-1.5 text-[11.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2 py-1.5 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
         >
           <FolderMinus className="h-3.5 w-3.5" />
           {t("Remove tag")}

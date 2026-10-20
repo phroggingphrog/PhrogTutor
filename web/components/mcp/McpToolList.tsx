@@ -8,7 +8,7 @@ export default function McpToolList({ tools }: { tools: McpTool[] }) {
   const { t } = useTranslation();
   return (
     <div className="border-t border-[var(--border)]/40 bg-[var(--background)]/40 px-5 py-4">
-      <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
         {t("Exposed tools")}
       </div>
       <ul className="space-y-1.5">

@@ -328,7 +328,7 @@ export default function MyAgentsSection() {
           </div>
 
           {note && (
-            <p className="text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="text-[12px] text-[var(--muted-foreground)]">
               {note}
             </p>
           )}
@@ -460,15 +460,15 @@ function AgentCard({
             onCancel={onCancelRename}
           />
         ) : (
-          <div className="truncate text-[13.5px] font-semibold tracking-tight text-[var(--foreground)]">
+          <div className="truncate text-[14px] font-semibold tracking-tight text-[var(--foreground)]">
             {agent.name}
           </div>
         )}
-        <div className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
+        <div className="mt-0.5 truncate text-[12px] text-[var(--muted-foreground)]">
           {SOURCE_LABEL[agent.source]} · {scopeSummary(agent.scope, t)} ·{" "}
           {t("{{count}} conversations", { count })}
         </div>
-        <div className="mt-0.5 truncate text-[10.5px] text-[var(--muted-foreground)]/80">
+        <div className="mt-0.5 truncate text-[11px] text-[var(--muted-foreground)]/80">
           {agent.lastSyncAt
             ? t("Synced {{time}}", {
                 time: formatRelativeTime(agent.lastSyncAt / 1000, lang),
@@ -575,7 +575,7 @@ function RenameInput({
         if (e.key === "Enter") onCommit(draft);
         else if (e.key === "Escape") onCancel();
       }}
-      className="w-full rounded-md border border-[var(--primary)]/50 bg-[var(--background)] px-1.5 py-0.5 text-[13.5px] font-semibold text-[var(--foreground)] outline-none ring-2 ring-[var(--primary)]/15"
+      className="w-full rounded-md border border-[var(--primary)]/50 bg-[var(--background)] px-1.5 py-0.5 text-[14px] font-semibold text-[var(--foreground)] outline-none ring-2 ring-[var(--primary)]/15"
     />
   );
 }
@@ -596,7 +596,7 @@ function MenuItem({
       type="button"
       role="menuitem"
       onClick={onClick}
-      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] transition-colors ${
+      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition-colors ${
         destructive
           ? "text-destructive hover:bg-destructive/20"
           : "text-[var(--foreground)] hover:bg-[var(--muted)]/60"
@@ -644,10 +644,10 @@ function UngroupedCard({
         <glyph.Icon size={20} strokeWidth={1.6} />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13.5px] font-semibold tracking-tight text-[var(--foreground)]">
+        <div className="truncate text-[14px] font-semibold tracking-tight text-[var(--foreground)]">
           {SOURCE_LABEL[source]}
         </div>
-        <div className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
+        <div className="mt-0.5 truncate text-[12px] text-[var(--muted-foreground)]">
           {t("Ungrouped")} · {t("{{count}} conversations", { count })}
         </div>
       </div>
@@ -676,7 +676,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         <h2 className="font-serif text-[16px] font-semibold tracking-tight text-[var(--foreground)]">
           {t("No agents yet")}
         </h2>
-        <p className="mx-auto max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {t(
             "Import a ChatGPT data export or add a Claude Code or Codex folder, then open any conversation to continue it in DeepTutor.",
           )}
@@ -685,7 +685,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--foreground)] px-4 py-2 text-[12.5px] font-medium text-[var(--background)] shadow-sm transition-opacity hover:opacity-90"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--foreground)] px-4 py-2 text-[13px] font-medium text-[var(--background)] shadow-sm transition-opacity hover:opacity-90"
       >
         <Plus className="h-3.5 w-3.5" />
         {t("Import conversations")}

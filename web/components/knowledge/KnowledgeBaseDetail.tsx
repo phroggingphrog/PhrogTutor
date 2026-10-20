@@ -221,7 +221,7 @@ export default function KnowledgeBaseDetail({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="mb-1.5 inline-flex items-center gap-1 text-[11.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+                  className="mb-1.5 inline-flex items-center gap-1 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   {t("Knowledge bases")}
@@ -232,13 +232,13 @@ export default function KnowledgeBaseDetail({
                   {kb.name}
                 </h1>
                 {kb.is_default && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-warning-surface px-2 py-0.5 text-[10px] font-medium text-warning">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-warning-surface px-2 py-0.5 text-[11px] font-medium text-warning">
                     <Star className="h-3 w-3" fill="currentColor" />
                     {t("Default")}
                   </span>
                 )}
                 {(kb.assigned || kb.provenance_label) && (
-                  <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                  <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success">
                     {kb.provenance_label || t("Assigned by admin")}
                   </span>
                 )}
@@ -295,7 +295,7 @@ export default function KnowledgeBaseDetail({
                 key={key}
                 type="button"
                 onClick={() => setSection(key)}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-t-md px-3 py-2 text-[12.5px] font-medium transition-colors ${
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-t-md px-3 py-2 text-[13px] font-medium transition-colors ${
                   active
                     ? "border-b-2 border-[var(--primary)] text-[var(--foreground)]"
                     : "border-b-2 border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"

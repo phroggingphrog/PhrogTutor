@@ -457,7 +457,7 @@ export default function MemorySection({
           )}
           meta={
             toast ? (
-              <span className="rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-2 py-0.5 text-[10.5px] font-medium text-[var(--primary)]">
+              <span className="rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-2 py-0.5 text-[11px] font-medium text-[var(--primary)]">
                 {toast}
               </span>
             ) : null
@@ -623,7 +623,7 @@ function TabStrip({ tab, onChange, l2Count, l3Count, t }: TabStripProps) {
               >
                 {label}
                 {typeof count === "number" && (
-                  <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
+                  <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal text-[var(--muted-foreground)]">
                     {count}
                   </span>
                 )}
@@ -1002,7 +1002,7 @@ function SnapshotList({
   const entities = snapshot?.entities ?? [];
   return (
     <>
-      <div className="flex items-baseline justify-between text-[11.5px] text-[var(--muted-foreground)]">
+      <div className="flex items-baseline justify-between text-[12px] text-[var(--muted-foreground)]">
         <span>
           {t("{{n}} entities", { n: entities.length })}
           {snapshot?.last_refresh && (
@@ -1154,7 +1154,7 @@ function PendingBadge({
       <span
         role="note"
         tabIndex={0}
-        className={`inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-medium ${cfg.cls}`}
+        className={`inline-flex items-center rounded-full border px-1.5 py-0 text-[11px] font-medium ${cfg.cls}`}
       >
         {cfg.label}
       </span>
@@ -1291,7 +1291,7 @@ function KbQueriesList({ loading, queries, t }: KbQueriesListProps) {
                 </span>
                 <span>{formatTimestamp(q.ts, "")}</span>
               </div>
-              <p className="mt-0.5 truncate text-[12.5px] text-[var(--foreground)]">
+              <p className="mt-0.5 truncate text-[13px] text-[var(--foreground)]">
                 {query}
               </p>
             </div>

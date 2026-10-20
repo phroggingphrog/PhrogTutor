@@ -2465,7 +2465,7 @@ export default function ChatWorkspace({
                   <Tooltip label={activeWorkspace.path} side="bottom">
                     <Link
                       href="/settings/workspace"
-                      className="inline-flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 text-[12.5px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 text-[13px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
                     >
                       <FolderOpen size={13} strokeWidth={1.7} />
                       <span className="max-w-[140px] truncate">
@@ -2727,7 +2727,7 @@ export default function ChatWorkspace({
                       <button
                         type="button"
                         onClick={handleResendMessage}
-                        className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--foreground)] hover:bg-[var(--muted)]"
+                        className="shrink-0 rounded-md px-2 py-1 text-[12px] font-medium text-[var(--foreground)] hover:bg-[var(--muted)]"
                       >
                         {t("Resend")}
                       </button>

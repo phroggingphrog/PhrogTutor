@@ -73,7 +73,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
                 {t("Partner draft")}
               </div>
               {!editing ? (
@@ -168,7 +168,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 onClick={() =>
                   router.push(`/partners/${encodeURIComponent(createdId)}`)
                 }
-                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--foreground)] px-3.5 py-2 text-[11.5px] font-medium text-[var(--background)]"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--foreground)] px-3.5 py-2 text-[12px] font-medium text-[var(--background)]"
               >
                 <Check size={13} /> {t("Open partner")}
               </button>
@@ -177,7 +177,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 type="button"
                 disabled={creating || !name.trim() || !soul.trim()}
                 onClick={confirm}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--foreground)] px-3.5 py-2 text-[11.5px] font-medium text-[var(--background)] transition disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--foreground)] px-3.5 py-2 text-[12px] font-medium text-[var(--background)] transition disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {creating ? (
                   <Loader2 size={13} className="animate-spin" />
@@ -187,7 +187,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
                 {creating ? t("Creating…") : t("Confirm & create")}
               </button>
             )}
-            <span className="text-[10.5px] text-[var(--muted-foreground)]">
+            <span className="text-[11px] text-[var(--muted-foreground)]">
               {createdId
                 ? t("Partner created")
                 : t("Nothing is created until you confirm")}

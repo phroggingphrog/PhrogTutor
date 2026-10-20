@@ -127,7 +127,7 @@ export default function LinkFolderModal({
             <p
               id="linked-folder-error"
               role="alert"
-              className="mt-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-[11.5px] text-destructive"
+              className="mt-2 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-[12px] text-destructive"
             >
               {error}
             </p>

@@ -124,7 +124,7 @@ export default function CoursesShelf() {
         >
           {t("My courses")}
         </h1>
-        <p className="mt-1 text-[12.5px] text-[var(--muted-foreground)]">
+        <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
           {t(
             "One subject's material, paths, notes and conversations, all in one place.",
           )}
@@ -143,7 +143,7 @@ export default function CoursesShelf() {
       ) : loadError !== null ? (
         <div
           role="alert"
-          className="flex min-h-32 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-[12.5px] text-[var(--muted-foreground)]"
+          className="flex min-h-32 items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-[13px] text-[var(--muted-foreground)]"
         >
           <CircleAlert size={16} strokeWidth={1.8} aria-hidden />
           <span>
@@ -177,15 +177,15 @@ export default function CoursesShelf() {
                   className="mt-0.5 shrink-0 text-[var(--muted-foreground)]/45 transition-transform group-hover:translate-x-0.5"
                 />
               </div>
-              <p className="mt-1 line-clamp-2 flex-1 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <p className="mt-1 line-clamp-2 flex-1 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 {course.description || t("A focused home for this subject.")}
               </p>
               {course.resources.length === 0 ? (
-                <p className="mt-3 text-[10.5px] text-[var(--muted-foreground)]/75">
+                <p className="mt-3 text-[11px] text-[var(--muted-foreground)]/75">
                   {t("Nothing attached yet")}
                 </p>
               ) : (
-                <div className="mt-3 flex items-center gap-3 text-[10.5px] text-[var(--muted-foreground)]/75">
+                <div className="mt-3 flex items-center gap-3 text-[11px] text-[var(--muted-foreground)]/75">
                   <span
                     className="inline-flex items-center gap-1"
                   >
@@ -262,11 +262,11 @@ export default function CoursesShelf() {
                     style={{ backgroundColor: course.color }}
                     aria-hidden
                   />
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--muted-foreground)]">
+                  <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--muted-foreground)]">
                     {course.name}
                   </span>
                   {course.archived_at > 0 ? (
-                    <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]/70">
+                    <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]/70">
                       {formatRelativeTime(course.archived_at, i18n.language)}
                     </span>
                   ) : null}

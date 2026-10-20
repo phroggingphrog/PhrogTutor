@@ -586,7 +586,7 @@ export function MasteryStudy({
         </Tooltip>
 
         <div className="ml-1.5 flex min-w-0 flex-1 items-baseline gap-2">
-          <h1 className="shrink-0 truncate text-[14.5px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
+          <h1 className="shrink-0 truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
             {displayName}
           </h1>
           <span
@@ -596,7 +596,7 @@ export function MasteryStudy({
             /
           </span>
           {sessionMode === "study" ? (
-            <span className="hidden min-w-0 truncate text-[12.5px] text-[var(--muted-foreground)] sm:inline">
+            <span className="hidden min-w-0 truncate text-[13px] text-[var(--muted-foreground)] sm:inline">
               {waypoint.name}
             </span>
           ) : null}

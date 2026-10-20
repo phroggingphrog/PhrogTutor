@@ -127,7 +127,7 @@ export default function ChatResponseTimeoutSection() {
         }
       />
       {message && (
-        <p className="px-1 pb-3 text-[11.5px] text-[var(--muted-foreground)]">
+        <p className="px-1 pb-3 text-[12px] text-[var(--muted-foreground)]">
           {message}
         </p>
       )}

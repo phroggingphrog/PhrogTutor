@@ -179,7 +179,7 @@ export default function StarterSettingsPage() {
       )}
 
       {!loading && payload && (
-        <p className="mt-5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="mt-5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
           {t("These lines are written by the active model unless you pin one.")}{" "}
           <Link
             href="/settings/task-models"

@@ -343,7 +343,7 @@ function SelectionSummary({
               <div className="truncate text-[12px] font-medium text-[var(--foreground)]">
                 {item.file.name}
               </div>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
                 <span>{item.extension}</span>
                 <span>{item.sizeLabel}</span>
                 <span

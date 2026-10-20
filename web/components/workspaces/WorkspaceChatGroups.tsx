@@ -113,7 +113,7 @@ function WorkspaceGroup({
             writeCollapsedGroups([...collapsed]);
             setOpen(!open);
           }}
-          className="flex min-w-0 flex-1 items-center gap-1.5 py-1 text-left text-[12.5px] font-medium text-[var(--muted-foreground)] transition-colors group-hover/heading:text-[var(--foreground)]"
+          className="flex min-w-0 flex-1 items-center gap-1.5 py-1 text-left text-[13px] font-medium text-[var(--muted-foreground)] transition-colors group-hover/heading:text-[var(--foreground)]"
         >
           <span className="flex w-3 shrink-0 items-center justify-center">
             <Folder size={11} strokeWidth={1.8} className="opacity-60" />
@@ -128,7 +128,7 @@ function WorkspaceGroup({
           />
           <span className="flex-1" />
           {!open && rows.length ? (
-            <span className="shrink-0 text-[10.5px] tabular-nums opacity-50">
+            <span className="shrink-0 text-[11px] tabular-nums opacity-50">
               {rows.length}
             </span>
           ) : null}

@@ -612,13 +612,13 @@ export default function SaveToNotebookModal({
                         if (event.key === "Enter") void handleCreateNotebook();
                       }}
                       placeholder={t("Name your first notebook")}
-                      className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
+                      className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
                     />
                     <button
                       type="button"
                       onClick={() => void handleCreateNotebook()}
                       disabled={!newNotebookName.trim() || isCreatingNotebook}
-                      className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] disabled:opacity-40"
+                      className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] disabled:opacity-40"
                     >
                       {isCreatingNotebook ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />

@@ -32,7 +32,7 @@ export default function InvocationCard({
 
   return (
     <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--muted)]/30 px-3.5 py-3">
-      <div className="flex items-center gap-1.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
         <span>{invocation.requester_partner_name}</span>
         <ArrowRight size={10} className="shrink-0" />
         <span>{invocation.target_partner_name}</span>
@@ -68,7 +68,7 @@ export default function InvocationCard({
           </button>
         </div>
       ) : (
-        <div className="mt-2 inline-flex items-center gap-1.5 text-[10.5px] text-[var(--muted-foreground)]">
+        <div className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
           {status === "approved" ? (
             <>
               <Loader2 size={11} className="animate-spin" />

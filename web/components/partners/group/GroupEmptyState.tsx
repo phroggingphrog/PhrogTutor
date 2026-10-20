@@ -56,7 +56,7 @@ export default function GroupEmptyState({
               {member.name}
             </span>
             {member.description ? (
-              <span className="line-clamp-2 text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <span className="line-clamp-2 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                 {member.description}
               </span>
             ) : null}
@@ -64,7 +64,7 @@ export default function GroupEmptyState({
         ))}
       </div>
 
-      <h2 className="mt-7 text-[14.5px] font-medium text-[var(--foreground)]">
+      <h2 className="mt-7 text-[14px] font-medium text-[var(--foreground)]">
         {t("Start a group discussion")}
       </h2>
       <p className="mt-1.5 max-w-md text-[12px] leading-relaxed text-[var(--muted-foreground)]">

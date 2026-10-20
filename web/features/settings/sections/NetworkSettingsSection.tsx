@@ -377,12 +377,12 @@ export default function NetworkSettingsPage() {
           >
             <div className="py-4">
               <textarea
-                className={`${inputClass} min-h-28 resize-y font-mono text-[12.5px] leading-relaxed`}
+                className={`${inputClass} min-h-28 resize-y font-mono text-[13px] leading-relaxed`}
                 placeholder={corsPlaceholder}
                 value={corsText}
                 onChange={(event) => setCorsText(event.target.value)}
               />
-              <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <p className="mt-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 {t(
                   "Comma, semicolon, and newline separators are accepted. Bare host:port values are stored as http://host:port.",
                 )}
@@ -391,7 +391,7 @@ export default function NetworkSettingsPage() {
           </SettingSection>
 
           {payload.auth.enabled && !payload.auth.cookie_secure && (
-            <div className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-[12.5px] leading-relaxed text-warning">
+            <div className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-[13px] leading-relaxed text-warning">
               {t(
                 "Auth is enabled but secure cookies are off. Cross-site HTTPS deployments should set auth.cookie_secure=true and restart so SameSite=None cookies work in modern browsers.",
               )}

@@ -151,7 +151,7 @@ export default function ResourceSelector({
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t("Search")}
-                className="min-w-0 flex-1 bg-transparent text-[12.5px] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
+                className="min-w-0 flex-1 bg-transparent text-[13px] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
               />
             </div>
           )}
@@ -204,7 +204,7 @@ export default function ResourceSelector({
                       }`}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                      <span className="block truncate text-[13px] font-medium text-[var(--foreground)]">
                         {option.name}
                       </span>
                       {secondary ? (

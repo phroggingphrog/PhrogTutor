@@ -239,7 +239,7 @@ export function ThemePreviewCard({
       </div>
       <div className="flex items-center justify-between px-1 pb-0.5">
         <span
-          className={`text-[12.5px] tracking-tight ${
+          className={`text-[13px] tracking-tight ${
             selected
               ? "font-medium text-[var(--foreground)]"
               : "text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]"

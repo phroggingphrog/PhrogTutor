@@ -164,7 +164,7 @@ function StatusBadge({ status }: { status: ProviderConnectionStatus }) {
   const { t } = useTranslation();
   if (status === "ready") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-success-surface px-2 py-0.5 text-[10.5px] font-medium text-success">
+      <span className="inline-flex items-center gap-1 rounded-full bg-success-surface px-2 py-0.5 text-[11px] font-medium text-success">
         <Check className="h-3 w-3" />
         {t("Ready")}
       </span>
@@ -172,20 +172,20 @@ function StatusBadge({ status }: { status: ProviderConnectionStatus }) {
   }
   if (status === "needs_key") {
     return (
-      <span className="inline-flex items-center rounded-full bg-warning-surface px-2 py-0.5 text-[10.5px] font-medium text-warning">
+      <span className="inline-flex items-center rounded-full bg-warning-surface px-2 py-0.5 text-[11px] font-medium text-warning">
         {t("Needs key")}
       </span>
     );
   }
   if (status === "needs_setup") {
     return (
-      <span className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10.5px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
+      <span className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
         {t("Needs setup")}
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+    <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
       {t("Not installed")}
     </span>
   );
@@ -373,7 +373,7 @@ function ModeSelector({
             }`}
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-[12.5px] font-medium text-[var(--foreground)]">
+              <span className="font-mono text-[13px] font-medium text-[var(--foreground)]">
                 {mode}
               </span>
               {pending === mode ? (
@@ -383,7 +383,7 @@ function ModeSelector({
               ) : null}
             </div>
             {desc && (
-              <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+              <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
                 {t(desc)}
               </span>
             )}
@@ -525,14 +525,14 @@ export function LlamaIndexForm({
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[12.5px] font-medium text-[var(--foreground)]">
+                  <span className="font-mono text-[13px] font-medium text-[var(--foreground)]">
                     {p.id}
                   </span>
                   {active && (
                     <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
                   )}
                 </div>
-                <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+                <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
                   {t(p.desc)}
                 </span>
               </button>
@@ -625,14 +625,14 @@ export function LlamaIndexForm({
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[12.5px] font-medium text-[var(--foreground)]">
+                  <span className="font-mono text-[13px] font-medium text-[var(--foreground)]">
                     {indexType.id}
                   </span>
                   {active && (
                     <Check className="h-3.5 w-3.5 text-[var(--primary)]" />
                   )}
                 </div>
-                <span className="text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+                <span className="text-[12px] leading-snug text-[var(--muted-foreground)]">
                   {t(indexType.desc)}
                 </span>
               </button>
@@ -727,7 +727,7 @@ export function LlamaIndexForm({
           type="button"
           onClick={() => void save()}
           disabled={!dirty || saving}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {t("Save changes")}
@@ -842,7 +842,7 @@ export function ImaForm({
           href="https://ima.qq.com/agent-interface"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+          className="inline-flex items-center gap-1 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           {t("Get an API key")}
           <ExternalLink className="h-3 w-3" />
@@ -856,7 +856,7 @@ export function ImaForm({
             })
           }
           disabled={saving}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {t("Save changes")}
@@ -958,7 +958,7 @@ function SaveButton({
         type="button"
         onClick={onSave}
         disabled={!dirty || saving || invalid}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
         {t("Save changes")}
@@ -1361,7 +1361,7 @@ function LightRagServerForm({
               setProbe(null);
             }}
             placeholder={t("LightRAG server URL placeholder")}
-            className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25"
+            className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25"
           />
           <button
             type="button"
@@ -1396,13 +1396,13 @@ function LightRagServerForm({
               ? t("Saved key · leave blank to keep")
               : t("Only if your server requires one")
           }
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/25"
         />
       </label>
 
       {probe && (
         <div
-          className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11.5px] leading-relaxed ${
+          className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-relaxed ${
             probe.ok
               ? "border-success/30 bg-success-surface text-success"
               : "border-destructive/30 bg-destructive/10 text-destructive"
@@ -1431,7 +1431,7 @@ function LightRagServerForm({
           type="button"
           onClick={() => void save()}
           disabled={!dirty || !testedCurrentUrl || saving}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {t("Save as default")}
@@ -1656,7 +1656,7 @@ function ModelsSection({
                     </p>
                     {visibleCompatibility && (
                       <div
-                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11.5px] leading-relaxed ${
+                        className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-relaxed ${
                           visibleCompatibility.status === "compatible"
                             ? "border-success/25 bg-success/5 text-success"
                             : visibleCompatibility.status === "incompatible"
@@ -1736,7 +1736,7 @@ function CheckRow({
       <div className="min-w-0">
         <span className="text-[12px] text-[var(--foreground)]">{t(label)}</span>
         {optional && (
-          <span className="ml-1.5 text-[10px] text-[var(--muted-foreground)]">
+          <span className="ml-1.5 text-[11px] text-[var(--muted-foreground)]">
             ({t("optional")})
           </span>
         )}
@@ -1820,7 +1820,7 @@ function EnvRequirements({
             </button>
             {report && (
               <span
-                className={`inline-flex items-center gap-1 text-[11.5px] font-medium ${
+                className={`inline-flex items-center gap-1 text-[12px] font-medium ${
                   report.ok
                     ? "text-success"
                     : "text-warning"
@@ -1876,7 +1876,7 @@ export default function EngineDetail({
         <button
           type="button"
           onClick={onBack}
-          className="mb-3 inline-flex items-center gap-1 text-[11.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+          className="mb-3 inline-flex items-center gap-1 text-[12px] font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           {t("Knowledge Center")}
@@ -1896,7 +1896,7 @@ export default function EngineDetail({
               </h1>
               <StatusBadge status={status} />
             </div>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+            <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
               {provider.description}
             </p>
           </div>
@@ -1920,7 +1920,7 @@ export default function EngineDetail({
         {/* Retrieval modes (graphrag / lightrag) */}
         {hasModes && (
           <Section label={t("Retrieval mode")} icon={Workflow}>
-            <p className="-mt-1 mb-3 text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+            <p className="-mt-1 mb-3 text-[12px] leading-snug text-[var(--muted-foreground)]">
               {t(
                 "The default for new searches. A knowledge base can still override it per-KB.",
               )}

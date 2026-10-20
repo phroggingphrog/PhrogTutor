@@ -114,11 +114,11 @@ export default function DiscussionModePicker({
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline gap-2">
-                  <span className="text-[12.5px] font-medium text-[var(--foreground)]">
+                  <span className="text-[13px] font-medium text-[var(--foreground)]">
                     {copy.label}
                   </span>
                   {copy.cost ? (
-                    <span className="text-[10px] text-[var(--muted-foreground)]">
+                    <span className="text-[11px] text-[var(--muted-foreground)]">
                       {copy.cost}
                     </span>
                   ) : null}

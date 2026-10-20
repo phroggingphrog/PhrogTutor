@@ -59,7 +59,7 @@ export default function BankScopeRail({
   const { t } = useTranslation();
 
   const chipClass = (active: boolean) =>
-    `inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12.5px] transition-colors ${
+    `inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] transition-colors ${
       active
         ? "bg-[var(--foreground)] font-medium text-[var(--background)]"
         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"

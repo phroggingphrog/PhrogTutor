@@ -430,7 +430,7 @@ export function SidebarNav({
                 "how much is hidden", a question the open group answers itself. */}
             <span
               aria-hidden={moreExpanded}
-              className={`${EASE_CLASS} shrink-0 text-[10.5px] tabular-nums transition-all ${
+              className={`${EASE_CLASS} shrink-0 text-[11px] tabular-nums transition-all ${
                 moreExpanded
                   ? "scale-75 opacity-0"
                   : "opacity-45 group-hover/more:opacity-70"

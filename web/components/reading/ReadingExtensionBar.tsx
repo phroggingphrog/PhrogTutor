@@ -387,7 +387,7 @@ export function ExtensionResult({
     <section
       className={
         card
-          ? "text-[12.5px] leading-relaxed text-[var(--foreground)] [&>*:first-child]:mt-0"
+          ? "text-[13px] leading-relaxed text-[var(--foreground)] [&>*:first-child]:mt-0"
           : "relative shrink-0 border-b border-[var(--border)] bg-[var(--card)] px-3 py-3 text-xs text-[var(--foreground)]"
       }
     >

@@ -1,5 +1,6 @@
 "use client";
 
+import { FeaturePage, PageHeader, pageActionClass, pageGridClass } from '@/components/layout/FeaturePage'
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,7 +50,7 @@ function EngineStatusBadge({ status }: { status: ProviderConnectionStatus }) {
   const { t } = useTranslation();
   if (status === "ready") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-success-surface px-1.5 py-0.5 text-[10px] font-medium text-success">
+      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
         <Check className="h-3 w-3" />
         {t("Ready")}
       </span>
@@ -57,20 +58,20 @@ function EngineStatusBadge({ status }: { status: ProviderConnectionStatus }) {
   }
   if (status === "needs_key") {
     return (
-      <span className="inline-flex items-center rounded-full bg-warning-surface px-1.5 py-0.5 text-[10px] font-medium text-warning">
+      <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
         {t("Needs key")}
       </span>
     );
   }
   if (status === "needs_setup") {
     return (
-      <span className="inline-flex items-center rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
+      <span className="inline-flex items-center rounded-full bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:bg-sky-950/30 dark:text-sky-300">
         {t("Needs setup")}
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+    <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
       {t("Not installed")}
     </span>
   );
@@ -81,13 +82,13 @@ function StatusDot({ kb }: { kb: KnowledgeBase }) {
   const needsReindex = kbNeedsReindex(kb);
   const isLive = kbHasLiveProgress(kb);
   const tone = needsReindex
-    ? "bg-warning"
+    ? "bg-amber-500"
     : status === "error"
-      ? "bg-destructive"
+      ? "bg-red-500"
       : isLive
         ? "bg-sky-500 animate-pulse"
         : status === "ready"
-          ? "bg-success"
+          ? "bg-emerald-500"
           : "bg-[var(--muted-foreground)]";
   return <span className={`inline-block h-2 w-2 rounded-full ${tone}`} />;
 }
@@ -180,13 +181,13 @@ export default function KnowledgeHome({
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
             <KnowledgeEngineIcon engine={provider.id} size={24} />
-            <span className="truncate text-[13.5px] font-medium text-[var(--foreground)]">
+            <span className="truncate text-[14px] font-medium text-[var(--foreground)]">
               {provider.name}
             </span>
           </div>
           <EngineStatusBadge status={status} />
         </div>
-        <p className="line-clamp-2 text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+        <p className="line-clamp-2 text-[12px] leading-snug text-[var(--muted-foreground)]">
           {provider.description}
         </p>
         <div className="mt-auto flex items-center gap-2 pt-1 text-[11px] text-[var(--muted-foreground)]">
@@ -213,11 +214,11 @@ export default function KnowledgeHome({
     >
       <div className="flex min-w-0 items-center gap-2.5">
         <KnowledgeEngineIcon engine={source.id} size={26} />
-        <span className="truncate text-[13.5px] font-medium text-[var(--foreground)]">
+        <span className="truncate text-[14px] font-medium text-[var(--foreground)]">
           {source.name}
         </span>
       </div>
-      <p className="line-clamp-2 text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+      <p className="line-clamp-2 text-[12px] leading-snug text-[var(--muted-foreground)]">
         {source.description}
       </p>
       <div className="mt-auto flex items-center gap-2 pt-1 text-[11px] text-[var(--muted-foreground)]">
@@ -231,27 +232,21 @@ export default function KnowledgeHome({
   );
 
   return (
-    <div className="min-w-0 flex-1 overflow-y-auto bg-[var(--background)]">
-      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-[19px] font-semibold tracking-tight text-[var(--foreground)]">
-              {t("Knowledge Center")}
-            </h1>
-            <p className="mt-1 text-[12.5px] text-[var(--muted-foreground)]">
-              {t("Manage your knowledge bases and retrieval engines.")}
-            </p>
-          </div>
+    <FeaturePage>
+        <PageHeader
+          title={t("Knowledge Center")}
+          description={t("Manage your knowledge bases and retrieval engines.")}
+          action={
           <button
             type="button"
             onClick={onCreate}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+            className={pageActionClass()}
           >
             <Plus size={14} />
             {t("New knowledge base")}
           </button>
-        </div>
+          }
+        />
 
         <div
           role="tablist"
@@ -292,7 +287,7 @@ export default function KnowledgeHome({
                 <span className="flex items-center gap-2 text-[13px] font-medium">
                   <Icon className="h-4 w-4 shrink-0" strokeWidth={1.7} />
                   <span className="truncate">{item.label}</span>
-                  <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
+                  <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal text-[var(--muted-foreground)]">
                     {item.count}
                   </span>
                 </span>
@@ -315,7 +310,7 @@ export default function KnowledgeHome({
               <h2 className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                 <Database className="h-3.5 w-3.5" />
                 {t("Knowledge bases")}
-                <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                   {kbs.length}
                 </span>
               </h2>
@@ -349,7 +344,7 @@ export default function KnowledgeHome({
                 <button
                   type="button"
                   onClick={onCreate}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
                 >
                   <Plus size={14} />
                   {t("New knowledge base")}
@@ -360,7 +355,7 @@ export default function KnowledgeHome({
                 {t("No matches")}
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className={pageGridClass(2)}>
                 {filteredKbs.map((kb) => {
                   const docs = kbDocCount(kb);
                   return (
@@ -381,12 +376,12 @@ export default function KnowledgeHome({
                         <div className="min-w-0 flex-1 pt-0.5">
                           <div className="flex items-center gap-2">
                             <StatusDot kb={kb} />
-                            <span className="truncate text-[13.5px] font-medium text-[var(--foreground)]">
+                            <span className="truncate text-[14px] font-medium text-[var(--foreground)]">
                               {kb.name}
                             </span>
                             {kb.is_default && (
                               <Star
-                                className="h-3 w-3 shrink-0 text-warning"
+                                className="h-3 w-3 shrink-0 text-amber-500"
                                 fill="currentColor"
                               />
                             )}
@@ -424,12 +419,12 @@ export default function KnowledgeHome({
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
                     {t("Local engines")}
                   </h2>
-                  <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+                  <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
                     {t("Indexes and retrieves on this device.")}
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2">
+              <div className={pageGridClass(2)}>
                 {groupedProviders.local.map(renderProvider)}
               </div>
             </section>
@@ -441,12 +436,12 @@ export default function KnowledgeHome({
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
                     {t("Server engines")}
                   </h2>
-                  <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+                  <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
                     {t("Connects to a retrieval server you operate.")}
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2">
+              <div className={pageGridClass(2)}>
                 {groupedProviders.server.map(renderProvider)}
               </div>
             </section>
@@ -458,12 +453,12 @@ export default function KnowledgeHome({
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
                     {t("Cloud services")}
                   </h2>
-                  <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+                  <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
                     {t("Managed providers connected with account credentials.")}
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2">
+              <div className={pageGridClass(2)}>
                 {groupedProviders.cloud.map(renderProvider)}
               </div>
             </section>
@@ -475,20 +470,19 @@ export default function KnowledgeHome({
                   <h2 className="text-[13px] font-medium text-[var(--foreground)]">
                     {t("External knowledge sources")}
                   </h2>
-                  <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+                  <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
                     {t(
                       "Connect live libraries and note apps without rebuilding an index.",
                     )}
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 items-stretch gap-3 md:grid-cols-2">
+              <div className={pageGridClass(2)}>
                 {externalSources.map(renderExternalSource)}
               </div>
             </section>
           </div>
         )}
-      </div>
-    </div>
+    </FeaturePage>
   );
 }

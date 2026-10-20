@@ -689,7 +689,7 @@ function AddConnectionPanel({
                   >
                     {checked && <Check className="h-3 w-3" />}
                   </button>
-                  <span className="w-24 shrink-0 text-[12.5px] text-[var(--foreground)]">
+                  <span className="w-24 shrink-0 text-[13px] text-[var(--foreground)]">
                     {label(service)}
                   </span>
                   {service === "llm" ? (
@@ -703,7 +703,7 @@ function AddConnectionPanel({
                       />
                     </div>
                   ) : (
-                    <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-[var(--muted-foreground)]">
+                    <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[var(--muted-foreground)]">
                       {spec.default_model || t("Set on its own page")}
                     </span>
                   )}
