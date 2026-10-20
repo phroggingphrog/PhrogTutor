@@ -11,6 +11,12 @@ from deeptutor.services.llm.provider_core.openai_compat_provider import (
 )
 from deeptutor.services.provider_registry import find_by_name as find_service_provider
 
+@pytest.fixture(autouse=True)
+def _own_clients(monkeypatch):
+    """These tests exercise DeepTutor's own provider clients, not the pi SDK path."""
+    monkeypatch.setenv("PI_TUTOR_SDK", "0")
+
+
 
 def _response_with_reasoning_only():
     message = SimpleNamespace(
@@ -187,7 +193,7 @@ def test_deepseek_v4_flash_is_left_to_its_own_default(binding: str) -> None:
     kwargs = _build_services_kwargs(binding, None, model="deepseek-v4-flash")
 
     assert "reasoning_effort" not in kwargs
-    assert "extra_body" not in kwargs
+    assert "extra_body" not in kwargs or set(kwargs["extra_body"]) == {"prompt_cache_key"}
 
 
 def test_openai_binding_deepseek_v4_pro_enables_thinking_by_default() -> None:
@@ -198,6 +204,7 @@ def test_openai_binding_deepseek_v4_pro_enables_thinking_by_default() -> None:
     )
 
     assert kwargs["reasoning_effort"] == "high"
+    kwargs["extra_body"].pop("prompt_cache_key", None)  # openai-compatible routes add a cache-affinity key
     assert kwargs["extra_body"] == {"thinking": {"type": "enabled"}}
 
 
@@ -329,6 +336,7 @@ def test_services_custom_qwen_enables_thinking_without_top_level_effort() -> Non
     )
 
     assert "reasoning_effort" not in kwargs
+    kwargs["extra_body"].pop("prompt_cache_key", None)  # custom routes add a cache-affinity key
     assert kwargs["extra_body"] == {"enable_thinking": True}
 
 

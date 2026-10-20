@@ -309,3 +309,57 @@ def _isolate_usage_ledger(monkeypatch, tmp_path):
     from deeptutor.services.llm import usage_ledger
 
     monkeypatch.setattr(usage_ledger, "ledger_path", lambda: tmp_path / "usage.sqlite3")
+
+
+def _plain(obj):
+    """SimpleNamespace test chunks -> the dict shape pi_engine streams."""
+    from types import SimpleNamespace
+
+    if isinstance(obj, SimpleNamespace):
+        return {k: _plain(v) for k, v in vars(obj).items()}
+    if isinstance(obj, list):
+        return [_plain(v) for v in obj]
+    return obj
+
+
+def scripted_pi_loop(client, settlement_rounds: int = 3):
+    """A stand-in for ``pi_bridge.loop_turn`` that plays a scripted OpenAI-style client.
+
+    The real round rules run in ``pi_engine/loop.ts`` (needs a model), so this keeps only what
+    the Python side is tested for: it asks the host the same questions loop.ts asks
+    (round_start, chunks, round, finish_check, dispatch) and feeds it the client's chunks.
+    """
+
+    async def loop_turn(request, cfg, host):
+        messages, tools = list(request["messages"]), request.get("tools")
+        budget, step, mode = cfg["budget"], 0, "explore"
+        while True:
+            reply = await host.ask("round_start", {"messages": messages, "mode": mode, "max_tokens": request.get("max_tokens")})
+            messages = reply.get("messages") or messages
+            kwargs = {"model": request.get("model"), "messages": messages, "stream": True}
+            if tools and mode != "forced":
+                kwargs["tools"] = tools
+            async for chunk in await client.chat.completions.create(**kwargs):
+                raw = _plain(chunk)
+                for choice in raw["choices"]:
+                    choice.setdefault("index", 0)
+                    choice.setdefault("finish_reason", None)
+                    for tc in choice["delta"].get("tool_calls") or []:
+                        tc.setdefault("type", "function")
+                raw.update({"id": "pi", "object": "chat.completion.chunk", "created": 0, "model": request.get("model") or ""})
+                await host.chunk(raw)
+            done = await host.ask("round", {})
+            messages.append(done["assistant"])
+            if done["tool_calls"] and mode != "forced":
+                out = await host.ask("dispatch", {"tool_calls": done["tool_calls"], "clean": done["clean"], "step": step})
+                messages.extend(out["tool_messages"])
+                step += 1
+                mode = "explore" if step < budget else "settle" if step < budget + settlement_rounds else "forced"
+                continue
+            check = await host.ask("finish_check", {"text": done["clean"]})
+            return {
+                "completed": True, "raw": done["text"], "visible": done["visible"], "messages": messages,
+                "tools": tools, "rounds": step + 1, "provider_state": done["provider_state"],
+            }
+
+    return loop_turn

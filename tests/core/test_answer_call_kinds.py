@@ -20,7 +20,7 @@ from deeptutor.core.trace import ANSWER_BEARING_CALL_KINDS
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _CLIENT_STREAM_TS = _REPO_ROOT / "web" / "lib" / "stream.ts"
-_AGENT_LOOP_PY = _REPO_ROOT / "deeptutor" / "agents" / "loop" / "agent_loop.py"
+_AGENT_LOOP_PY = _REPO_ROOT / "deeptutor" / "agents" / "loop" / "pi_turn.py"
 
 
 def _client_answer_call_kinds() -> set[str]:

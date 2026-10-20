@@ -15,6 +15,9 @@ from fastapi import HTTPException
 from fastapi.testclient import TestClient
 import pytest
 
+pytest.importorskip("telegram")
+pytest.importorskip("slack_sdk")
+
 from deeptutor.api.routers._partners_channel_schema import (
     all_channel_schemas,
     channel_schema_payload,

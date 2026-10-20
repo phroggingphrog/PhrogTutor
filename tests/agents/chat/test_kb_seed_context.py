@@ -20,6 +20,8 @@ import pytest
 
 from deeptutor.agents.chat.agentic_pipeline import AgenticChatPipeline
 from deeptutor.core.context import UnifiedContext
+from deeptutor.services.llm import pi_bridge
+from tests.conftest import scripted_pi_loop
 from deeptutor.core.stream import StreamEvent, StreamEventType
 from deeptutor.core.tool_protocol import ToolResult
 from deeptutor.runtime.stream_bus import StreamBus
@@ -137,7 +139,7 @@ def _make_pipeline(
     pipeline = AgenticChatPipeline(language="en")
     pipeline.registry = registry
     monkeypatch.setattr(pipeline, "_compose_enabled_tools", lambda _context: ["rag"])
-    monkeypatch.setattr(pipeline, "_build_openai_client", lambda: client)
+    monkeypatch.setattr(pi_bridge, "loop_turn", scripted_pi_loop(client))
     return pipeline
 
 

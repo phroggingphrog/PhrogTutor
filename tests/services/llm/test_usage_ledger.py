@@ -10,6 +10,12 @@ from deeptutor.services.llm.config import LLMConfig
 from deeptutor.services.llm.provider_core.base import LLMProvider, LLMResponse
 from deeptutor.services.session.usage_statistics import aggregate_usage
 
+@pytest.fixture(autouse=True)
+def _own_clients(monkeypatch):
+    """These tests exercise DeepTutor's own provider clients, not the pi SDK path."""
+    monkeypatch.setenv("PI_TUTOR_SDK", "0")
+
+
 
 class Provider(LLMProvider):
     provider_name = "test-provider"

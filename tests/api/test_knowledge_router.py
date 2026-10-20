@@ -302,6 +302,7 @@ def test_rag_providers_lists_llamaindex_and_pageindex(monkeypatch) -> None:
         "lightrag-server",
         "ima",
         "weknora",
+        "wiki",  # the fork's wiki provider
     }
     # LlamaIndex works out of the box; PageIndex needs an API key; GraphRAG and
     # LightRAG are optional local engines (no API key, configured = installed).

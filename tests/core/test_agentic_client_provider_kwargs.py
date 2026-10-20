@@ -22,6 +22,12 @@ from deeptutor.services.llm.exceptions import (
 from deeptutor.services.llm.provider_core.base import LLMResponse, ToolCallRequest
 from deeptutor.services.llm.request_compat import is_transient_transport_error
 
+@pytest.fixture(autouse=True)
+def _own_clients(monkeypatch):
+    """These tests exercise DeepTutor's own provider clients, not the pi SDK path."""
+    monkeypatch.setenv("PI_TUTOR_SDK", "0")
+
+
 
 def test_agentic_kwargs_leave_deepseek_flash_thinking_to_the_provider() -> None:
     """Flash is no longer switched off — see ``_THINKING_DISABLED_BY_DEFAULT_MODELS``."""

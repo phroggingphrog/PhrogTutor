@@ -1143,13 +1143,9 @@ def test_recommendation_written_beside_the_handoff_becomes_the_answer() -> None:
 
     assert policy == "publish"
     assert capability.final_text_override(context, "") == recommendation
-    # Must NOT claim the answer was already published. That flag suppresses the
-    # loop's final emit, and is only true for capabilities that buffer output
-    # behind a protocol. This mode buffers nothing — its prose went out during a
-    # tool round, which the transcript files under the collapsed trace, not as
-    # the reply. Setting it leaves the message body empty with the whole
-    # recommendation hidden a click away.
-    assert context.capability_output.answer_published is False
+    # The pi loop releases a tool round's prose as the answer, so the capability marks
+    # the recommendation as already shown (otherwise it would print twice).
+    assert context.capability_output.answer_published is True
 
 
 def test_a_bare_handoff_call_leaves_the_loop_alone() -> None:

@@ -11,6 +11,12 @@ from deeptutor.services.llm.exceptions import LLMAPIError
 from deeptutor.services.llm.factory import complete, complete_with_config, stream
 from deeptutor.services.llm.provider_core.base import LLMResponse
 
+@pytest.fixture(autouse=True)
+def _own_clients(monkeypatch):
+    """These tests exercise DeepTutor's own provider clients, not the pi SDK path."""
+    monkeypatch.setenv("PI_TUTOR_SDK", "0")
+
+
 
 class _FakeProvider:
     def __init__(

@@ -24,6 +24,8 @@ from deeptutor.agents.loop.context_budget import (
 )
 from deeptutor.capabilities import PromptBlock
 from deeptutor.core.context import UnifiedContext
+from deeptutor.services.llm import pi_bridge
+from tests.conftest import scripted_pi_loop
 from deeptutor.core.stream import StreamEvent, StreamEventType
 from deeptutor.core.tool_protocol import ToolResult
 from deeptutor.runtime.stream_bus import StreamBus
@@ -424,7 +426,7 @@ async def test_turn_result_carries_the_context_budget(monkeypatch: pytest.Monkey
     pipeline = AgenticChatPipeline(language="en")
     pipeline.registry = _Registry()  # type: ignore[assignment]
     monkeypatch.setattr(pipeline, "_compose_enabled_tools", lambda _context: ["rag"])
-    monkeypatch.setattr(pipeline, "_build_openai_client", lambda: client)
+    monkeypatch.setattr(pi_bridge, "loop_turn", scripted_pi_loop(client))
 
     bus = StreamBus()
     events: list[StreamEvent] = []
@@ -505,7 +507,7 @@ async def test_forced_finish_still_reports_the_tools_the_turn_carried(
     pipeline.registry = _Registry()  # type: ignore[assignment]
     pipeline._max_rounds = 1  # one tool round, then the forced finish
     monkeypatch.setattr(pipeline, "_compose_enabled_tools", lambda _context: ["rag"])
-    monkeypatch.setattr(pipeline, "_build_openai_client", lambda: client)
+    monkeypatch.setattr(pi_bridge, "loop_turn", scripted_pi_loop(client))
 
     bus = StreamBus()
     events: list[StreamEvent] = []
