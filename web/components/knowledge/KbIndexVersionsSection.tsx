@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/shared/ui/Button";
 import Tooltip from "@/shared/ui/Tooltip";
 import { useEffect, useState } from "react";
 import { useEmbeddingModels } from "@/hooks/useEmbeddingModels";
@@ -252,6 +253,54 @@ export default function KbIndexVersionsSection({
           </Tooltip>
         )}
       </div>
+
+      {needsEmbedding && (
+        <section
+          aria-label={t("Embedding model")}
+          className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="text-[12px] text-[var(--muted-foreground)]">
+              {t("Embedding model")}
+            </div>
+            <div className="mt-0.5 truncate text-sm font-medium text-[var(--foreground)]">
+              {kb.metadata?.embedding_model || t("Default embedding")}
+              {typeof kb.metadata?.embedding_dim === "number" && (
+                <span className="ml-2 font-normal text-[var(--muted-foreground)]">
+                  {kb.metadata.embedding_dim}
+                  {t("d")}
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-[12px] text-[var(--muted-foreground)]">
+              {lastIndexed
+                ? `${t("Last indexed")}: ${lastIndexed}`
+                : t("Not indexed yet.")}
+            </p>
+          </div>
+          {showReindexCta ? (
+            // An empty knowledge base already gets "Change model" in the header.
+            !isEmptyEmbeddingKb && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleReindex}
+                disabled={submitting || isReindexingHere}
+              >
+                {t("Change model")}
+              </Button>
+            )
+          ) : (
+            <p className="max-w-xs text-[12px] text-[var(--muted-foreground)]">
+              {kb.read_only
+                ? t("This knowledge base is read-only.")
+                : kbHasLiveProgress(kb)
+                  ? t("Indexing is in progress.")
+                  : t("Add documents to change the embedding model.")}
+            </p>
+          )}
+        </section>
+      )}
 
       {isError && <KbIndexFailureBanner kb={kb} />}
       <LightRagEmbeddingWarning kb={kb} />

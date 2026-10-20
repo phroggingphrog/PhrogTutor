@@ -5330,5 +5330,9 @@
   "Could not connect to the speech provider. Check the provider URL and network connection.": "无法连接语音服务，请检查提供方 URL 和网络连接。",
   "Qwen-Audio TTS requires a Beijing API key. You can set a Beijing workspace URL in the provider connection; the speech endpoint is selected automatically.": "Qwen-Audio TTS 需要北京地域的 API Key。可在提供方连接中填写北京业务空间 URL，系统会自动选择合成端点。",
   "Speech was generated, but the audio download failed. Try again or check the network connection.": "语音已生成，但音频下载失败，请重试或检查网络连接。",
-  "Request timeout (seconds)": "请求超时（秒）"
+  "Request timeout (seconds)": "请求超时（秒）",
+  "This knowledge base is read-only.": "此知识库为只读。",
+  "Indexing is in progress.": "正在建立索引。",
+  "Add documents to change the embedding model.": "添加文档后才能更换嵌入模型。",
+  "Not indexed yet.": "尚未建立索引。"
 }

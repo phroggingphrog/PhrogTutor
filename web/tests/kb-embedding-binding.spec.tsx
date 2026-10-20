@@ -121,6 +121,41 @@ it("lets a healthy KB explicitly re-index with another configured embedding mode
   );
 });
 
+it("shows the bound embedding model as a standing card and explains why it cannot be changed", () => {
+  const base = {
+    name: "notes",
+    status: "ready",
+    metadata: {
+      embedding_selection: a,
+      embedding_status: "ready",
+      embedding_model: "text-embedding-3-small",
+      embedding_dim: 1536,
+    },
+    statistics: {
+      raw_documents: 2,
+      rag_provider: "llamaindex",
+      active_match: true,
+      index_versions: [],
+    },
+  };
+  const { rerender } = render(
+    <KbIndexVersionsSection kb={base as unknown as KnowledgeBase} onReindex={vi.fn()} />,
+  );
+  const card = screen.getByRole("region", { name: "Embedding model" });
+  expect(card).toHaveTextContent("text-embedding-3-small");
+  expect(card).toHaveTextContent("1536d");
+  expect(screen.getAllByRole("button", { name: "Change model" })).toHaveLength(1);
+
+  const readOnly = { ...base, read_only: true };
+  rerender(
+    <KbIndexVersionsSection kb={readOnly as unknown as KnowledgeBase} onReindex={vi.fn()} />,
+  );
+  expect(screen.getByRole("region", { name: "Embedding model" })).toHaveTextContent(
+    "This knowledge base is read-only.",
+  );
+  expect(screen.queryByRole("button", { name: "Change model" })).toBeNull();
+});
+
 it("lists affected knowledge bases and explains that deletion preserves their data", async () => {
   fixtures.usage.mockResolvedValue([
     { ...a, name: "Physics", workspace_name: "Study" },
