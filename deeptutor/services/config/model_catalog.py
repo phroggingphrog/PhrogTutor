@@ -5,6 +5,7 @@ from copy import deepcopy
 import json
 import os
 from pathlib import Path
+import shutil
 import tempfile
 import threading
 from typing import Any
@@ -267,31 +268,46 @@ class ModelCatalogService:
         return cls._instances[key]
 
     def load(self) -> dict[str, Any]:
-        loaded = self._read_existing_catalog()
-        if loaded:
-            catalog = _default_catalog()
-            catalog.update({k: v for k, v in loaded.items() if k != "services"})
-            catalog["services"].update(loaded.get("services", {}))
-            merged_defaults = catalog != loaded
-            before = deepcopy(catalog)
-            self._normalize(catalog)
-            if merged_defaults or catalog != before:
-                self.save(catalog)
-            return catalog
+        # Reads may migrate defaults. Serialize the complete read/migrate/write
+        # with settings updates so an older snapshot cannot overwrite a save
+        # or hold the destination open during this instance's replace (#1984).
+        with self._lock:
+            loaded = self._read_existing_catalog()
+            if loaded:
+                catalog = _default_catalog()
+                catalog.update({k: v for k, v in loaded.items() if k != "services"})
+                catalog["services"].update(loaded.get("services", {}))
+                merged_defaults = catalog != loaded
+                before = deepcopy(catalog)
+                self._normalize(catalog)
+                if merged_defaults or catalog != before:
+                    self.save(catalog)
+                return catalog
 
-        catalog = _default_catalog()
-        self._normalize(catalog)
-        self.save(catalog)
-        return catalog
+            catalog = _default_catalog()
+            self._normalize(catalog)
+            self.save(catalog)
+            return catalog
 
     def _read_existing_catalog(self) -> dict[str, Any]:
         if not self.path.exists() or self.path.stat().st_size == 0:
             return {}
         try:
             loaded = json.loads(self.path.read_text(encoding="utf-8"))
-        except Exception:
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Unparseable content is replaced by defaults, but keep a copy so
+            # configured models can be recovered. Other read errors (OSError)
+            # propagate rather than resetting a catalog that may be fine.
+            self._preserve_unreadable_catalog()
             return {}
         return loaded if isinstance(loaded, dict) else {}
+
+    def _preserve_unreadable_catalog(self) -> None:
+        backup = self.path.with_name(f"{self.path.name}.unreadable")
+        try:
+            shutil.copy2(self.path, backup)
+        except OSError:
+            pass
 
     def save(self, catalog: dict[str, Any]) -> dict[str, Any]:
         with self._lock:
