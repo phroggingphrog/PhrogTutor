@@ -34,9 +34,12 @@ _TASKS: set[asyncio.Task] = set()
 # A cheap model for the background mastery calls (on PhrogVPS: the OmniRoute combo "deepseek-flash").
 _EXTRACT_MODEL = os.environ.get("PI_TUTOR_EXTRACT_MODEL") or None  # None = the active chat model
 
+# How the learner uses the AI (not what they know): tracked per turn, shown to them, used to adapt the tutor.
+STYLES = ("tried_first", "asked_for_answer", "pushed_back", "accepted", "own_idea")
+
 _SYSTEM = (
     "You watch one tutoring exchange and record what it shows about the LEARNER's understanding "
-    "(not the tutor's). Reply with JSON only: {\"evidence\": [{\"concept\": str, \"kind\": str, \"quote\": str}]}.\n"
+    "(not the tutor's). Reply with JSON only: {\"evidence\": [{\"concept\": str, \"kind\": str, \"quote\": str}], \"style\": str}.\n"
     "- concept: a short specific topic name, lowercase, 1-5 words (e.g. \"bayes theorem\", \"foreign keys\").\n"
     f"- kind: one of {', '.join(KINDS)}.\n"
     "- quote: the learner's own words (max 200 chars) that show it.\n"
@@ -45,6 +48,10 @@ _SYSTEM = (
     "Judge reasoning, not wording: explained_correctly needs the learner's own why/how (a reason, a link "
     "between ideas, a new example or a prediction). Reciting a definition, correct jargon or the tutor's words "
     "back is NOT evidence. applied_correctly needs them to use it on a problem the tutor did not solve for them.\n"
+    f"- style: how the learner used the AI in THIS message, one of {', '.join(STYLES)}, or \"none\" when unclear. "
+    "tried_first = shares their own attempt, guess or idea before asking; asked_for_answer = wants the answer or "
+    "code with no attempt of their own; pushed_back = questions, corrects or changes the tutor's answer; "
+    "accepted = just takes the answer and moves on; own_idea = brings their own idea to build on.\n"
     "Only record what the learner's message itself shows. Asking for an explanation of something new is "
     "hint_seeking only if they are stuck on it. Small talk or no learning signal: {\"evidence\": []}."
 )
@@ -66,6 +73,7 @@ def _db() -> sqlite3.Connection:
         "CREATE TABLE IF NOT EXISTS explanations (id INTEGER PRIMARY KEY, ts REAL, concept TEXT, outcome TEXT,"
         " tutor_answer TEXT, learner_quote TEXT)"
     )
+    con.execute("CREATE TABLE IF NOT EXISTS usage_style (id INTEGER PRIMARY KEY, ts REAL, session_id TEXT, style TEXT, quote TEXT)")
     return con
 
 
@@ -81,8 +89,13 @@ async def _extract(session_id: str, turn_id: str, user_message: str, answer: str
         timeout=60,
     )
     match = re.search(r"\{.*\}", raw or "", re.S)
-    rows = (json.loads(match.group(0)).get("evidence") if match else None) or []
+    parsed = json.loads(match.group(0)) if match else {}
+    rows = parsed.get("evidence") or []
     now = time.time()
+    if parsed.get("style") in STYLES:
+        with _db() as con:
+            con.execute("INSERT INTO usage_style (ts, session_id, style, quote) VALUES (?,?,?,?)",
+                        (now, session_id, parsed["style"], user_message[:200]))
     clean = [
         (now, session_id, turn_id, str(r["concept"]).strip().lower()[:60], r["kind"], str(r.get("quote", ""))[:200], answer[:2000])
         for r in rows
@@ -281,6 +294,41 @@ def mastery() -> list[dict]:
         acc[concept] = (a + w * s, b + w * f, n + 1)
     out = [{"concept": c, "mastery": round(a / (a + b), 2), "evidence": n} for c, (a, b, n) in acc.items()]
     return sorted(out, key=lambda r: r["mastery"])
+
+
+_STYLE_NEEDS = 8  # signals before a pattern is trusted
+_STYLE_TUTOR = {
+    "asked_for_answer": "They usually ask for the answer before trying. Ask for their first guess or attempt (one line is fine) before you explain, then build on it.",
+    "tried_first": "They usually try first. Skip the warm-up and give feedback on their attempt straight away.",
+    "accepted": "They often take answers without testing them. End with one small 'what would break if...' check they can answer in a line.",
+    "pushed_back": "They question and correct answers. Give your reasoning and its limits so they can check it, and welcome disagreement.",
+    "own_idea": "They bring their own ideas. Build on their idea first, then add yours as a second option.",
+}
+
+
+def style_profile() -> dict:
+    """How the learner uses the AI: recency-weighted share per style, plus the dominant one once there is enough evidence."""
+    with _db() as con:
+        rows = con.execute("SELECT id, ts, style, quote FROM usage_style ORDER BY ts DESC").fetchall()
+    now, acc = time.time(), {}
+    for _, ts, style, _q in rows:
+        acc[style] = acc.get(style, 0.0) + 0.5 ** ((now - ts) / 86400 / _HALF_LIFE_DAYS)
+    total = sum(acc.values())
+    shares = {k: round(v / total, 2) for k, v in sorted(acc.items(), key=lambda kv: -kv[1])} if total else {}
+    top = next(iter(shares), None)
+    return {
+        "signals": len(rows), "shares": shares,
+        "dominant": top if len(rows) >= _STYLE_NEEDS and shares.get(top, 0) >= 0.4 else None,
+        "records": [{"id": i, "ts": ts, "style": st, "quote": q} for i, ts, st, q in rows[:30]],
+    }
+
+
+def _style_line() -> str:
+    try:
+        top = style_profile()["dominant"]
+    except Exception:
+        return ""
+    return f"\nHow this learner uses AI: {_STYLE_TUTOR[top]}" if top else ""
 
 
 # The learner's own rules (docs/learner-analysis-2026-10-19.md), always on.
@@ -488,8 +536,11 @@ def _snippet(map_path: Path, area_file: str, concept: str) -> str:
             f"FIRST, before any made-up example; say which file they come from:\n```\n{body}\n```")
 
 
-async def prompt_block(user_message: str, limit: int = 4) -> str:
+async def prompt_block(user_message: str, limit: int = 4, mode: str | None = None) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
+    from deeptutor.services.discussion_modes import mode_block
+
+    how = mode_block(mode) or _style_line()  # a chosen mode overrides the learned style; Auto uses the style. Goes last so it has the final word.
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
     hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))]
     try:  # also match by meaning ("beta-binomial updating" -> "conjugate priors")
@@ -505,7 +556,7 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
     if practice and not hits:  # "give me practice" with no topic: practise the weakest concepts
         hits = mastery()[:3]
     if not hits:
-        return _RULES + _learned_rules() + _project_map(user_message)
+        return _RULES + _learned_rules() + _project_map(user_message) + how
     lines = []
     try:
         examples = _code_examples([m["concept"] for m in hits])
@@ -525,4 +576,4 @@ async def prompt_block(user_message: str, limit: int = 4) -> str:
         + (f" Add one starter question on a topic they have not touched yet: {'; '.join(fresh)}." if (fresh := _not_started()) else "")
         if practice else ""
     )
-    return _RULES + _learned_rules() + _project_map(user_message) + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra
+    return _RULES + _learned_rules() + _project_map(user_message) + "\n\nLearned from earlier chats, for the concepts in this message use:\n" + "\n".join(lines) + extra + how

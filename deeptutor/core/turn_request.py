@@ -155,6 +155,8 @@ class TurnRequest(BaseModel):
     llm_selection: LLMSelection | None = None
     # PhrogVPS patch: per-chat thinking effort from the composer (overrides the model default for this turn).
     reasoning_effort: Literal["none", "minimal", "low", "medium", "high", "xhigh", "max", "adaptive"] | None = None
+    # Discussion mode picked in the composer (think_first | critic | teach_back); None = Auto.
+    discussion_mode: Literal["think_first", "critic", "teach_back"] | None = None
     workspace_mode: str | None = None
     # Content workspace ownership; omitted means inherit, null/empty means the general workspace.
     workspace_id: str | None = None

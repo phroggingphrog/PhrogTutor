@@ -19,6 +19,18 @@ def list_records():
     return {"concepts": [{**m, "records": evidence.get(m["concept"], [])} for m in chat_mastery.mastery()]}
 
 
+@router.get("/style")
+def usage_style():
+    return chat_mastery.style_profile()
+
+
+@router.delete("/style/{record_id}")
+def delete_style(record_id: int):
+    with chat_mastery._db() as con:
+        con.execute("DELETE FROM usage_style WHERE id = ?", (record_id,))
+    return {"ok": True}
+
+
 @router.delete("/{record_id}")
 def delete_record(record_id: int):
     with chat_mastery._db() as con:

@@ -957,7 +957,7 @@ class TurnExecutor:
                     "course_conventions": str(payload.get("course_conventions") or ""),
                     "reading_references": reading_references,
                     "learner_profile_prompt": learner_profile_prompt,
-                    "chat_mastery_prompt": await _chat_mastery_prompt(raw_user_content),
+                    "chat_mastery_prompt": await _chat_mastery_prompt(raw_user_content, str(payload.get("discussion_mode") or "")),
                     "mastery_path_id": _mastery_path_id(payload.get("mastery_path_id")),
                     "mastery_mode": workspace_mode == WORKSPACE_MODE_MASTERY,
                     # What this conversation is doing. It picks the tutor's
@@ -1445,11 +1445,11 @@ class TurnExecutor:
             schedule_memory_reclaim()
 
 
-async def _chat_mastery_prompt(user_message: str) -> str:
+async def _chat_mastery_prompt(user_message: str, mode: str = "") -> str:
     try:
         from deeptutor.services import chat_mastery
 
-        return await chat_mastery.prompt_block(user_message)
+        return await chat_mastery.prompt_block(user_message, mode=mode or None)
     except Exception:
         logger.warning("chat mastery prompt failed", exc_info=True)
         return ""

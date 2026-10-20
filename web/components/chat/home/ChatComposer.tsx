@@ -65,6 +65,7 @@ import ComposerResources, {
 import KnowledgeSelector from "./KnowledgeSelector";
 import ModelSelector from "./ModelSelector";
 import EffortSelector from "./EffortSelector";
+import DiscussionModeSelector from "./DiscussionModeSelector";
 import styles from "./ChatComposer.module.css";
 import PersonaSelector from "./PersonaSelector";
 import ResourceSelector from "./ResourceSelector";
@@ -1325,6 +1326,8 @@ export default memo(function ChatComposer({
                 />
 
                 <EffortSelector />
+
+                <DiscussionModeSelector />
 
                 {contextBudget ? <ContextBudgetChip budget={contextBudget} /> : null}
 

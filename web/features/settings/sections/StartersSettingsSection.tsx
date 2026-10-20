@@ -1,5 +1,6 @@
 "use client";
 
+import UsageStylePanel from "@/components/settings/UsageStylePanel";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Loader2 } from "lucide-react";
@@ -189,6 +190,7 @@ export default function StarterSettingsPage() {
           </Link>
         </p>
       )}
+      <UsageStylePanel />
     </div>
   );
 }
