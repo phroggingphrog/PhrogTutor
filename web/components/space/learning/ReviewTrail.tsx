@@ -84,7 +84,7 @@ export function ReviewTrail({
         {t("Higher targets schedule reviews sooner.")}
       </p>
       {retentionError && (
-        <p role="alert" className="px-4 pt-1 text-[11px] text-red-600 dark:text-red-400">
+        <p role="alert" className="px-4 pt-1 text-[11px] text-destructive">
           {retentionError}
         </p>
       )}
@@ -119,7 +119,7 @@ export function ReviewTrail({
                     : formatRelative(review.due_at, zh)}
                   <span className="ml-2">{t("risk {{risk}}%", { risk: Math.round(review.forgetting_risk * 100) })}</span>
                   {review.recent_failure && (
-                    <span className="ml-2 text-red-600 dark:text-red-400">
+                    <span className="ml-2 text-destructive">
                       {t("recent failure")}
                     </span>
                   )}

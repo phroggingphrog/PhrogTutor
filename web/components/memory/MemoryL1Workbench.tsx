@@ -172,7 +172,7 @@ export default function MemoryL1Workbench({
                     <span className="flex-1 truncate">{t(label)}</span>
                     {p > 0 ? (
                       <span
-                        className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400"
+                        className="rounded-full bg-warning/10 px-1.5 py-0.5 text-[10px] text-warning"
                       >
                         {t("{{n}} pending", { n: p })}
                       </span>

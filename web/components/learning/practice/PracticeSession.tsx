@@ -71,7 +71,7 @@ export function PracticeSession({
       />
       {complete ? (
         <div className="rounded-2xl border border-border bg-card px-6 py-12 text-center">
-          <CheckCircle2 className="mx-auto mb-4 text-emerald-600" size={32} />
+          <CheckCircle2 className="mx-auto mb-4 text-success" size={32} />
           <h2 className="font-serif text-2xl font-semibold">{t('Practice complete')}</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             {t('{{count}} reviews saved. Your next review dates have been updated.', {

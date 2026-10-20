@@ -164,7 +164,7 @@ function StatusBadge({ status }: { status: ProviderConnectionStatus }) {
   const { t } = useTranslation();
   if (status === "ready") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10.5px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+      <span className="inline-flex items-center gap-1 rounded-full bg-success-surface px-2 py-0.5 text-[10.5px] font-medium text-success">
         <Check className="h-3 w-3" />
         {t("Ready")}
       </span>
@@ -172,7 +172,7 @@ function StatusBadge({ status }: { status: ProviderConnectionStatus }) {
   }
   if (status === "needs_key") {
     return (
-      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10.5px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+      <span className="inline-flex items-center rounded-full bg-warning-surface px-2 py-0.5 text-[10.5px] font-medium text-warning">
         {t("Needs key")}
       </span>
     );
@@ -830,7 +830,7 @@ export function ImaForm({
             type="button"
             onClick={() => void persist({ api_key: "" })}
             disabled={saving}
-            className="mt-1.5 text-[11px] font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-40 dark:text-red-400"
+            className="mt-1.5 text-[11px] font-medium text-destructive transition-colors hover:text-destructive disabled:opacity-40"
           >
             {t("Remove stored key")}
           </button>
@@ -1258,7 +1258,7 @@ export function LightRagModelsForm({
         )}
       </p>
       {validationError && (
-        <p className="text-xs text-red-600">{t(validationError)}</p>
+        <p className="text-xs text-destructive">{t(validationError)}</p>
       )}
       <SaveButton
         dirty={dirty || (!form.role_models && roleModels !== null)}
@@ -1404,8 +1404,8 @@ function LightRagServerForm({
         <div
           className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11.5px] leading-relaxed ${
             probe.ok
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300"
-              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+              ? "border-success/30 bg-success-surface text-success"
+              : "border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           {probe.ok ? (
@@ -1658,10 +1658,10 @@ function ModelsSection({
                       <div
                         className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-[11.5px] leading-relaxed ${
                           visibleCompatibility.status === "compatible"
-                            ? "border-emerald-500/25 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
+                            ? "border-success/25 bg-success/5 text-success"
                             : visibleCompatibility.status === "incompatible"
-                              ? "border-red-500/25 bg-red-500/5 text-red-700 dark:text-red-300"
-                              : "border-amber-500/25 bg-amber-500/5 text-amber-700 dark:text-amber-300"
+                              ? "border-destructive/25 bg-destructive/5 text-destructive"
+                              : "border-warning/25 bg-warning/5 text-warning"
                         }`}
                       >
                         {visibleCompatibility.status === "compatible" ? (
@@ -1726,10 +1726,10 @@ function CheckRow({
   const { t } = useTranslation();
   const Icon = ok ? CheckCircle2 : optional ? CircleSlash : XCircle;
   const tone = ok
-    ? "text-emerald-600 dark:text-emerald-400"
+    ? "text-success"
     : optional
       ? "text-[var(--muted-foreground)]"
-      : "text-red-600 dark:text-red-400";
+      : "text-destructive";
   return (
     <li className="flex items-start gap-2">
       <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${tone}`} />
@@ -1822,8 +1822,8 @@ function EnvRequirements({
               <span
                 className={`inline-flex items-center gap-1 text-[11.5px] font-medium ${
                   report.ok
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-amber-600 dark:text-amber-400"
+                    ? "text-success"
+                    : "text-warning"
                 }`}
               >
                 {report.ok ? t("Ready to use") : t("Not ready")}
@@ -1999,7 +1999,7 @@ export default function EngineDetail({
                       <span
                         className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${
                           ready
-                            ? "bg-emerald-500"
+                            ? "bg-success"
                             : "bg-[var(--muted-foreground)]"
                         }`}
                       />

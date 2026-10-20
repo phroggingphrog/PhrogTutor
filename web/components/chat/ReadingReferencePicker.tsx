@@ -328,7 +328,7 @@ export default function ReadingReferencePicker({
         {error ? (
           <div
             role="alert"
-            className="border-b border-amber-500/20 bg-amber-500/8 px-5 py-2.5 text-sm text-amber-700 dark:text-amber-300"
+            className="border-b border-warning/20 bg-warning/8 px-5 py-2.5 text-sm text-warning"
           >
             {error}
           </div>

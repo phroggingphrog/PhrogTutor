@@ -207,7 +207,7 @@ export default function ResearchOutlineEditor({
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
-                    className="mt-0.5 shrink-0 rounded p-0.5 text-[var(--muted-foreground)]/20 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500/60 group-hover:opacity-100"
+                    className="mt-0.5 shrink-0 rounded p-0.5 text-[var(--muted-foreground)]/20 opacity-0 transition-all hover:bg-destructive/10 hover:text-destructive/60 group-hover:opacity-100"
                   >
                     <Trash2 size={12} />
                   </button>

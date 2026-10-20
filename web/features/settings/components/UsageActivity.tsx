@@ -7,10 +7,10 @@ import { activityCalendar, type DailyUsage } from '@/lib/usage-statistics'
 
 const colors = [
   'bg-[var(--muted)]',
-  'bg-emerald-200 dark:bg-emerald-900',
-  'bg-emerald-400 dark:bg-emerald-700',
-  'bg-emerald-600 dark:bg-emerald-500',
-  'bg-emerald-800 dark:bg-emerald-300',
+  'bg-success-surface',
+  'bg-success',
+  'bg-success',
+  'bg-success',
 ]
 export default function UsageActivity({
   days,

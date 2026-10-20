@@ -139,7 +139,7 @@ export default function PartnerLinkModal({
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-[12px] text-[var(--foreground)] hover:bg-[var(--background)]"
               >
                 {copied ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-500" />
+                  <Check className="h-3.5 w-3.5 text-success" />
                 ) : (
                   <Copy className="h-3.5 w-3.5" />
                 )}
@@ -167,7 +167,7 @@ export default function PartnerLinkModal({
         )}
 
         {error ? (
-          <p className="mt-2 text-[12px] text-red-500">{error}</p>
+          <p className="mt-2 text-[12px] text-destructive">{error}</p>
         ) : null}
 
         <div className="mt-4">
@@ -194,7 +194,7 @@ export default function PartnerLinkModal({
                   <button
                     type="button"
                     onClick={() => void unlink(link.key)}
-                    className="text-[11.5px] text-[var(--muted-foreground)] hover:text-red-500"
+                    className="text-[11.5px] text-[var(--muted-foreground)] hover:text-destructive"
                   >
                     {t("Disconnect")}
                   </button>

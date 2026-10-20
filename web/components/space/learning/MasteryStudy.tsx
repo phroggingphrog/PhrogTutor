@@ -708,8 +708,8 @@ export function MasteryStudy({
                     {t("Reopening this session…")}
                   </div>
                 ) : sessionError ? (
-                  <div className="mx-auto mt-20 max-w-md rounded-xl border border-red-500/20 bg-red-500/5 p-6 text-center">
-                    <MessageCircle className="mx-auto h-8 w-8 text-red-500/60" />
+                  <div className="mx-auto mt-20 max-w-md rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+                    <MessageCircle className="mx-auto h-8 w-8 text-destructive/60" />
                     <h2 className="mt-3 text-sm font-semibold">
                       {t("The session did not open")}
                     </h2>

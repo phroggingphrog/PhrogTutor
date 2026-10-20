@@ -182,12 +182,12 @@ export default function GuardianSettingsPage() {
       </p>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">
+        <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}
       {message && (
-        <p className="mt-4 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
+        <p className="mt-4 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
           {message}
         </p>
       )}
@@ -237,7 +237,7 @@ export default function GuardianSettingsPage() {
               type="button"
               onClick={() => setConfirmAction("revoke")}
               disabled={busy !== null}
-              className="inline-flex items-center gap-1.5 rounded-md border border-red-500/40 px-3 py-1.5 text-xs text-red-600 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 px-3 py-1.5 text-xs text-destructive disabled:opacity-50"
             >
               <ShieldOff className="h-3.5 w-3.5" />
               {t("Revoke access")}
@@ -424,7 +424,7 @@ export default function GuardianSettingsPage() {
                 type="button"
                 onClick={() => setConfirmAction("credentials")}
                 disabled={busy !== null || newPassword.length < 8}
-                className="mt-3 inline-flex items-center gap-2 rounded-md border border-red-500/40 px-3 py-2 text-sm text-red-600 disabled:opacity-50"
+                className="mt-3 inline-flex items-center gap-2 rounded-md border border-destructive/40 px-3 py-2 text-sm text-destructive disabled:opacity-50"
               >
                 <KeyRound className="h-4 w-4" />
                 {busy === "credentials"

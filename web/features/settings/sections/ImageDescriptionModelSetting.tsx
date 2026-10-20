@@ -74,7 +74,7 @@ export function ImageDescriptionModelSetting({
         )}
       </p>
       {failed && (
-        <p role="alert" className="mt-2 text-xs text-red-600">
+        <p role="alert" className="mt-2 text-xs text-destructive">
           {t('Failed to load image description models.')}
         </p>
       )}

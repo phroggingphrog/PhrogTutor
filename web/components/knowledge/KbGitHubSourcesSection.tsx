@@ -156,7 +156,7 @@ export default function KbGitHubSourcesSection({
 
       {/* Error banner */}
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50/60 p-2.5 text-[11.5px] text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-300">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[11.5px] text-destructive">
           {error}
         </div>
       )}
@@ -260,9 +260,9 @@ function SourceCard({
 
   const statusColor =
     source.last_sync_status === "success"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-success"
       : source.last_sync_status === "error"
-        ? "text-red-600 dark:text-red-400"
+        ? "text-destructive"
         : "text-[var(--muted-foreground)]";
 
   const lastSync = formatKnowledgeTimestamp(source.last_synced_at);
@@ -301,7 +301,7 @@ function SourceCard({
           )}
         </div>
         {source.last_sync_error && (
-          <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+          <p className="mt-1 text-[11px] text-destructive">
             {source.last_sync_error}
           </p>
         )}
@@ -311,7 +311,7 @@ function SourceCard({
           type="button"
           onClick={onRemove}
           aria-label={t("Remove source")}
-          className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600"
+          className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>

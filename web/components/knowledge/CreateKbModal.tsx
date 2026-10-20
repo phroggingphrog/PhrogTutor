@@ -743,7 +743,7 @@ export default function CreateKbModal({
                       lightRagIndexingDefaults,
                       llmCatalog.options,
                     ))) ? (
-                  <p role="alert" className="text-[12px] text-red-600">
+                  <p role="alert" className="text-[12px] text-destructive">
                     {t(
                       "Configure valid LightRAG defaults in Settings before creating a knowledge base.",
                     )}
@@ -815,7 +815,7 @@ export default function CreateKbModal({
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+          <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
             <pre className="whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed">
               {error}
             </pre>
@@ -974,7 +974,7 @@ function NewModeFields({
                       <span className="truncate">{p.name}</span>
                     </span>
                     {needsKey ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-warning-surface px-1.5 py-0.5 text-[10px] font-medium text-warning">
                         {t("Needs key")}
                       </span>
                     ) : unavailable ? (
@@ -1005,7 +1005,7 @@ function NewModeFields({
           })}
         </div>
         {providerUnavailable && (
-          <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+          <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
             <span className="flex items-center gap-1.5">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
               {providerNeedsKey
@@ -1021,7 +1021,7 @@ function NewModeFields({
               <button
                 type="button"
                 onClick={() => onConfigureProvider(provider)}
-                className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-amber-900 underline-offset-2 hover:underline dark:text-amber-100"
+                className="shrink-0 rounded-md px-2 py-1 text-[11.5px] font-medium text-warning underline-offset-2 hover:underline"
               >
                 {t("Configure")}
               </button>
@@ -1225,7 +1225,7 @@ function LightRagServerFields({
           )}
         </p>
         {usingSavedDefault && (
-          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-success">
             <Check className="h-3 w-3" />
             {t("Using saved engine default · editable for this KB")}
           </p>
@@ -1272,7 +1272,7 @@ function ServerProbeVerdict({
 }) {
   if (!probe.ok) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {t("Could not connect")}
@@ -1283,7 +1283,7 @@ function ServerProbeVerdict({
   }
   return (
     <div className="space-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
-      <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
+      <div className="flex items-center gap-1.5 font-medium text-success">
         <Check className="h-3.5 w-3.5 shrink-0" />
         {t("Connected to LightRAG server")}
       </div>
@@ -1405,7 +1405,7 @@ function WeKnoraFields({
 function WeKnoraProbeVerdict({ probe, t }: { probe: WeKnoraProbe; t: TFn }) {
   if (!probe.ok) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {t("Could not connect")}
@@ -1417,7 +1417,7 @@ function WeKnoraProbeVerdict({ probe, t }: { probe: WeKnoraProbe; t: TFn }) {
 
   return (
     <div className="space-y-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
-      <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
+      <div className="flex items-center gap-1.5 font-medium text-success">
         <Check className="h-3.5 w-3.5 shrink-0" />
         {t("Connected to WeKnora")}
       </div>
@@ -1635,7 +1635,7 @@ function LinkModeFields({
 function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
   if (!probe.ok) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
         <span className="flex items-center gap-1.5 font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {t("This folder can't be linked")}
@@ -1648,7 +1648,7 @@ function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
   const compatible = probe.embedding.compatible;
   return (
     <div className="space-y-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
-      <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
+      <div className="flex items-center gap-1.5 font-medium text-success">
         <Check className="h-3.5 w-3.5 shrink-0" />
         {t("Ready index found")}
       </div>
@@ -1658,7 +1658,7 @@ function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
           <span>{t("{{count}} documents", { count: probe.doc_count })}</span>
         )}
         {compatible === true && (
-          <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300">
+          <span className="inline-flex items-center gap-1 text-success">
             <Check className="h-3 w-3" />
             {t("Embedding model matches")}
           </span>
@@ -1667,7 +1667,7 @@ function ProbeVerdict({ probe, t }: { probe: LinkedFolderProbe; t: TFn }) {
       {probe.warnings.map((warning, index) => (
         <p
           key={index}
-          className="flex items-start gap-1.5 leading-relaxed text-amber-700 dark:text-amber-300"
+          className="flex items-start gap-1.5 leading-relaxed text-warning"
         >
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{warning}</span>

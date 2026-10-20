@@ -232,13 +232,13 @@ export default function KnowledgeBaseDetail({
                   {kb.name}
                 </h1>
                 {kb.is_default && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-warning-surface px-2 py-0.5 text-[10px] font-medium text-warning">
                     <Star className="h-3 w-3" fill="currentColor" />
                     {t("Default")}
                   </span>
                 )}
                 {(kb.assigned || kb.provenance_label) && (
-                  <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
+                  <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
                     {kb.provenance_label || t("Assigned by admin")}
                   </span>
                 )}
@@ -266,7 +266,7 @@ export default function KnowledgeBaseDetail({
                 type="button"
                 onClick={handleRetry}
                 disabled={retrySubmitting || isReindexingLocally}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-[12px] font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[12px] font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
               >
                 {retrySubmitting || isReindexingLocally ? (
                   <Loader2 className="h-3 w-3 animate-spin" />

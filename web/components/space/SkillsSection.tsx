@@ -514,7 +514,7 @@ export default function SkillsSection() {
                     <Tooltip label={t("Delete")} side="top">
                       <button
                         onClick={() => void handleDeleteTag(tag)}
-                        className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
+                        className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive"
                         aria-label={t("Delete")}
                       >
                         <Trash2 size={12} />
@@ -579,7 +579,7 @@ export default function SkillsSection() {
       </div>
 
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
           {errorMsg}
         </div>
       )}
@@ -692,7 +692,7 @@ export default function SkillsSection() {
                               void handleDelete(skill.name);
                             }}
                             disabled={deleting === skill.name}
-                            className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-950/30"
+                            className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive disabled:opacity-50"
                             aria-label={t("Delete")}
                           >
                             {deleting === skill.name ? (
@@ -800,7 +800,7 @@ export default function SkillsSection() {
                   <Loader2 size={18} className="animate-spin" />
                 </div>
               ) : viewer.error ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12.5px] text-destructive">
                   {viewer.error}
                 </div>
               ) : (
@@ -852,14 +852,14 @@ export default function SkillsSection() {
                   placeholder={t("e.g. socratic-math-mentor")}
                   className={`w-full rounded-lg border bg-[var(--background)] px-3 py-2 text-[13px] outline-none transition-colors focus:border-[var(--foreground)]/25 ${
                     editorNameInvalid
-                      ? "border-red-400 dark:border-red-600"
+                      ? "border-destructive"
                       : "border-[var(--border)]"
                   }`}
                 />
                 <p
                   className={`mt-1 text-[11px] transition-colors ${
                     editorNameInvalid
-                      ? "text-red-500 dark:text-red-400"
+                      ? "text-destructive"
                       : "text-[var(--muted-foreground)]/70"
                   }`}
                 >
@@ -960,7 +960,7 @@ export default function SkillsSection() {
               </div>
 
               {editor.error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
                   {editor.error}
                 </div>
               )}

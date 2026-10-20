@@ -31,16 +31,16 @@ import {
 
 /** Colored text, not a filled pill: 26 green badges is a wall, not a report. */
 const STATE_TONES: Record<ReadinessState, string> = {
-  enabled_verified: "text-emerald-600 dark:text-emerald-400",
+  enabled_verified: "text-success",
   available_disabled: "text-[var(--muted-foreground)]",
   unavailable: "text-[var(--muted-foreground)] opacity-60",
-  misconfigured: "text-amber-600 dark:text-amber-400",
+  misconfigured: "text-warning",
   not_selected: "text-[var(--muted-foreground)] opacity-60",
 };
 
 const SEVERITY_TONES: Record<ReadinessSeverity, string> = {
-  blocker: "text-amber-700 dark:text-amber-300",
-  warning: "text-amber-600 dark:text-amber-400",
+  blocker: "text-warning",
+  warning: "text-warning",
   suggestion: "text-[var(--muted-foreground)]",
 };
 
@@ -261,7 +261,7 @@ export default function SettingsReadinessPanel({
 
       <div className="border-t border-[var(--border)]/60">
         {error && (
-          <p role="alert" className="py-3 text-[12.5px] text-amber-600">
+          <p role="alert" className="py-3 text-[12.5px] text-warning">
             {t("readiness.error")}
           </p>
         )}
@@ -283,7 +283,7 @@ export default function SettingsReadinessPanel({
             </h3>
             {attention.length === 0 ? (
               <p className="flex items-center gap-2 border-t border-[var(--border)]/50 py-2.5 text-[12.5px] text-[var(--muted-foreground)]">
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                <Check className="h-3.5 w-3.5 text-success" />
                 {t("readiness.attention.none")}
               </p>
             ) : (

@@ -51,7 +51,7 @@ const TYPE_ACCENT: Record<
   { fill: string; dot: string }
 > = {
   choice: { fill: "bg-orange-500", dot: "bg-orange-500" },
-  concept: { fill: "bg-emerald-500", dot: "bg-emerald-500" },
+  concept: { fill: "bg-success", dot: "bg-success" },
   fill_in_blank: { fill: "bg-sky-500", dot: "bg-sky-500" },
   short_answer: { fill: "bg-violet-500", dot: "bg-violet-500" },
   written: { fill: "bg-rose-500", dot: "bg-rose-500" },

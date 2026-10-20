@@ -137,7 +137,7 @@ export default function PartnersPage() {
                       <span
                         aria-hidden
                         className={`h-1.5 w-1.5 rounded-full ${
-                          partner.running ? "bg-emerald-500" : "bg-[var(--border)]"
+                          partner.running ? "bg-success" : "bg-[var(--border)]"
                         }`}
                       />
                       {partner.running ? t("Running") : t("Stopped")}

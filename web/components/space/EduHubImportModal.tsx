@@ -295,7 +295,7 @@ function ListView({
             <Loader2 size={20} className="animate-spin" />
           </div>
         ) : error ? (
-          <div className="mx-auto max-w-md rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-center text-[12.5px] text-amber-700 dark:text-amber-400">
+          <div className="mx-auto max-w-md rounded-lg border border-warning/20 bg-warning/10 px-4 py-3 text-center text-[12.5px] text-warning">
             <AlertTriangle size={16} className="mx-auto mb-1.5" />
             <p>{tr("无法连接 EduHub。", "Couldn't reach EduHub.")}</p>
             <p className="mt-0.5 break-words text-[11.5px] opacity-80">
@@ -376,7 +376,7 @@ function SkillCard({
                 {skill.name}
               </span>
               {installed ? (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[10px] font-medium text-success">
                   <CheckCircle2 size={9} />
                   {tr("已导入", "Installed")}
                 </span>
@@ -417,7 +417,7 @@ function SkillCard({
         </div>
 
         {state?.kind === "error" ? (
-          <p className="mt-2 line-clamp-2 text-[11px] text-amber-700 dark:text-amber-400">
+          <p className="mt-2 line-clamp-2 text-[11px] text-warning">
             {state.message}
           </p>
         ) : null}
@@ -518,7 +518,7 @@ function DetailView({
         ) : null}
 
         {installState?.kind === "error" ? (
-          <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-700 dark:text-amber-400">
+          <div className="mb-4 rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-[12px] text-warning">
             {tr("导入失败：", "Import failed: ")}
             {installState.message}
           </div>
@@ -529,7 +529,7 @@ function DetailView({
             <Loader2 size={18} className="animate-spin" />
           </div>
         ) : error ? (
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+          <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-[12.5px] text-warning">
             {error}
           </div>
         ) : detail ? (

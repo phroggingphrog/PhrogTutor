@@ -116,7 +116,7 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
         >
           {result.stdout && <pre className="whitespace-pre-wrap">{result.stdout}</pre>}
           {(result.stderr || result.error) && (
-            <pre className="whitespace-pre-wrap text-red-500">
+            <pre className="whitespace-pre-wrap text-destructive">
               {result.stderr || result.error}
             </pre>
           )}

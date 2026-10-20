@@ -289,7 +289,7 @@ export default function FilePreviewDrawer({
                     <Check
                       size={14}
                       strokeWidth={1.7}
-                      className="text-emerald-500"
+                      className="text-success"
                     />
                   ) : (
                     <Copy size={14} strokeWidth={1.7} />

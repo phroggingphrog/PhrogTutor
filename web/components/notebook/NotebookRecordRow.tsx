@@ -61,18 +61,18 @@ const BADGES: Record<
   research: {
     labelKey: "Research",
     className:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+      "bg-success-surface text-success",
     icon: Search,
   },
   co_writer: {
     labelKey: "Co-Writer",
     className:
-      "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+      "bg-warning-surface text-warning",
     icon: Pencil,
   },
   video_learning: {
     labelKey: "Video Learning",
-    className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+    className: "bg-destructive/10 text-destructive",
     icon: Video,
   },
 };

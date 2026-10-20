@@ -356,7 +356,7 @@ export default function MasteryTopicPage() {
                   onClick={(event) =>
                     openConfirmation("delete", event.currentTarget)
                   }
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-red-600 hover:bg-red-500/10"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="h-3.5 w-3.5" /> {t("Delete topic")}
                 </button>

@@ -159,7 +159,7 @@ export const PartnerDraftCard = memo(function PartnerDraftCard({
           )}
 
           {error ? (
-            <p className="mt-3 text-[11px] text-red-500">{error}</p>
+            <p className="mt-3 text-[11px] text-destructive">{error}</p>
           ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {createdId ? (

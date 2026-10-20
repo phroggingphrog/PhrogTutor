@@ -102,7 +102,7 @@ export default function ArchivedConversations({
               onClick={() => onDelete(session.session_id)}
               disabled={disabled || busy || deletingId === session.session_id}
               aria-label={t("Delete permanently")}
-              className="shrink-0 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-600 disabled:opacity-50"
+              className="shrink-0 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
             >
               {deletingId === session.session_id ? (
                 <Loader2 size={15} className="animate-spin" />

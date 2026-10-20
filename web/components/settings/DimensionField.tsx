@@ -147,9 +147,9 @@ export function DimensionField({
         <div
           className={`text-[11px] ${
             sourceInfo.tone === "warn"
-              ? "text-amber-600 dark:text-amber-400"
+              ? "text-warning"
               : sourceInfo.tone === "ok"
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-success"
                 : "text-[var(--muted-foreground)]"
           }`}
         >

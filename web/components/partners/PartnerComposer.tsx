@@ -548,7 +548,7 @@ export const PartnerComposer = memo(function PartnerComposer({
       )}
 
       {attachmentError && (
-        <div className="px-3.5 pb-2 text-[11px] text-red-600">
+        <div className="px-3.5 pb-2 text-[11px] text-destructive">
           {attachmentError}
         </div>
       )}

@@ -456,7 +456,7 @@ export function ModelCard({
             event.stopPropagation();
             onDelete();
           }}
-          className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)]/0 transition-colors hover:bg-[var(--accent)] hover:text-red-500 focus-visible:text-red-500 group-hover:text-[var(--muted-foreground)]/70 max-sm:text-[var(--muted-foreground)]/70"
+          className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)]/0 transition-colors hover:bg-[var(--accent)] hover:text-destructive focus-visible:text-destructive group-hover:text-[var(--muted-foreground)]/70 max-sm:text-[var(--muted-foreground)]/70"
         >
           <Trash2 className="h-3 w-3" />
         </button>

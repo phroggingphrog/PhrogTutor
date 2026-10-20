@@ -129,7 +129,7 @@ export function RouteDraftEditor({
         </label>
       )}
       {issues.some((issue) => issue.code === "no_regions") && (
-        <p role="alert" className="mt-4 text-xs font-medium text-red-600">
+        <p role="alert" className="mt-4 text-xs font-medium text-destructive">
           {t("Keep at least one module.")}
         </p>
       )}
@@ -142,7 +142,7 @@ export function RouteDraftEditor({
               key={module.id}
               className={`rounded-lg border bg-[var(--background)] p-3.5 ${
                 blankRegion || emptyRegion
-                  ? "border-red-500/45"
+                  ? "border-destructive/45"
                   : "border-[var(--border)]"
               }`}
             >
@@ -183,13 +183,13 @@ export function RouteDraftEditor({
                   aria-label={t("Remove module “{{name}}”", {
                     name: module.name || moduleIndex + 1,
                   })}
-                  className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-600 disabled:opacity-30"
+                  className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-destructive/10 hover:text-destructive disabled:opacity-30"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
               {blankRegion && (
-                <p className="ml-8 mt-1 text-[11px] text-red-600">
+                <p className="ml-8 mt-1 text-[11px] text-destructive">
                   {t("Module name cannot be blank.")}
                 </p>
               )}
@@ -286,12 +286,12 @@ export function RouteDraftEditor({
                         aria-label={t("Remove “{{name}}”", {
                           name: point.name || pointIndex + 1,
                         })}
-                        className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:text-red-600 disabled:opacity-25"
+                        className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:text-destructive disabled:opacity-25"
                       >
                         <X className="h-3 w-3" />
                       </button>
                       {blankWaypoint && (
-                        <p className="w-full pl-4 text-[11px] text-red-600">
+                        <p className="w-full pl-4 text-[11px] text-destructive">
                           {t("Knowledge point name cannot be blank.")}
                         </p>
                       )}
@@ -299,7 +299,7 @@ export function RouteDraftEditor({
                   );
                 })}
                 {emptyRegion && (
-                  <p role="alert" className="text-[11px] text-red-600">
+                  <p role="alert" className="text-[11px] text-destructive">
                     {t("Every module needs at least one knowledge point.")}
                   </p>
                 )}

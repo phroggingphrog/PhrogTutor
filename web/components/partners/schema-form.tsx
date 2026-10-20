@@ -139,7 +139,7 @@ function JsonObjectField({
         className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 font-mono text-[13px] outline-none focus:border-[var(--ring)]"
       />
       {invalid && (
-        <p className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">
+        <p className="mt-1 text-[11px] text-warning">
           {t("Invalid JSON — value not applied.")}
         </p>
       )}

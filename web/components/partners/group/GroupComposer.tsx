@@ -160,7 +160,7 @@ export default function GroupComposer({
             </span>
           </span>
           {resolved.unknown.length ? (
-            <span className="shrink-0 text-amber-600 dark:text-amber-500">
+            <span className="shrink-0 text-warning">
               {t("Unrecognized: {{names}}", {
                 names: resolved.unknown.map((item) => `@${item}`).join(" "),
               })}

@@ -160,7 +160,7 @@ export default function GroupSessionPicker({
                           onClick={() => remove(item.session_key)}
                           disabled={busy === item.session_key}
                           aria-label={`${t("Delete")}: ${item.title || t("New discussion")}`}
-                          className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:text-red-500 disabled:opacity-40"
+                          className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:text-destructive disabled:opacity-40"
                         >
                           <Trash2 size={12} />
                         </button>

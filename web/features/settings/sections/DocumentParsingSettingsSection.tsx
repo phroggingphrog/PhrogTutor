@@ -133,7 +133,7 @@ export default function DocumentParsingSettingsPage() {
       )}
 
       {!loading && error && (
-        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
           {error}
         </div>
       )}
@@ -313,8 +313,8 @@ function ReadinessBadge({ readiness }: { readiness?: Readiness }) {
     <span
       className={`inline-flex items-center gap-1 text-[12px] ${
         readiness.ready
-          ? "text-emerald-600 dark:text-emerald-400"
-          : "text-amber-600 dark:text-amber-400"
+          ? "text-success"
+          : "text-warning"
       }`}
     >
       {readiness.ready ? (
@@ -336,7 +336,7 @@ function ReadinessNotice({ readiness }: { readiness?: Readiness }) {
   if (!readiness) return null;
   if (readiness.ready) {
     return (
-      <div className="flex items-center gap-1.5 py-3.5 text-[12px] text-emerald-600 dark:text-emerald-400">
+      <div className="flex items-center gap-1.5 py-3.5 text-[12px] text-success">
         <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
         {t("Ready to parse.")}
       </div>
@@ -344,7 +344,7 @@ function ReadinessNotice({ readiness }: { readiness?: Readiness }) {
   }
   return (
     <div className="py-3.5">
-      <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-[12px] leading-relaxed text-amber-700 dark:text-amber-300">
+      <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5 text-[12px] leading-relaxed text-warning">
         <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span className="min-w-0">{t(readiness.message)}</span>
       </div>
@@ -539,8 +539,8 @@ function DoclingPanel({
                   <span
                     className={`inline-flex max-w-[40vw] items-center gap-1 text-[12px] ${
                       testResult.ok
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                        ? "text-success"
+                        : "text-destructive"
                     }`}
                   >
                     {testResult.ok ? (
@@ -761,8 +761,8 @@ function TikaPanel({
               <span
                 className={`inline-flex max-w-[40vw] items-center gap-1 text-[12px] ${
                   testResult.ok
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400"
+                    ? "text-success"
+                    : "text-destructive"
                 }`}
               >
                 {testResult.ok ? (
@@ -1167,10 +1167,10 @@ function JobLog({
       <div
         className={`mb-2 inline-flex items-center gap-1.5 text-[12px] ${
           job.state === "done"
-            ? "text-emerald-600 dark:text-emerald-400"
+            ? "text-success"
             : job.state === "running"
               ? "text-[var(--muted-foreground)]"
-              : "text-red-600 dark:text-red-400"
+              : "text-destructive"
         }`}
       >
         {job.state === "running" ? (

@@ -323,7 +323,7 @@ function IntroView() {
       </div>
 
       {!supported ? (
-        <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 px-3.5 py-3 text-[12px] leading-relaxed text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300">
+        <div className="flex items-start gap-2.5 rounded-xl border border-warning/30 bg-warning-surface px-3.5 py-3 text-[12px] leading-relaxed text-warning">
           <AlertTriangle className="mt-px h-4 w-4 shrink-0" />
           <span>
             {t(
@@ -394,7 +394,7 @@ function DoneView({
   return (
     <CenteredStatus
       icon={
-        <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+        <CheckCircle2 className="h-6 w-6 text-success" />
       }
       title={t("Imported {{count}} conversations", { count: result.imported })}
       subtitle={
@@ -427,7 +427,7 @@ function ErrorView({ code }: { code: ImportScanErrorCode | "generic" }) {
   return (
     <CenteredStatus
       icon={
-        <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+        <AlertTriangle className="h-6 w-6 text-warning" />
       }
       title={t("Couldn't import")}
       subtitle={message}

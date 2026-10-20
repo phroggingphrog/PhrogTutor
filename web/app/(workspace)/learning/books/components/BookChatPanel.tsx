@@ -583,7 +583,7 @@ export default function BookChatPanel({
           </div>
         )}
         {attachmentError && (
-          <div className="mb-2 text-[11px] text-red-500">{attachmentError}</div>
+          <div className="mb-2 text-[11px] text-destructive">{attachmentError}</div>
         )}
         <div className="flex items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--background)] px-2 py-2 focus-within:border-[var(--primary)]/50 focus-within:ring-2 focus-within:ring-[var(--primary)]/10">
           <Tooltip label={t("Attach files")}>

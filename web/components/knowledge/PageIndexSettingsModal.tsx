@@ -130,7 +130,7 @@ export function PageIndexConfigForm({
               type="button"
               onClick={() => void persist({ api_key: "" })}
               disabled={saving}
-              className="mt-1.5 text-[11px] font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-40 dark:text-red-400"
+              className="mt-1.5 text-[11px] font-medium text-destructive transition-colors hover:text-destructive disabled:opacity-40"
             >
               {t("Remove stored key")}
             </button>
@@ -139,7 +139,7 @@ export function PageIndexConfigForm({
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
           {error}
         </div>
       )}

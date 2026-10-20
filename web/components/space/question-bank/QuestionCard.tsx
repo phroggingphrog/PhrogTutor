@@ -75,7 +75,7 @@ function resultBadge(entry: NotebookEntry): {
   if (result === "partial") {
     return {
       label: "Partially Correct",
-      className: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+      className: "bg-warning-surface text-warning",
     };
   }
   if (result === "ungraded") {
@@ -92,7 +92,7 @@ function resultBadge(entry: NotebookEntry): {
   }
   return {
     label: "Incorrect",
-    className: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400",
+    className: "bg-destructive/10 text-destructive",
   };
 }
 
@@ -125,13 +125,13 @@ function AnswerBlock({
 }) {
   const toneClass =
     tone === "wrong"
-      ? "border-red-200/60 bg-red-50/40 dark:border-red-900/40 dark:bg-red-950/15"
+      ? "border-destructive/60 bg-destructive/10"
       : tone === "correct"
         ? "border-green-200/60 bg-green-50/40 dark:border-green-900/40 dark:bg-green-950/15"
         : "border-[var(--border)] bg-[var(--muted)]/30";
   const labelClass =
     tone === "wrong"
-      ? "text-red-500 dark:text-red-400"
+      ? "text-destructive"
       : tone === "correct"
         ? "text-green-600 dark:text-green-400"
         : "text-[var(--muted-foreground)]";
@@ -237,9 +237,9 @@ export default function QuestionCard({
               <span
                 className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase ${
                   entry.difficulty === "hard"
-                    ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                    ? "bg-destructive/10 text-destructive"
                     : entry.difficulty === "medium"
-                      ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                      ? "bg-warning-surface text-warning"
                       : "bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400"
                 }`}
               >
@@ -269,7 +269,7 @@ export default function QuestionCard({
                 className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
                   entry.resolved
                     ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
-                    : "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
+                    : "bg-warning-surface text-warning"
                 }`}
               >
                 {entry.resolved ? t("Resolved") : t("Needs Review")}
@@ -329,7 +329,7 @@ export default function QuestionCard({
               onClick={onDelete}
               disabled={disabled}
               aria-label={t("Delete")}
-              className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 dark:hover:bg-red-950/30"
+              className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive disabled:opacity-40"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -366,7 +366,7 @@ export default function QuestionCard({
                     isCorrectAnswer
                       ? "border-green-200 bg-green-50/60 dark:border-green-900 dark:bg-green-950/20"
                       : isWrongPick
-                        ? "border-red-200 bg-red-50/60 dark:border-red-900 dark:bg-red-950/20"
+                        ? "border-destructive/30 bg-destructive/10"
                         : "border-transparent bg-[var(--muted)]/30"
                   }`}
                 >
@@ -375,7 +375,7 @@ export default function QuestionCard({
                       isCorrectAnswer
                         ? "text-green-600 dark:text-green-400"
                         : isWrongPick
-                          ? "text-red-600 dark:text-red-400"
+                          ? "text-destructive"
                           : "text-[var(--muted-foreground)]"
                     }`}
                   >
@@ -401,7 +401,7 @@ export default function QuestionCard({
                     </span>
                   )}
                   {isWrongPick && (
-                    <span className="mt-px shrink-0 text-[10px] font-medium text-red-600 dark:text-red-400">
+                    <span className="mt-px shrink-0 text-[10px] font-medium text-destructive">
                       ✗ {t("Your pick")}
                     </span>
                   )}

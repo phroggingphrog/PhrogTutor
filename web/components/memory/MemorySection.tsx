@@ -824,7 +824,7 @@ export function L1View({
                 <span
                   role="note"
                   tabIndex={0}
-                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
+                  className="inline-flex items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning"
                 >
                   {t("{{n}} pending", { n: pendingCount })}
                 </span>
@@ -862,7 +862,7 @@ export function L1View({
                 <span
                   role="note"
                   tabIndex={0}
-                  className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
+                  className="inline-flex items-center gap-1 rounded-full border border-warning/40 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning"
                 >
                   {t("{{n}} pending", { n: pendingCount })}
                 </span>
@@ -1101,9 +1101,9 @@ function EntityRow({ surface, ent, focused, pendingKind, t }: EntityRowProps) {
   const focusedRing = focused
     ? "border-l-[3px] border-l-[var(--primary)] bg-[var(--primary)]/12 ring-1 ring-[var(--primary)]/30"
     : pendingKind === "added"
-      ? "border-l-[3px] border-l-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10"
+      ? "border-l-[3px] border-l-emerald-500 bg-success/5 hover:bg-success/10"
       : pendingKind === "modified"
-        ? "border-l-[3px] border-l-amber-500 bg-amber-500/5 hover:bg-amber-500/10"
+        ? "border-l-[3px] border-l-amber-500 bg-warning/5 hover:bg-warning/10"
         : "border-l-[3px] border-l-transparent hover:bg-[var(--muted)]/40";
   const rowClass = `group flex items-start gap-3 border-b border-[var(--border)]/50 px-4 py-2.5 transition-colors last:border-0 ${focusedRing}`;
 
@@ -1137,11 +1137,11 @@ function PendingBadge({
   const map = {
     added: {
       label: t("new"),
-      cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+      cls: "border-success/40 bg-success/10 text-success",
     },
     modified: {
       label: t("modified"),
-      cls: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      cls: "border-warning/40 bg-warning/10 text-warning",
     },
     removed: {
       label: t("removed"),
@@ -1190,8 +1190,8 @@ function ChangesList({ loading, changes, pending, t }: ChangesListProps) {
   return (
     <div className="space-y-2">
       {pending.length > 0 && (
-        <div className="rounded-xl border border-amber-500/40 bg-amber-500/5">
-          <div className="flex items-center justify-between border-b border-amber-500/30 px-4 py-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+        <div className="rounded-xl border border-warning/40 bg-warning/5">
+          <div className="flex items-center justify-between border-b border-warning/30 px-4 py-1.5 text-[11px] font-medium text-warning">
             <span>
               {t("Pending — {{n}} change(s) since last refresh", {
                 n: pending.length,
@@ -1236,8 +1236,8 @@ function ChangeRow({ c }: { c: ChangeEntryDTO }) {
 
 function ChangeGlyph({ kind }: { kind: ChangeEntryDTO["kind"] }) {
   const map = {
-    added: { ch: "+", bg: "bg-emerald-500/15", fg: "text-emerald-600" },
-    modified: { ch: "~", bg: "bg-amber-500/15", fg: "text-amber-600" },
+    added: { ch: "+", bg: "bg-success/15", fg: "text-success" },
+    modified: { ch: "~", bg: "bg-warning/15", fg: "text-warning" },
     removed: { ch: "−", bg: "bg-rose-500/15", fg: "text-rose-600" },
   } as const;
   const cfg = map[kind];

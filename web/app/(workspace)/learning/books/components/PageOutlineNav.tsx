@@ -73,9 +73,9 @@ function shortLabel(block: Block, fallback: string): string {
 function statusDotClass(status: BlockStatus): string {
   switch (status) {
     case "ready":
-      return "bg-emerald-500";
+      return "bg-success";
     case "generating":
-      return "bg-amber-400 animate-pulse";
+      return "bg-warning animate-pulse";
     case "pending":
       return "bg-[var(--muted-foreground)]/40";
     case "error":

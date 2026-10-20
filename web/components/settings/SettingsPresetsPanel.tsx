@@ -77,7 +77,7 @@ export default function SettingsPresetsPanel({ enabled }: { enabled: boolean }) 
       </header>
 
       {error && (
-        <p role="alert" className="py-3 text-[12.5px] text-amber-600">
+        <p role="alert" className="py-3 text-[12.5px] text-warning">
           {t("settings.presets.error")}
         </p>
       )}

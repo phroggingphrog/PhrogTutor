@@ -301,7 +301,7 @@ export default function MemoryRunPanel({
               type="button"
               onClick={() => void handleReset()}
               disabled={isRunning}
-              className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 hover:bg-amber-500/20 hover:text-amber-800 disabled:opacity-40 dark:text-amber-300 dark:hover:text-amber-200"
+              className="inline-flex items-center gap-1 rounded-md border border-warning/40 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning hover:bg-warning/20 hover:text-warning disabled:opacity-40"
               aria-label={t("Reset memory (delete md + seen-id state)")}
             >
               <RotateCcw className="h-3 w-3" />
@@ -405,7 +405,7 @@ export default function MemoryRunPanel({
               </li>
             )}
             {error && (
-              <li className="flex items-start gap-2 rounded-md border border-red-500/30 bg-red-500/5 px-2.5 py-1.5 text-[11.5px] text-red-500">
+              <li className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-1.5 text-[11.5px] text-destructive">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {error}
               </li>
@@ -515,9 +515,9 @@ function SystemEventRow({
       className={
         "flex items-start gap-2 rounded-md px-2 py-1.5 text-[11.5px] " +
         (display.tone === "ok"
-          ? "border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
+          ? "border border-success/30 bg-success/5 text-success"
           : display.tone === "warn"
-            ? "border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-300"
+            ? "border border-warning/30 bg-warning/5 text-warning"
             : "bg-[var(--muted)]/40 text-[var(--muted-foreground)]")
       }
     >
@@ -733,7 +733,7 @@ function LLMTurnCard({
             {turn.response}
           </pre>
         ) : turn.error ? (
-          <div className="rounded border border-red-500/30 bg-red-500/5 px-2 py-1 text-[11px] text-red-500">
+          <div className="rounded border border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
             {turn.error}
           </div>
         ) : (

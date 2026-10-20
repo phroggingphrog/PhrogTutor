@@ -244,7 +244,7 @@ export default memo(function VisualizeConfigPanel({
                   uninstallVisualizer(selected.id),
                 );
               }}
-              className="rounded-md border border-red-300/60 px-2 py-1 text-[10px] text-red-500 disabled:opacity-50"
+              className="rounded-md border border-destructive/60 px-2 py-1 text-[10px] text-destructive disabled:opacity-50"
             >
               {t("Uninstall selected")}
             </button>
@@ -256,7 +256,7 @@ export default memo(function VisualizeConfigPanel({
           ) : null}
         </div>
         {catalogError ? (
-          <p className="mt-1 text-[10px] text-red-500">{catalogError}</p>
+          <p className="mt-1 text-[10px] text-destructive">{catalogError}</p>
         ) : null}
       </Field>
     </>

@@ -84,12 +84,12 @@ export default function McpStoreSection() {
       ) : (
         <div className="space-y-5">
           {mcp.loadError && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
               {t("Failed to load MCP servers")}: {mcp.loadError}
             </div>
           )}
           {mcp.saveError && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
               {t("Failed to save")}: {mcp.saveError}
             </div>
           )}
@@ -155,7 +155,7 @@ export default function McpStoreSection() {
                       {t("Browse the store")}
                     </button>
                     {atCapacity && (
-                      <span className="text-[11.5px] text-amber-700 dark:text-amber-400">
+                      <span className="text-[11.5px] text-warning">
                         {t(
                           "You have reached your MCP server limit. Remove one first.",
                         )}
@@ -225,17 +225,17 @@ function RejectedServers({
       <h3 className="text-[13px] font-semibold text-[var(--foreground)]">
         {t("Not connected")}
       </h3>
-      <ul className="overflow-hidden rounded-xl border border-amber-500/25 bg-amber-500/5">
+      <ul className="overflow-hidden rounded-xl border border-warning/25 bg-warning/5">
         {rows.map((row, idx) => (
           <li
             key={row.name}
             className={`flex items-start gap-3 px-5 py-3 ${
-              idx > 0 ? "border-t border-amber-500/20" : ""
+              idx > 0 ? "border-t border-warning/20" : ""
             }`}
           >
             <AlertTriangle
               size={14}
-              className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400"
+              className="mt-0.5 shrink-0 text-warning"
             />
             <div className="min-w-0 flex-1">
               <span className="font-mono text-[13px] text-[var(--foreground)]">
@@ -252,7 +252,7 @@ function RejectedServers({
               type="button"
               disabled={busy}
               onClick={() => onRemove(row.name)}
-              className="shrink-0 rounded-md px-2 py-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-500 disabled:opacity-50"
+              className="shrink-0 rounded-md px-2 py-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive disabled:opacity-50"
             >
               {t("Remove")}
             </button>

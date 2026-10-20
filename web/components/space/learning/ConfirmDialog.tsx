@@ -42,7 +42,7 @@ export function ConfirmDialog({
           <span
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
               destructive
-                ? "bg-red-500/10 text-red-600"
+                ? "bg-destructive/10 text-destructive"
                 : "bg-[var(--muted-foreground)]/10 text-[var(--muted-foreground)]"
             }`}
           >
@@ -85,7 +85,7 @@ export function ConfirmDialog({
             data-modal-initial-focus
             className={`inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-medium text-white disabled:opacity-50 ${
               destructive
-                ? "bg-red-600 hover:bg-red-700"
+                ? "bg-destructive hover:bg-destructive"
                 : "bg-[var(--primary)]"
             }`}
           >

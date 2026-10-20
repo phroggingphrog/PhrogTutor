@@ -82,7 +82,7 @@ export default function InvocationCard({
               {t("Discussed")}
             </>
           ) : status === "failed" ? (
-            <span className="text-red-500">
+            <span className="text-destructive">
               {invocation.error || t("Follow-up failed")}
             </span>
           ) : (

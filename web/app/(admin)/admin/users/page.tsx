@@ -355,7 +355,7 @@ export default function AdminUsersPage() {
         </div>
 
         {actionError && (
-          <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {actionError}
           </div>
         )}
@@ -405,7 +405,7 @@ export default function AdminUsersPage() {
               </button>
               <button
                 onClick={() => setShowBatchDeleteConfirm(true)}
-                className="flex items-center gap-1.5 rounded-lg border border-red-500/40 px-3 py-1.5 text-sm text-red-600 hover:bg-red-500/10 transition-colors dark:text-red-400"
+                className="flex items-center gap-1.5 rounded-lg border border-destructive/40 px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
               >
                 <Trash2 size={14} />
                 {t("Delete selected")}
@@ -432,7 +432,7 @@ export default function AdminUsersPage() {
               ))}
             </div>
           ) : error ? (
-            <div className="flex items-center justify-center py-16 text-red-500 text-sm">
+            <div className="flex items-center justify-center py-16 text-destructive text-sm">
               {error}
             </div>
           ) : users.length === 0 ? (
@@ -557,7 +557,7 @@ export default function AdminUsersPage() {
                             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
                             ${
                               isAdmin
-                                ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                                ? "bg-warning/15 text-warning"
                                 : "bg-[var(--muted)]/50 text-[var(--muted-foreground)]"
                             }`}
                           >
@@ -655,7 +655,7 @@ export default function AdminUsersPage() {
                                       })
                                 }
                                 className="rounded-lg p-1.5 text-[var(--muted-foreground)]
-                                         hover:bg-red-500/10 hover:text-red-500
+                                         hover:bg-destructive/10 hover:text-destructive
                                          disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                               >
                                 <Trash2 size={15} />
@@ -893,7 +893,7 @@ export default function AdminUsersPage() {
             </fieldset>
 
             {createError && (
-              <p className="mb-3 text-xs text-red-500">{createError}</p>
+              <p className="mb-3 text-xs text-destructive">{createError}</p>
             )}
 
             <div className="flex items-center justify-end gap-2">
@@ -965,7 +965,7 @@ export default function AdminUsersPage() {
             </p>
 
             {importError && (
-              <p className="mb-3 text-xs text-red-500">{importError}</p>
+              <p className="mb-3 text-xs text-destructive">{importError}</p>
             )}
 
             {importResult && (
@@ -988,8 +988,8 @@ export default function AdminUsersPage() {
                       <span
                         className={
                           result.ok
-                            ? "shrink-0 text-emerald-600 dark:text-emerald-400"
-                            : "shrink-0 text-red-500"
+                            ? "shrink-0 text-success"
+                            : "shrink-0 text-destructive"
                         }
                       >
                         {result.ok ? t("Created") : result.error}

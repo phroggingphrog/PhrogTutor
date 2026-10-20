@@ -113,7 +113,7 @@ const GROUPS: DashboardGroup[] = [
           en: "Organize saved outputs from chat, research, Co-Writer, and more.",
         },
         unit: { zh: "个笔记本", en: "notebooks" },
-        tile: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+        tile: "bg-warning/10 text-warning",
         load: async () => (await listNotebooks()).length,
       },
       {
@@ -126,7 +126,7 @@ const GROUPS: DashboardGroup[] = [
           en: "Review and organize quiz questions across sessions.",
         },
         unit: { zh: "道题", en: "questions" },
-        tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        tile: "bg-success/10 text-success",
         load: async () => (await listNotebookEntries({ limit: 1 })).total,
       },
       {

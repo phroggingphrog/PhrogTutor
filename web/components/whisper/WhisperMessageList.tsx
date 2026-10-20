@@ -15,7 +15,7 @@ function bubbleClass(msg: WhisperMessage): string {
     return "ml-auto bg-[var(--primary)] text-[var(--primary-foreground)]";
   }
   if (msg.stage === "whisper") {
-    return "mr-auto border border-amber-500/40 bg-amber-500/10 text-[var(--foreground)]";
+    return "mr-auto border border-warning/40 bg-warning/10 text-[var(--foreground)]";
   }
   if (msg.stage === "debrief") {
     return "mr-auto border border-violet-500/40 bg-violet-500/10 text-[var(--foreground)]";
@@ -105,7 +105,7 @@ export default function WhisperMessageList({
               {showMeta && (
                 <div className="mb-1.5 flex flex-wrap items-center gap-1.5 text-[10px] uppercase tracking-wide opacity-70">
                   {isWhisper && (
-                    <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
+                    <span className="inline-flex items-center gap-1 font-semibold text-warning">
                       <Lock className="h-3 w-3" aria-hidden />
                       {t("whisper")}
                     </span>

@@ -290,7 +290,7 @@ export default function KbFilePreview({
                   <Check
                     size={13}
                     strokeWidth={1.7}
-                    className="text-emerald-500"
+                    className="text-success"
                   />
                 ) : (
                   <Copy size={13} strokeWidth={1.7} />

@@ -916,7 +916,7 @@ function TraceRowBody({
       {errorEvents.length > 0 && (
         <div className="mt-1 space-y-0.5">
           {errorEvents.map((event, idx) => (
-            <div key={`${callId}-error-${idx}`} className="text-red-400/80">
+            <div key={`${callId}-error-${idx}`} className="text-destructive/80">
               ✗ {event.content}
             </div>
           ))}

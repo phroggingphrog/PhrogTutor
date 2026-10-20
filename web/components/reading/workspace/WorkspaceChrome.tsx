@@ -212,7 +212,7 @@ export function MaterialFailure({
 
   return (
     <div className="flex h-full flex-col items-center justify-center px-8 text-center">
-      <CircleAlert size={24} className="text-red-600" />
+      <CircleAlert size={24} className="text-destructive" />
       <p className="mt-4 font-serif text-[18px] font-medium">
         {t("This material could not be prepared")}
       </p>
@@ -221,7 +221,7 @@ export function MaterialFailure({
           t("Try importing this material again.")}
       </p>
       {retryError && (
-        <p className="mt-2 max-w-lg text-[10.5px] text-red-700">{retryError}</p>
+        <p className="mt-2 max-w-lg text-[10.5px] text-destructive">{retryError}</p>
       )}
       <button
         type="button"

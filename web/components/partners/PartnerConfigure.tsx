@@ -551,7 +551,7 @@ export default function PartnerConfigure({
                   <button
                     type="button"
                     onClick={() => void removeAsset(row.type, row.id)}
-                    className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-red-500"
+                    className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-destructive"
                     aria-label={t("Remove")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

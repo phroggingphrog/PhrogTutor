@@ -327,13 +327,13 @@ export default function McpServerForm({
 
       {/* Test result */}
       {testError && (
-        <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
           {t("Connection failed.")} {testError}
         </div>
       )}
       {testTools && (
-        <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-3">
-          <div className="mb-2 text-[12px] font-medium text-emerald-600 dark:text-emerald-400">
+        <div className="rounded-lg border border-success/40 bg-success/5 px-3 py-3">
+          <div className="mb-2 text-[12px] font-medium text-success">
             {t("Connected — {{count}} tools detected", {
               count: testTools.length,
             })}
@@ -357,7 +357,7 @@ export default function McpServerForm({
         </div>
       )}
       {formError && (
-        <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
           {formError}
         </div>
       )}

@@ -166,7 +166,7 @@ export default function ChannelOnboardingPanel({
             aria-live="polite"
             className={`inline-flex items-center gap-1.5 text-[12px] ${
               session?.status === "applied"
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-success"
                 : "text-[var(--muted-foreground)]"
             }`}
           >
@@ -184,7 +184,7 @@ export default function ChannelOnboardingPanel({
       </div>
 
       {channel === "wecom" && (
-        <p className="flex items-start gap-2 rounded-md bg-amber-500/10 px-2.5 py-2 text-[11px] leading-5 text-amber-700 dark:text-amber-300">
+        <p className="flex items-start gap-2 rounded-md bg-warning/10 px-2.5 py-2 text-[11px] leading-5 text-warning">
           <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           {t(
             "WeCom will allow every user who can reach this bot. Restrict allowed senders after setup if needed.",
@@ -223,7 +223,7 @@ export default function ChannelOnboardingPanel({
       ) : null}
 
       {error && (
-        <p className="text-[12px] text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-[12px] text-destructive">{error}</p>
       )}
 
       <div className="flex flex-wrap items-center gap-2">

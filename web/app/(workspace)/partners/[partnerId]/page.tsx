@@ -490,7 +490,7 @@ function PartnerDetail() {
                 <span
                   aria-hidden
                   className={`h-1.5 w-1.5 rounded-full ${
-                    partner.running ? "bg-emerald-500" : "bg-[var(--border)]"
+                    partner.running ? "bg-success" : "bg-[var(--border)]"
                   }`}
                 />
                 {partner.running ? t("Running") : t("Stopped")}
@@ -615,7 +615,7 @@ function PartnerDetail() {
                   type="button"
                   onClick={() => void handleDestroy()}
                   aria-label={t("Delete partner")}
-                  className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-red-500"
+                  className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

@@ -53,10 +53,10 @@ function formatBytes(bytes: number | null | undefined): string {
 
 /** Green under two thirds, amber past it, red once the OOM killer is plausible. */
 function pressureDotClass(ratio: number | null | undefined): string {
-  if (ratio == null) return "bg-emerald-500";
-  if (ratio >= 0.9) return "bg-red-400";
-  if (ratio >= 0.7) return "bg-amber-400";
-  return "bg-emerald-500";
+  if (ratio == null) return "bg-success";
+  if (ratio >= 0.9) return "bg-destructive";
+  if (ratio >= 0.7) return "bg-warning";
+  return "bg-success";
 }
 
 export default function MemoryUsageItem() {

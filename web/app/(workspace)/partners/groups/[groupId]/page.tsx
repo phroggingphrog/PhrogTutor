@@ -373,7 +373,7 @@ function ManageGroupDialog({
         </div>
 
         {error ? (
-          <p className="mt-3 text-[11px] text-red-500">{error}</p>
+          <p className="mt-3 text-[11px] text-destructive">{error}</p>
         ) : null}
 
         <div className="mt-6 flex items-center justify-between gap-3">
@@ -382,7 +382,7 @@ function ManageGroupDialog({
               <button
                 type="button"
                 onClick={remove}
-                className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-red-500 px-2.5 text-[11px] font-medium text-white"
+                className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-destructive px-2.5 text-[11px] font-medium text-white"
               >
                 <Trash2 size={12} />
                 {t("Delete permanently")}
@@ -399,7 +399,7 @@ function ManageGroupDialog({
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="inline-flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)] transition-colors hover:text-red-500"
+              className="inline-flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)] transition-colors hover:text-destructive"
             >
               <Trash2 size={12} />
               {t("Delete group")}

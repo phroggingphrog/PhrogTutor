@@ -107,7 +107,7 @@ export default function McpServerRow({
             {t("{{count}} tools", { count: toolCount })}
           </p>
           {rowStatus === "error" && status?.error && (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-red-500">
+            <p className="mt-1 text-[11.5px] leading-relaxed text-destructive">
               {status.error}
             </p>
           )}
@@ -235,7 +235,7 @@ function IconButton({
         disabled={disabled}
         aria-label={label}
         className={`rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] ${
-          danger ? "hover:text-red-500" : "hover:text-[var(--foreground)]"
+          danger ? "hover:text-destructive" : "hover:text-[var(--foreground)]"
         } disabled:cursor-not-allowed disabled:opacity-60`}
       >
         {icon}

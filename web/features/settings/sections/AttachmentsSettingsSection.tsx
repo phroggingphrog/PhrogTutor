@@ -168,7 +168,7 @@ export default function AttachmentSettingsPage() {
       )}
 
       {!loading && error && (
-        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
           {error}
         </div>
       )}

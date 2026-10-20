@@ -237,7 +237,7 @@ export default function ContextBudgetChip({
           open
             ? "bg-[var(--muted)] text-[var(--foreground)]"
             : nearFull
-              ? "text-amber-500 hover:bg-amber-500/10"
+              ? "text-warning hover:bg-warning/10"
               : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
         }`}
       >

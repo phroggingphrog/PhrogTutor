@@ -167,7 +167,7 @@ export default function ConnectedAgents() {
                     onClick={() => void handleDisconnect(conn.name)}
                     disabled={busyName === conn.name}
                     aria-label={tr({ zh: "断开", en: "Disconnect" })}
-                    className="rounded-lg border border-[var(--border)]/50 p-2 text-[var(--muted-foreground)] transition-colors hover:border-red-300 hover:text-red-600 disabled:opacity-50 dark:hover:border-red-900 dark:hover:text-red-400"
+                    className="rounded-lg border border-[var(--border)]/50 p-2 text-[var(--muted-foreground)] transition-colors hover:border-destructive/30 hover:text-destructive disabled:opacity-50"
                   >
                     {busyName === conn.name ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -346,7 +346,7 @@ function ConnectModal({
           )}
 
           {error && (
-            <p className="text-[12px] text-red-600 dark:text-red-400">
+            <p className="text-[12px] text-destructive">
               {error}
             </p>
           )}

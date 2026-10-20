@@ -147,7 +147,7 @@ function PreviewRequest({
         </button>
       )}
       {error && (
-        <p role="alert" className="text-xs text-red-600">
+        <p role="alert" className="text-xs text-destructive">
           {t(error)}
         </p>
       )}

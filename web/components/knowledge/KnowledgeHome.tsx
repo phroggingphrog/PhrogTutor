@@ -49,7 +49,7 @@ function EngineStatusBadge({ status }: { status: ProviderConnectionStatus }) {
   const { t } = useTranslation();
   if (status === "ready") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+      <span className="inline-flex items-center gap-1 rounded-full bg-success-surface px-1.5 py-0.5 text-[10px] font-medium text-success">
         <Check className="h-3 w-3" />
         {t("Ready")}
       </span>
@@ -57,7 +57,7 @@ function EngineStatusBadge({ status }: { status: ProviderConnectionStatus }) {
   }
   if (status === "needs_key") {
     return (
-      <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+      <span className="inline-flex items-center rounded-full bg-warning-surface px-1.5 py-0.5 text-[10px] font-medium text-warning">
         {t("Needs key")}
       </span>
     );
@@ -81,13 +81,13 @@ function StatusDot({ kb }: { kb: KnowledgeBase }) {
   const needsReindex = kbNeedsReindex(kb);
   const isLive = kbHasLiveProgress(kb);
   const tone = needsReindex
-    ? "bg-amber-500"
+    ? "bg-warning"
     : status === "error"
-      ? "bg-red-500"
+      ? "bg-destructive"
       : isLive
         ? "bg-sky-500 animate-pulse"
         : status === "ready"
-          ? "bg-emerald-500"
+          ? "bg-success"
           : "bg-[var(--muted-foreground)]";
   return <span className={`inline-block h-2 w-2 rounded-full ${tone}`} />;
 }
@@ -386,7 +386,7 @@ export default function KnowledgeHome({
                             </span>
                             {kb.is_default && (
                               <Star
-                                className="h-3 w-3 shrink-0 text-amber-500"
+                                className="h-3 w-3 shrink-0 text-warning"
                                 fill="currentColor"
                               />
                             )}

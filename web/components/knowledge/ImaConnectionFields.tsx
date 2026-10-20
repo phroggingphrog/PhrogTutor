@@ -29,7 +29,7 @@ export default function ImaConnectionFields({
       {connection.accountConfigured && !showFields ? (
         <div className="flex items-start justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 py-2.5">
           <span className="flex items-start gap-1.5 text-[11.5px] leading-snug text-[var(--muted-foreground)]">
-            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
             {t(
               "Using the IMA credentials configured for this engine in the Knowledge Center.",
             )}
@@ -223,7 +223,7 @@ export default function ImaConnectionFields({
           {connection.manualProbe &&
             (connection.manualProbe.ok ? (
               <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/40 px-3 py-2.5 text-[12px]">
-                <div className="flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-300">
+                <div className="flex items-center gap-1.5 font-medium text-success">
                   <Check className="h-3.5 w-3.5" />
                   {t("Knowledge base verified")}
                 </div>
@@ -239,7 +239,7 @@ export default function ImaConnectionFields({
                 )}
               </div>
             ) : (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
                 <span className="flex items-center gap-1.5">
                   <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                   {connection.manualProbe.error || t("Could not connect")}

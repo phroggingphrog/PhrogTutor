@@ -128,7 +128,7 @@ export default function WeixinQrLogin({
       </p>
 
       {error && (
-        <p className="mt-2 text-[11px] text-red-600 dark:text-red-400">
+        <p className="mt-2 text-[11px] text-destructive">
           {error}
         </p>
       )}

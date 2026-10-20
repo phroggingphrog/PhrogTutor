@@ -294,7 +294,7 @@ function Installed({
                         void act(app.id, () => uninstallCliApp(app.id));
                       }}
                       aria-label={t("Uninstall")}
-                      className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-500 disabled:opacity-50"
+                      className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive disabled:opacity-50"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -681,7 +681,7 @@ function EntryDetail({
             {entry.install_target}
           </code>
           {!entry.pinned && (
-            <span className="mt-1.5 block text-[11.5px] text-amber-700 dark:text-amber-400">
+            <span className="mt-1.5 block text-[11.5px] text-warning">
               {t(
                 "This resolves to whatever that source publishes today — it is not pinned to a reviewed revision.",
               )}
@@ -786,10 +786,10 @@ const secondaryButton =
   "inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60";
 
 const okChip =
-  "inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400";
+  "inline-flex shrink-0 items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[10px] font-medium text-success";
 
 const warnChip =
-  "inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10.5px] font-medium text-amber-700 dark:text-amber-400";
+  "inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10.5px] font-medium text-warning";
 
 /**
  * Where the code came from, and whether the install is fixed to one revision.
@@ -802,7 +802,7 @@ function TrustChip({ trust, pinned }: { trust: string; pinned: boolean }) {
   const { t } = useTranslation();
   if (trust === "first-party") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-medium text-emerald-700 dark:text-emerald-400">
+      <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[10.5px] font-medium text-success">
         <ShieldCheck size={9} />
         {t("Pinned")}
       </span>
@@ -874,8 +874,8 @@ function Banner({
   children: React.ReactNode;
 }) {
   const styles = {
-    error: "border-red-500/40 bg-red-500/5 text-red-500",
-    warn: "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    error: "border-destructive/40 bg-destructive/5 text-destructive",
+    warn: "border-warning/25 bg-warning/10 text-warning",
     info: "border-[var(--border)] bg-[var(--muted)]/40 text-[var(--muted-foreground)]",
   }[tone];
   return (

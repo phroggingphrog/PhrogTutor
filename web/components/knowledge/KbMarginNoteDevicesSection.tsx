@@ -172,8 +172,8 @@ export default function KbMarginNoteDevicesSection({
         </div>
 
         {issued && (
-          <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/20">
-            <div className="flex items-center gap-1.5 text-[12px] font-medium text-amber-800 dark:text-amber-300">
+          <div className="space-y-2 rounded-lg border border-warning/30 bg-warning-surface p-3">
+            <div className="flex items-center gap-1.5 text-[12px] font-medium text-warning">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
               {t("Copy this now — it is not shown again.")}
             </div>
@@ -199,7 +199,7 @@ export default function KbMarginNoteDevicesSection({
       </section>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
           {error}
         </div>
       )}
@@ -245,7 +245,7 @@ export default function KbMarginNoteDevicesSection({
                   <button
                     type="button"
                     onClick={() => void handleRevoke(device.device_id)}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-[12px] font-medium text-red-700 transition-colors hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-[12px] font-medium text-destructive transition-colors hover:bg-destructive/20"
                   >
                     <Trash2 className="h-3 w-3" />
                     {t("Revoke")}

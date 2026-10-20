@@ -108,9 +108,9 @@ export default function ConnectKiwixModal({ onClose, onConnect }: Props) {
           <button type="button" onClick={() => void probe()} disabled={!!busy || !serverUrl.trim() || !zimName.trim()} className="rounded-lg border border-[var(--border)] px-3 py-2 text-[12px] font-medium disabled:opacity-50">
             {busy === "probe" && <Loader2 className="mr-1 inline h-3.5 w-3.5 animate-spin" />}{t("Check connection")}
           </button>
-          {verifiedTitle && <span className="min-w-0 truncate text-[12px] text-emerald-600">{t("Ready")}: {verifiedTitle}</span>}
+          {verifiedTitle && <span className="min-w-0 truncate text-[12px] text-success">{t("Ready")}: {verifiedTitle}</span>}
         </div>
-        {error && <p role="alert" className="text-[12px] text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-[12px] text-destructive">{error}</p>}
       </div>
     </Modal>
   );

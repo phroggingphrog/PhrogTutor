@@ -543,7 +543,7 @@ export function ServiceConfigEditor({
             </p>
           </div>
           {serviceChanged && (
-            <span className="text-xs text-amber-600 dark:text-amber-400">
+            <span className="text-xs text-warning">
               {t("Apply pending settings using the bar below.")}
             </span>
           )}
@@ -632,7 +632,7 @@ export function ServiceConfigEditor({
                         <button
                           type="button"
                           onClick={() => setDeletingProfile(openedProfile)}
-                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-500"
+                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--muted-foreground)] hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 size={14} />
                           {t("Delete provider")}
@@ -1639,10 +1639,10 @@ function ProfileFields({
           <p
             className={`mt-1.5 text-[11px] ${
               isSupportedSearchProvider
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-success"
                 : isDeprecatedSearchProvider
-                  ? "text-amber-600 dark:text-amber-400"
-                  : "text-red-500"
+                  ? "text-warning"
+                  : "text-destructive"
             }`}
           >
             {isSupportedSearchProvider
@@ -1778,7 +1778,7 @@ function ProfileFields({
                   </p>
                 )}
                 {missingRequiredBaseUrl && (
-                  <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-400">
+                  <p className="mt-1.5 text-[11px] text-warning">
                     {t(
                       "Required — without it, search falls back to DuckDuckGo.",
                     )}

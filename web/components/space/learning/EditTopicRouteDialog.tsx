@@ -113,7 +113,7 @@ export function EditTopicRouteDialog({
             compact
             showDescription={false}
           />
-          {error && <p className="mt-4 text-xs text-red-600">{error}</p>}
+          {error && <p className="mt-4 text-xs text-destructive">{error}</p>}
         </div>
         <footer className="flex justify-end gap-2 border-t border-[var(--border)] px-5 py-4 sm:px-7">
           <button

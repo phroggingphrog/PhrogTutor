@@ -360,7 +360,7 @@ export default function KbDocumentList({
           </button>
           {confirmDeleteFor === node.path ? (
             <div className="flex shrink-0 items-center gap-0.5 pr-0.5">
-              <span className="px-0.5 text-[10px] font-medium text-red-600 dark:text-red-400">
+              <span className="px-0.5 text-[10px] font-medium text-destructive">
                 {t("Delete?")}
               </span>
               <Tooltip label={t("Confirm delete")} side="top">
@@ -369,7 +369,7 @@ export default function KbDocumentList({
                   onClick={() => void handleDelete(node.path)}
                   disabled={busy}
                   aria-label={t("Confirm delete")}
-                  className="rounded p-1 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40 dark:text-red-400 dark:hover:bg-red-950/40"
+                  className="rounded p-1 text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-40"
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>
@@ -410,7 +410,7 @@ export default function KbDocumentList({
                     setConfirmDeleteFor(node.path);
                   }}
                   aria-label={t("Delete file")}
-                  className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                  className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -552,7 +552,7 @@ export default function KbDocumentList({
         }}
       >
         {error ? (
-          <div className="rounded-md border border-red-200 bg-red-50 px-2.5 py-2 text-[11px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 px-2.5 py-2 text-[11px] text-destructive">
             {error}
             <button
               type="button"

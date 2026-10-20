@@ -234,7 +234,7 @@ function QuizQuestionCard({
                 onClick={() => setSelected(upperKey)}
                 className={`flex w-full items-start gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
                   isCorrect
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-100"
+                    ? "border-success/30 bg-success-surface text-success"
                     : isWrongPick
                       ? "border-rose-300 bg-rose-50 text-rose-900 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100"
                       : isSelected
@@ -353,7 +353,7 @@ function SelfGradeButton({
 }) {
   const activeClass =
     tone === "correct"
-      ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
+      ? "border-success/30 bg-success-surface text-success"
       : "border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-200";
   return (
     <button

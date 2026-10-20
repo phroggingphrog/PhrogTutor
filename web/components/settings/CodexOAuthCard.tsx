@@ -342,7 +342,7 @@ export function CodexOAuthCard() {
               {t("codex.oauth.localOnly")}
             </p>
           )}
-          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+          <p className="mt-1 text-xs text-warning">
             {t("codex.oauth.experimental")}
           </p>
           {displayMessageKey && (

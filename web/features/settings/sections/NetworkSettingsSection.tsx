@@ -72,9 +72,9 @@ function DetailTile({
 }) {
   const dot =
     tone === "ok"
-      ? "bg-emerald-500"
+      ? "bg-success"
       : tone === "warn"
-        ? "bg-amber-500"
+        ? "bg-warning"
         : "bg-[var(--border)]";
   return (
     <div className="rounded-xl border border-[var(--border)]/60 bg-[var(--card)] px-4 py-3">
@@ -245,7 +245,7 @@ export default function NetworkSettingsPage() {
       )}
 
       {!loading && error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
           {error}
         </div>
       )}
@@ -391,7 +391,7 @@ export default function NetworkSettingsPage() {
           </SettingSection>
 
           {payload.auth.enabled && !payload.auth.cookie_secure && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-[12.5px] leading-relaxed text-amber-700 dark:text-amber-300">
+            <div className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-[12.5px] leading-relaxed text-warning">
               {t(
                 "Auth is enabled but secure cookies are off. Cross-site HTTPS deployments should set auth.cookie_secure=true and restart so SameSite=None cookies work in modern browsers.",
               )}

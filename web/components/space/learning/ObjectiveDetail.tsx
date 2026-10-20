@@ -82,7 +82,7 @@ export function ObjectiveDetail({
                 {attempt.is_correct ? (
                   <Check className="mt-0.5 h-3 w-3 shrink-0 text-green-500" />
                 ) : (
-                  <X className="mt-0.5 h-3 w-3 shrink-0 text-red-500" />
+                  <X className="mt-0.5 h-3 w-3 shrink-0 text-destructive" />
                 )}
                 <div className="min-w-0">
                   <div className="text-[var(--foreground)]">

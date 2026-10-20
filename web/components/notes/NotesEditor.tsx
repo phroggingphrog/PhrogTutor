@@ -354,7 +354,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
                     <button onClick={() => setShowFormat((v) => !v)} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">{showFormat ? "Hide" : "Show"} formatting bar</button>
                     <button onClick={runAll} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">▶▶ Run all cells</button>
                     <button onClick={restartKernels} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">↻ Restart cells</button>
-                    {!readOnly && <button onClick={remove} className="px-3 py-1.5 text-left text-red-500 hover:bg-[var(--muted)]">Delete note</button>}
+                    {!readOnly && <button onClick={remove} className="px-3 py-1.5 text-left text-destructive hover:bg-[var(--muted)]">Delete note</button>}
                     {readOnly && <span className="px-3 py-1.5 text-xs text-[var(--muted-foreground)]">Read-only note</span>}
                   </div>
                 )}

@@ -120,7 +120,7 @@ export default function PartnerSeat({
         </div>
 
         {seat.status === "error" ? (
-          <p className="rounded-xl border border-red-500/25 bg-red-500/[0.04] px-3.5 py-2.5 text-[12px] text-red-500">
+          <p className="rounded-xl border border-destructive/25 bg-destructive/[0.04] px-3.5 py-2.5 text-[12px] text-destructive">
             {body || t("This Partner could not answer.")}
           </p>
         ) : body ? (

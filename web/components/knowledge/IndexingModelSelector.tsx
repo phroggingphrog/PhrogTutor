@@ -140,7 +140,7 @@ export default function IndexingModelSelector({
   }
   if (error && options.length === 0) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
         {t(
           "The model catalog could not be loaded. Check model settings and try again.",
         )}
@@ -149,7 +149,7 @@ export default function IndexingModelSelector({
   }
   if (options.length === 0) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+      <div className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
         {t("No indexing model is available. Configure an LLM model first.")}
       </div>
     );
@@ -214,14 +214,14 @@ export default function IndexingModelSelector({
       </label>}
 
       {!reasoningOnly && defaultUnavailable && !selection && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+        <div className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
           {t(
             "The current LightRAG query model is unavailable here. Choose an accessible indexing model.",
           )}
         </div>
       )}
       {!reasoningOnly && defaultLoadError && !selection && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
           {t(
             "The LightRAG query-model setting could not be loaded. Choose an indexing model or try again.",
           )}

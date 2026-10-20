@@ -1097,13 +1097,13 @@ export default memo(function ChatComposer({
           />
 
           {attachmentError && (
-            <div className="px-4 pb-2 text-[11px] text-red-600">
+            <div className="px-4 pb-2 text-[11px] text-destructive">
               {attachmentError}
             </div>
           )}
 
           {recorder.error && (
-            <div role="alert" className="px-4 pb-2 text-[11px] text-red-600">
+            <div role="alert" className="px-4 pb-2 text-[11px] text-destructive">
               {recorder.error}
             </div>
           )}
@@ -1342,13 +1342,13 @@ export default memo(function ChatComposer({
                     disabled={recorder.state === "transcribing" || isStreaming}
                     className={`group relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] transition-[background-color,color,transform] duration-150 active:scale-90 disabled:opacity-40 ${
                       recorder.state === "recording"
-                        ? "bg-red-500/15 text-red-500"
+                        ? "bg-destructive/15 text-destructive"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
                     }`}
                     aria-label={recorder.state === "recording" ? t("Stop recording") : t("Record voice")}
                   >
                     {recorder.state === "recording" && (
-                      <span className="pointer-events-none absolute inset-0 rounded-[10px] border border-red-500/40 animate-pulse" />
+                      <span className="pointer-events-none absolute inset-0 rounded-[10px] border border-destructive/40 animate-pulse" />
                     )}
                     {recorder.state === "transcribing" ? (
                       <Loader2

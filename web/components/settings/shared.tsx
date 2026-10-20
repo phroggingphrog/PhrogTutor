@@ -54,8 +54,8 @@ export function stringifyExtraHeaders(
 }
 
 export function statusDotClass(configured: boolean, hasError: boolean): string {
-  if (hasError) return "bg-red-400";
-  if (configured) return "bg-emerald-500";
+  if (hasError) return "bg-destructive";
+  if (configured) return "bg-success";
   return "bg-[var(--border)]";
 }
 

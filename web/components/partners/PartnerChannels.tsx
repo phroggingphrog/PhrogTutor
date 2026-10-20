@@ -199,7 +199,7 @@ export default function PartnerChannels({
 
   if (!schemaCatalog || detailError) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-8 text-amber-700 dark:text-amber-300">
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-8 text-warning">
         <p className="text-[13px]">{t("Could not load this section.")}</p>
         <button
           type="button"
@@ -233,7 +233,7 @@ export default function PartnerChannels({
   return (
     <div className="space-y-4">
       {reloadError && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-700 dark:text-amber-300">
+        <div className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-[12px] text-warning">
           <strong className="font-medium">
             {t("Channel listeners failed to restart:")}
           </strong>{" "}
@@ -285,8 +285,8 @@ export default function PartnerChannels({
                       {entry.display_name}
                     </span>
                     {enabled && (
-                      <span className="inline-flex shrink-0 items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400">
-                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span className="inline-flex shrink-0 items-center gap-1 text-[10px] text-success">
+                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
                         {t("Enabled")}
                       </span>
                     )}
@@ -314,7 +314,7 @@ export default function PartnerChannels({
                 </code>
               </div>
               {activeEntry.available === false || !activeEntry.json_schema ? (
-                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-700 dark:text-amber-300">
+                <div className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-[12px] text-warning">
                   <strong className="font-medium">
                     {t("This channel is not available on the server.")}
                   </strong>{" "}
@@ -345,7 +345,7 @@ export default function PartnerChannels({
                   {activeValue.enabled === true &&
                     Array.isArray(activeValue.allow_from) &&
                     activeValue.allow_from.length === 0 && (
-                      <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-700 dark:text-amber-300">
+                      <div className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-[11px] text-warning">
                         {t(
                           "Add at least one allowed sender before starting this channel.",
                         )}

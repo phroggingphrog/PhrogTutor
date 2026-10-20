@@ -139,12 +139,12 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
   if (error) {
     return (
       <div
-        className={`my-4 p-4 bg-red-50 border border-red-200 rounded-lg ${className}`}
+        className={`my-4 p-4 bg-destructive/10 border border-destructive/30 rounded-lg ${className}`}
       >
-        <p className="text-red-600 text-sm font-medium mb-2">
+        <p className="text-destructive text-sm font-medium mb-2">
           {t("Diagram rendering error")}
         </p>
-        <pre className="text-xs text-red-500 whitespace-pre-wrap">{error}</pre>
+        <pre className="text-xs text-destructive whitespace-pre-wrap">{error}</pre>
         <details className="mt-2">
           <summary className="text-xs text-[var(--muted-foreground)] cursor-pointer">
             {t("Show source")}

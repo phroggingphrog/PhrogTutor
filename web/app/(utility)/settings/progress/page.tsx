@@ -43,7 +43,7 @@ export default function LearningProgressPage() {
         {t("Review your own reading and learning activity.")}
       </p>
       {error ? (
-        <p className="mt-8 text-sm text-red-600">{t("Unable to load learning progress")}</p>
+        <p className="mt-8 text-sm text-destructive">{t("Unable to load learning progress")}</p>
       ) : records === null ? (
         <p className="mt-8 text-sm text-[var(--muted-foreground)]">{t("Loading progress")}</p>
       ) : !hasRecords ? (

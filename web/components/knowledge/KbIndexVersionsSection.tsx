@@ -230,8 +230,8 @@ export default function KbIndexVersionsSection({
               disabled={submitting || isReindexingHere}
               className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium transition-colors disabled:opacity-50 ${
                 isError
-                  ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
-                  : "border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300"
+                  ? "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20"
+                  : "border-warning/30 bg-warning-surface text-warning hover:bg-warning/20"
               }`}
             >
               {submitting || isReindexingHere ? (
@@ -258,7 +258,7 @@ export default function KbIndexVersionsSection({
       {kb.metadata?.embedding_status === "missing" && (
         <p
           role="alert"
-          className="rounded-lg border border-amber-300 p-3 text-xs text-amber-700"
+          className="rounded-lg border border-warning/30 p-3 text-xs text-warning"
         >
           {t(
             "The bound embedding model was deleted. Your documents and indexes are preserved. Select another model to re-index this knowledge base.",
@@ -268,7 +268,7 @@ export default function KbIndexVersionsSection({
       {kb.metadata?.embedding_status === "unconfigured" && (
         <p
           role="alert"
-          className="rounded-lg border border-amber-300 p-3 text-xs text-amber-700"
+          className="rounded-lg border border-warning/30 p-3 text-xs text-warning"
         >
           {t(
             "The bound embedding model is not configured. Check its provider settings.",
@@ -279,7 +279,7 @@ export default function KbIndexVersionsSection({
       {isLightRag && kb.metadata?.indexing_model_unavailable && (
         <p
           role="alert"
-          className="rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300"
+          className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning"
         >
           {t(
             "The pinned EXTRACT or VLM configuration is unavailable. Restore model access in Settings, or update defaults and rebuild to replace the model. Existing text retrieval does not require these indexing models.",
@@ -298,7 +298,7 @@ export default function KbIndexVersionsSection({
         !isLightRag &&
         !isError &&
         (needsReindex || mismatch) && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300">
+          <div className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
             {t(
               "The active embedding configuration doesn't match any ready index version. Re-index to rebuild against the current embedding model.",
             )}
@@ -423,7 +423,7 @@ export default function KbIndexVersionsSection({
             />
           )}
           {dialogError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
               {t(dialogError)}
             </div>
           )}
@@ -490,9 +490,9 @@ function IndexVersionRow({
           tabIndex={0}
           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
             isActive
-              ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-300"
+              ? "bg-success-surface text-success"
               : isPhantom
-                ? "bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:text-amber-300"
+                ? "bg-warning-surface text-warning"
                 : "bg-[var(--muted)] text-[var(--muted-foreground)]"
           }`}
         >
@@ -515,19 +515,19 @@ function IndexVersionRow({
           <span
             className={`truncate text-[12.5px] font-medium ${
               isPhantom
-                ? "text-amber-700 line-through decoration-amber-400/70 dark:text-amber-300"
+                ? "text-warning line-through decoration-amber-400/70"
                 : "text-[var(--foreground)]"
             }`}
           >
             {title}
           </span>
           {isActive && (
-            <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300">
+            <span className="rounded-full bg-success-surface px-1.5 py-0.5 text-[10px] font-medium text-success">
               {t("Active")}
             </span>
           )}
           {isPhantom && (
-            <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-300">
+            <span className="rounded-full bg-warning-surface px-1.5 py-0.5 text-[10px] font-medium text-warning">
               {t("Stale")}
             </span>
           )}
@@ -537,7 +537,7 @@ function IndexVersionRow({
             </span>
           )}
           {isFailedLightRagCandidate && (
-            <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-950/30 dark:text-red-300">
+            <span className="rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
               {t("Not published")}
             </span>
           )}
@@ -560,7 +560,7 @@ function IndexVersionRow({
             <span className="font-mono">{version.signature.slice(0, 10)}</span>
           )}
           {version.failure_summary && (
-            <span className="text-red-600 dark:text-red-300">
+            <span className="text-destructive">
               {version.failure_summary}
             </span>
           )}

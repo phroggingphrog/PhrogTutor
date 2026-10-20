@@ -61,7 +61,7 @@ export default function MasteryRecords() {
               <span className="flex-1 font-medium">{c.concept}</span>
               <span className="h-2 w-28 overflow-hidden rounded bg-[var(--muted)]">
                 <span
-                  className={`block h-full ${c.mastery < 0.45 ? "bg-red-500" : c.mastery < 0.7 ? "bg-amber-500" : "bg-emerald-500"}`}
+                  className={`block h-full ${c.mastery < 0.45 ? "bg-destructive" : c.mastery < 0.7 ? "bg-warning" : "bg-success"}`}
                   style={{ width: `${Math.round(c.mastery * 100)}%` }}
                 />
               </span>

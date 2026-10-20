@@ -33,8 +33,8 @@ import Tooltip from '@/shared/ui/Tooltip'
 const STATUS_STYLES: Record<BookStatus, { label: string; className: string; dot: string }> = {
   draft: {
     label: 'Draft',
-    className: 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300',
-    dot: 'bg-amber-500',
+    className: 'bg-warning-surface text-warning',
+    dot: 'bg-warning',
   },
   spine_ready: {
     label: 'Outline',
@@ -48,13 +48,13 @@ const STATUS_STYLES: Record<BookStatus, { label: string; className: string; dot:
   },
   paused: {
     label: 'Paused',
-    className: 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300',
-    dot: 'bg-amber-500',
+    className: 'bg-warning-surface text-warning',
+    dot: 'bg-warning',
   },
   ready: {
     label: 'Ready',
-    className: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300',
-    dot: 'bg-emerald-500',
+    className: 'bg-success-surface text-success',
+    dot: 'bg-success',
   },
   error: {
     label: 'Error',
@@ -163,7 +163,7 @@ export default function BookLibrary({
             icon={<Sparkles size={14} />}
             label={t('Ready')}
             value={stats.ready}
-            accent="text-emerald-600 dark:text-emerald-400"
+            accent="text-success"
           />
           <StatCard
             icon={<Loader2 size={14} />}

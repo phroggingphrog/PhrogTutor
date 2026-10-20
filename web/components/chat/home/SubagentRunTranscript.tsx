@@ -122,7 +122,7 @@ function SubagentLine({ channel, text }: { channel: string; text: string }) {
       );
     case "tool":
       return (
-        <BulletLine bulletClass="text-amber-500">
+        <BulletLine bulletClass="text-warning">
           <span className="break-all">{text}</span>
         </BulletLine>
       );
@@ -136,7 +136,7 @@ function SubagentLine({ channel, text }: { channel: string; text: string }) {
       return <ToolResultBlock text={text} />;
     case "error":
       return (
-        <div className="whitespace-pre-wrap break-words pl-4 leading-[1.55] text-red-600 dark:text-red-400">
+        <div className="whitespace-pre-wrap break-words pl-4 leading-[1.55] text-destructive">
           {text}
         </div>
       );

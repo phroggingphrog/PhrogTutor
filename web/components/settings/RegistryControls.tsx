@@ -20,7 +20,7 @@ export const registryButton =
   `${registryButtonBase} border-[var(--border)] hover:border-[color-mix(in_srgb,var(--foreground)_20%,var(--border))] hover:bg-[var(--accent)] disabled:hover:border-[var(--border)] disabled:hover:bg-transparent`;
 /** Destructive action: reads as neutral until you reach for it. */
 export const registryDanger =
-  `${registryButtonBase} border-[var(--border)] text-[var(--muted-foreground)] hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:hover:border-[var(--border)] disabled:hover:bg-transparent disabled:hover:text-[var(--muted-foreground)] dark:hover:border-red-900 dark:hover:bg-red-950 dark:hover:text-red-400`;
+  `${registryButtonBase} border-[var(--border)] text-[var(--muted-foreground)] hover:border-destructive/30 hover:bg-destructive/20 hover:text-destructive disabled:hover:border-[var(--border)] disabled:hover:bg-transparent disabled:hover:text-[var(--muted-foreground)]`;
 export const registryPrimary =
   "inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-[var(--foreground)] px-4 text-xs font-medium text-[var(--background)] outline-none transition-[background-color,box-shadow,transform] duration-150 hover:bg-[color-mix(in_srgb,var(--foreground)_86%,var(--background))] active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] disabled:opacity-40 disabled:hover:bg-[var(--foreground)] disabled:active:scale-100";
 
@@ -213,7 +213,7 @@ function ProbeForm({
       {result && (
         <div
           role="status"
-          className={`text-xs leading-relaxed ${result.status === "connected" ? "text-emerald-700 dark:text-emerald-400" : "text-[var(--muted-foreground)]"}`}
+          className={`text-xs leading-relaxed ${result.status === "connected" ? "text-success" : "text-[var(--muted-foreground)]"}`}
         >
           {t(PROBE_MESSAGES[result.status] || PROBE_MESSAGES.http_error)}
           {result.http_status != null && ` · HTTP ${result.http_status}`}

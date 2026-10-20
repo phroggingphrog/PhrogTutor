@@ -218,7 +218,7 @@ export function NotebookCaptureDialog({
           </p>
         )}
       </div>
-      {error && <p className="mt-3 text-[10px] text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-[10px] text-destructive">{error}</p>}
       <div className="mt-5 flex justify-end gap-2">
         <button
           type="button"
@@ -336,7 +336,7 @@ export function WorkspaceValueDialog({
             className="mt-2 h-10 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-[12px] font-normal normal-case tracking-normal outline-none focus:border-[var(--ring)] dark:border-[var(--border)] dark:bg-[var(--background)]"
           />
         </label>
-        {error && <p className="mt-3 text-[11px] text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-[11px] text-destructive">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
@@ -380,7 +380,7 @@ export function WorkspaceConfirmDialog({
       <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
         {body}
       </p>
-      {error && <p className="mt-3 text-[11px] text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-[11px] text-destructive">{error}</p>}
       <div className="mt-5 flex justify-end gap-2">
         <button
           type="button"
@@ -403,7 +403,7 @@ export function WorkspaceConfirmDialog({
               )
               .finally(() => setWorking(false));
           }}
-          className="flex h-9 items-center gap-2 rounded-xl bg-red-700 px-4 text-[11px] font-semibold text-white disabled:opacity-60"
+          className="flex h-9 items-center gap-2 rounded-xl bg-destructive px-4 text-[11px] font-semibold text-white disabled:opacity-60"
         >
           {working && <Loader2 size={12} className="animate-spin" />}
           {actionLabel}

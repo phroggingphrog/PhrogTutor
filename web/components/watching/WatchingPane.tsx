@@ -765,7 +765,7 @@ export function WatchingPane({ onClose }: { onClose(): void }) {
 
       {!material && (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-          <Play className="h-10 w-10 text-red-500" />
+          <Play className="h-10 w-10 text-destructive" />
           <div>
             <h3 className="font-medium">{t('Open a YouTube learning video')}</h3>
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">
@@ -788,7 +788,7 @@ export function WatchingPane({ onClose }: { onClose(): void }) {
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="rounded-lg bg-red-600 px-4 py-2 text-white disabled:opacity-50"
+              className="rounded-lg bg-destructive px-4 py-2 text-white disabled:opacity-50"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('Open')}
             </button>
@@ -796,7 +796,7 @@ export function WatchingPane({ onClose }: { onClose(): void }) {
           {effectiveError && (
             <div
               role="alert"
-              className="w-full max-w-xl rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-left text-sm"
+              className="w-full max-w-xl rounded-lg border border-warning/40 bg-warning/10 p-3 text-left text-sm"
             >
               <div className="flex gap-2">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -833,7 +833,7 @@ export function WatchingPane({ onClose }: { onClose(): void }) {
           {effectiveError && (
             <div
               role="alert"
-              className="m-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm"
+              className="m-3 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm"
             >
               {effectiveError}
               {material.playback.provider === 'invidious' && (

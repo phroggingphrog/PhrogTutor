@@ -103,7 +103,7 @@ export function ConfirmDialog({
             disabled={busy}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium disabled:opacity-40 transition-colors ${
               tone === "danger"
-                ? "bg-red-600 text-white hover:bg-red-700"
+                ? "bg-destructive text-white hover:bg-destructive"
                 : "bg-[var(--foreground)] text-[var(--background)] hover:opacity-90"
             }`}
           >

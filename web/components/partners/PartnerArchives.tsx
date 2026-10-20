@@ -337,7 +337,7 @@ export default function PartnerArchives({
                       type="button"
                       onClick={() => void handleDelete(selected)}
                       aria-label={t("Delete conversation")}
-                      className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-red-500"
+                      className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-destructive"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

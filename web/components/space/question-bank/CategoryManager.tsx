@@ -136,7 +136,7 @@ export default function CategoryManager({
                         void run(() => onDelete(category.id));
                     }}
                     aria-label={t("Delete")}
-                    className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 dark:hover:bg-red-950/30"
+                    className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive disabled:opacity-40"
                   >
                     <Trash2 size={13} />
                   </button>

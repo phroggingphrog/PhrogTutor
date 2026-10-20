@@ -2311,8 +2311,8 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
         <div
           className={`shrink-0 border-t px-4 py-1.5 text-xs ${
             error
-              ? "border-red-200 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
-              : "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400"
+              ? "border-destructive/30 bg-destructive/10 text-destructive"
+              : "border-success/30 bg-success-surface text-success"
           }`}
         >
           {error || status}
@@ -2477,7 +2477,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
             </div>
 
             <div className="px-4 py-3">
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+              <div className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[11px] leading-relaxed text-warning">
                 {t(
                   "Undo is available with Ctrl/Cmd+Z or the toolbar Undo button.",
                 )}
@@ -2502,7 +2502,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                 className={`rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90 ${
                   confirmActionCopy.tone === "danger"
                     ? "bg-rose-600"
-                    : "bg-amber-600"
+                    : "bg-warning"
                 }`}
               >
                 {confirmActionCopy.confirmLabel}
@@ -2542,7 +2542,7 @@ function ToolbarIconBtn({
     tone === "danger"
       ? "hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400"
       : tone === "warning"
-        ? "hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300"
+        ? "hover:bg-warning/10 hover:text-warning"
         : "hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]";
 
   return (

@@ -87,7 +87,7 @@ export default function ChannelRuntimeStatus({
     <div
       className={`rounded-lg border px-3 py-2.5 text-[11px] ${
         isError
-          ? "border-red-500/35 bg-red-500/10 text-red-700 dark:text-red-300"
+          ? "border-destructive/35 bg-destructive/10 text-destructive"
           : "border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]"
       }`}
     >
@@ -97,7 +97,7 @@ export default function ChannelRuntimeStatus({
         ) : isError ? (
           <AlertCircle className="h-3.5 w-3.5" aria-hidden />
         ) : isConnected ? (
-          <Wifi className="h-3.5 w-3.5 text-emerald-500" aria-hidden />
+          <Wifi className="h-3.5 w-3.5 text-success" aria-hidden />
         ) : (
           <QrCode className="h-3.5 w-3.5 text-[var(--primary)]" aria-hidden />
         )}

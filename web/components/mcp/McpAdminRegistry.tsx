@@ -70,12 +70,12 @@ export default function McpAdminRegistry() {
           </p>
 
           {mcp.loadError && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
               {t("Failed to load MCP servers")}: {mcp.loadError}
             </div>
           )}
           {mcp.saveError && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
               {t("Failed to save")}: {mcp.saveError}
             </div>
           )}

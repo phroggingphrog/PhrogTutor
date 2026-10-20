@@ -21,11 +21,11 @@ export default function McpStatusBadge({
     disabled: t("Disabled"),
   };
   const dotClass: Record<McpServerStatus, string> = {
-    connected: "bg-emerald-500",
-    connecting: "bg-amber-400",
-    error: "bg-red-500",
+    connected: "bg-success",
+    connecting: "bg-warning",
+    error: "bg-destructive",
     // Amber, like connecting: nothing is broken, something is pending.
-    needs_auth: "bg-amber-400",
+    needs_auth: "bg-warning",
     disabled: "bg-[var(--border)]",
   };
   const badge = (

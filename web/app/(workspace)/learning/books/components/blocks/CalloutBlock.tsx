@@ -14,9 +14,9 @@ const VARIANT_STYLES: Record<
 > = {
   key_idea: {
     icon: Lightbulb,
-    rule: "border-amber-400/70 dark:border-amber-300/60",
-    tint: "bg-amber-50/60 text-amber-950 dark:bg-amber-500/[0.06] dark:text-amber-100",
-    accent: "text-amber-700 dark:text-amber-300",
+    rule: "border-warning/70",
+    tint: "bg-warning-surface text-warning/[0.06]",
+    accent: "text-warning",
   },
   common_pitfall: {
     icon: AlertTriangle,
@@ -32,9 +32,9 @@ const VARIANT_STYLES: Record<
   },
   tip: {
     icon: Sparkles,
-    rule: "border-emerald-400/70 dark:border-emerald-300/60",
-    tint: "bg-emerald-50/60 text-emerald-950 dark:bg-emerald-500/[0.06] dark:text-emerald-100",
-    accent: "text-emerald-700 dark:text-emerald-300",
+    rule: "border-success/70",
+    tint: "bg-success-surface text-success/[0.06]",
+    accent: "text-success",
   },
 };
 

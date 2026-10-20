@@ -41,7 +41,7 @@ function PhaseIcon({ phase }: { phase: AttachmentProcessingPhase }) {
     return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />;
   }
   if (phase === "failed" || phase === "fallback") {
-    return <TriangleAlert className="h-3.5 w-3.5 text-amber-600" />;
+    return <TriangleAlert className="h-3.5 w-3.5 text-warning" />;
   }
   return (
     <LoaderCircle className="h-3.5 w-3.5 animate-spin text-[var(--primary)]" />

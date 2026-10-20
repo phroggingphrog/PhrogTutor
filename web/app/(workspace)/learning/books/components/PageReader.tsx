@@ -589,7 +589,7 @@ export default function PageReader({
         ) : (
           <article className="mx-auto flex w-full max-w-[78ch] flex-col gap-6 [&>:first-child]:mt-0">
             {hasFailedBlocks && (
-              <div className="rounded-2xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+              <div className="rounded-2xl border border-warning/70 bg-warning-surface px-4 py-3 text-sm text-warning">
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div className="font-semibold">
                     {failedBlocks.length === 1

@@ -321,9 +321,9 @@ export default function QuestionBankPicker({
                             <span
                               className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase ${
                                 entry.difficulty === "hard"
-                                  ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                                  ? "bg-destructive/10 text-destructive"
                                   : entry.difficulty === "medium"
-                                    ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                                    ? "bg-warning-surface text-warning"
                                     : "bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400"
                               }`}
                             >
@@ -339,7 +339,7 @@ export default function QuestionBankPicker({
                             className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
                               entry.is_correct
                                 ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
-                                : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400"
+                                : "bg-destructive/10 text-destructive"
                             }`}
                           >
                             {entry.is_correct ? t("Correct") : t("Incorrect")}

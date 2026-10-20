@@ -150,7 +150,7 @@ export default function RichCodeBlock({
                 type="button"
                 onClick={run}
                 disabled={running}
-                className="rounded bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
+                className="rounded bg-success px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-success disabled:opacity-60"
               >
                 {running ? "Running…" : "▶ Run"}
               </button>
@@ -216,9 +216,9 @@ export default function RichCodeBlock({
       {result ? (
         <div className="border-t border-[var(--border)] bg-black/30 p-3 text-xs" style={{ fontFamily: MONOSPACE }}>
           {result.stdout ? <pre className="whitespace-pre-wrap">{result.stdout}</pre> : null}
-          {result.stderr ? <pre className="whitespace-pre-wrap text-red-400">{result.stderr}</pre> : null}
-          {result.error ? <pre className="whitespace-pre-wrap text-red-400">{result.error}</pre> : null}
-          {result.timed_out ? <pre className="text-amber-400">Timed out.</pre> : null}
+          {result.stderr ? <pre className="whitespace-pre-wrap text-destructive">{result.stderr}</pre> : null}
+          {result.error ? <pre className="whitespace-pre-wrap text-destructive">{result.error}</pre> : null}
+          {result.timed_out ? <pre className="text-warning">Timed out.</pre> : null}
           {result.images.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img key={i} src={src} alt={`plot ${i + 1}`} className="mt-2 max-w-full rounded bg-white" />

@@ -273,7 +273,7 @@ export default function NewPartnerGroupPage() {
           )}
         />
 
-        {error ? <p className="text-[12px] text-red-500">{error}</p> : null}
+        {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
 
         <div className="flex justify-end pb-8">
           <button

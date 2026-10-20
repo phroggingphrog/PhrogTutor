@@ -189,8 +189,8 @@ export default function QuestionBankSection({
           <Loader2 className="h-5 w-5 animate-spin text-[var(--muted-foreground)]" />
         </div>
       ) : bank.error ? (
-        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-red-300 text-center dark:border-red-900">
-          <div className="mb-3 rounded-xl bg-red-50 p-2.5 text-red-500 dark:bg-red-950/30">
+        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-destructive/30 text-center">
+          <div className="mb-3 rounded-xl bg-destructive/10 p-2.5 text-destructive">
             <AlertTriangle size={18} />
           </div>
           <p className="text-[14px] font-medium text-[var(--foreground)]">

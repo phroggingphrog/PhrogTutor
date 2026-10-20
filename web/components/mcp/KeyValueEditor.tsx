@@ -93,7 +93,7 @@ export default function KeyValueEditor({
               type="button"
               onClick={() => remove(idx)}
               aria-label={t("Remove")}
-              className="shrink-0 rounded-md p-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-500"
+              className="shrink-0 rounded-md p-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>

@@ -278,7 +278,7 @@ export default function McpCatalogBrowser({
       </div>
 
       {error && (
-        <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[12.5px] text-amber-700 dark:text-amber-400">
+        <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-[12.5px] text-warning">
           {error}
         </div>
       )}
@@ -384,7 +384,7 @@ function EntryCard({
                 {entry.display_name}
               </span>
               {installed && (
-                <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[10px] font-medium text-success">
                   <CheckCircle2 size={9} />
                   {t("Installed")}
                 </span>
@@ -401,7 +401,7 @@ function EntryCard({
             <span className={chipClass}>{t("mcp.tier.registry")}</span>
           )}
           {entry.trust !== "verified" && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10.5px] font-medium text-amber-700 dark:text-amber-400">
+            <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10.5px] font-medium text-warning">
               <ShieldAlert size={9} />
               {t("Unverified")}
             </span>
@@ -518,7 +518,7 @@ function EntryDetail({
               {entry.display_name}
             </h2>
             {installed && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[10px] font-medium text-success">
                 <CheckCircle2 size={9} />
                 {t("Installed")}
               </span>
@@ -534,7 +534,7 @@ function EntryDetail({
             <span className={chipClass}>{t(`mcp.tier.${entry.tier}`)}</span>
             <span className={chipClass}>{entry.transport}</span>
             {entry.trust !== "verified" && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10.5px] font-medium text-amber-700 dark:text-amber-400">
+              <span className="inline-flex items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10.5px] font-medium text-warning">
                 <ShieldAlert size={9} />
                 {t("Unverified")}
               </span>
@@ -627,13 +627,13 @@ function EntryDetail({
         )}
 
         {atCapacity && (
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-700 dark:text-amber-400">
+          <div className="rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-[12px] text-warning">
             {t("You have reached your MCP server limit. Remove one first.")}
           </div>
         )}
 
         {state?.kind === "error" && (
-          <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
             {state.message}
           </div>
         )}
@@ -649,8 +649,8 @@ function EntryDetail({
           <div
             className={`rounded-lg border px-3 py-2 text-[12px] ${
               probe.ok
-                ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
-                : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                ? "border-success/40 bg-success/5 text-success"
+                : "border-warning/30 bg-warning/10 text-warning"
             }`}
           >
             {probe.ok ? (

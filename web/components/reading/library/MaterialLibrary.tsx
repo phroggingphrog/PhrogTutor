@@ -412,7 +412,7 @@ function MaterialRow({
             {quizStars > 0 && (
               <span
                 aria-label={t("Quiz stars: {{count}}", { count: quizStars })}
-                className="inline-flex shrink-0 items-center gap-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
+                className="inline-flex shrink-0 items-center gap-0.5 text-[10px] font-semibold text-warning"
               >
                 <Star size={11} fill="currentColor" aria-hidden="true" />
                 <span aria-hidden="true" className="tabular-nums">

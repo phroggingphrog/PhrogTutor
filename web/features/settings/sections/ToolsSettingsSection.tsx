@@ -275,7 +275,7 @@ export default function ToolsSettingsPage() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-500/40 bg-red-500/5 px-4 py-3 text-[12px] text-red-500">
+        <div className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-[12px] text-destructive">
           {t("Failed to load tools")}: {error}
         </div>
       )}
@@ -380,7 +380,7 @@ export default function ToolsSettingsPage() {
                                   </span>
                                 )}
                                 {availability && !isComingSoon && (
-                                  <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
+                                  <span className="inline-flex items-center rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
                                     {availability.badge}
                                   </span>
                                 )}
@@ -395,7 +395,7 @@ export default function ToolsSettingsPage() {
                                 {hints.short_description || tool.description}
                               </p>
                               {availability && !isComingSoon && (
-                                <p className="mt-1 text-[11.5px] leading-relaxed text-amber-700 dark:text-amber-300">
+                                <p className="mt-1 text-[11.5px] leading-relaxed text-warning">
                                   {availability.detail}{" "}
                                   {availability.href && (
                                     <Link
