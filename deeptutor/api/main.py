@@ -567,14 +567,14 @@ from deeptutor.api.routers import (
     voice,
     workspace,
 )
+from deeptutor.api.routers import dictionary as dictionary_router
+from deeptutor.api.routers import mastery_records as mastery_records_router
+from deeptutor.api.routers import notebook_kernel as notebook_kernel_router
+from deeptutor.api.routers import run_code as run_code_router
+from deeptutor.api.routers import terminal as terminal_router
 from deeptutor.api.routers import (
     tools as tools_router,
 )
-from deeptutor.api.routers import run_code as run_code_router
-from deeptutor.api.routers import dictionary as dictionary_router
-from deeptutor.api.routers import notebook_kernel as notebook_kernel_router
-from deeptutor.api.routers import terminal as terminal_router
-from deeptutor.api.routers import mastery_records as mastery_records_router
 from deeptutor.api.routers.file_library import router as file_library_router  # noqa: E402
 from deeptutor.api.routers.multi_user import router as multi_user_router  # noqa: E402
 

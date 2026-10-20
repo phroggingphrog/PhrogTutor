@@ -11,12 +11,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import logging
+import os
+from pathlib import Path
 import re
 import sqlite3
 import time
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -249,7 +249,7 @@ async def _draft_understood(concept: str, stuck_quote: str, tutor_answer: str, s
 
 def _learned_rules() -> str:
     path = _rules_path()
-    lines = [l for l in path.read_text(encoding="utf-8").splitlines() if l.strip()] if path.exists() else []
+    lines = [ln for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()] if path.exists() else []
     if not lines:
         return ""
     return "\n\nRules learned from what worked for this learner (newest first):\n" + "\n".join(reversed(lines[-15:]))

@@ -10,9 +10,9 @@ pipeline's capability hooks and tool dispatch.
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 import json
 import logging
-from dataclasses import dataclass, field
 from time import monotonic
 from typing import TYPE_CHECKING, Any
 
@@ -33,9 +33,9 @@ from deeptutor.services.llm import (
     LLMProviderTransportError,
     LLMReasoningBudgetExhausted,
     clean_thinking_tags,
+    finish_was_truncated,
+    pi_bridge,
 )
-from deeptutor.services.llm import finish_was_truncated
-from deeptutor.services.llm import pi_bridge
 from deeptutor.services.llm.metrics import CallMeasurement, measurement_active
 from deeptutor.services.llm.usage_frame import usage_breakdown
 from deeptutor.services.llm.utils import unreachable_endpoint_hint
@@ -198,7 +198,10 @@ class PiTurn:
                 if outcome.final_text and (messages[-1].get("role") != "assistant" or not messages[-1].get("content")):
                     messages.append({"role": "assistant", "content": outcome.final_text})
             finally:
-                from deeptutor.services.session.model_history import complete_tool_results, normalize_model_turn
+                from deeptutor.services.session.model_history import (
+                    complete_tool_results,
+                    normalize_model_turn,
+                )
 
                 self.context.runtime.model_turn = normalize_model_turn(
                     {

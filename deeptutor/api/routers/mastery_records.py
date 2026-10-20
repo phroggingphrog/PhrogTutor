@@ -45,8 +45,8 @@ def delete_record(record_id: int):
 async def gaps():
     import json
     import os
-    import re
     from pathlib import Path
+    import re
 
     from deeptutor.services.embedding.client import get_embedding_client
 

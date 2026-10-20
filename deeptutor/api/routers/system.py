@@ -20,8 +20,8 @@ from deeptutor.api.contracts.turn_protocol import (
 from deeptutor.api.routers.auth import require_admin
 from deeptutor.multi_user.context import get_current_user
 from deeptutor.runtime import memory_probe
-from deeptutor.services.app_update import _UPDATE_REPO
 from deeptutor.services.app_update import (
+    _UPDATE_REPO,
     SYSTEMD_UPDATE_REASON,
     Installation,
     UpdateInProgressError,

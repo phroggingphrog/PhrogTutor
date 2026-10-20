@@ -12,12 +12,12 @@ Agent turns always run on pi. ``PI_TUTOR_SDK=0`` only sends single model calls b
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncGenerator, AsyncIterator
 import json
 import os
-import uuid
-from collections.abc import AsyncGenerator, AsyncIterator
 from pathlib import Path
 from typing import Any
+import uuid
 
 _LLM_TS = Path(__file__).resolve().parents[3] / "pi_engine" / "llm.ts"
 # The bun binary that runs pi_engine (name it e.g. "pi-engine" via a symlink so OOM killers can spare it).

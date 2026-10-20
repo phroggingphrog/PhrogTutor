@@ -42,8 +42,8 @@ from deeptutor.agents._shared.tool_runtime import (
     bind_workspace_tool_runtime,
     drop_unconfigured_generation_tools,
 )
-from deeptutor.agents.loop.pi_turn import PiTurn
 from deeptutor.agents.loop.context_budget import LLMRequestSnapshot, build_context_budget
+from deeptutor.agents.loop.pi_turn import PiTurn
 from deeptutor.agents.loop.prompt_blocks import LoopPromptAssembler
 from deeptutor.capabilities import (
     LoopExtension,

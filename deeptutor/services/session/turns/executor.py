@@ -552,7 +552,9 @@ class TurnExecutor:
             _turn_effort = str(payload.get("reasoning_effort") or "").strip().lower()
             if not _turn_effort and __import__("os").environ.get("JEV_API_KEY"):  # PhrogVPS patch: Auto = Jev picks the thinking level
                 try:
-                    import json as _j, os as _os, urllib.request as _u
+                    import json as _j
+                    import os as _os
+                    import urllib.request as _u
                     _body = {"state": {"message": str(payload.get("content", "") or "")[:4000]}, "model": "typesafe/jev-1.13", "questions": {"effort": {"type": "choice", "instructions": "How much internal reasoning does the work in this message require?", "criteria": {"low": "trivial, conversational or a simple lookup", "medium": "ordinary explanation, writing or planning", "high": "multi-step derivation, proof, debugging, hard analysis or hard decision"}}}}
                     _r = _u.Request("https://openrouter.ai/api/v1/systemone", _j.dumps(_body).encode(), {"Authorization": "Bearer " + _os.environ["JEV_API_KEY"], "Content-Type": "application/json"})
                     _turn_effort = _j.load(await __import__("asyncio").to_thread(lambda: _u.urlopen(_r, timeout=2.5)))["answers"]["effort"]["choice"]

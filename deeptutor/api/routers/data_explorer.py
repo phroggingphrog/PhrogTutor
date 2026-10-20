@@ -24,11 +24,11 @@ Safety posture (this module must never become a write path)
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import html
+from pathlib import Path
 import sqlite3
 import time
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query

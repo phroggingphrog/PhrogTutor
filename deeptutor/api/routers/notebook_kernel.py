@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import asyncio
 import base64
+from pathlib import Path
 import shutil
 import tempfile
 import time
-from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -197,7 +197,8 @@ async def run_cell(req: CellRequest):
             kernel.stop()
             return {"stdout": "", "stderr": "The kernel stopped (out of memory or crashed); it was restarted.",
                     "images": [], "restarted": True}
-        read = lambda name: (kernel.work / name).read_text(errors="replace")[-20_000:] if (kernel.work / name).exists() else ""
+        def read(name):
+            return (kernel.work / name).read_text(errors="replace")[-20_000:] if (kernel.work / name).exists() else ""
         images = [
             "data:image/png;base64," + base64.b64encode(p.read_bytes()).decode()
             for p in sorted(kernel.work.glob("c*.png"))[:6]

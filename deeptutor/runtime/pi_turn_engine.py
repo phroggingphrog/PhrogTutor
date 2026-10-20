@@ -8,13 +8,13 @@ session, content, tool_call, tool_result, error, done. Enabled with ``PI_TUTOR_E
 from __future__ import annotations
 
 import asyncio
+from collections.abc import AsyncIterator
 import json
 import os
-import shutil
-import uuid
-from collections.abc import AsyncIterator
 from pathlib import Path
+import shutil
 from typing import Any
+import uuid
 
 from deeptutor.core.context import UnifiedContext
 from deeptutor.core.stream import StreamEvent, StreamEventType

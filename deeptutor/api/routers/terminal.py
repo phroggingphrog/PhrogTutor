@@ -11,11 +11,11 @@ import asyncio
 import fcntl
 import json
 import os
-import re
+from pathlib import Path
 import pty
+import re
 import struct
 import termios
-from pathlib import Path
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
