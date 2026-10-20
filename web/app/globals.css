@@ -128,29 +128,29 @@
     --shadow-raised: 0 16px 40px rgba(20, 20, 19, 0.12);
   }
 
-  /* Dark — warm near-black, same terracotta family as Cream. */
+  /* Dark — warm near-black, same Clay family as Cream. */
   .dark {
-    /* Flat neutral dark in the spirit of ChatGPT: no tint, panels told apart by shade, borders barely there. */
+    /* Warm Claude dark: #262624 canvas, #30302e panels, Clay #d97757 primary (dark text 5.9:1). */
     color-scheme: dark;
-    --background: #212121;
-    --foreground: #ececec;
-    --card: #2a2a2a;
-    --card-foreground: #ececec;
-    --popover: #2a2a2a;
-    --popover-foreground: #ececec;
-    --primary: #ececec;
-    --primary-foreground: #0d0d0d;
-    --secondary: #303030;
-    --secondary-foreground: #ececec;
-    --muted: #2a2a2a;
-    --muted-foreground: #a3a3a3;
-    --accent: #333333;
-    --accent-foreground: #ececec;
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
-    --border: #2f2f2f;
-    --input: #3a3a3a;
-    --ring: #8f8f8f;
+    --background: #262624;
+    --foreground: #faf9f5;
+    --card: #30302e;
+    --card-foreground: #faf9f5;
+    --popover: #30302e;
+    --popover-foreground: #faf9f5;
+    --primary: #d97757;
+    --primary-foreground: #141413;
+    --secondary: #30302e;
+    --secondary-foreground: #faf9f5;
+    --muted: #30302e;
+    --muted-foreground: #a3a199;
+    --accent: #3d3d3a;
+    --accent-foreground: #faf9f5;
+    --destructive: #f0786a;
+    --destructive-foreground: #141413;
+    --border: #3d3d3a;
+    --input: #4d4c48;
+    --ring: #d97757;
     --overlay: rgba(0, 0, 0, 0.6);
     --success: #5fd08a;
     --success-foreground: #bbf7d0;
@@ -161,7 +161,7 @@
     --info: #7ba7ff;
     --info-foreground: #bfdbfe;
     --info-surface: #172641;
-    --surface-raised: #2a2a2a;
+    --surface-raised: #30302e;
     --shadow-raised: 0 16px 44px rgba(0, 0, 0, 0.4);
   }
 

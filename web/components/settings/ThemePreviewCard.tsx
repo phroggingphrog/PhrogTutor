@@ -44,12 +44,12 @@ const PALETTES: Record<Theme, Palette> = {
     border: "#e5e5e5",
   },
   dark: {
-    bg: "#1a1918",
-    fg: "#e8e4de",
-    card: "#242220",
-    primary: "#d4734b",
-    muted: "#2a2725",
-    border: "#3a3634",
+    bg: "#262624",
+    fg: "#faf9f5",
+    card: "#30302e",
+    primary: "#d97757",
+    muted: "#30302e",
+    border: "#3d3d3a",
   },
   glass: {
     bg: "#0e0d1a",
