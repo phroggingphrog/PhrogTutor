@@ -310,6 +310,18 @@ export default function SaveToNotebookModal({
     setSelectedMessageIdx(new Set(indexesForLastTurns(messages, turnCount)));
   };
 
+  // Save the answer as a plain Markdown note in Notes ("Saved answers" folder).
+  const saveToNotes = async () => {
+    const name = `Saved answers/${(title.trim() || "Answer").replace(/[\\/:*?"<>|]/g, "-").slice(0, 80)}.md`;
+    const md = `# ${title.trim() || "Answer"}\n\n${effectiveUserQuery ? `**Question:** ${effectiveUserQuery}\n\n` : ""}${effectiveOutput}\n`;
+    const r = await apiFetch(
+      apiUrl(`/api/notes/${name.split("/").map(encodeURIComponent).join("/")}`),
+      { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: md }) },
+    );
+    if (r.ok) onClose();
+    else setError(t("Failed to save to notebook."));
+  };
+
   const handleSave = async () => {
     if (!payload || !canSave) return;
     abortRef.current?.abort();
@@ -694,6 +706,13 @@ export default function SaveToNotebookModal({
             className="rounded-xl px-4 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
           >
             {t("Cancel")}
+          </button>
+          <button
+            onClick={saveToNotes}
+            disabled={!effectiveOutput.trim()}
+            className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-50"
+          >
+            {t("Save to Notes")}
           </button>
           <button
             onClick={handleSave}

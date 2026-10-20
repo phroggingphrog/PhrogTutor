@@ -65,10 +65,14 @@ async def gaps():
                                 [(p, titles[p], json.dumps(v)) for p, v in zip(stale, vecs)])
             cached.update({p: (titles[p], v) for p, v in zip(stale, vecs)})
             cvec.update(dict(zip(missing, vecs[len(stale):])))
-        for page, (_, pv) in cached.items():
-            best = max(((chat_mastery._cos(pv, cvec[c]), c) for c in scores if c in cvec), default=(0, ""))
-            if best[0] >= 0.6:
-                near[page] = (best[1], scores[best[1]])
+        # Each tracked concept counts only for the page it is closest to, so one broad weak
+        # concept can't mark every page in a course weak.
+        for c in scores:
+            if c not in cvec:
+                continue
+            sim, page = max(((chat_mastery._cos(pv, cvec[c]), pg) for pg, (_, pv) in cached.items() if pg in titles), default=(0, ""))
+            if sim >= 0.6 and (page not in near or sim > near[page][2]):
+                near[page] = (c, scores[c], sim)
     courses: dict[str, list[dict]] = {}
     for page in pages:
         course = page.split("/")[0]
