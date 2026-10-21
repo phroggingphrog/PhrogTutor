@@ -46,7 +46,24 @@ def test_anthropic_profile_drops_the_v1_the_sdk_adds_back() -> None:
 
 def test_profiles_pi_cannot_serve_yet_fall_back() -> None:
     assert pi_connection(_config(binding="openai_codex", provider_name="openai_codex", base_url=None)) is None
-    assert pi_connection(_config(binding="azure_openai", provider_name="azure_openai", api_version="2024-06-01")) is None
+    assert pi_connection(_config(binding="azure_openai", provider_name="azure_openai", base_url="https://r.openai.azure.com", api_version="preview")) is None
+
+
+@pytest.mark.parametrize("base", [
+    "https://r.openai.azure.com",
+    "r.openai.azure.com/",
+    "https://r.openai.azure.com/openai/v1/responses",
+    "https://r.openai.azure.com/openai/deployments/gpt5/chat/completions?api-version=2024-06-01",
+])
+def test_azure_profile_speaks_responses_on_the_v1_surface(base) -> None:
+    conn = pi_connection(_config(binding="azure_openai", provider_name="azure_openai", base_url=base, api_version="2024-06-01"))
+    assert conn == {
+        "api": "openai-responses",
+        "provider": "azure_openai",
+        "baseUrl": "https://r.openai.azure.com/openai/v1",
+        "apiKey": "k",
+        "headers": {"api-key": "k"},
+    }
 
 
 def test_the_catalog_is_used_by_default_only_when_no_gateway_is_configured(monkeypatch, tmp_path) -> None:
@@ -107,7 +124,7 @@ RESPONSES = "".join(
 @pytest.fixture()
 def endpoint():
     seen: list[dict] = []
-    replies = {"/v1/chat/completions": OPENAI_CHAT, "/v1/messages": ANTHROPIC, "/v1/responses": RESPONSES}
+    replies = {"/v1/chat/completions": OPENAI_CHAT, "/v1/messages": ANTHROPIC, "/v1/responses": RESPONSES, "/openai/v1/responses": RESPONSES}
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802
@@ -185,3 +202,14 @@ def test_engine_refuses_values_that_models_json_would_run(endpoint) -> None:
                "connection": {"api": "openai-completions", "baseUrl": f"{url}/v1", "apiKey": "!echo pwned", "headers": None}}
     done = subprocess.run(["bun", str(ENGINE / "llm.ts")], input=json.dumps(request), capture_output=True, text=True, timeout=60, cwd=ENGINE)
     assert done.returncode != 0 and "may not start with" in (done.stderr + done.stdout)
+
+
+@needs_engine
+def test_engine_reaches_an_azure_deployment_with_the_api_key_header(endpoint) -> None:
+    url, seen = endpoint
+    connection = pi_connection(_config(binding="azure_openai", provider_name="azure_openai", base_url=url, api_key="az-secret"))
+    assert _ask(connection) == "hello from responses"
+    request = seen[0]
+    assert request["path"] == "/openai/v1/responses"
+    assert request["headers"]["api-key"] == "az-secret"
+    assert request["body"]["model"] == "m"  # the model name is the deployment
