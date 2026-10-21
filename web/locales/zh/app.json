@@ -5609,5 +5609,6 @@
   "Notes by connections": "按链接数排序的笔记",
   "{{count}} links_one": "{{count}} 个链接",
   "{{count}} links_other": "{{count}} 个链接",
-  "Type / for blocks, [[ to link notes, and paste images straight in.": "输入 / 插入块，输入 [[ 链接笔记，也可以直接粘贴图片。"
+  "Type / for blocks, [[ to link notes, and paste images straight in.": "输入 / 插入块，输入 [[ 链接笔记，也可以直接粘贴图片。",
+  "Ask the tutor": "问导师"
 }

@@ -10,10 +10,9 @@ import TaskItem from "@tiptap/extension-task-item";
 import Mathematics from "@tiptap/extension-mathematics";
 import { TableKit } from "@tiptap/extension-table";
 import "katex/dist/katex.min.css";
-import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion,
-  MoreHorizontal,
+import { ChevronDown, ChevronRight, FilePlus, Folder,   MoreHorizontal,
   PanelLeft,
-  Network, Tag, WandSparkles, SquareTerminal } from "lucide-react";
+  GraduationCap, Network, Tag, WandSparkles, SquareTerminal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -23,8 +22,10 @@ const TerminalPanel = dynamic(() => import("./TerminalPanel"), { ssr: false });
 
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, apiUrl } from "@/lib/api";
+import { browserStorage } from "@/shared/storage";
 import { Button } from "@/shared/ui/Button";
 import { IconButton } from "@/shared/ui/IconButton";
+import { Tooltip } from "@/shared/ui/Tooltip";
 import BacklinksPanel from "./BacklinksPanel";
 import NotesGraph from "./NotesGraph";
 import { NoteTags } from "./noteTags";
@@ -58,6 +59,7 @@ const BUTTONS: [string, string, (e: any) => void, (e: any) => boolean][] = [
 
 // Below this width the note list folds away behind a button, like the chat side panel's view.
 const NARROW = "(max-width: 767px)";
+const FORMAT_BAR_KEY = "notes-format-bar";
 
 // compact: the chat side panel's view (note list folds away behind a button, toolbar wraps).
 export default function NotesEditor({ compact = false }: { compact?: boolean }) {
@@ -123,7 +125,17 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   };
   const [menu, setMenu] = useState(false);
   const menuRef = useRef<HTMLSpanElement>(null);
-  const [showFormat, setShowFormat] = useState(false);
+  // The formatting bar is on by default in the full page and remembers the reader's choice.
+  const [showFormat, setShowFormatState] = useState(false);
+  useEffect(() => {
+    const saved = browserStorage.readRaw("local", FORMAT_BAR_KEY);
+    setShowFormatState(saved === null ? !compact : saved === "1");
+  }, [compact]);
+  const toggleFormat = () =>
+    setShowFormatState((on) => {
+      browserStorage.writeRaw("local", FORMAT_BAR_KEY, on ? "0" : "1");
+      return !on;
+    });
 
   // The "More" menu closes on Escape and on any click outside it.
   useEffect(() => {
@@ -410,6 +422,10 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     if (overlay) setShowList(false);
   };
 
+  const slash = (current ?? "").lastIndexOf("/");
+  const folder = slash >= 0 ? (current ?? "").slice(0, slash + 1) : "";
+  const leaf = (current ?? "").slice(slash + 1);
+
   const noteNameProblem = (value: string) => {
     const name = value.replace(/^\/+|\/+$/g, "");
     if (name.startsWith("@")) return t("Names starting with @ are read-only sources.");
@@ -545,25 +561,36 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
               {overlay && (
                 <IconButton label={t("All notes")} aria-expanded={showList} onClick={() => setShowList((v) => !v)} icon={<PanelLeft size={16} />} />
               )}
-              <input
-                key={`${current}:${renameNonce}`}
-                aria-label={t("Note name")}
-                readOnly={readOnly}
-                defaultValue={current}
-                onBlur={(e) => rename(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
-                className="min-h-9 min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none focus-visible:underline"
-              />
+              <span className="flex min-w-0 flex-1 items-baseline gap-1">
+                {folder && <span className="max-w-[40%] shrink-0 truncate text-sm text-[var(--muted-foreground)]">{folder}</span>}
+                <input
+                  key={`${current}:${renameNonce}`}
+                  aria-label={t("Note name")}
+                  readOnly={readOnly}
+                  defaultValue={leaf}
+                  onBlur={(e) => rename(folder + e.target.value.trim())}
+                  onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+                  className="min-h-9 min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none focus-visible:underline"
+                />
+              </span>
               <span role="status" aria-live="polite" className="text-xs text-[var(--muted-foreground)]">{status}</span>
-              <IconButton label={t("Ask the tutor about the selection (or the whole note)")} onClick={askTutor} icon={<MessageCircleQuestion size={16} />} />
+              <Tooltip label={t("Ask the tutor about the selection (or the whole note)")}>
+                <Button size="sm" variant="ghost" onClick={askTutor} aria-label={t("Ask the tutor about the selection (or the whole note)")} icon={<GraduationCap size={16} aria-hidden />}>
+                  <span className="hidden lg:inline">{t("Ask the tutor")}</span>
+                </Button>
+              </Tooltip>
               {!readOnly && (
-                <IconButton label={t("AI edit: select text first, or edit the whole note")} onClick={startAiEdit} icon={<WandSparkles size={16} />} />
+                <Tooltip label={t("AI edit: select text first, or edit the whole note")}>
+                  <Button size="sm" variant="ghost" onClick={startAiEdit} aria-label={t("AI edit: select text first, or edit the whole note")} icon={<WandSparkles size={16} aria-hidden />}>
+                    <span className="hidden lg:inline">{t("AI edit")}</span>
+                  </Button>
+                </Tooltip>
               )}
               <span ref={menuRef} className="relative">
                 <IconButton label={t("More")} aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu((v) => !v)} icon={<MoreHorizontal size={16} />} />
                 {menu && (
                   <div role="menu" onClick={() => setMenu(false)} className="absolute right-0 z-20 mt-1 flex w-52 flex-col rounded-lg border border-[var(--border)] bg-[var(--background)] py-1 text-sm shadow-lg">
-                    <button role="menuitem" onClick={() => setShowFormat((v) => !v)} className={menuItem}>{showFormat ? t("Hide formatting bar") : t("Show formatting bar")}</button>
+                    <button role="menuitem" onClick={toggleFormat} className={menuItem}>{showFormat ? t("Hide formatting bar") : t("Show formatting bar")}</button>
                     {!readOnly && <button role="menuitem" onClick={() => setDialog("rename")} className={menuItem}>{t("Rename or move…")}</button>}
                     <button role="menuitem" onClick={runAll} className={menuItem}>▶▶ {t("Run all cells")}</button>
                     <button role="menuitem" onClick={restartKernels} className={menuItem}>↻ {t("Restart cells")}</button>
