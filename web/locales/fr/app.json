@@ -5978,5 +5978,14 @@
   "Uploading image…": "Téléversement de l’image…",
   "Pasted image": "Image collée",
   "Could not add the image": "Impossible d’ajouter l’image",
-  "Add an image": "Ajouter une image"
+  "Add an image": "Ajouter une image",
+  "Graph view": "Vue en graphe",
+  "Filter by tag": "Filtrer par tag",
+  "Notes graph": "Graphe des notes",
+  "Reset view": "Réinitialiser la vue",
+  "Close graph": "Fermer le graphe",
+  "No links yet. Link notes with [[ to see them here.": "Aucun lien pour l’instant. Liez des notes avec [[ pour les voir ici.",
+  "Notes by connections": "Notes par connexions",
+  "{{count}} links_one": "{{count}} lien",
+  "{{count}} links_other": "{{count}} liens"
 }

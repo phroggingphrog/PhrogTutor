@@ -5615,5 +5615,16 @@
   "Uploading image…": "Przesyłanie obrazu…",
   "Pasted image": "Wklejony obraz",
   "Could not add the image": "Nie udało się dodać obrazu",
-  "Add an image": "Dodaj obraz"
+  "Add an image": "Dodaj obraz",
+  "Graph view": "Widok grafu",
+  "Filter by tag": "Filtruj według tagu",
+  "Notes graph": "Graf notatek",
+  "Reset view": "Zresetuj widok",
+  "Close graph": "Zamknij graf",
+  "No links yet. Link notes with [[ to see them here.": "Brak linków. Połącz notatki za pomocą [[, aby pojawiły się tutaj.",
+  "Notes by connections": "Notatki według powiązań",
+  "{{count}} links_one": "{{count}} link",
+  "{{count}} links_few": "{{count}} linki",
+  "{{count}} links_many": "{{count}} linków",
+  "{{count}} links_other": "{{count}} linku"
 }

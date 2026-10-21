@@ -13,7 +13,7 @@ import "katex/dist/katex.min.css";
 import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion,
   MoreHorizontal,
   PanelLeft,
-  WandSparkles, SquareTerminal } from "lucide-react";
+  Network, Tag, WandSparkles, SquareTerminal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -25,6 +25,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, apiUrl } from "@/lib/api";
 import { IconButton } from "@/shared/ui/IconButton";
 import BacklinksPanel from "./BacklinksPanel";
+import NotesGraph from "./NotesGraph";
 import NoteNameDialog from "./NoteNameDialog";
 import { NoteImage, altFromFile, isImageFile, uploadNoteImage } from "./noteImage";
 import { RunnableCodeBlock, cellRunners, notebook } from "./RunnableCodeBlock";
@@ -70,6 +71,9 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const [showTerminal, setShowTerminal] = useState(false);
   const [query, setQuery] = useState("");
   const [dialog, setDialog] = useState<Dialog>(null);
+  const [mode, setMode] = useState<"note" | "graph">("note");
+  const [tags, setTags] = useState<{ tag: string; count: number }[]>([]);
+  const [activeTag, setActiveTag] = useState("");
   const [linksVersion, setLinksVersion] = useState(0);
   const [renameNonce, setRenameNonce] = useState(0);
   const imageInput = useRef<HTMLInputElement>(null);
@@ -88,6 +92,14 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
   }, []);
+
+  // On a narrow screen the list covers the note: Escape (or a tap outside it) puts it away.
+  useEffect(() => {
+    if (!overlay || !showList) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setShowList(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [overlay, showList]);
 
   // Open chat with this note in the message box; the learner adds their question.
   const askTutor = () => {
@@ -154,10 +166,16 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const [hits, setHits] = useState<{ name: string; snippet: string }[] | null>(null);
 
   // Typing filters by name; Enter also searches inside every note's text (own notes + extra sources).
-  const searchText = async () => {
-    if (!query.trim()) return setHits(null);
-    const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}`));
+  const searchText = async (tag = activeTag) => {
+    if (!query.trim() && !tag) return setHits(null);
+    const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}&tag=${encodeURIComponent(tag)}`));
     setHits(r.ok ? (await r.json()).hits : []);
+  };
+  const chooseTag = (tag: string) => {
+    const next = tag === activeTag ? "" : tag;
+    setActiveTag(next);
+    if (next) void searchText(next);
+    else setHits(null);
   };
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const openRef = useRef<((name: string) => Promise<void>) | null>(null);
@@ -172,6 +190,8 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const refresh = useCallback(async () => {
     const r = await apiFetch(api());
     if (r.ok) setNotes((await r.json()).notes);
+    const tagResponse = await apiFetch(api("/_tags")).catch(() => null);
+    if (tagResponse?.ok) setTags((await tagResponse.json()).tags);
   }, []);
 
   const save = useCallback(async (name: string, md: string) => {
@@ -375,6 +395,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   };
 
   const pick = (name: string) => {
+    setMode("note");
     void open(name);
     if (overlay) setShowList(false);
   };
@@ -389,6 +410,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   return (
     <div className={`relative flex ${compact ? "h-full" : "h-[calc(100vh-4rem)]"} text-[var(--foreground)]`}>
       {!compact && <h1 className="sr-only">{t("Notes")}</h1>}
+      {overlay && showList && <div aria-hidden="true" onClick={() => setShowList(false)} className="absolute inset-0 z-[9] bg-black/20" />}
       {showList && (
       <aside aria-label={t("Notes")} className={`flex w-64 shrink-0 flex-col border-r border-[var(--border)] ${overlay ? "absolute inset-y-0 left-0 z-10 bg-[var(--background)] shadow-lg" : ""}`}>
         <div className="flex items-center justify-between p-3">
@@ -400,6 +422,13 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
               onClick={() => setShowTerminal((v) => !v)}
               className={showTerminal ? "bg-[var(--muted)]" : ""}
               icon={<SquareTerminal size={16} />}
+            />
+            <IconButton
+              label={t("Graph view")}
+              aria-pressed={mode === "graph"}
+              onClick={() => { setMode((m) => (m === "graph" ? "note" : "graph")); if (overlay) setShowList(false); }}
+              className={mode === "graph" ? "bg-[var(--muted)]" : ""}
+              icon={<Network size={16} />}
             />
             <IconButton label={t("New note")} onClick={() => setDialog("new")} icon={<FilePlus size={16} />} />
           </span>
@@ -416,13 +445,28 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
           className="mx-3 rounded-lg border border-[var(--border)] bg-transparent px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         />
         <p className="mx-3 mb-2 mt-1 text-xs text-[var(--muted-foreground)]">{t("Press Enter to search inside notes.")}</p>
-        {query.trim() ? (
+        {tags.length > 0 && (
+          <div role="group" aria-label={t("Filter by tag")} className="mx-3 mb-2 flex flex-wrap gap-1">
+            {tags.slice(0, 12).map(({ tag, count }) => (
+              <button
+                key={tag}
+                type="button"
+                aria-pressed={tag === activeTag}
+                onClick={() => chooseTag(tag)}
+                className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${tag === activeTag ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]" : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}
+              >
+                <Tag size={10} aria-hidden /> {tag} <span className="tabular-nums opacity-70">{count}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {query.trim() || activeTag ? (
           <ul className="flex-1 overflow-y-auto pb-2">
             {[
-              ...notes
+              ...(activeTag ? [] : notes
                 .filter((n) => n.name.toLowerCase().includes(query.trim().toLowerCase()))
                 .slice(0, 50)
-                .map((n) => ({ name: n.name, snippet: "" })),
+                .map((n) => ({ name: n.name, snippet: "" }))),
               ...(hits ?? []),
             ].map((h, i) => (
               <li key={`${h.name}:${i}`}>
@@ -481,6 +525,9 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       </aside>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
+      {mode === "graph" ? (
+        <NotesGraph current={current} onOpen={pick} onClose={() => setMode("note")} />
+      ) : (
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
         {current ? (
           <>
@@ -555,6 +602,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
           </div>
         )}
       </div>
+      )}
       {showTerminal && <TerminalPanel key={current ?? ""} note={current ?? ""} />}
       </div>
 

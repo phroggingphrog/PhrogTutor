@@ -5615,5 +5615,16 @@
   "Uploading image…": "Завантаження зображення…",
   "Pasted image": "Вставлене зображення",
   "Could not add the image": "Не вдалося додати зображення",
-  "Add an image": "Додати зображення"
+  "Add an image": "Додати зображення",
+  "Graph view": "Вигляд графа",
+  "Filter by tag": "Фільтр за тегом",
+  "Notes graph": "Граф нотаток",
+  "Reset view": "Скинути вигляд",
+  "Close graph": "Закрити граф",
+  "No links yet. Link notes with [[ to see them here.": "Поки що немає посилань. Пов’яжіть нотатки через [[, щоб побачити їх тут.",
+  "Notes by connections": "Нотатки за зв’язками",
+  "{{count}} links_one": "{{count}} посилання",
+  "{{count}} links_few": "{{count}} посилання",
+  "{{count}} links_many": "{{count}} посилань",
+  "{{count}} links_other": "{{count}} посилання"
 }

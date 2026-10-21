@@ -5599,5 +5599,14 @@
   "Uploading image…": "Bild wird hochgeladen …",
   "Pasted image": "Eingefügtes Bild",
   "Could not add the image": "Das Bild konnte nicht hinzugefügt werden",
-  "Add an image": "Bild hinzufügen"
+  "Add an image": "Bild hinzufügen",
+  "Graph view": "Graphansicht",
+  "Filter by tag": "Nach Tag filtern",
+  "Notes graph": "Notizgraph",
+  "Reset view": "Ansicht zurücksetzen",
+  "Close graph": "Graph schließen",
+  "No links yet. Link notes with [[ to see them here.": "Noch keine Links. Verlinke Notizen mit [[, dann erscheinen sie hier.",
+  "Notes by connections": "Notizen nach Verknüpfungen",
+  "{{count}} links_one": "{{count}} Link",
+  "{{count}} links_other": "{{count}} Links"
 }

@@ -5599,5 +5599,14 @@
   "Uploading image…": "Uploading image…",
   "Pasted image": "Pasted image",
   "Could not add the image": "Could not add the image",
-  "Add an image": "Add an image"
+  "Add an image": "Add an image",
+  "Graph view": "Graph view",
+  "Filter by tag": "Filter by tag",
+  "Notes graph": "Notes graph",
+  "Reset view": "Reset view",
+  "Close graph": "Close graph",
+  "No links yet. Link notes with [[ to see them here.": "No links yet. Link notes with [[ to see them here.",
+  "Notes by connections": "Notes by connections",
+  "{{count}} links_one": "{{count}} link",
+  "{{count}} links_other": "{{count}} links"
 }
