@@ -19,6 +19,7 @@ import {
   Brain,
   Check,
   ChevronDown,
+  SlidersHorizontal,
   ChevronRight,
   ClipboardList,
   Database,
@@ -462,6 +463,9 @@ export default memo(function ChatComposer({
   showCapabilityChip?: boolean;
 }) {
   const { t } = useTranslation();
+  // Mode, sources and answer preferences are things the tutor chooses itself; they sit
+  // behind one Options button unless the learner has changed something from the default.
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [partners, setPartners] = useState<PartnerInfo[]>([]);
   const [partnersLoading, setPartnersLoading] = useState(false);
   const [partnerLoadError, setPartnerLoadError] = useState(false);
@@ -1002,6 +1006,17 @@ export default memo(function ChatComposer({
   }
 
 
+  const optionsCustomized =
+    activeCap.value !== "" ||
+    contextTreeItems.length > 0 ||
+    resourceItems.some((item) => (item.count ?? 0) > 0);
+  const showOptions =
+    optionsOpen ||
+    optionsCustomized ||
+    capMenuOpen ||
+    spaceMenuOpen ||
+    Boolean(personaSelectorOpen);
+
   return (
     <div
       ref={composerRef}
@@ -1114,7 +1129,23 @@ export default memo(function ChatComposer({
           <div className="px-3 pb-2 pt-0.5">
             <div className={styles.toolbar}>
               <div className={styles.context}>
-                {showCapabilityChip && (
+                <button
+                  type="button"
+                  aria-expanded={showOptions}
+                  aria-label={t("Options")}
+                  onClick={() => setOptionsOpen((open) => !open)}
+                  disabled={optionsCustomized}
+                  title={optionsCustomized ? t("Options are in use") : undefined}
+                  className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-default ${
+                    showOptions
+                      ? "text-[var(--foreground)]"
+                      : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  <SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden />
+                  {!showOptions && <span>{t("Options")}</span>}
+                </button>
+                {showOptions && showCapabilityChip && (
                   <div className="relative min-w-0 max-w-full">
                     <Tooltip label={t(activeCap.label)} suppressed={capMenuOpen} side="top">
                       <button
@@ -1265,7 +1296,7 @@ export default memo(function ChatComposer({
                   </RailSlot>
                 ) : null}
 
-                {
+                {showOptions &&
                   <ComposerResources
                     selectedCount={contextTreeItems.length}
                     items={resourceItems}
