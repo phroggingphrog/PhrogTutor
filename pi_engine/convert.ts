@@ -24,7 +24,7 @@ const ZERO = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0,
 // ---------- OpenAI <-> pi conversions ----------
 
 /** A request may bring its own endpoint (see deeptutor/services/llm/pi_connection.py); otherwise the gateway is used. */
-export type Connection = { api: string; provider?: string; baseUrl: string; apiKey?: string; headers?: Record<string, string> | null };
+export type Connection = { api: string; provider?: string; baseUrl: string; apiKey?: string; headers?: Record<string, string> | null; transport?: string };
 export function connectionOf(req: any): Connection | undefined {
 	const c = req?.connection;
 	if (!c || typeof c.api !== "string" || typeof c.baseUrl !== "string") return undefined;
@@ -98,6 +98,7 @@ export function streamOptions(req: any): any {
 	// Gateways that route on a header (JSON object in PI_TUTOR_LLM_HEADERS, else the provider's "headers").
 	const headers = conn ? conn.headers : process.env.PI_TUTOR_LLM_HEADERS ? JSON.parse(process.env.PI_TUTOR_LLM_HEADERS) : omni.headers;
 	if (headers) o.headers = headers;
+	if (conn?.transport) o.transport = conn.transport;
 	if (req.temperature != null) o.temperature = req.temperature;
 	if (req.reasoning_effort) o.reasoningEffort = req.reasoning_effort;
 	return o;

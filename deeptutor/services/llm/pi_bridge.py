@@ -33,23 +33,29 @@ def pi_sdk_enabled() -> bool:
 _warned_unserved = False
 
 
-def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
+async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
     """Attach the active catalog profile as the request's endpoint, when that mode is on and pi can serve it."""
-    from .pi_connection import catalog_connections_enabled, pi_connection
+    from .pi_connection import catalog_connections_enabled, codex_model_slug, is_codex, resolve_connection
 
     if request.get("connection") is not None or not catalog_connections_enabled():
         return request
     global _warned_unserved
     from .config import get_llm_config
 
-    connection = pi_connection(get_llm_config())
+    config = get_llm_config()
+    connection = await resolve_connection(config)
     if connection is None and not _warned_unserved:
         _warned_unserved = True
         logging.getLogger(__name__).warning(
             "PI_TUTOR_LLM_FROM_CATALOG is on but the active profile cannot be served through pi "
-            "(OAuth or Azure); using the gateway in pi_engine/agent-dir/models.json"
+            "(Copilot, CodeBuddy or Azure preview); using the gateway in pi_engine/agent-dir/models.json"
         )
-    return {**request, "connection": connection} if connection else request
+    if not connection:
+        return request
+    request = {**request, "connection": connection}
+    if is_codex(config) and request.get("model"):
+        request["model"] = codex_model_slug(request["model"])
+    return request
 
 
 class _PiProcess:
@@ -87,7 +93,7 @@ class _PiProcess:
         self.queues[rid] = queue
         try:
             proc = await self._ensure()
-            request = _with_connection(request)
+            request = await _with_connection(request)
             req = {k: request[k] for k in _PASS if request.get(k) is not None}
             proc.stdin.write((json.dumps({"rid": rid, "req": req}) + "\n").encode())
             await proc.stdin.drain()
@@ -110,7 +116,7 @@ class _PiProcess:
         queue: asyncio.Queue = asyncio.Queue()
         self.queues[rid] = queue
         try:
-            request = _with_connection(request)
+            request = await _with_connection(request)
             req = {k: request[k] for k in _PASS if request.get(k) is not None}
             await self._send({"rid": rid, "kind": "loop", "req": req, "cfg": cfg})
             while True:

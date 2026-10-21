@@ -8,7 +8,9 @@ the gateway.
 ``PI_TUTOR_LLM_FROM_CATALOG`` decides: ``1`` forces it on, ``0`` forces it off. Unset, it is on only when
 no gateway is configured (no ``PI_TUTOR_LLM_BASE_URL`` and no ``agent-dir/models.json``), so a fresh
 install uses the catalog while an existing gateway setup keeps working untouched.
-Profiles pi cannot serve yet (OAuth sign-ins, Azure with ``api-version=preview``) return ``None`` and use the old path.
+Profiles pi cannot serve yet (Copilot/CodeBuddy sign-ins, Azure with ``api-version=preview``) return ``None``
+and use the old path. The ChatGPT/Codex sign-in stays managed by ``services/codex_auth`` (login, refresh,
+per-user storage); only the inference call goes through pi, with the access token that service hands out.
 """
 
 from __future__ import annotations
@@ -83,6 +85,42 @@ def _pi_api(config: LLMConfig, backend: str) -> str | None:
     if backend == "openai_compat":
         return "openai-responses" if config.wire_api == "responses" else "openai-completions"
     return None  # the OAuth providers: not served through pi yet
+
+
+CODEX_BASE_URL = "https://chatgpt.com/backend-api"
+
+
+def codex_model_slug(model: str) -> str:
+    return model.split("/", 1)[1] if model.startswith(("openai-codex/", "openai_codex/")) else model
+
+
+async def codex_connection(config: LLMConfig) -> dict[str, Any]:
+    """The signed-in ChatGPT account as a pi connection. Raises ``CodexAuthError`` when not signed in."""
+    from deeptutor.services.codex_auth import get_codex_oauth_service
+
+    service = get_codex_oauth_service()
+    token = await service.get_token()
+    service.validate_runtime_profile(token, codex_model_slug(config.model), config.reasoning_effort)
+    return {
+        "api": "openai-codex-responses",
+        "provider": "openai-codex",
+        "baseUrl": os.environ.get("PI_TUTOR_CODEX_BASE_URL", CODEX_BASE_URL),
+        "apiKey": token.access_token,
+        "headers": None,
+        "transport": "sse",
+    }
+
+
+def is_codex(config: LLMConfig) -> bool:
+    spec = find_by_name(config.provider_name) or find_by_name(config.binding)
+    return spec is not None and spec.backend == "openai_codex"
+
+
+async def resolve_connection(config: LLMConfig) -> dict[str, Any] | None:
+    """:func:`pi_connection`, plus the sign-in profiles whose token has to be fetched first."""
+    if is_codex(config):
+        return await codex_connection(config)
+    return pi_connection(config)
 
 
 def pi_connection(config: LLMConfig) -> dict[str, Any] | None:

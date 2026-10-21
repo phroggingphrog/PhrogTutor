@@ -247,6 +247,7 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	});
 	await loader.reload();
 	const settings = SettingsManager.inMemory({ compaction: { enabled: false }, retry: { enabled: false } });
+	if (conn?.transport) settings.setTransport(conn.transport as any);
 	const { session } = await createAgentSession({
 		cwd: HERE, agentDir: AGENT_DIR, model, thinkingLevel: (THINKING[req.reasoning_effort] ?? "off") as any,
 		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE), noTools: "builtin",

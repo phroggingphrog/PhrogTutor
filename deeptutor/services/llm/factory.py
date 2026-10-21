@@ -497,15 +497,15 @@ async def complete_with_config(
     # settings test exercises the real path. Image calls and profiles pi cannot serve use the old one.
     if not kwargs.get("image_data"):
         from deeptutor.services.llm import pi_bridge
-        from deeptutor.services.llm.pi_connection import catalog_connections_enabled, pi_connection
+        from deeptutor.services.llm.pi_connection import catalog_connections_enabled, codex_model_slug, is_codex, resolve_connection
 
-        connection = pi_connection(config) if pi_bridge.pi_sdk_enabled() and catalog_connections_enabled() else None
+        connection = await resolve_connection(config) if pi_bridge.pi_sdk_enabled() and catalog_connections_enabled() else None
         if connection is not None:
             effort = config.reasoning_effort
             return await pi_bridge.complete(
                 prompt,
                 system_prompt,
-                config.model,
+                codex_model_slug(config.model) if is_codex(config) else config.model,
                 messages,
                 connection=connection,
                 **_pi_kwargs({**kwargs, **({"reasoning_effort": effort} if effort else {})}),

@@ -124,12 +124,16 @@ RESPONSES = "".join(
 @pytest.fixture()
 def endpoint():
     seen: list[dict] = []
-    replies = {"/v1/chat/completions": OPENAI_CHAT, "/v1/messages": ANTHROPIC, "/v1/responses": RESPONSES, "/openai/v1/responses": RESPONSES}
+    replies = {"/v1/chat/completions": OPENAI_CHAT, "/v1/messages": ANTHROPIC, "/v1/responses": RESPONSES, "/openai/v1/responses": RESPONSES, "/codex/responses": RESPONSES}
 
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802
             body = self.rfile.read(int(self.headers.get("content-length", 0)))
-            seen.append({"path": self.path, "headers": {k.lower(): v for k, v in self.headers.items()}, "body": json.loads(body or b"{}")})
+            try:
+                parsed = json.loads(body or b"{}")
+            except ValueError:  # the Codex backend body may be compressed
+                parsed = {}
+            seen.append({"path": self.path, "headers": {k.lower(): v for k, v in self.headers.items()}, "body": parsed})
             payload = replies.get(self.path.split("?")[0])
             if payload is None:
                 self.send_response(404)
@@ -213,3 +217,44 @@ def test_engine_reaches_an_azure_deployment_with_the_api_key_header(endpoint) ->
     assert request["path"] == "/openai/v1/responses"
     assert request["headers"]["api-key"] == "az-secret"
     assert request["body"]["model"] == "m"  # the model name is the deployment
+
+
+def _jwt(account: str) -> str:
+    import base64
+
+    part = lambda obj: base64.urlsafe_b64encode(json.dumps(obj).encode()).decode().rstrip("=")  # noqa: E731
+    return f"{part({'alg': 'none'})}.{part({'https://api.openai.com/auth': {'chatgpt_account_id': account}})}.sig"
+
+
+@needs_engine
+def test_engine_reaches_the_codex_backend_with_the_signed_in_account(endpoint) -> None:
+    url, seen = endpoint
+    token = _jwt("acct-42")
+    text = _ask({"api": "openai-codex-responses", "provider": "openai-codex", "baseUrl": url, "apiKey": token, "headers": None, "transport": "sse"})
+    assert text == "hello from responses"
+    request = seen[0]
+    assert request["path"] == "/codex/responses"
+    assert request["headers"]["authorization"] == f"Bearer {token}"
+    assert request["headers"]["chatgpt-account-id"] == "acct-42"
+
+
+def test_codex_profile_takes_its_token_from_the_codex_service(monkeypatch) -> None:
+    import asyncio
+    from types import SimpleNamespace
+
+    from deeptutor.services.llm import pi_connection as module
+
+    calls = []
+    service = SimpleNamespace(
+        get_token=lambda: _async(SimpleNamespace(access_token="tok", account_id="a", generation=1)),
+        validate_runtime_profile=lambda token, model, effort: calls.append((token.access_token, model, effort)),
+    )
+    monkeypatch.setattr("deeptutor.services.codex_auth.get_codex_oauth_service", lambda: service)
+    config = _config(binding="openai_codex", provider_name="openai_codex", model="openai-codex/gpt-5.5", base_url=None)
+    conn = asyncio.run(module.resolve_connection(config))
+    assert conn["api"] == "openai-codex-responses" and conn["apiKey"] == "tok" and conn["transport"] == "sse"
+    assert calls == [("tok", "gpt-5.5", None)]
+
+
+async def _async(value):
+    return value
