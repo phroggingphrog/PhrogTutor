@@ -1,4 +1,7 @@
 {
+  "Discard unsent draft": "Nicht gesendeten Entwurf verwerfen",
+  "Discarding…": "Wird verworfen…",
+  "This draft could not be discarded. Please retry or copy it before leaving.": "Dieser Entwurf konnte nicht verworfen werden. Bitte versuche es erneut oder kopiere ihn, bevor du die Seite verlässt.",
   "Review rebuild": "Neuaufbau überprüfen",
   "language.english": "Englisch",
   "language.chinese": "Chinesisch",

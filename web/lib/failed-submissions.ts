@@ -360,21 +360,20 @@ export function moveFailedSubmissions(
   return visible;
 }
 
-/** Remove one causal record without rewriting any other tab's pending data. */
-export function clearFailedSubmission(sessionId: string, submissionId?: string): void {
-  if (!sessionId) return;
+/** Remove one causal record; return whether its retirement was recorded. */
+export function clearFailedSubmission(sessionId: string, submissionId?: string): boolean {
+  if (!sessionId) return false;
   if (!submissionId) {
+    let cleared = true;
     for (const record of readFailedSubmissions(sessionId)) {
-      if (record.submissionId) clearFailedSubmission(sessionId, record.submissionId);
+      if (record.submissionId && !clearFailedSubmission(sessionId, record.submissionId)) cleared = false;
     }
-    return;
+    return cleared;
   }
   const binding = readBindings(sessionId)
     .find((item) => item.submissionId === submissionId);
-  if (binding && binding.sourceKey !== sessionId) {
-    clearFailedSubmission(binding.sourceKey, submissionId);
-    browserStorage.removeRaw("session", bindingKey(sessionId, submissionId));
-  }
+  const sourceRecordAt = binding ? directRecords(binding.sourceKey)
+    .find((item) => item.submissionId === submissionId)?.savedAt ?? 0 : 0;
   const key = recordKey(sessionId, submissionId);
   const marker = tombstoneKey(sessionId, submissionId);
   const recordAt = directRecords(sessionId)
@@ -382,8 +381,28 @@ export function clearFailedSubmission(sessionId: string, submissionId?: string):
   const clearedAt = clearedIds(sessionId).get(submissionId) ?? 0;
   const markerAt = Math.max(Date.now(), recordAt + 1, clearedAt + 1);
   let marked = browserStorage.writeRaw("local", marker, String(markerAt));
+  if (!marked) marked = browserStorage.writeRaw("session", marker, String(markerAt));
+  // Do not destroy the only recovery copy if its retirement cannot be saved.
+  if (!marked) return false;
+  const advanced = () => {
+    const current = directRecords(sessionId).find((item) => item.submissionId === submissionId);
+    const currentBinding = readBindings(sessionId).find((item) => item.submissionId === submissionId);
+    return (current?.savedAt ?? 0) > recordAt ||
+      currentBinding?.sourceKey !== binding?.sourceKey ||
+      currentBinding?.savedAt !== binding?.savedAt ||
+      Boolean(binding && (directRecords(binding.sourceKey)
+        .find((item) => item.submissionId === submissionId)?.savedAt ?? 0) > sourceRecordAt);
+  };
+  // A stale tab can retry this ID after the marker. Preserve advancement we
+  // can observe; browser storage does not offer atomic cross-tab compare/delete.
+  if (advanced()) return false;
+  if (binding && binding.sourceKey !== sessionId) {
+    if (!clearFailedSubmission(binding.sourceKey, submissionId)) return false;
+    browserStorage.removeRaw("session", bindingKey(sessionId, submissionId));
+  }
+  const current = directRecords(sessionId).find((item) => item.submissionId === submissionId);
+  if ((current?.savedAt ?? 0) > recordAt) return false;
   browserStorage.removeRaw("local", key);
   browserStorage.removeRaw("session", key);
-  if (!marked) marked = browserStorage.writeRaw("local", marker, String(markerAt));
-  if (!marked) browserStorage.writeRaw("session", marker, String(markerAt));
+  return true;
 }

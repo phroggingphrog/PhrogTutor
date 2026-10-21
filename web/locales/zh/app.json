@@ -1,4 +1,7 @@
 {
+  "Discard unsent draft": "丢弃未发送的草稿",
+  "Discarding…": "正在丢弃…",
+  "This draft could not be discarded. Please retry or copy it before leaving.": "无法丢弃此草稿。请重试，或在离开前复制内容。",
   "Review rebuild": "查看重建配置",
   "language.english": "English",
   "language.chinese": "中文",
