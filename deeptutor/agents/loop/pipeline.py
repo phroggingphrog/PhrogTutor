@@ -733,6 +733,7 @@ class AgenticLoopPipeline:
                 # is read via its own tools, never rag) so a pure-vault turn still
                 # doesn't mount rag, while co-selected LlamaIndex KBs do (#650).
                 has_kb=bool(self._coexisting_rag_kbs(context)),
+                has_wiki=self._has_wiki_kb(context),
                 # read_source is owned by the explore_context pre-pass (it runs
                 # the investigation over attached sources), not the answer loop.
                 # Keep it off the answer surface even when sources are present.
@@ -1742,6 +1743,12 @@ class AgenticLoopPipeline:
         from deeptutor.services.rag.pipelines.pageindex import is_pageindex_kb
 
         return [kb for kb in self._selected_kbs(context) if not is_pageindex_kb(kb)]
+
+    def _has_wiki_kb(self, context: UnifiedContext) -> bool:
+        """A connected wiki KB is attached, so ``wiki_get`` can open its pages."""
+        from deeptutor.services.rag.pipelines.wiki.binding import is_wiki_kb
+
+        return any(is_wiki_kb(kb) for kb in self._coexisting_rag_kbs(context))
 
     def _capability_owned_kbs(self, context: UnifiedContext) -> set[str]:
         """Selected KBs consumed by an active capability's own tools (not rag).

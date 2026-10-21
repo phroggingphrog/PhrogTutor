@@ -224,6 +224,51 @@ def _rag_visual_model_message(kb_name: str, sources: list[dict[str, Any]]) -> di
     return {"role": "user", "content": parts} if parts else None
 
 
+class WikiGetTool(_PromptHintsMixin, BaseTool):
+    """Open one page of a connected wiki by the path a ``rag`` result cited."""
+
+    def get_definition(self) -> ToolDefinition:
+        return ToolDefinition(
+            name="wiki_get",
+            description=(
+                "Open one page of a connected wiki knowledge base by the file path "
+                "or docid that a rag result cited, and return its full text."
+            ),
+            parameters=[
+                ToolParameter(
+                    name="kb_name",
+                    type="string",
+                    description="The connected wiki knowledge base. Must be one of the attached knowledge bases.",
+                ),
+                ToolParameter(
+                    name="file",
+                    type="string",
+                    description="Page path or docid, exactly as a rag result cited it.",
+                ),
+            ],
+        )
+
+    async def execute(self, **kwargs: Any) -> ToolResult:
+        from deeptutor.services.rag.pipelines.wiki.binding import wiki_kb_entry
+        from deeptutor.services.rag.pipelines.wiki.client import WikiQmdClient, WikiQmdError
+
+        kb_name = str(kwargs.get("kb_name") or "").strip()
+        file = str(kwargs.get("file") or "").strip()
+        if not kb_name or not file:
+            raise ValueError("wiki_get requires kb_name and file.")
+        entry = await asyncio.to_thread(wiki_kb_entry, kb_name)
+        if entry is None:
+            return ToolResult(content=f"'{kb_name}' is not a connected wiki knowledge base.", success=False)
+        try:
+            text = await WikiQmdClient(entry["server_url"]).get(file)
+        except WikiQmdError as exc:
+            return ToolResult(content=str(exc), success=False)
+        return ToolResult(
+            content=text or "That page is empty.",
+            sources=[{"type": "wiki", "kb_name": kb_name, "source": file}],
+        )
+
+
 class KbFilesTool(_PromptHintsMixin, BaseTool):
     """Enumerate what a knowledge base holds — the query ``rag`` cannot serve.
 
@@ -1932,6 +1977,7 @@ USER_TOGGLEABLE_TOOL_NAMES: tuple[str, ...] = (
 CONFIGURABLE_BUILTIN_TOOL_NAMES: tuple[str, ...] = (
     "rag",
     "kb_files",
+    "wiki_get",
     "knowledge_frontier",
     "read_source",
     "read_memory",
