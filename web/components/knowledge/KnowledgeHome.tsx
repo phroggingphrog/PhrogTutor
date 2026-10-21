@@ -2,6 +2,7 @@
 
 import { FeaturePage, PageHeader, pageActionClass, pageGridClass } from '@/components/layout/FeaturePage'
 import { knowledgeBaseRef } from "@/lib/knowledge-helpers";
+import CourseMaterialDrop from "@/components/learning/CourseMaterialDrop";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -247,6 +248,16 @@ export default function KnowledgeHome({
           </button>
           }
         />
+
+        <details className="group mb-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
+            {t("Add course material")}
+            <span aria-hidden className="text-[var(--muted-foreground)] transition-transform group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="px-4 pb-4">
+            <CourseMaterialDrop />
+          </div>
+        </details>
 
         <div
           role="tablist"
