@@ -948,6 +948,16 @@ async def start_openai_codex_oauth() -> dict[str, Any]:
         raise _codex_http_exception(exc) from None
 
 
+@router.post("/providers/openai-codex/oauth/device/start")
+async def start_openai_codex_device_oauth() -> dict[str, Any]:
+    """Sign in with a short code entered at OpenAI: no browser redirect to this server is needed."""
+    _require_codex_oauth_actor()
+    try:
+        return await get_codex_oauth_service().start_device_login()
+    except CodexAuthError as exc:
+        raise _codex_http_exception(exc) from None
+
+
 @router.get("/providers/openai-codex/oauth/status")
 async def get_openai_codex_oauth_status() -> dict[str, Any]:
     _require_codex_oauth_actor()

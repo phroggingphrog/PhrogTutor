@@ -71,12 +71,14 @@ class CatalogSyncResult:
 class _LoginOperation:
     operation_id: str
     state_secret: str
-    pkce: PkceCodes
+    pkce: PkceCodes | None
     callback: Any
     redirect_uri: str
     authorize_url: str
     deadline: float
     expected_generation: int
+    login_method: str = "browser"
+    user_code: str | None = None
     operation_state: str = "waiting"
     error_code: str | None = None
     activated: bool = False
@@ -427,6 +429,20 @@ def remove_codex_catalog(catalog_service: ModelCatalogService) -> dict[str, Any]
     return catalog_service.update(mutate)
 
 
+class _DeviceCallback:
+    """Gives a device sign-in the small surface the service expects of a browser callback listener."""
+
+    port = None
+
+    def __init__(self, login: Any) -> None:
+        self._login = login
+        self.cancelled = False
+
+    async def cancel(self) -> None:
+        self.cancelled = True
+        await self._login.cancel()
+
+
 class CodexOAuthService:
     """Coordinate independent Codex login, refresh, catalog sync, and logout."""
 
@@ -512,6 +528,14 @@ class CodexOAuthService:
                 409,
             )
         callback_port = operation.callback.port
+        if operation.login_method == "device":
+            return {
+                "operation_id": operation.operation_id,
+                "login_method": "device",
+                "authorize_url": operation.authorize_url,
+                "user_code": operation.user_code,
+                "expires_in": max(0, int(operation.deadline - self._clock())),
+            }
         return {
             "operation_id": operation.operation_id,
             "authorize_url": operation.authorize_url,
@@ -593,18 +617,66 @@ class CodexOAuthService:
         await self.receive_callback(code, state, error)
         return self.public_status()
 
+    async def start_device_login(self) -> dict[str, Any]:
+        """Sign in with a short code entered at OpenAI, run by pi's OAuth flow.
+
+        Needs no browser redirect to this server, so it also works in Docker and on remote hosts.
+        """
+        async with self._operation_lock:
+            if self._operation_is_active():
+                return self._login_start_payload(self._operation)
+
+            from .pi_login import DeviceLogin
+
+            login = DeviceLogin()
+            await login.start()
+            operation = _LoginOperation(
+                operation_id=secrets.token_urlsafe(24),
+                state_secret=secrets.token_urlsafe(32),
+                pkce=None,
+                callback=_DeviceCallback(login),
+                redirect_uri="",
+                authorize_url=login.verification_uri,
+                deadline=self._clock() + login.expires_in,
+                expected_generation=self._store.current_generation(),
+                login_method="device",
+                user_code=login.user_code,
+            )
+            self._operation = operation
+            operation.task = asyncio.create_task(self._run_device_login(operation, login))
+            return self._login_start_payload(operation)
+
+    async def _run_device_login(self, operation: _LoginOperation, login: Any) -> None:
+        async def tokens() -> dict[str, Any]:
+            try:
+                return await asyncio.wait_for(
+                    login.wait(), timeout=max(0, operation.deadline - self._clock())
+                )
+            except CodexAuthError:
+                if operation.callback.cancelled:  # the process ended because the user cancelled
+                    raise asyncio.CancelledError from None
+                raise
+
+        await self._finish_login(operation, tokens)
+
     async def _run_login(self, operation: _LoginOperation) -> None:
-        try:
+        async def tokens() -> dict[str, Any]:
             callback = await operation.callback.wait(
                 timeout=max(0, operation.deadline - self._clock())
             )
             self._validate_callback(callback, operation.state_secret)
             operation.operation_state = "exchanging"
-            payload = await self._oauth.exchange_code(
+            return await self._oauth.exchange_code(
                 callback.code,
                 operation.redirect_uri,
                 operation.pkce.verifier,
             )
+
+        await self._finish_login(operation, tokens)
+
+    async def _finish_login(self, operation: _LoginOperation, tokens: Any) -> None:
+        try:
+            payload = await tokens()
             credentials = self._credentials_from_payload(
                 payload,
                 expected_generation=operation.expected_generation,
@@ -648,6 +720,9 @@ class CodexOAuthService:
                 operation.operation_state = "expired"
             else:
                 operation.operation_state = "failed"
+        except TimeoutError:
+            operation.error_code = "login_timeout"
+            operation.operation_state = "expired"
         except asyncio.CancelledError:
             operation.error_code = "login_cancelled"
             operation.operation_state = "cancelled"
@@ -977,6 +1052,10 @@ class CodexOAuthService:
             "connection": connection,
             "operation_id": operation.operation_id if operation is not None else None,
             "operation_state": (operation.operation_state if operation is not None else None),
+            "login_method": operation.login_method if operation is not None else None,
+            "user_code": (
+                operation.user_code if active_operation and operation is not None else None
+            ),
             "authorize_url": (
                 operation.authorize_url if active_operation and operation is not None else None
             ),

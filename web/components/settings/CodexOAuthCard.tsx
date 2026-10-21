@@ -21,6 +21,7 @@ import {
   logoutCodex,
   refreshCodexModels,
   shouldPollCodexStatus,
+  startCodexDeviceLogin,
   startCodexLogin,
   type CodexLoginStart,
   type CodexOAuthStatus,
@@ -203,7 +204,31 @@ export function CodexOAuthCard() {
     }
   };
 
+  const deviceSignIn = async () => {
+    invalidateStatusRequests();
+    setPending(true);
+    setErrorKey(null);
+    try {
+      await startCodexDeviceLogin();
+      await loadStatus();
+    } catch (error) {
+      setErrorKey(
+        codexErrorMessageKey(
+          error instanceof CodexOAuthApiError ? error.code : null,
+        ),
+      );
+    } finally {
+      setPending(false);
+    }
+  };
+
   const signIn = remoteAccess ? remoteSignIn : localSignIn;
+  const deviceCode =
+    status?.login_method === "device" &&
+    status.operation_state === "waiting" &&
+    status.user_code
+      ? { code: status.user_code, url: status.authorize_url, seconds: status.expires_in }
+      : null;
 
   const remoteGuidance = codexRemoteGuidance(status, loginStart);
   const sshCommand = remoteGuidance
@@ -455,6 +480,34 @@ export function CodexOAuthCard() {
               </div>
             </div>
           )}
+          {deviceCode && (
+            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
+              <p className="text-sm font-medium">{t("codex.oauth.deviceTitle")}</p>
+              <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+                {t("codex.oauth.deviceSteps")}
+              </p>
+              <code className="mt-3 block text-center text-2xl font-semibold tracking-widest">
+                {deviceCode.code}
+              </code>
+              {deviceCode.seconds != null && (
+                <p className="mt-2 text-xs text-[var(--muted-foreground)]">
+                  {t("codex.oauth.expiresIn", { seconds: deviceCode.seconds })}
+                </p>
+              )}
+              {deviceCode.url && (
+                <div className="mt-3">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => window.open(deviceCode.url!, "_blank", "noopener")}
+                    icon={<ExternalLink className="h-4 w-4" />}
+                  >
+                    {t("codex.oauth.deviceOpen")}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
           {remoteGuidance && (
             <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
               <p className="text-sm font-medium">
@@ -503,6 +556,17 @@ export function CodexOAuthCard() {
                 icon={<ExternalLink className="h-4 w-4" />}
               >
                 {t("codex.oauth.signIn")}
+              </Button>
+            )}
+            {!connected && !polling && (
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={pending}
+                onClick={() => void deviceSignIn()}
+              >
+                {t("codex.oauth.deviceSignIn")}
               </Button>
             )}
             {polling && !(remoteAccess && remoteGuidance) && (
