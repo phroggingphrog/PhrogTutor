@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import time
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from deeptutor.services.notes_links import links_to, rewrite_links
 from deeptutor.services.path_service import get_path_service
 
 router = APIRouter()
@@ -75,20 +77,51 @@ class RenameBody(BaseModel):
     new_name: str
 
 
-@router.get("")
-def list_notes():
-    notes = []
+def _all_notes() -> list[tuple[str, Path, bool]]:
+    """(name, file, read_only) for every note, own notes first, capped at ``_MAX_LIST``."""
+    found: list[tuple[str, Path, bool]] = []
     roots = [(None, _dir().resolve(), False), *[(k, v, True) for k, v in _sources().items()]]
     for label, root, read_only in roots:
         for p in root.rglob("*.md"):
             rel = p.relative_to(root)
             if any(part.startswith(".") for part in rel.parts):
                 continue
-            notes.append({"name": _name(root, p, label), "updated_at": p.stat().st_mtime, "read_only": read_only})
-            if len(notes) >= _MAX_LIST:
-                break
+            found.append((_name(root, p, label), p, read_only))
+            if len(found) >= _MAX_LIST:
+                return found
+    return found
+
+
+@router.get("")
+def list_notes():
+    notes = [
+        {"name": name, "updated_at": p.stat().st_mtime, "read_only": read_only}
+        for name, p, read_only in _all_notes()
+    ]
     notes.sort(key=lambda n: (n["read_only"], -n["updated_at"]))
     return {"notes": notes, "sources": sorted(_sources())}
+
+
+@router.get("/_backlinks")
+def backlinks(name: str):
+    """Notes that link to ``name`` with ``[[wikilinks]]``, each with a short snippet."""
+    _locate(name)
+    notes = _all_notes()
+    names = [n for n, _, _ in notes]
+    hits = []
+    for other, p, _ in notes:
+        if other == name:
+            continue
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if "[[" in text and links_to(text, name, names):
+            at = text.find("[[")
+            hits.append({"name": other, "snippet": " ".join(text[max(0, at - 60) : at + 100].split())})
+            if len(hits) >= 100:
+                break
+    return {"backlinks": hits}
 
 
 @router.get("/search")
@@ -138,11 +171,26 @@ def rename_note(name: str, body: RenameBody):
     src, dst = _writable(name), _writable(body.new_name)
     if not src.is_file():
         raise HTTPException(404, "Note not found")
-    if dst.exists():
+    if dst.exists() and dst != src:
         raise HTTPException(409, "A note with that name exists")
+    notes = _all_notes()
+    names = [n for n, _, _ in notes]
+    new_name = body.new_name.strip("/")
     dst.parent.mkdir(parents=True, exist_ok=True)
     src.rename(dst)
-    return {"name": body.new_name.strip("/")}
+    # Keep links working: rewrite [[links]] that pointed at the old name, in notes the user can edit.
+    for other, p, read_only in notes:
+        if read_only:
+            continue
+        if other == name:
+            p = dst
+        text = p.read_text(encoding="utf-8", errors="replace")
+        if "[[" not in text:
+            continue
+        updated = rewrite_links(text, name, new_name, names)
+        if updated != text:
+            p.write_text(updated, encoding="utf-8")
+    return {"name": new_name}
 
 
 @router.delete("/{name:path}")
@@ -151,5 +199,6 @@ def delete_note(name: str):
     if path.is_file():
         trash = _dir() / ".trash"
         trash.mkdir(exist_ok=True)
-        path.rename(trash / path.name)
+        # Same file name in two folders must not overwrite an earlier trashed note.
+        path.rename(trash / f"{int(time.time() * 1000)}-{path.name}")
     return {"ok": True}
