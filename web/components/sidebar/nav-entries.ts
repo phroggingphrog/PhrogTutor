@@ -51,7 +51,7 @@ export const PRIMARY_NAV: NavEntry[] = [
   { href: '/space', label: 'Learning Space', icon: LayoutGrid, tooltipKey: 'Space tooltip', defaultCollapsed: true },
   { href: '/notes', label: 'Notes', icon: NotebookPen, tooltipKey: 'Your own Markdown notes' },
   { href: '/terminal', label: 'Terminal', icon: SquareTerminal, tooltipKey: 'A sandboxed shell (no network)', defaultCollapsed: true },
-  { href: '/kanban', label: 'Task Board', icon: ListTodo, tooltipKey: 'kanban.intro', defaultCollapsed: true },
+  { href: '/kanban', label: 'Task Board', icon: ListTodo, tooltipKey: 'kanban.intro' },
   {
     href: '/co-writer',
     label: 'Co-Writer',

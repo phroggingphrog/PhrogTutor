@@ -32,6 +32,7 @@ import { useSidebarResize } from "@/hooks/useSidebarResize";
 import { SidebarHome, SidebarNav } from "@/components/sidebar/SidebarNav";
 import { SECONDARY_NAV, isNavActive } from "@/components/sidebar/nav-entries";
 import Tooltip from "@/shared/ui/Tooltip";
+import { sidebarMemory } from "@/lib/sidebar-memory";
 import {
   mergeManualOrder,
   readSessionOrder,
@@ -134,14 +135,21 @@ export function SidebarShell({
   // and group ids in one list, since the two are peers there. Like the
   // collapse preference above it is per-machine view state, hydrated after
   // mount.
-  const [sessionOrder, setSessionOrder] = useState<string[]>([]);
-  const sessionOrderRef = useRef<string[]>([]);
+  const [sessionOrder, setSessionOrder] = useState<string[]>(() => sidebarMemory.sessionOrder ?? []);
+  const sessionOrderRef = useRef<string[]>(sidebarMemory.sessionOrder ?? []);
 
   useEffect(() => {
+    if (sidebarMemory.sessionOrder) return;
     const stored = readSessionOrder();
+    sidebarMemory.sessionOrder = stored;
     sessionOrderRef.current = stored;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSessionOrder(stored);
+  }, []);
+
+  // A replacement sidebar opens the history list where the last one was scrolled to.
+  useEffect(() => {
+    if (recentsScrollRef.current) recentsScrollRef.current.scrollTop = sidebarMemory.recentsScroll;
   }, []);
 
   // A drag only ever speaks for the entries on screen, so it is merged into
@@ -149,12 +157,14 @@ export function SidebarShell({
   const handleReorderSessions = useCallback((nextIds: string[]) => {
     const merged = mergeManualOrder(sessionOrderRef.current, nextIds);
     sessionOrderRef.current = merged;
+    sidebarMemory.sessionOrder = merged;
     setSessionOrder(merged);
     writeSessionOrder(merged);
   }, []);
 
   const handleResetSessionOrder = useCallback(() => {
     sessionOrderRef.current = [];
+    sidebarMemory.sessionOrder = [];
     setSessionOrder([]);
     writeSessionOrder([]);
   }, []);
@@ -283,6 +293,9 @@ export function SidebarShell({
       {/* Modules and conversations share one scroll region below Home. */}
       <div
         ref={recentsScrollRef}
+        onScroll={(event) => {
+          sidebarMemory.recentsScroll = event.currentTarget.scrollTop;
+        }}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-2"
       >
         <SidebarNav

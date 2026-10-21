@@ -261,23 +261,46 @@ function writeJson(key: string, value: unknown) {
   }
 }
 
+/**
+ * One-time arrangement fixes, keyed by a counter kept beside the layout.
+ *
+ * A saved layout records its folded list in full, so changing what ships folded never reaches
+ * anyone who has arranged their sidebar. When a feature moves out of "More" for everyone, that
+ * has to be done here: the entry is taken out of the folded list once, and the reader can fold it
+ * again afterwards because the counter has moved on.
+ */
+export const NAV_LAYOUT_MIGRATION_KEY = "deeptutor.sidebar.navLayoutMigration";
+const NAV_LAYOUT_MIGRATIONS: { version: number; unfold: string[] }[] = [
+  { version: 1, unfold: ["/kanban"] }, // the Task Board is a main entry, not a "More" item
+];
+
+function migrateNavLayout(layout: SidebarNavLayout | null): SidebarNavLayout | null {
+  const done = Number(browserStorage.readRaw("local", NAV_LAYOUT_MIGRATION_KEY)) || 0;
+  const pending = NAV_LAYOUT_MIGRATIONS.filter((step) => step.version > done);
+  if (!pending.length) return layout;
+  let next = layout;
+  if (layout) {
+    const unfold = new Set(pending.flatMap((step) => step.unfold));
+    next = { order: layout.order, collapsed: layout.collapsed.filter((href) => !unfold.has(href)) };
+    if (next.collapsed.length !== layout.collapsed.length) writeJson(NAV_LAYOUT_STORAGE_KEY, next);
+  }
+  browserStorage.writeRaw("local", NAV_LAYOUT_MIGRATION_KEY, String(Math.max(...pending.map((step) => step.version))));
+  return next;
+}
+
 export function readNavLayout(): SidebarNavLayout | null {
   const stored = readJson<Partial<SidebarNavLayout> | null>(
     NAV_LAYOUT_STORAGE_KEY,
     null,
   );
-  if (
-    !stored ||
-    !Array.isArray(stored.order) ||
-    !Array.isArray(stored.collapsed)
-  )
-    return null;
-  return {
-    order: Array.isArray(stored?.order) ? stored.order.filter(isString) : [],
-    collapsed: Array.isArray(stored?.collapsed)
-      ? stored.collapsed.filter(isString)
-      : [],
-  };
+  const valid =
+    stored && Array.isArray(stored.order) && Array.isArray(stored.collapsed)
+      ? {
+          order: stored.order.filter(isString),
+          collapsed: stored.collapsed.filter(isString),
+        }
+      : null;
+  return migrateNavLayout(valid);
 }
 
 export function writeNavLayout(layout: SidebarNavLayout) {

@@ -45,6 +45,7 @@ import {
   isNavActive,
 } from "@/components/sidebar/nav-entries";
 import { Tooltip } from "@/shared/ui/Tooltip";
+import { sidebarMemory } from "@/lib/sidebar-memory";
 import { useDragSort, type DragSort } from "@/hooks/useDragSort";
 import { placeMenu, type FloatingMenuPosition } from "@/lib/floating-menu";
 import {
@@ -93,8 +94,10 @@ export function SidebarNav({
   const { t } = useTranslation();
   const { has } = useCapabilityAccess();
 
-  const [layout, setLayout] = useState<SidebarNavLayout | null>(null);
-  const [moreExpanded, setMoreExpanded] = useState(false);
+  // Seeded from memory when this sidebar replaces another one (see lib/sidebar-memory.ts); on the
+  // first load there is none, and the saved arrangement is read after mount so SSR and hydration agree.
+  const [layout, setLayout] = useState<SidebarNavLayout | null>(() => sidebarMemory.nav?.layout ?? null);
+  const [moreExpanded, setMoreExpanded] = useState(() => sidebarMemory.nav?.moreExpanded ?? false);
   const [menu, setMenu] = useState<RowMenu | null>(null);
   const [railMenu, setRailMenu] = useState<FloatingMenuPosition | null>(null);
   const menuRootRef = useRef<HTMLDivElement>(null);
@@ -104,9 +107,13 @@ export function SidebarNav({
   // shipped order, then settle into this machine's arrangement.
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (sidebarMemory.nav) return;
+    const stored = readNavLayout();
+    const expanded = browserStorage.readRaw("local", MORE_EXPANDED_KEY) === "1";
+    sidebarMemory.nav = { layout: stored, moreExpanded: expanded };
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLayout(readNavLayout());
-    setMoreExpanded(browserStorage.readRaw("local", MORE_EXPANDED_KEY) === "1");
+    setLayout(stored);
+    setMoreExpanded(expanded);
   }, []);
 
   const resolved = useMemo(
@@ -121,11 +128,13 @@ export function SidebarNav({
 
   const applyLayout = useCallback((next: SidebarNavLayout) => {
     setLayout(next);
+    sidebarMemory.nav = { layout: next, moreExpanded: sidebarMemory.nav?.moreExpanded ?? false };
     writeNavLayout(next);
   }, []);
 
   const showMore = useCallback((next: boolean) => {
     setMoreExpanded(next);
+    sidebarMemory.nav = { layout: sidebarMemory.nav?.layout ?? null, moreExpanded: next };
     if (typeof window !== "undefined") {
       browserStorage.writeRaw("local", MORE_EXPANDED_KEY, next ? "1" : "0");
     }

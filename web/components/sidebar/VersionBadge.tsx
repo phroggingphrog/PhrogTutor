@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type MouseEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 import Tooltip from "@/shared/ui/Tooltip";
+import { sidebarMemory } from "@/lib/sidebar-memory";
 
 import {
   fetchAppUpdateStatus,
@@ -17,7 +18,7 @@ interface VersionBadgeProps {
 
 export function VersionBadge({ onNavigate }: VersionBadgeProps) {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<AppUpdateStatus | null>(null);
+  const [status, setStatus] = useState<AppUpdateStatus | null>(() => sidebarMemory.update ?? null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -25,7 +26,10 @@ export function VersionBadge({ onNavigate }: VersionBadgeProps) {
     const controller = new AbortController();
     const unsubscribe = subscribeAppUpdateStatus((signal) => {
       if (!active) return;
-      if (signal.status) setStatus(signal.status);
+      if (signal.status) {
+        sidebarMemory.update = signal.status;
+        setStatus(signal.status);
+      }
       setError(signal.error);
     });
 
