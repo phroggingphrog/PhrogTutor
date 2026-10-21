@@ -177,7 +177,7 @@ export default memo(function VisualizeConfigPanel({
                     installBundledVisualizer(item.id),
                   )
                 }
-                className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
+                className="rounded-md border border-[var(--border)] px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
               >
                 + {t(item.display_name)}
               </button>
@@ -193,7 +193,7 @@ export default memo(function VisualizeConfigPanel({
                   setVisualizerEnabled(item.id, true),
                 )
               }
-              className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
+              className="rounded-md border border-[var(--border)] px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
             >
               {t("Enable")} {t(item.display_name)}
             </button>
@@ -202,7 +202,7 @@ export default memo(function VisualizeConfigPanel({
             type="button"
             disabled={Boolean(busy)}
             onClick={() => importRef.current?.click()}
-            className="rounded-md border border-dashed border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
+            className="rounded-md border border-dashed border-[var(--border)] px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
           >
             {t("Import .zip")}
           </button>
@@ -229,7 +229,7 @@ export default memo(function VisualizeConfigPanel({
                   setVisualizerEnabled(selected.id, false),
                 );
               }}
-              className="rounded-md border border-[var(--border)] px-2 py-1 text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
+              className="rounded-md border border-[var(--border)] px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-50"
             >
               {t("Disable selected")}
             </button>
@@ -244,19 +244,19 @@ export default memo(function VisualizeConfigPanel({
                   uninstallVisualizer(selected.id),
                 );
               }}
-              className="rounded-md border border-red-300/60 px-2 py-1 text-[10px] text-red-500 disabled:opacity-50"
+              className="rounded-md border border-destructive/60 px-2 py-1 text-[11px] text-destructive disabled:opacity-50"
             >
               {t("Uninstall selected")}
             </button>
           ) : null}
           {busy ? (
-            <span className="text-[10px] text-[var(--muted-foreground)]">
+            <span className="text-[11px] text-[var(--muted-foreground)]">
               {t("Updating...")}
             </span>
           ) : null}
         </div>
         {catalogError ? (
-          <p className="mt-1 text-[10px] text-red-500">{catalogError}</p>
+          <p className="mt-1 text-[11px] text-destructive">{catalogError}</p>
         ) : null}
       </Field>
     </>

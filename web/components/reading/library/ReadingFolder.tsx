@@ -184,7 +184,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
           <h1 className="font-serif text-[26px] font-semibold leading-tight tracking-[-0.02em] md:text-[28px]">
             {folder.title}
           </h1>
-          <p className="mt-1.5 text-[12.5px] text-[var(--muted-foreground)]">
+          <p className="mt-1.5 text-[13px] text-[var(--muted-foreground)]">
             {t("{{count}} files", { count: files.length })}
             {" · "}
             {t("Stored in {{workspace}}", { workspace: workspaceLabel })}
@@ -194,7 +194,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
           {files.length ? (
             <Link
               href={readerHref}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 text-[12.5px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 text-[13px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90"
             >
               <BookOpen size={14} />
               {t("Start reading")}
@@ -203,7 +203,7 @@ export function ReadingFolderPage({ folderId }: { folderId: string }) {
           <button
             type="button"
             onClick={() => setDialog("add")}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 text-[12.5px] transition hover:bg-[var(--muted)]"
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--border)] px-3.5 text-[13px] transition hover:bg-[var(--muted)]"
           >
             <Plus size={14} />
             {t("Add material")}
@@ -380,7 +380,7 @@ function FolderFrame({ children }: { children: React.ReactNode }) {
 
 function SectionHeading({ label, count }: { label: string; count: number }) {
   return (
-    <h2 className="flex items-center gap-1.5 px-1 text-[11.5px] font-medium text-[var(--muted-foreground)]">
+    <h2 className="flex items-center gap-1.5 px-1 text-[12px] font-medium text-[var(--muted-foreground)]">
       {label}
       <span className="tabular-nums opacity-70">{count}</span>
     </h2>

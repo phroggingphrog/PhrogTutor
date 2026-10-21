@@ -74,7 +74,7 @@ export default function CategoryManager({
                     if (event.key === "Enter") void commitRename();
                     if (event.key === "Escape") setRenaming(null);
                   }}
-                  className="min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
+                  className="min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
                 />
                 <Tooltip label={t("Save")}>
                   <button
@@ -100,7 +100,7 @@ export default function CategoryManager({
               </>
             ) : (
               <>
-                <span className="min-w-0 flex-1 truncate text-[12.5px] text-[var(--foreground)]">
+                <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--foreground)]">
                   {category.name}
                   <span className="ml-1.5 tabular-nums text-[11px] text-[var(--muted-foreground)]">
                     {category.entry_count}
@@ -136,7 +136,7 @@ export default function CategoryManager({
                         void run(() => onDelete(category.id));
                     }}
                     aria-label={t("Delete")}
-                    className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 dark:hover:bg-red-950/30"
+                    className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive disabled:opacity-40"
                   >
                     <Trash2 size={13} />
                   </button>

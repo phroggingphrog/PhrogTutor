@@ -97,11 +97,11 @@ function ChartJsRenderer({ config }: { config: string }) {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
-        <p className="text-sm font-medium text-red-600 dark:text-red-400">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+        <p className="text-sm font-medium text-destructive">
           {t("Chart rendering error")}
         </p>
-        <pre className="mt-2 whitespace-pre-wrap text-xs text-red-500">
+        <pre className="mt-2 whitespace-pre-wrap text-xs text-destructive">
           {error}
         </pre>
       </div>
@@ -176,7 +176,7 @@ function HtmlRenderer({ html }: { html: string }) {
       <button
         type="button"
         onClick={handleOpenInNewTab}
-        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)]/90 px-2 py-1 text-[10px] font-medium text-[var(--muted-foreground)] backdrop-blur transition-colors hover:text-[var(--foreground)]"
+        className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)]/90 px-2 py-1 text-[11px] font-medium text-[var(--muted-foreground)] backdrop-blur transition-colors hover:text-[var(--foreground)]"
       >
         <ExternalLink size={10} strokeWidth={1.8} />
         {t("Open in new tab")}
@@ -232,7 +232,7 @@ function PluginIframeRenderer({ result }: { result: VisualizeCanvasResult }) {
 
   if (!entryUrl) {
     return (
-      <div className="p-4 text-sm text-red-600">
+      <div className="p-4 text-sm text-destructive">
         {t("Visualizer renderer is unavailable")}
       </div>
     );
@@ -379,11 +379,11 @@ function SvgFigure({ svg }: { svg: string }) {
 
   if (!looksSvg || !safe) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
-        <p className="text-sm font-medium text-red-600 dark:text-red-400">
+      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+        <p className="text-sm font-medium text-destructive">
           {t("SVG rendering error")}
         </p>
-        <pre className="mt-2 whitespace-pre-wrap text-xs text-red-500">
+        <pre className="mt-2 whitespace-pre-wrap text-xs text-destructive">
           {looksSvg
             ? t("SVG could not be safely rendered")
             : t("Invalid SVG: does not start with <svg")}
@@ -484,7 +484,7 @@ function CanvasVisualization({ result }: { result: VisualizeCanvasResult }) {
     );
   }
   return (
-    <div className="p-4 text-sm text-red-600">
+    <div className="p-4 text-sm text-destructive">
       {t("No native renderer is registered for {{renderer}}.", {
         renderer: renderer || result.render_type,
       })}
@@ -570,7 +570,7 @@ export default function VisualizationViewer({
           <button
             type="button"
             onClick={() => setFullscreen(true)}
-            className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)]/90 px-2 py-1 text-[10px] font-medium text-[var(--muted-foreground)] backdrop-blur transition-colors hover:text-[var(--foreground)]"
+            className="absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--background)]/90 px-2 py-1 text-[11px] font-medium text-[var(--muted-foreground)] backdrop-blur transition-colors hover:text-[var(--foreground)]"
           >
             <Maximize2 size={10} strokeWidth={1.8} />
             {t("Fullscreen")}
@@ -603,7 +603,7 @@ export default function VisualizationViewer({
           {copied ? t("Copied") : t("Copy code")}
         </button>
 
-        <span className="ml-auto text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]/50">
+        <span className="ml-auto text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]/50">
           {visualizationLabel(result)}
         </span>
       </div>

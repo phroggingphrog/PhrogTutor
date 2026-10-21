@@ -143,9 +143,9 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
           {notice && (
             <div
               role="status"
-              className="mb-4 flex items-start gap-2 rounded-xl bg-emerald-500/10 p-3 text-sm"
+              className="mb-4 flex items-start gap-2 rounded-xl bg-success/10 p-3 text-sm"
             >
-              <Check size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+              <Check size={16} className="mt-0.5 shrink-0 text-success" />
               {notice}
             </div>
           )}
@@ -172,7 +172,7 @@ function ScopedPracticePage({ mode, initialImport }: { mode: "practice" | "libra
             >
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                 <div className="flex items-start gap-4">
-                  <div className="rounded-xl bg-emerald-500/10 p-3 text-emerald-600 dark:text-emerald-400">
+                  <div className="rounded-xl bg-success/10 p-3 text-success">
                     <CalendarCheck size={22} />
                   </div>
                   <div>

@@ -269,7 +269,7 @@ export default function NotebookConsole({
             <h1 className="flex items-center gap-1.5 font-serif text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
               <NotebookPen size={14} strokeWidth={1.7} />
               {t("Notebooks")}
-              <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal tabular-nums text-[var(--muted-foreground)]">
+              <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal tabular-nums text-[var(--muted-foreground)]">
                 {scopedNotebooks.length}
               </span>
             </h1>
@@ -297,7 +297,7 @@ export default function NotebookConsole({
                   if (e.key === "Escape") setCreating(false);
                 }}
                 placeholder={t("Notebook name")}
-                className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
+                className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
               />
               <input
                 value={newDescription}
@@ -394,7 +394,7 @@ export default function NotebookConsole({
                       if (e.key === "Escape") setEditingNotebookId(null);
                     }}
                     placeholder={t("Notebook name")}
-                    className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
+                    className="rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50"
                   />
                   <input
                     aria-label={t("Description (optional)")}
@@ -476,7 +476,7 @@ export default function NotebookConsole({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5">
                       <span
-                        className={`min-w-0 flex-1 truncate text-[12.5px] ${active ? "font-semibold text-[var(--foreground)]" : "font-medium text-[var(--foreground)]/85"}`}
+                        className={`min-w-0 flex-1 truncate text-[13px] ${active ? "font-semibold text-[var(--foreground)]" : "font-medium text-[var(--foreground)]/85"}`}
                       >
                         {notebook.name}
                       </span>
@@ -486,7 +486,7 @@ export default function NotebookConsole({
                           className="shrink-0 text-[var(--destructive)]"
                         />
                       ) : (
-                        <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--muted-foreground)]">
+                        <span className="shrink-0 text-[11px] tabular-nums text-[var(--muted-foreground)]">
                           {notebook.record_count ?? 0}
                         </span>
                       )}
@@ -585,11 +585,11 @@ export default function NotebookConsole({
                   style={{ backgroundColor: selected?.color || "#6366F1" }}
                 />
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-[14.5px] font-semibold tracking-tight text-[var(--foreground)]">
+                  <h2 className="truncate text-[14px] font-semibold tracking-tight text-[var(--foreground)]">
                     {selected?.name}
                   </h2>
                   {selected?.description && (
-                    <p className="truncate text-[11.5px] text-[var(--muted-foreground)]">
+                    <p className="truncate text-[12px] text-[var(--muted-foreground)]">
                       {selected.description}
                     </p>
                   )}
@@ -756,10 +756,10 @@ function ConsoleNotice({
       >
         <Icon size={16} />
       </span>
-      <p className="text-[13.5px] font-medium text-[var(--foreground)]">
+      <p className="text-[14px] font-medium text-[var(--foreground)]">
         {title}
       </p>
-      <p className="max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {detail}
       </p>
       {action}

@@ -410,9 +410,9 @@ export function GrantEditor({
 
   const statusTone =
     saveState === "error"
-      ? "text-red-600 dark:text-red-400"
+      ? "text-destructive"
       : saveState === "saved" && !dirty
-        ? "text-emerald-700 dark:text-emerald-300"
+        ? "text-success"
         : "text-[var(--muted-foreground)]";
 
   const toolsSummary =

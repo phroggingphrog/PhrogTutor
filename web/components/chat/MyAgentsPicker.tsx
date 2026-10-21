@@ -436,7 +436,7 @@ export default function MyAgentsPicker({
                             size={14}
                             className="shrink-0 text-[var(--muted-foreground)]"
                           />
-                          <span className="truncate text-[12.5px] font-semibold text-[var(--foreground)]">
+                          <span className="truncate text-[13px] font-semibold text-[var(--foreground)]">
                             {group.label}
                           </span>
                         </button>
@@ -629,10 +629,10 @@ function PreviewPane({
         <div className="space-y-3 px-4 py-4">
           {visible.map((m) => (
             <div key={m.id}>
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
                 {m.role === "user" ? t("You") : t("Assistant")}
               </div>
-              <div className="whitespace-pre-wrap break-words rounded-xl border border-[var(--border)]/60 bg-[var(--background)]/40 px-3 py-2 text-[12.5px] leading-relaxed text-[var(--foreground)]">
+              <div className="whitespace-pre-wrap break-words rounded-xl border border-[var(--border)]/60 bg-[var(--background)]/40 px-3 py-2 text-[13px] leading-relaxed text-[var(--foreground)]">
                 {m.content}
               </div>
             </div>
@@ -671,7 +671,7 @@ function Chip({
       <span className="truncate">{label}</span>
       {typeof count === "number" ? (
         <span
-          className={`rounded-full px-1.5 text-[10px] font-semibold ${
+          className={`rounded-full px-1.5 text-[11px] font-semibold ${
             active
               ? "bg-[var(--primary-foreground)]/20"
               : "bg-[var(--muted)] text-[var(--muted-foreground)]"

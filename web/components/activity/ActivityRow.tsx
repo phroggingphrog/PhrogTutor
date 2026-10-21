@@ -133,7 +133,7 @@ export function ActivityRow({
               </span>
               <span
                 className={`min-w-0 truncate font-normal text-[var(--muted-foreground)]/50 ${
-                  detailMono ? "font-mono text-[12.5px]" : ""
+                  detailMono ? "font-mono text-[13px]" : ""
                 }`}
               >
                 {detail}

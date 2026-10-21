@@ -51,7 +51,7 @@ function Section({
             {title}
           </h3>
           {description && (
-            <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
               {description}
             </p>
           )}
@@ -530,7 +530,7 @@ export default function PartnerConfigure({
           )}
 
           {assetRows.length === 0 ? (
-            <p className="text-[12.5px] text-[var(--muted-foreground)]">
+            <p className="text-[13px] text-[var(--muted-foreground)]">
               {t(
                 "Nothing assigned yet — this partner only knows what you tell it.",
               )}
@@ -551,7 +551,7 @@ export default function PartnerConfigure({
                   <button
                     type="button"
                     onClick={() => void removeAsset(row.type, row.id)}
-                    className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-red-500"
+                    className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-destructive"
                     aria-label={t("Remove")}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

@@ -310,7 +310,7 @@ export default memo(function ChatSpaceMenu({
                   )}
                 </span>
                 {count > 0 && (
-                  <span className="shrink-0 rounded-full bg-[var(--primary)]/10 px-1.5 py-px text-[9px] font-semibold text-[var(--primary)]">
+                  <span className="shrink-0 rounded-full bg-[var(--primary)]/10 px-1.5 py-px text-[11px] font-semibold text-[var(--primary)]">
                     {count}
                   </span>
                 )}

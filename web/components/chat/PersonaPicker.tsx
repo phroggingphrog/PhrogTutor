@@ -163,7 +163,7 @@ export default function PersonaPicker({
                             {persona.name}
                           </span>
                           {persona.source === "admin" ? (
-                            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                               {t("preset")}
                             </span>
                           ) : null}

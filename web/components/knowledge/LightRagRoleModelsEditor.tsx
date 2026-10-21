@@ -316,7 +316,7 @@ export default function LightRagRoleModelsEditor({
                     option.model_id === effective?.model_id &&
                     option.supports_vision,
                 ) && (
-                  <p className="text-xs text-red-600">
+                  <p className="text-xs text-destructive">
                     {t("The selected VLM model does not support image inputs.")}
                   </p>
                 )}

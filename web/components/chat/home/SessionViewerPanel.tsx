@@ -854,7 +854,7 @@ export default SessionViewerPanel;
  * and appears on hover for the others.
  */
 const TAB_PILL =
-  "inline-flex h-7 shrink-0 items-center rounded-lg text-[12.5px] font-medium transition-colors";
+  "inline-flex h-7 shrink-0 items-center rounded-lg text-[13px] font-medium transition-colors";
 const TAB_ACTIVE =
   "bg-[color-mix(in_srgb,var(--muted)_85%,transparent)] text-[var(--foreground)]";
 const TAB_IDLE =
@@ -1096,7 +1096,7 @@ function ActivityOpener({
             aria-label={t("Open URL")}
             placeholder={URL_PLACEHOLDER}
             autoFocus={autoFocus}
-            className="min-w-0 flex-1 bg-transparent text-[12.5px] text-[var(--foreground)] outline-none placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)]"
+            className="min-w-0 flex-1 bg-transparent text-[13px] text-[var(--foreground)] outline-none placeholder:text-[color-mix(in_srgb,var(--muted-foreground)_75%,transparent)]"
           />
           <button
             type="submit"
@@ -1110,7 +1110,7 @@ function ActivityOpener({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
+          className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[13px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
         >
           <FileUp size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
           <span className="min-w-0 flex-1 truncate">{t("Open a local file")}</span>
@@ -1120,7 +1120,7 @@ function ActivityOpener({
           <button
             type="button"
             onClick={onOpenMarkdownNote}
-            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
+            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[13px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
           >
             <NotebookPen size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
             <span className="min-w-0 flex-1 truncate">{t("Markdown note")}</span>
@@ -1131,7 +1131,7 @@ function ActivityOpener({
           <button
             type="button"
             onClick={onOpenNotes}
-            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
+            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[13px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
           >
             <NotebookPen size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
             <span className="min-w-0 flex-1 truncate">{t("My notes (notebook)")}</span>
@@ -1141,7 +1141,7 @@ function ActivityOpener({
           <button
             type="button"
             onClick={onOpenTerminal}
-            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
+            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-[13px] font-medium text-[var(--foreground)] transition-colors ${ACTIVITY_ROW_HOVER} focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ring)]`}
           >
             <SquareTerminal size={15} strokeWidth={1.7} aria-hidden="true" className="shrink-0 text-[var(--muted-foreground)]" />
             <span className="min-w-0 flex-1 truncate">{t("Terminal")}</span>
@@ -1346,10 +1346,10 @@ function WebTabBody({ url }: { url: string }) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[12.5px] font-semibold text-[var(--foreground)]">
+          <div className="truncate text-[13px] font-semibold text-[var(--foreground)]">
             {host}
           </div>
-          <div className="truncate text-[10px] text-[var(--muted-foreground)]">
+          <div className="truncate text-[11px] text-[var(--muted-foreground)]">
             {url}
           </div>
         </div>

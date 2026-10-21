@@ -97,7 +97,7 @@ const CourseHandoff = memo(function CourseHandoff({
 
           {data.prompt && acceptsPrompt ? (
             <label className="mt-3 block">
-              <span className="text-[10.5px] text-[var(--muted-foreground)]/80">
+              <span className="text-[11px] text-[var(--muted-foreground)]/80">
                 {t("Opens with")}
               </span>
               <textarea
@@ -112,7 +112,7 @@ const CourseHandoff = memo(function CourseHandoff({
           <button
             type="button"
             onClick={go}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
           >
             {place}
             <span aria-hidden>→</span>

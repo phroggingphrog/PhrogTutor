@@ -83,7 +83,7 @@ export default function McpToolGroups<T extends ProviderToolLike>({
                     );
                   }}
                 />
-                <span className="truncate font-mono text-[11.5px] text-[var(--foreground)]">
+                <span className="truncate font-mono text-[12px] text-[var(--foreground)]">
                   {group.id}
                 </span>
               </label>

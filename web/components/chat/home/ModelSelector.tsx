@@ -71,12 +71,12 @@ function ModelOptionRow({
       />
       <span
         ref={nameRef}
-        className="min-w-0 truncate text-[12.5px] font-medium text-[var(--foreground)]"
+        className="min-w-0 truncate text-[13px] font-medium text-[var(--foreground)]"
       >
         {modelLabel}
       </span>
       {option.is_active_default && (
-        <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+        <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
           {t("Default")}
         </span>
       )}
@@ -255,7 +255,7 @@ export default function ModelSelector({
                       : "text-[var(--muted-foreground)]"
                   }`}
                 />
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--foreground)]">
                   {defaultLabel}
                 </span>
                 {selectedKey === "" && (

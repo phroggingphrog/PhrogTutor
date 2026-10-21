@@ -73,7 +73,7 @@ function toneClass(tone: Notification["tone"]): string {
     case "error":
       return "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]";
     case "success":
-      return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+      return "border-success/30 bg-success/10 text-success";
     default:
       return "border-[var(--border)] bg-[var(--card)]/95 text-[var(--foreground)]";
   }

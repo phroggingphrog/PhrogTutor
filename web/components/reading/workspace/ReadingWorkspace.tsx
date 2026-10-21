@@ -514,7 +514,7 @@ export function ReadingWorkspacePage() {
             <button
               type="button"
               onClick={() => setShowRename(true)}
-              className="min-w-0 max-w-[240px] truncate font-serif text-[13.5px] font-semibold tracking-[-0.01em] transition hover:text-[var(--primary)]"
+              className="min-w-0 max-w-[240px] truncate font-serif text-[14px] font-semibold tracking-[-0.01em] transition hover:text-[var(--primary)]"
             >
               {workspace.title}
             </button>
@@ -533,7 +533,7 @@ export function ReadingWorkspacePage() {
 
         <div className="ml-auto flex shrink-0 items-center gap-0.5">
           {notice && (
-            <span className="hidden max-w-[220px] truncate px-2 text-[10px] text-[var(--muted-foreground)] 2xl:inline">
+            <span className="hidden max-w-[220px] truncate px-2 text-[11px] text-[var(--muted-foreground)] 2xl:inline">
               {notice}
             </span>
           )}

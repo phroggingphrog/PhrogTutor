@@ -46,10 +46,10 @@ export default function McpAdminRegistry() {
             className="shrink-0 text-[var(--muted-foreground)]"
           />
           {t("Deployment registry")}
-          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] tabular-nums text-[var(--muted-foreground)]">
+          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] tabular-nums text-[var(--muted-foreground)]">
             {mcp.serverNames.length}
           </span>
-          <span className="rounded-full border border-[var(--border)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+          <span className="rounded-full border border-[var(--border)] px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
             {t("Admin")}
           </span>
         </span>
@@ -63,19 +63,19 @@ export default function McpAdminRegistry() {
 
       {open && (
         <div className="space-y-4 border-t border-[var(--border)]/70 px-4 pb-4 pt-3">
-          <p className="text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Servers every account on this deployment can use. Local commands (stdio) are only configurable here.",
             )}
           </p>
 
           {mcp.loadError && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
               {t("Failed to load MCP servers")}: {mcp.loadError}
             </div>
           )}
           {mcp.saveError && (
-            <div className="rounded-lg border border-red-500/40 bg-red-500/5 px-3 py-2 text-[12px] text-red-500">
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[12px] text-destructive">
               {t("Failed to save")}: {mcp.saveError}
             </div>
           )}
@@ -126,7 +126,7 @@ export default function McpAdminRegistry() {
                   type="button"
                   onClick={mcp.startAdding}
                   disabled={mcp.saving}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   {t("Add server")}
@@ -135,7 +135,7 @@ export default function McpAdminRegistry() {
 
               {/* Same transparency the settings toolbar gave every page it
                   hosted: say where the parameters actually live. */}
-              <p className="text-[11.5px] text-[var(--muted-foreground)]">
+              <p className="text-[12px] text-[var(--muted-foreground)]">
                 {t("Saved to")}{" "}
                 <span className="font-mono text-[var(--foreground)]/65">
                   {"data/user/settings/mcp.json"}

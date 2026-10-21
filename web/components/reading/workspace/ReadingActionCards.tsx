@@ -111,14 +111,14 @@ function ActionCard({
         </Tooltip>
       </header>
       {card.quote ? (
-        <blockquote className="mx-3 mt-1 line-clamp-3 border-l-2 border-[var(--primary)] pl-2.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <blockquote className="mx-3 mt-1 line-clamp-3 border-l-2 border-[var(--primary)] pl-2.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
           {card.quote}
         </blockquote>
       ) : null}
       <div className="px-3 pb-3 pt-2.5">
         {card.status === "running" ? (
           <div role="status" className="space-y-2">
-            <p className="flex items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="flex items-center gap-1.5 text-[12px] text-[var(--muted-foreground)]">
               <Loader2 size={12} className="animate-spin" />
               {t("Working on it…")}
             </p>
@@ -143,7 +143,7 @@ function ActionCard({
           />
         ) : null}
         {innerError ? (
-          <p className="mt-2 text-[11.5px] text-[var(--destructive)]">
+          <p className="mt-2 text-[12px] text-[var(--destructive)]">
             {innerError}
           </p>
         ) : null}
@@ -177,7 +177,7 @@ function CardButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[11.5px] font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+      className="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-[12px] font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
     >
       <Icon size={12} />
       {label}

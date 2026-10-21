@@ -277,7 +277,7 @@ export function SourceNavigator({
                  the one they came here for — scrolling past 74 outline rows to
                  reach three saved places would defeat the point. */
               <div className="mb-2 border-b border-[var(--border)] pb-2">
-                <p className="flex items-center gap-1.5 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+                <p className="flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
                   <BookmarkCheck size={11} className="text-[var(--primary)]" />
                   {t("Bookmarks")}
                   <span className="tabular-nums opacity-70">
@@ -325,7 +325,7 @@ export function SourceNavigator({
               </div>
             )}
             {visibleMaterials.length === 0 ? (
-              <div className="px-2 py-4 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <div className="px-2 py-4 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 {query ? (
                   <p>{t("No matching materials or contents.")}</p>
                 ) : mediaSource && transcriptUnavailable ? (
@@ -378,7 +378,7 @@ export function SourceNavigator({
                           ) : (
                             <MaterialIcon size={12} className="shrink-0" />
                           )}
-                          <span className="line-clamp-2 min-w-0 text-[12.5px] font-medium leading-[1.35]">
+                          <span className="line-clamp-2 min-w-0 text-[13px] font-medium leading-[1.35]">
                             {candidate.title || candidate.filename}
                           </span>
                         </button>
@@ -563,7 +563,7 @@ function NavigatorTab({
       />
       <span className="truncate">{label}</span>
       {count ? (
-        <span className="rounded-full bg-[var(--background)] px-1.5 text-[10.5px] tabular-nums text-[var(--muted-foreground)]">
+        <span className="rounded-full bg-[var(--background)] px-1.5 text-[11px] tabular-nums text-[var(--muted-foreground)]">
           {count}
         </span>
       ) : null}

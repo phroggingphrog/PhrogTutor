@@ -351,7 +351,7 @@ export default function OrganizedSessionList({
             className={child ? "opacity-65" : "opacity-80"}
           />
           {child ? (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--muted)]/70 px-1.5 py-0.5 text-[9px] font-medium text-[var(--muted-foreground)]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--muted)]/70 px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
               <GraduationCap size={9} strokeWidth={1.8} />
               {t("Little Tutor")}
             </span>
@@ -379,8 +379,8 @@ export default function OrganizedSessionList({
             >
               <span
                 className={isPlaceholderSessionTitle(session.title)
-                  ? "dt-breathing-text min-w-0 flex-1 truncate text-[12.5px] italic text-[var(--foreground)]"
-                  : "min-w-0 flex-1 truncate text-[12.5px]"}
+                  ? "dt-breathing-text min-w-0 flex-1 truncate text-[13px] italic text-[var(--foreground)]"
+                  : "min-w-0 flex-1 truncate text-[13px]"}
               >
                 {displaySessionTitle(session.title, placeholderLabel)}
               </span>
@@ -388,7 +388,7 @@ export default function OrganizedSessionList({
           )}
           {pinned ? <Pin size={10} className="shrink-0 opacity-55" /> : null}
           {children.length > 0 && !expanded ? (
-            <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 text-[9px] tabular-nums">
+            <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 text-[11px] tabular-nums">
               {children.length}
             </span>
           ) : null}
@@ -473,7 +473,7 @@ export default function OrganizedSessionList({
                 {courses.length > 0 ? (
                   <>
                     <div className="my-1 border-t border-[var(--border)]/70" />
-                    <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]/65">
+                    <div className="px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]/65">
                       {t("Move to course")}
                     </div>
                     <MenuButton
@@ -511,7 +511,7 @@ export default function OrganizedSessionList({
                 {(sessionWorkspaceId(session) || workspaces.some((workspace) => workspace.kind === "workspace" && !workspace.archived)) ? (
                   <>
                     <div className="my-1 border-t border-[var(--border)]/70" />
-                    <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]/65">
+                    <div className="px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]/65">
                       {t("Move to workspace")}
                     </div>
                     <MenuButton
@@ -663,7 +663,7 @@ export default function OrganizedSessionList({
           // had it a hair smaller than a caption and uppercase, which shouted
           // in a list of 12.5px rows and did nothing whatsoever to the CJK
           // titles most of these groups actually carry.
-          className="group/heading flex w-full min-w-0 items-center gap-1.5 rounded-lg px-1.5 py-1 text-left text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-background/40 hover:text-[var(--foreground)]"
+          className="group/heading flex w-full min-w-0 items-center gap-1.5 rounded-lg px-1.5 py-1 text-left text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-background/40 hover:text-[var(--foreground)]"
         >
           {!recent && <GroupMark entry={entry} />}
           <span className="min-w-0 truncate">{recent ? t("Recent") : entry.label}</span>
@@ -681,7 +681,7 @@ export default function OrganizedSessionList({
           {/* Only while folded. An open group has its conversations on screen;
               counting them for the reader is a number that says nothing. */}
           {collapsed ? (
-            <span className="shrink-0 text-[10.5px] tabular-nums opacity-50">
+            <span className="shrink-0 text-[11px] tabular-nums opacity-50">
               {entry.rows.length}
             </span>
           ) : null}

@@ -229,7 +229,7 @@ export default function ProfilePage() {
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </div>
         )}
@@ -258,7 +258,7 @@ export default function ProfilePage() {
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
                         isAdmin
-                          ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                          ? "bg-warning/15 text-warning"
                           : "bg-[var(--muted)]/70 text-[var(--muted-foreground)]"
                       }`}
                     >
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                     disabled={busy}
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm
                                border border-[var(--border)] text-[var(--muted-foreground)]
-                               hover:text-red-500 disabled:opacity-50 transition-colors"
+                               hover:text-destructive disabled:opacity-50 transition-colors"
                   >
                     <Trash2 size={14} />
                     {t("Remove photo")}
@@ -399,8 +399,8 @@ export default function ProfilePage() {
               <button
                 onClick={() => void handleSignOut()}
                 className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm
-                           border border-red-500/40 text-red-600 dark:text-red-400
-                           hover:bg-red-500/10 transition-colors"
+                           border border-destructive/40 text-destructive
+                           hover:bg-destructive/10 transition-colors"
               >
                 <LogOut size={14} />
                 {t("Sign out")}

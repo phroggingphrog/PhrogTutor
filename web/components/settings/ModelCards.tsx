@@ -79,7 +79,7 @@ export function AddCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-[86px] items-center justify-center gap-1.5 rounded-xl border border-dashed border-[var(--border)] text-[12.5px] text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)]/30 hover:bg-[var(--accent)]/30 hover:text-[var(--foreground)]"
+      className="flex min-h-[86px] items-center justify-center gap-1.5 rounded-xl border border-dashed border-[var(--border)] text-[13px] text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)]/30 hover:bg-[var(--accent)]/30 hover:text-[var(--foreground)]"
     >
       <Plus className="h-3.5 w-3.5" />
       {label}
@@ -438,7 +438,7 @@ export function ModelCard({
         expandLabel={t("Edit model")}
         status={
           expanded ? (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--primary)] px-2 py-0.5 text-[10px] font-medium text-[var(--primary-foreground)]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--primary)] px-2 py-0.5 text-[11px] font-medium text-[var(--primary-foreground)]">
               <PencilLine className="h-3 w-3" aria-hidden="true" />
               {t("Configuring")}
             </span>
@@ -446,7 +446,7 @@ export function ModelCard({
         }
       />
       <div className="flex min-w-0 items-center gap-2">
-        <p className="min-w-0 flex-1 truncate font-mono text-[10.5px] text-[var(--muted-foreground)]/80">
+        <p className="min-w-0 flex-1 truncate font-mono text-[11px] text-[var(--muted-foreground)]/80">
           {model.model || t("No model id yet")}
         </p>
         <button
@@ -456,7 +456,7 @@ export function ModelCard({
             event.stopPropagation();
             onDelete();
           }}
-          className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)]/0 transition-colors hover:bg-[var(--accent)] hover:text-red-500 focus-visible:text-red-500 group-hover:text-[var(--muted-foreground)]/70 max-sm:text-[var(--muted-foreground)]/70"
+          className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)]/0 transition-colors hover:bg-[var(--accent)] hover:text-destructive focus-visible:text-destructive group-hover:text-[var(--muted-foreground)]/70 max-sm:text-[var(--muted-foreground)]/70"
         >
           <Trash2 className="h-3 w-3" />
         </button>

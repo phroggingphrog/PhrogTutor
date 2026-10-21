@@ -165,7 +165,7 @@ export default function BookSidebar({
           >
             {book.title || t("Untitled book")}
           </div>
-          <div className="mt-0.5 text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+          <div className="mt-0.5 text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
             {t(book.status)} ·{" "}
             {t("{{count}} chapters", { count: book.chapter_count || 0 })}
           </div>
@@ -218,7 +218,7 @@ export default function BookSidebar({
                 : t("Rebuild book")}
           </button>
           {confirmRebuild && !rebuilding && (
-            <p className="px-1 text-[10px] leading-snug text-[var(--muted-foreground)]">
+            <p className="px-1 text-[11px] leading-snug text-[var(--muted-foreground)]">
               {t(
                 "Replaces every generated chapter and clears your reading progress, bookmarks, notes and edits.",
               )}

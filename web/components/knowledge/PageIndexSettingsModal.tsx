@@ -130,7 +130,7 @@ export function PageIndexConfigForm({
               type="button"
               onClick={() => void persist({ api_key: "" })}
               disabled={saving}
-              className="mt-1.5 text-[11px] font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-40 dark:text-red-400"
+              className="mt-1.5 text-[11px] font-medium text-destructive transition-colors hover:text-destructive disabled:opacity-40"
             >
               {t("Remove stored key")}
             </button>
@@ -139,7 +139,7 @@ export function PageIndexConfigForm({
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
           {error}
         </div>
       )}
@@ -149,7 +149,7 @@ export function PageIndexConfigForm({
           href="https://dash.pageindex.ai/api-keys"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+          className="inline-flex items-center gap-1 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
         >
           {t("Get an API key")}
           <ExternalLink className="h-3 w-3" />
@@ -160,7 +160,7 @@ export function PageIndexConfigForm({
               type="button"
               onClick={onCancel}
               disabled={saving}
-              className="rounded-md px-3 py-1.5 text-[12.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
+              className="rounded-md px-3 py-1.5 text-[13px] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] disabled:opacity-40"
             >
               {t("Cancel")}
             </button>
@@ -169,7 +169,7 @@ export function PageIndexConfigForm({
             type="button"
             onClick={() => void save()}
             disabled={saving || loading}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             {t(modal ? "Save" : "Save changes")}

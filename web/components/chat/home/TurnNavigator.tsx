@@ -349,7 +349,7 @@ export function TurnNavigator({
               style={{ top: cardY ?? "50%" }}
               className="pointer-events-none absolute left-full z-10 ml-2 w-[290px] -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--popover)] px-3.5 py-3 text-[var(--popover-foreground)] shadow-[0_16px_44px_-18px_var(--overlay)]"
             >
-              <div className="flex items-baseline gap-2 text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
+              <div className="flex items-baseline gap-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
                 <span className="tabular-nums">
                   {hovered.ordinal}/{entries.length}
                 </span>
@@ -369,11 +369,11 @@ export function TurnNavigator({
                   </span>
                 ) : null}
               </div>
-              <div className="mt-1.5 line-clamp-3 text-[12.5px] font-medium leading-[1.5]">
+              <div className="mt-1.5 line-clamp-3 text-[13px] font-medium leading-[1.5]">
                 {hovered.title}
               </div>
               {hovered.reply ? (
-                <div className="mt-1.5 line-clamp-2 text-[11.5px] leading-[1.55] text-[var(--muted-foreground)]">
+                <div className="mt-1.5 line-clamp-2 text-[12px] leading-[1.55] text-[var(--muted-foreground)]">
                   {hovered.reply}
                 </div>
               ) : null}

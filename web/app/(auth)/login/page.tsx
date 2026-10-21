@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense, useCallback, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -64,8 +65,16 @@ function LoginPageContent() {
     <div className="w-full max-w-sm">
       {/* Logo / Title */}
       <div className="text-center mb-8">
+        <Image
+          src="/logo.png"
+          alt=""
+          width={56}
+          height={56}
+          priority
+          className="mx-auto mb-3 h-14 w-14"
+        />
         <h1 className="font-serif text-2xl font-semibold text-[var(--foreground)] tracking-tight">
-          DeepTutor
+          PhrogTutor
         </h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {t("Sign in to your account")}
@@ -132,7 +141,7 @@ function LoginPageContent() {
 
           {/* Error message */}
           {error && (
-            <p className="text-sm text-red-500 bg-red-500/10 rounded-lg px-3 py-2">
+            <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
               {error}
             </p>
           )}

@@ -136,7 +136,7 @@ export function CodeBuddyAuthCard() {
           </span>
         ) : status?.connection === "connected" ? (
           <>
-            <span className="inline-flex items-center gap-1.5 text-[12px] text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 text-[12px] text-success">
               <CheckCircle2 className="h-3.5 w-3.5" />
               {status.user_label
                 ? t("codebuddy.auth.loggedInAs", { user: status.user_label })
@@ -201,7 +201,7 @@ export function CodeBuddyAuthCard() {
       </div>
 
       {(requestError || status?.connection === "error") && (
-        <p className="mt-2 text-[11px] text-red-500">
+        <p className="mt-2 text-[11px] text-destructive">
           {requestError || t(errorKey)}
         </p>
       )}

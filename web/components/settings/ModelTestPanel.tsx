@@ -100,14 +100,14 @@ export function ModelTestPanel({
       </p>
       <div role="status" aria-live="polite">
         {result && !current && (
-          <p className="text-xs text-amber-700 dark:text-amber-400">
+          <p className="text-xs text-warning">
             {t('Settings changed since the last test. Test again to verify them.')}
           </p>
         )}
         {current && result && (
           <div className="space-y-2">
             <p
-              className={`flex items-start gap-2 text-sm ${result.state === 'success' ? 'text-emerald-700 dark:text-emerald-400' : result.state === 'failed' ? 'text-red-600 dark:text-red-400' : 'text-[var(--muted-foreground)]'}`}
+              className={`flex items-start gap-2 text-sm ${result.state === 'success' ? 'text-success' : result.state === 'failed' ? 'text-destructive' : 'text-[var(--muted-foreground)]'}`}
             >
               {result.state === 'success' ? (
                 <CheckCircle2 size={16} className="mt-0.5 shrink-0" />

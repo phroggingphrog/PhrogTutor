@@ -242,13 +242,13 @@ export default function PartnerGroupChat({
               {error ? (
                 // The raw backend reason is kept — it is what makes a failure
                 // diagnosable — but it is framed so the user knows what it means.
-                <div className="flex items-start gap-2 rounded-xl border border-red-500/25 bg-red-500/[0.04] px-3.5 py-2.5">
+                <div className="flex items-start gap-2 rounded-xl border border-destructive/25 bg-destructive/[0.04] px-3.5 py-2.5">
                   <AlertCircle
                     size={13}
-                    className="mt-0.5 shrink-0 text-red-500"
+                    className="mt-0.5 shrink-0 text-destructive"
                   />
                   <div className="min-w-0">
-                    <p className="text-[11.5px] font-medium text-red-500">
+                    <p className="text-[12px] font-medium text-destructive">
                       {t("This round could not finish")}
                     </p>
                     <p className="mt-0.5 break-words text-[11px] leading-relaxed text-[var(--muted-foreground)]">

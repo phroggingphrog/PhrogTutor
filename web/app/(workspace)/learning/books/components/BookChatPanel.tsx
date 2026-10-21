@@ -505,7 +505,7 @@ export default function BookChatPanel({
                   }
                 >
                   {m.role === "user" && (
-                    <div className="mb-1 text-right text-[10px] font-medium uppercase tracking-wide opacity-75">
+                    <div className="mb-1 text-right text-[11px] font-medium uppercase tracking-wide opacity-75">
                       {t("You")}
                     </div>
                   )}
@@ -514,7 +514,7 @@ export default function BookChatPanel({
                       {m.attachments.map((attachment, idx) => (
                         <span
                           key={`${attachment.filename || idx}-${idx}`}
-                          className="inline-flex max-w-full items-center gap-1 rounded-lg bg-black/10 px-2 py-1 text-[10px]"
+                          className="inline-flex max-w-full items-center gap-1 rounded-lg bg-black/10 px-2 py-1 text-[11px]"
                         >
                           <FileText className="h-3 w-3 shrink-0" />
                           <span className="truncate">
@@ -583,7 +583,7 @@ export default function BookChatPanel({
           </div>
         )}
         {attachmentError && (
-          <div className="mb-2 text-[11px] text-red-500">{attachmentError}</div>
+          <div className="mb-2 text-[11px] text-destructive">{attachmentError}</div>
         )}
         <div className="flex items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--background)] px-2 py-2 focus-within:border-[var(--primary)]/50 focus-within:ring-2 focus-within:ring-[var(--primary)]/10">
           <Tooltip label={t("Attach files")}>

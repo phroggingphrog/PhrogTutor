@@ -358,7 +358,7 @@ export default function MemoryWorkbench({
                     type="button"
                     onClick={() => selectDoc(key)}
                     className={
-                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[12.5px] text-left transition " +
+                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-left transition " +
                       (active
                         ? "bg-[var(--muted)] text-[var(--foreground)]"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]")
@@ -367,7 +367,7 @@ export default function MemoryWorkbench({
                     <Icon className="h-3.5 w-3.5 shrink-0" />
                     <span className="flex-1 truncate">{t(label)}</span>
                     {doc?.exists && (
-                      <span className="rounded-full bg-[var(--background)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                      <span className="rounded-full bg-[var(--background)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                         {doc.entry_count}
                       </span>
                     )}
@@ -427,7 +427,7 @@ export default function MemoryWorkbench({
               <textarea
                 value={editorValue}
                 onChange={(e) => setEditorValue(e.target.value)}
-                className="h-[60vh] w-full resize-none rounded-md border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[12.5px] outline-none focus:border-[var(--primary)]"
+                className="h-[60vh] w-full resize-none rounded-md border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[13px] outline-none focus:border-[var(--primary)]"
               />
             ) : view === "lines" ? (
               <LineNumberedView lines={lines} t={t} />
@@ -452,7 +452,7 @@ export default function MemoryWorkbench({
             )}
           </div>
           {toast && (
-            <div className="self-start rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1 text-[11.5px] text-[var(--primary)]">
+            <div className="self-start rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1 text-[12px] text-[var(--primary)]">
               {toast}
             </div>
           )}
@@ -484,7 +484,7 @@ function Breadcrumb({
   t: (k: string) => string;
 }) {
   return (
-    <div className="flex items-center gap-2 text-[12.5px]">
+    <div className="flex items-center gap-2 text-[13px]">
       <Link
         href="/memory"
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
@@ -536,7 +536,7 @@ function LayerSwitcher({
           return (
             <span
               key={key}
-              className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--foreground)]"
+              className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-[12px] font-medium text-[var(--foreground)]"
             >
               <Icon className="h-3 w-3" />
               {label}
@@ -547,7 +547,7 @@ function LayerSwitcher({
           <Link
             key={key}
             href={href}
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11.5px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
           >
             <Icon className="h-3 w-3" />
             {label}
@@ -579,7 +579,7 @@ function ViewSwitch({
           type="button"
           onClick={() => setView(key)}
           className={
-            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] transition " +
+            "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] transition " +
             (view === key
               ? "bg-[var(--muted)] text-[var(--foreground)]"
               : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60")
@@ -603,7 +603,7 @@ function LineNumberedView({
   if (lines.length === 0) return <EmptyState t={t} />;
   const width = Math.max(2, String(lines[lines.length - 1].number).length);
   return (
-    <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[12.5px] leading-relaxed text-[var(--foreground)]">
+    <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-[var(--foreground)]">
       {lines.map((line) => {
         const num = String(line.number).padStart(width, " ");
         const muted = line.kind === "blank" || line.kind === "title";

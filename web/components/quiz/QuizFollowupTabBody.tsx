@@ -147,10 +147,10 @@ export default function QuizFollowupTabBody({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[12.5px] font-semibold text-[var(--foreground)]">
+          <div className="truncate text-[13px] font-semibold text-[var(--foreground)]">
             {isSelectionTutor ? t("Little Tutor") : context.tabLabel}
           </div>
-          <div className="truncate text-[10px] uppercase tracking-wide text-[var(--muted-foreground)]">
+          <div className="truncate text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
             {isSelectionTutor
               ? t("Ask about selected text")
               : t("Follow-up Chat")}
@@ -174,7 +174,7 @@ export default function QuizFollowupTabBody({
       >
         <div className="mx-auto flex max-w-[640px] flex-col gap-3">
           <div className="rounded-md border border-[var(--border)]/70 bg-[var(--background)]/70 px-3 py-2">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
               {t(isSelectionTutor ? "Selected text" : "Question")}
             </div>
             <div className="text-[13px] leading-relaxed text-[var(--foreground)]">
@@ -187,7 +187,7 @@ export default function QuizFollowupTabBody({
 
           {!isSelectionTutor && (
             <div className="rounded-md border border-[var(--border)]/70 bg-[var(--background)]/70 px-3 py-2">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                 {t("Your Answer")}
               </div>
               {context.userAnswer ? (
@@ -224,7 +224,7 @@ export default function QuizFollowupTabBody({
                             className="h-16 w-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-16 w-full items-center justify-center text-[10px] text-[var(--muted-foreground)]">
+                          <div className="flex h-16 w-full items-center justify-center text-[11px] text-[var(--muted-foreground)]">
                             {image.filename}
                           </div>
                         )}
@@ -238,11 +238,11 @@ export default function QuizFollowupTabBody({
 
           {!isSelectionTutor && context.aiJudgment && (
             <div className="rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/[0.04] px-3 py-2">
-              <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--primary)]">
+              <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--primary)]">
                 <Sparkles size={10} />
                 {t("AI Judgment")}
               </div>
-              <div className="text-[12.5px] leading-relaxed text-[var(--foreground)]">
+              <div className="text-[13px] leading-relaxed text-[var(--foreground)]">
                 <MarkdownRenderer
                   content={context.aiJudgment}
                   variant="compact"
@@ -293,7 +293,7 @@ export default function QuizFollowupTabBody({
               })
             )}
             {thread.error && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-700 dark:border-red-950/50 dark:bg-red-950/20 dark:text-red-300">
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[11px] text-destructive">
                 {thread.error}
               </div>
             )}

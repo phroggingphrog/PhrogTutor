@@ -211,7 +211,7 @@ export default function PartnerArchives({
             <h2 className="text-[13px] font-medium text-[var(--foreground)]">
               {t("Conversations")}
             </h2>
-            <p className="text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="text-[12px] text-[var(--muted-foreground)]">
               {sessions.length
                 ? t("{{count}} session(s)", { count: sessions.length })
                 : t("No sessions")}
@@ -250,7 +250,7 @@ export default function PartnerArchives({
                 ) : (
                   <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)]" />
                 )}
-                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--foreground)]">
                   {displaySessionTitle(
                     session.title,
                     session.archived ? t("Archived") : t("New conversation"),
@@ -261,11 +261,11 @@ export default function PartnerArchives({
                 </span>
               </div>
               {session.last_message ? (
-                <p className="mt-1 line-clamp-2 text-[11.5px] leading-snug text-[var(--muted-foreground)]">
+                <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-[var(--muted-foreground)]">
                   {session.last_message}
                 </p>
               ) : null}
-              <div className="mt-1 flex items-center gap-2 text-[10.5px] text-[var(--muted-foreground)]">
+              <div className="mt-1 flex items-center gap-2 text-[11px] text-[var(--muted-foreground)]">
                 <span className="flex items-center gap-1">
                   <Clock3 className="h-3 w-3" />
                   {formatTime(session.updated_at)}
@@ -313,7 +313,7 @@ export default function PartnerArchives({
                         : t("New conversation"),
                     )}
                   </h3>
-                  <p className="text-[11.5px] text-[var(--muted-foreground)]">
+                  <p className="text-[12px] text-[var(--muted-foreground)]">
                     {(selected.archived ? `${t("Archived")} · ` : "") +
                       formatTime(selected.updated_at)}
                   </p>
@@ -337,7 +337,7 @@ export default function PartnerArchives({
                       type="button"
                       onClick={() => void handleDelete(selected)}
                       aria-label={t("Delete conversation")}
-                      className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-red-500"
+                      className="inline-flex h-[26px] w-[26px] items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-destructive"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

@@ -31,16 +31,16 @@ import {
 
 /** Colored text, not a filled pill: 26 green badges is a wall, not a report. */
 const STATE_TONES: Record<ReadinessState, string> = {
-  enabled_verified: "text-emerald-600 dark:text-emerald-400",
+  enabled_verified: "text-success",
   available_disabled: "text-[var(--muted-foreground)]",
   unavailable: "text-[var(--muted-foreground)] opacity-60",
-  misconfigured: "text-amber-600 dark:text-amber-400",
+  misconfigured: "text-warning",
   not_selected: "text-[var(--muted-foreground)] opacity-60",
 };
 
 const SEVERITY_TONES: Record<ReadinessSeverity, string> = {
-  blocker: "text-amber-700 dark:text-amber-300",
-  warning: "text-amber-600 dark:text-amber-400",
+  blocker: "text-warning",
+  warning: "text-warning",
   suggestion: "text-[var(--muted-foreground)]",
 };
 
@@ -239,7 +239,7 @@ export default function SettingsReadinessPanel({
           >
             {t("readiness.title")}
           </h2>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {summary}
           </p>
         </div>
@@ -248,7 +248,7 @@ export default function SettingsReadinessPanel({
           onClick={() => void refresh()}
           disabled={loading || !enabled}
           aria-label={t("readiness.refresh")}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -261,13 +261,13 @@ export default function SettingsReadinessPanel({
 
       <div className="border-t border-[var(--border)]/60">
         {error && (
-          <p role="alert" className="py-3 text-[12.5px] text-amber-600">
+          <p role="alert" className="py-3 text-[13px] text-warning">
             {t("readiness.error")}
           </p>
         )}
 
         {!snapshot && !error && (
-          <p className="flex items-center gap-2 py-3 text-[12.5px] text-[var(--muted-foreground)]">
+          <p className="flex items-center gap-2 py-3 text-[13px] text-[var(--muted-foreground)]">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
             {t("readiness.loading")}
           </p>
@@ -282,8 +282,8 @@ export default function SettingsReadinessPanel({
               {t("readiness.attention.title")}
             </h3>
             {attention.length === 0 ? (
-              <p className="flex items-center gap-2 border-t border-[var(--border)]/50 py-2.5 text-[12.5px] text-[var(--muted-foreground)]">
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
+              <p className="flex items-center gap-2 border-t border-[var(--border)]/50 py-2.5 text-[13px] text-[var(--muted-foreground)]">
+                <Check className="h-3.5 w-3.5 text-success" />
                 {t("readiness.attention.none")}
               </p>
             ) : (
@@ -293,7 +293,7 @@ export default function SettingsReadinessPanel({
                     key={item.key}
                     className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 border-b border-[var(--border)]/50 py-2.5"
                   >
-                    <span className="min-w-0 text-[12.5px] text-[var(--foreground)]">
+                    <span className="min-w-0 text-[13px] text-[var(--foreground)]">
                       <span className={SEVERITY_TONES[item.severity]}>
                         {item.label}
                       </span>
@@ -309,7 +309,7 @@ export default function SettingsReadinessPanel({
                     {item.href && enabled && (
                       <Link
                         href={item.href}
-                        className="inline-flex items-center gap-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+                        className="inline-flex items-center gap-1 text-[12px] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                       >
                         {t("readiness.attention.open")}
                         <ArrowUpRight className="h-3 w-3" />
@@ -373,7 +373,7 @@ function ReadinessGroup({
         // Optional capabilities nobody turned on: one line away, never in the
         // way. Native disclosure — no state, no animation, keyboard-operable.
         <details className="group">
-          <summary className="cursor-pointer list-none py-2 text-[11.5px] text-[var(--muted-foreground)] transition-colors marker:content-none hover:text-[var(--foreground)]">
+          <summary className="cursor-pointer list-none py-2 text-[12px] text-[var(--muted-foreground)] transition-colors marker:content-none hover:text-[var(--foreground)]">
             {t("readiness.group.folded", { n: folded.length })}
           </summary>
           <ul className="border-t border-[var(--border)]/50 pb-1">
@@ -399,17 +399,17 @@ function ReadinessRow({ row }: { row: PanelRow }) {
         {row.href ? (
           <Link
             href={row.href}
-            className="text-[12.5px] text-[var(--foreground)] transition-opacity hover:opacity-70"
+            className="text-[13px] text-[var(--foreground)] transition-opacity hover:opacity-70"
           >
             {label}
           </Link>
         ) : (
-          <span className="text-[12.5px] text-[var(--foreground)]">
+          <span className="text-[13px] text-[var(--foreground)]">
             {label}
           </span>
         )}
         {detail && (
-          <span className="text-[11.5px] text-[var(--muted-foreground)]">
+          <span className="text-[12px] text-[var(--muted-foreground)]">
             {detail}
           </span>
         )}

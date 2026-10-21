@@ -37,7 +37,7 @@ export default function BrandIcon({
 }) {
   const icon = brandIconFor(namespace, id);
   const box =
-    size === "lg" ? "h-11 w-11 text-[14px]" : "mt-0.5 h-7 w-7 text-[10.5px]";
+    size === "lg" ? "h-11 w-11 text-[14px]" : "mt-0.5 h-7 w-7 text-[11px]";
   const glyph = size === "lg" ? 20 : 14;
 
   return (

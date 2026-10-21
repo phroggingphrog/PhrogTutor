@@ -44,9 +44,9 @@ export function VersionBadge({ onNavigate }: VersionBadgeProps) {
   }, []);
 
   const state = error
-    ? { dot: "bg-red-500", label: t("Status check failed") }
+    ? { dot: "bg-destructive", label: t("Status check failed") }
     : status?.update_available
-      ? { dot: "bg-amber-500", label: t("Update available") }
+      ? { dot: "bg-warning", label: t("Update available") }
       : status?.release
         ? {
             dot: "bg-[color-mix(in_srgb,var(--muted-foreground)_35%,transparent)]",

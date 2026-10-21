@@ -536,7 +536,7 @@ function renderNiceToolArgs(
     : [];
   if (questions.length === 0) return null;
   return (
-    <ul className="ml-3 mt-0.5 space-y-0.5 text-[10.5px] leading-[1.5] not-italic">
+    <ul className="ml-3 mt-0.5 space-y-0.5 text-[11px] leading-[1.5] not-italic">
       {questions.map((q, idx) => {
         const prompt = String(q.prompt ?? q.question ?? "").trim();
         if (!prompt) return null;
@@ -734,7 +734,7 @@ function TraceSection({
   if (!children) return null;
   return (
     <div className="space-y-0.5">
-      <div className="not-italic text-[10px] font-semibold tracking-[0.04em] text-[var(--muted-foreground)]/70">
+      <div className="not-italic text-[11px] font-semibold tracking-[0.04em] text-[var(--muted-foreground)]/70">
         {title}
       </div>
       {children}
@@ -813,7 +813,7 @@ function TraceRowBody({
   );
 
   return (
-    <div className="text-[11.5px] leading-[1.6] text-[var(--muted-foreground)]">
+    <div className="text-[12px] leading-[1.6] text-[var(--muted-foreground)]">
       {group === "react_round" ? (
         <div className="space-y-2">
           <TraceSection title={t("Thought")}>
@@ -860,7 +860,7 @@ function TraceRowBody({
                 <div className="not-italic text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted-foreground)]">
                   {t("Raw logs")}
                 </div>
-                <div className="max-h-[200px] overflow-y-auto rounded-md border border-[var(--border)] bg-[#292524] px-3 py-2 font-mono text-[10px] leading-[1.55] text-[#D6D3D1] shadow-inner">
+                <div className="max-h-[200px] overflow-y-auto rounded-md border border-[var(--border)] bg-[#292524] px-3 py-2 font-mono text-[11px] leading-[1.55] text-[#D6D3D1] shadow-inner">
                   {rawProgressEvents.map((event, idx) => (
                     <div
                       key={`${callId}-raw-${idx}`}
@@ -916,7 +916,7 @@ function TraceRowBody({
       {errorEvents.length > 0 && (
         <div className="mt-1 space-y-0.5">
           {errorEvents.map((event, idx) => (
-            <div key={`${callId}-error-${idx}`} className="text-red-400/80">
+            <div key={`${callId}-error-${idx}`} className="text-destructive/80">
               ✗ {event.content}
             </div>
           ))}

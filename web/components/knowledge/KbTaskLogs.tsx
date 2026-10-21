@@ -63,7 +63,7 @@ export default function KbTaskLogs({
       {task?.error && (
         <p
           role="alert"
-          className="whitespace-pre-wrap break-words text-xs text-red-600 dark:text-red-300"
+          className="whitespace-pre-wrap break-words text-xs text-destructive"
         >
           {task.error}
         </p>

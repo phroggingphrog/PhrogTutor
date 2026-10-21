@@ -125,7 +125,7 @@ export function CoursePill({
         >
           <div className="max-h-[280px] overflow-y-auto">
             {selectable.length === 0 ? (
-              <p className="px-3 py-2.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <p className="px-3 py-2.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 {t("No courses yet — make one to group a subject's material.")}
               </p>
             ) : (
@@ -139,7 +139,7 @@ export function CoursePill({
                     onSelect(course.id);
                     setOpen(false);
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/60"
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/60"
                 >
                   <span
                     aria-hidden

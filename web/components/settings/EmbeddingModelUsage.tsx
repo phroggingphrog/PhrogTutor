@@ -72,7 +72,7 @@ export default function EmbeddingModelUsage({
               </li>
             ))}
           </ul>
-          <p className="text-amber-700 dark:text-amber-300">
+          <p className="text-warning">
             {t(
               "Deleting this model is allowed. These knowledge bases will need another embedding model before they can be used again. Their documents and indexes will be preserved.",
             )}

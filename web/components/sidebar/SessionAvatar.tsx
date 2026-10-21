@@ -61,7 +61,7 @@ function SettledMark({
       height={size}
       className={`transition-[color,opacity] duration-300 ease-out ${
         mark === "failed"
-          ? "text-amber-500 opacity-100 dark:text-amber-400"
+          ? "text-warning opacity-100"
           : mark === "unread"
             ? "text-blue-600 opacity-100 dark:text-blue-400"
             : "text-[var(--muted-foreground)] opacity-45 group-hover/session:opacity-75"

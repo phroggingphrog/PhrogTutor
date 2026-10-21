@@ -49,7 +49,7 @@ export default function ProcessLogs({
           <Terminal size={13} strokeWidth={1.7} />
           {resolvedTitle}
           {logs.length > 0 && (
-            <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
+            <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal text-[var(--muted-foreground)]">
               {logs.length}
             </span>
           )}

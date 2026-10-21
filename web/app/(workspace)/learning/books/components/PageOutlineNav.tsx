@@ -73,9 +73,9 @@ function shortLabel(block: Block, fallback: string): string {
 function statusDotClass(status: BlockStatus): string {
   switch (status) {
     case "ready":
-      return "bg-emerald-500";
+      return "bg-success";
     case "generating":
-      return "bg-amber-400 animate-pulse";
+      return "bg-warning animate-pulse";
     case "pending":
       return "bg-[var(--muted-foreground)]/40";
     case "error":
@@ -208,7 +208,7 @@ export default function PageOutlineNav({
           // Mirrors the parked-drawer treatment in AppShell.
           inert={collapsed ? true : undefined}
           className={[
-            "flex w-56 flex-col text-[12.5px]",
+            "flex w-56 flex-col text-[13px]",
             collapsed ? "pointer-events-none" : "pointer-events-auto",
           ].join(" ")}
           style={{
@@ -277,7 +277,7 @@ export default function PageOutlineNav({
                       )}
                     </span>
                     <span className="flex min-w-0 flex-1 items-center gap-1.5">
-                      <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--muted-foreground)]/70">
+                      <span className="shrink-0 text-[11px] tabular-nums text-[var(--muted-foreground)]/70">
                         {String(idx + 1).padStart(2, "0")}
                       </span>
                       <span className="truncate">{label}</span>

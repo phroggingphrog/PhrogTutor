@@ -45,17 +45,17 @@ function Row({
       }`}
     >
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13.5px] font-medium text-[var(--foreground)]">
+        <span className="block truncate text-[14px] font-medium text-[var(--foreground)]">
           {title}
         </span>
         {subtitle && (
-          <span className="block truncate text-[11.5px] text-[var(--muted-foreground)]">
+          <span className="block truncate text-[12px] text-[var(--muted-foreground)]">
             {subtitle}
           </span>
         )}
       </span>
       {trailing && (
-        <span className="shrink-0 text-[11.5px] text-[var(--muted-foreground)]">
+        <span className="shrink-0 text-[12px] text-[var(--muted-foreground)]">
           {trailing}
         </span>
       )}

@@ -289,7 +289,7 @@ export default function ChatHistorySection({
         title={headerTitle}
         description={headerDescription}
         meta={
-          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
             {sessions.length} {t("conversations")}
           </span>
         }
@@ -366,7 +366,7 @@ export default function ChatHistorySection({
               ))}
             </div>
           ) : searchError ? (
-            <div role="alert" className="flex items-center justify-between gap-3 px-2 py-4 text-[12.5px] text-[var(--muted-foreground)]">
+            <div role="alert" className="flex items-center justify-between gap-3 px-2 py-4 text-[13px] text-[var(--muted-foreground)]">
               <p>{t("Could not search chat history. Try again.")}</p>
               <button
                 type="button"

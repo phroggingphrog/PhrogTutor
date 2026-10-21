@@ -13,7 +13,7 @@ export default function LightRagEmbeddingWarning({
     return null;
   const meta = kb.metadata;
   return (
-    <span className="mt-2 block rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-300">
+    <span className="mt-2 block rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
       {t(
         "The current embedding configuration does not match this index. Restore the original configuration or rebuild with the current embedding before querying or adding documents.",
       )}

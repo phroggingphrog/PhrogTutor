@@ -5330,5 +5330,9 @@
   "Could not connect to the speech provider. Check the provider URL and network connection.": "Could not connect to the speech provider. Check the provider URL and network connection.",
   "Qwen-Audio TTS requires a Beijing API key. You can set a Beijing workspace URL in the provider connection; the speech endpoint is selected automatically.": "Qwen-Audio TTS requires a Beijing API key. You can set a Beijing workspace URL in the provider connection; the speech endpoint is selected automatically.",
   "Speech was generated, but the audio download failed. Try again or check the network connection.": "Speech was generated, but the audio download failed. Try again or check the network connection.",
-  "Request timeout (seconds)": "Request timeout (seconds)"
+  "Request timeout (seconds)": "Request timeout (seconds)",
+  "This knowledge base is read-only.": "This knowledge base is read-only.",
+  "Indexing is in progress.": "Indexing is in progress.",
+  "Add documents to change the embedding model.": "Add documents to change the embedding model.",
+  "Not indexed yet.": "Not indexed yet."
 }

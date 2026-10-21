@@ -26,12 +26,12 @@ const PALETTES: Record<Theme, Palette> = {
   // theme id "light" applies no class → :root Cream palette (warm parchment,
   // the default; renamed from generic "Light" to honestly signal its warmth)
   light: {
-    bg: "#fdfcf9",
-    fg: "#1c1816",
+    bg: "#faf9f5",
+    fg: "#141413",
     card: "#ffffff",
-    primary: "#b0501e",
-    muted: "#f1ede2",
-    border: "#e6decc",
+    primary: "#b5502f",
+    muted: "#f0eee6",
+    border: "#e3e0d4",
   },
   // theme id "snow" applies the .theme-snow class → "Default": pure-white
   // neutral palette, grey surfaces, blue primary (Codex-style chrome)
@@ -44,12 +44,12 @@ const PALETTES: Record<Theme, Palette> = {
     border: "#e5e5e5",
   },
   dark: {
-    bg: "#1a1918",
-    fg: "#e8e4de",
-    card: "#242220",
-    primary: "#d4734b",
-    muted: "#2a2725",
-    border: "#3a3634",
+    bg: "#262624",
+    fg: "#faf9f5",
+    card: "#30302e",
+    primary: "#d97757",
+    muted: "#30302e",
+    border: "#3d3d3a",
   },
   glass: {
     bg: "#0e0d1a",
@@ -239,7 +239,7 @@ export function ThemePreviewCard({
       </div>
       <div className="flex items-center justify-between px-1 pb-0.5">
         <span
-          className={`text-[12.5px] tracking-tight ${
+          className={`text-[13px] tracking-tight ${
             selected
               ? "font-medium text-[var(--foreground)]"
               : "text-[var(--muted-foreground)] group-hover:text-[var(--foreground)]"

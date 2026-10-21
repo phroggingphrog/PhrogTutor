@@ -825,13 +825,13 @@ export default function QuizViewer({
                   : "incorrect"
                 : null;
             const baseChip =
-              "flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold transition-all";
+              "flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-all";
             const chipClass = isCurrent
               ? `${baseChip} bg-[var(--primary)] text-white shadow-sm`
               : correctness === "correct"
                 ? `${baseChip} bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/40 dark:text-green-300`
                 : correctness === "incorrect"
-                  ? `${baseChip} bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-300`
+                  ? `${baseChip} bg-destructive/10 text-destructive hover:bg-destructive/20`
                   : done
                     ? `${baseChip} bg-[var(--primary)]/15 text-[var(--primary)]`
                     : `${baseChip} bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--border)]`;
@@ -890,23 +890,23 @@ export default function QuizViewer({
       <div className="px-4 py-3">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase text-[var(--muted-foreground)]">
+            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase text-[var(--muted-foreground)]">
               Q{idx + 1}
             </span>
             {q.difficulty && (
               <span
-                className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase ${
+                className={`rounded-md px-1.5 py-0.5 text-[11px] font-medium uppercase ${
                   q.difficulty === "hard"
-                    ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                    ? "bg-destructive/10 text-destructive"
                     : q.difficulty === "medium"
-                      ? "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                      ? "bg-warning-surface text-warning"
                       : "bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400"
                 }`}
               >
                 {q.difficulty}
               </span>
             )}
-            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+            <span className="rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
               {q.question_type}
             </span>
           </div>
@@ -921,8 +921,8 @@ export default function QuizViewer({
                   aria-label={currentBookmarked ? t("Remove Bookmark") : t("Bookmark")}
                   className={`rounded-lg p-1.5 transition-all disabled:opacity-30 ${
                     currentBookmarked
-                      ? "scale-110 text-amber-500 dark:text-amber-400"
-                      : "text-[var(--muted-foreground)] hover:text-amber-500 dark:hover:text-amber-400"
+                      ? "scale-110 text-warning"
+                      : "text-[var(--muted-foreground)] hover:text-warning"
                   }`}
                 >
                   <Bookmark
@@ -952,7 +952,7 @@ export default function QuizViewer({
                         (m) => m.role !== "system",
                       ).length ?? 0;
                     return tcount > 0 ? (
-                      <span className="rounded-full bg-[var(--primary)]/25 px-1.5 py-0 text-[10px]">
+                      <span className="rounded-full bg-[var(--primary)]/25 px-1.5 py-0 text-[11px]">
                         {tcount}
                       </span>
                     ) : null;
@@ -994,7 +994,7 @@ export default function QuizViewer({
                   "border-green-500 bg-green-50 text-green-800 dark:bg-green-950/20 dark:text-green-300 dark:border-green-700";
               } else if (showFeedback && isSelected && !isCorrectOption) {
                 optionClass =
-                  "border-red-400 bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-300 dark:border-red-700";
+                  "border-destructive bg-destructive/10 text-destructive";
               }
 
               return (
@@ -1011,7 +1011,7 @@ export default function QuizViewer({
                         : showFeedback && isCorrectOption
                           ? "border-green-500 bg-green-500 text-white"
                           : showFeedback && isSelected && !isCorrectOption
-                            ? "border-red-400 bg-red-400 text-white"
+                            ? "border-destructive bg-destructive text-white"
                             : "border-[var(--border)] text-[var(--muted-foreground)]"
                     }`}
                   >
@@ -1050,7 +1050,7 @@ export default function QuizViewer({
                   "border-green-500 bg-green-50 text-green-800 dark:bg-green-950/20 dark:text-green-300 dark:border-green-700";
               } else if (showFeedback && isSelected && !isCorrect) {
                 cls =
-                  "border-red-400 bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-300 dark:border-red-700";
+                  "border-destructive bg-destructive/10 text-destructive";
               }
               return (
                 <button
@@ -1077,7 +1077,7 @@ export default function QuizViewer({
           // learner sees in the rendered question above; this is just
           // where they type the missing word/phrase.
           <div>
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]/70">
+            <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]/70">
               {t("Fill in the Blank")}
             </div>
             <input
@@ -1154,11 +1154,11 @@ export default function QuizViewer({
                           className="h-24 w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-24 w-full items-center justify-center text-[10px] text-[var(--muted-foreground)]">
+                        <div className="flex h-24 w-full items-center justify-center text-[11px] text-[var(--muted-foreground)]">
                           {image.filename}
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-0.5 text-[10px] text-white">
+                      <div className="absolute inset-x-0 bottom-0 truncate bg-black/45 px-1.5 py-0.5 text-[11px] text-white">
                         {image.filename}
                       </div>
                       {!ans.submitted && (
@@ -1219,7 +1219,7 @@ export default function QuizViewer({
                   className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${
                     isCorrect
                       ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
-                      : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400"
+                      : "bg-destructive/10 text-destructive"
                   }`}
                 >
                   {isCorrect ? t("Correct") : t("Incorrect")}
@@ -1330,7 +1330,7 @@ export default function QuizViewer({
                     onClick={toggleCollapsed}
                     className="flex w-full items-center gap-1 pb-1.5 text-left"
                   >
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                       {hasJudgment ? t("AI Judgment") : t("Reference Answer")}
                     </span>
                     <ChevronDown
@@ -1344,7 +1344,7 @@ export default function QuizViewer({
 
                 {collapsed ? null : hasJudgment && view === "judgment" ? (
                   <div>
-                    <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                       <Sparkles size={10} />
                       {t("AI Judgment")}
                       {judgment.isStreaming && (
@@ -1355,7 +1355,7 @@ export default function QuizViewer({
                       )}
                     </div>
                     {judgment.error ? (
-                      <div className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-[12px] text-red-700 dark:border-red-950/50 dark:bg-red-950/20 dark:text-red-300">
+                      <div className="rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[12px] text-destructive">
                         {judgment.error}
                       </div>
                     ) : judgment.text ? (
@@ -1376,7 +1376,7 @@ export default function QuizViewer({
                   <>
                     {showReferenceAnswer && (
                       <div>
-                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                           {t("Reference Answer")}
                         </div>
                         <div className="text-[13px] leading-relaxed text-[var(--foreground)]">
@@ -1395,7 +1395,7 @@ export default function QuizViewer({
                     )}
                     {q.explanation && (
                       <div>
-                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
                           {t("Explanation")}
                         </div>
                         <div className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">

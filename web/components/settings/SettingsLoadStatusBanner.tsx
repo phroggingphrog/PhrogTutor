@@ -38,7 +38,7 @@ export function SettingsLoadStatusBanner() {
   return (
     <div
       role="alert"
-      className="mt-3 flex items-start gap-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
+      className="mt-3 flex items-start gap-3 rounded-md border border-warning/30 bg-warning-surface px-3 py-2 text-sm text-warning"
     >
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
       <div className="min-w-0 flex-1">
@@ -56,7 +56,7 @@ export function SettingsLoadStatusBanner() {
         type="button"
         onClick={handleRetry}
         disabled={retrying}
-        className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-100 px-2 py-1 text-xs font-medium text-amber-900 hover:bg-amber-200 disabled:opacity-60 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-100"
+        className="inline-flex items-center gap-1 rounded-md border border-warning/30 bg-warning-surface px-2 py-1 text-xs font-medium text-warning hover:bg-warning/20 disabled:opacity-60"
       >
         <RefreshCw className={retrying ? "h-3 w-3 animate-spin" : "h-3 w-3"} />
         {t("Retry")}

@@ -183,7 +183,7 @@ export default function ScopeEditorModal({
         {phase === "error" && (
           <CenteredStatus
             icon={
-              <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              <AlertTriangle className="h-6 w-6 text-warning" />
             }
             title={t("Couldn't read this folder")}
             subtitle={t("Refresh failed — try re-adding the agent.")}

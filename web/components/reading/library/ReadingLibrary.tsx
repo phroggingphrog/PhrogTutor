@@ -243,7 +243,7 @@ export function ReadingLibraryPage() {
             aria-label={t("Workspace {{name}}", { name: group.name })}
             className="mt-6"
           >
-            <h2 className="flex items-center gap-1.5 px-1 text-[11.5px] font-medium text-[var(--muted-foreground)]">
+            <h2 className="flex items-center gap-1.5 px-1 text-[12px] font-medium text-[var(--muted-foreground)]">
               <FolderOpen size={13} strokeWidth={1.7} className="shrink-0" />
               <span className="truncate">{group.name}</span>
               <span className="tabular-nums opacity-70">{group.rows.length}</span>
@@ -277,7 +277,7 @@ export function ReadingLibraryPage() {
                   <button
                     type="button"
                     onClick={() => create(group.key)}
-                    className="flex h-full min-h-[128px] w-full flex-col items-center justify-center gap-2 rounded-xl text-[11.5px] text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
+                    className="flex h-full min-h-[128px] w-full flex-col items-center justify-center gap-2 rounded-xl text-[12px] text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
                   >
                     <span className="flex h-[50px] w-16 items-center justify-center rounded-lg border border-dashed border-[var(--border)]">
                       <Plus size={16} />
@@ -478,12 +478,12 @@ function UnsettledRow({
           className="shrink-0 animate-spin text-[var(--primary)]"
         />
       )}
-      <span className="min-w-0 flex-1 truncate text-[11.5px]">
+      <span className="min-w-0 flex-1 truncate text-[12px]">
         {failed
           ? t("{{title}} could not be prepared", { title: material.title })
           : t("Preparing {{title}}", { title: material.title })}
         {failed && readingFailureMessage(material, t) ? (
-          <span className="ml-1.5 text-[10.5px] text-[var(--muted-foreground)]">
+          <span className="ml-1.5 text-[11px] text-[var(--muted-foreground)]">
             {readingFailureMessage(material, t)}
           </span>
         ) : null}
@@ -496,7 +496,7 @@ function UnsettledRow({
               style={{ width: `${Math.max(4, material.progress)}%` }}
             />
           </span>
-          <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--muted-foreground)]">
+          <span className="shrink-0 text-[11px] tabular-nums text-[var(--muted-foreground)]">
             {material.progress}%
           </span>
         </>
@@ -588,7 +588,7 @@ export function DeleteCollectionDialog({
           <button
             type="button"
             onClick={onClose}
-            className="h-8 rounded-lg px-3 text-[11.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+            className="h-8 rounded-lg px-3 text-[12px] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
           >
             {t("Cancel")}
           </button>
@@ -609,7 +609,7 @@ export function DeleteCollectionDialog({
                 )
                 .finally(() => setWorking(false));
             }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--destructive)] px-3.5 text-[11.5px] font-semibold text-[var(--destructive-foreground)] disabled:opacity-50"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--destructive)] px-3.5 text-[12px] font-semibold text-[var(--destructive-foreground)] disabled:opacity-50"
           >
             {working && <Loader2 size={12} className="animate-spin" />}
             {t("Delete")}

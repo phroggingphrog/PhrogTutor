@@ -144,10 +144,10 @@ function SegmentRow({
         }`}
         style={{ backgroundColor: color }}
       />
-      <span className="min-w-0 flex-1 truncate text-[11.5px] text-[var(--foreground)]">
+      <span className="min-w-0 flex-1 truncate text-[12px] text-[var(--foreground)]">
         {label}
       </span>
-      <span className="shrink-0 text-[11.5px] tabular-nums text-[var(--muted-foreground)]">
+      <span className="shrink-0 text-[12px] tabular-nums text-[var(--muted-foreground)]">
         {formatTokens(tokens)}
       </span>
       <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-[var(--muted-foreground)]/70">
@@ -237,7 +237,7 @@ export default function ContextBudgetChip({
           open
             ? "bg-[var(--muted)] text-[var(--foreground)]"
             : nearFull
-              ? "text-amber-500 hover:bg-amber-500/10"
+              ? "text-warning hover:bg-warning/10"
               : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
         }`}
       >
@@ -254,17 +254,17 @@ export default function ContextBudgetChip({
         >
           <div className="px-3 pb-2.5 pt-2.5">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="shrink-0 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+              <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
                 {t("contextBudget.title")}
               </span>
               {budget.model ? (
-                <span className="min-w-0 truncate text-[10.5px] text-[var(--muted-foreground)]/70">
+                <span className="min-w-0 truncate text-[11px] text-[var(--muted-foreground)]/70">
                   {budget.model}
                 </span>
               ) : null}
             </div>
             <div className="mt-1 flex items-baseline gap-1.5">
-              <span className="text-[12.5px] font-semibold tabular-nums text-[var(--foreground)]">
+              <span className="text-[13px] font-semibold tabular-nums text-[var(--foreground)]">
                 {t("contextBudget.usage", {
                   used: formatTokens(used),
                   total: formatTokens(total),
@@ -272,7 +272,7 @@ export default function ContextBudgetChip({
                 })}
               </span>
               {estimatedWindow ? (
-                <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+                <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
                   {t("contextBudget.estimated")}
                 </span>
               ) : null}
@@ -312,7 +312,7 @@ export default function ContextBudgetChip({
           </div>
 
           {hasNotes && (
-            <div className="space-y-1 border-t border-[var(--border)]/60 px-3 py-2 text-[10.5px] leading-[1.5] text-[var(--muted-foreground)]/80">
+            <div className="space-y-1 border-t border-[var(--border)]/60 px-3 py-2 text-[11px] leading-[1.5] text-[var(--muted-foreground)]/80">
               {estimatedWindow && (
                 <p>{t("contextBudget.note.estimatedWindow")}</p>
               )}

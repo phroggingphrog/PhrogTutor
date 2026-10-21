@@ -310,7 +310,7 @@ export function ActivityBody({
             aria-hidden="true"
             className="mt-[3px] shrink-0 text-[var(--muted-foreground)]"
           />
-          <p className="min-w-0 text-[12.5px] leading-[1.65] text-[var(--muted-foreground)]">
+          <p className="min-w-0 text-[13px] leading-[1.65] text-[var(--muted-foreground)]">
             {t(
               "As you chat, the tools and references you use — and the files the tutor generates — will appear here.",
             )}
@@ -438,7 +438,7 @@ function SectionCard({
           strokeWidth={1.8}
           className="shrink-0 text-[var(--muted-foreground)]"
         />
-        <h3 className="flex-1 text-[12.5px] font-semibold text-[var(--foreground)]">
+        <h3 className="flex-1 text-[13px] font-semibold text-[var(--foreground)]">
           {title}
         </h3>
         {count !== undefined && count > 0 ? (
@@ -474,7 +474,7 @@ function SpaceSubsection({
           strokeWidth={1.8}
           className="shrink-0 text-[var(--muted-foreground)]"
         />
-        <span className="flex-1 truncate text-[11.5px] font-medium text-[var(--foreground)] transition-colors group-hover:text-[var(--primary)]">
+        <span className="flex-1 truncate text-[12px] font-medium text-[var(--foreground)] transition-colors group-hover:text-[var(--primary)]">
           {t(category.label)}
         </span>
         <span className="text-[11px] tabular-nums text-[var(--muted-foreground)]">
@@ -500,12 +500,12 @@ function SpaceItemRow({
   subtitle?: string;
 }) {
   return (
-    <li className="flex min-h-7 items-center gap-2 rounded-md px-2 py-1 text-[11.5px]">
+    <li className="flex min-h-7 items-center gap-2 rounded-md px-2 py-1 text-[12px]">
       <span className="block min-w-0 flex-1 truncate font-medium text-[var(--foreground)]">
         {title}
       </span>
       {subtitle ? (
-        <span className="shrink-0 text-[10px] text-[var(--muted-foreground)]">
+        <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
           {subtitle}
         </span>
       ) : null}
@@ -554,7 +554,7 @@ function AttachmentRow({
           <span className="block truncate text-[12px] font-medium text-[var(--foreground)]">
             {filename}
           </span>
-          <span className="block truncate text-[10.5px] text-[var(--muted-foreground)]">
+          <span className="block truncate text-[11px] text-[var(--muted-foreground)]">
             {detail}
           </span>
         </span>

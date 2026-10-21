@@ -48,3 +48,14 @@ test("reduced-motion and keyboard focus policies are global", () => {
   assert.match(css, /--motion-base:\s*180ms/);
   assert.match(css, /--motion-slow:\s*240ms/);
 });
+
+test("globals.css has balanced braces (an unclosed block drops the whole stylesheet)", () => {
+  const stripped = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  let depth = 0;
+  for (const ch of stripped) {
+    if (ch === "{") depth += 1;
+    if (ch === "}") depth -= 1;
+    assert.ok(depth >= 0, "closing brace without an opener");
+  }
+  assert.equal(depth, 0, "unclosed block in globals.css");
+});

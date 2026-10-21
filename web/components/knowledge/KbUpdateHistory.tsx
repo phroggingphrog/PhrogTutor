@@ -34,10 +34,10 @@ export default function KbUpdateHistory({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-[11.5px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+        <div className="flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
           <History className="h-3 w-3" />
           {t("Update history")}
-          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0 text-[10px] tracking-normal">
+          <span className="rounded-full bg-[var(--muted)] px-1.5 py-0 text-[11px] tracking-normal">
             {entries.length}
           </span>
         </div>
@@ -61,7 +61,7 @@ export default function KbUpdateHistory({
           const durationMs = Math.max(0, entry.completedAt - entry.startedAt);
 
           return (
-            <li key={entry.id} className="text-[12.5px]">
+            <li key={entry.id} className="text-[13px]">
               <button
                 type="button"
                 onClick={() => setExpandedId(expanded ? null : entry.id)}
@@ -78,8 +78,8 @@ export default function KbUpdateHistory({
                 <span
                   className={`mt-0.5 shrink-0 rounded-md p-1 ${
                     isError
-                      ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300"
-                      : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
+                      ? "bg-destructive/10 text-destructive"
+                      : "bg-success-surface text-success"
                   }`}
                 >
                   {isError ? (
@@ -90,7 +90,7 @@ export default function KbUpdateHistory({
                 </span>
 
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--foreground)]">
+                  <span className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--foreground)]">
                     <Icon className="h-3 w-3 text-[var(--muted-foreground)]" />
                     {entry.label}
                   </span>
@@ -104,12 +104,12 @@ export default function KbUpdateHistory({
               {expanded && (
                 <div className="border-t border-[var(--border)] bg-[var(--muted)]/30 px-3 py-2">
                   {entry.error && (
-                    <pre className="mb-2 whitespace-pre-wrap break-words rounded-md border border-red-200 bg-red-50 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                    <pre className="mb-2 whitespace-pre-wrap break-words rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1.5 font-mono text-[11px] leading-relaxed text-destructive">
                       {entry.error}
                     </pre>
                   )}
                   {entry.logTail.length > 0 ? (
-                    <pre className="max-h-[240px] overflow-auto whitespace-pre-wrap break-words rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-1.5 font-mono text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+                    <pre className="max-h-[240px] overflow-auto whitespace-pre-wrap break-words rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                       {entry.logTail.join("\n")}
                     </pre>
                   ) : (

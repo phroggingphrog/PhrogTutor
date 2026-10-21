@@ -173,7 +173,7 @@ export default function KbDocumentsSection({
         <div className="text-[13px] font-medium text-[var(--foreground)]">
           {t("Add documents")}
         </div>
-        <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+        <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
           {t(
             providerUsesEmbeddingMetadata(provider)
               ? "Drop files here to add them to this knowledge base. New files use its bound embedding model."
@@ -196,7 +196,7 @@ export default function KbDocumentsSection({
       )}
 
       {blockedReason && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
+        <div className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[12px] text-warning">
           {blockedReason}
         </div>
       )}
@@ -210,7 +210,7 @@ export default function KbDocumentsSection({
                 type="button"
                 onClick={handleRetry}
                 disabled={!canRetry || retrySubmitting}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-red-300 bg-red-100 px-2 py-1 text-[11.5px] font-medium text-red-800 transition-colors hover:bg-red-200 disabled:opacity-50 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-2 py-1 text-[12px] font-medium text-destructive transition-colors hover:bg-destructive/20 disabled:opacity-50"
               >
                 {retrySubmitting || isRetryingHere ? (
                   <Loader2 className="h-3 w-3 animate-spin" />

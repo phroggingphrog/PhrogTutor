@@ -1678,7 +1678,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
         <button
           type="button"
           onClick={() => router.push("/co-writer")}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
         >
           <ChevronLeft size={14} />
           {t("Back to Co-Writer")}
@@ -1760,12 +1760,12 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
             {wordCount} {t("words")} &middot; {charCount} {t("chars")}
           </span>
           {isSavingDoc ? (
-            <span className="hidden items-center gap-1 text-[10px] text-[var(--muted-foreground)]/70 sm:inline-flex">
+            <span className="hidden items-center gap-1 text-[11px] text-[var(--muted-foreground)]/70 sm:inline-flex">
               <Loader2 size={10} className="animate-spin" />
               {t("Saving…")}
             </span>
           ) : lastSavedAt ? (
-            <span className="hidden text-[10px] text-[var(--muted-foreground)]/60 sm:inline">
+            <span className="hidden text-[11px] text-[var(--muted-foreground)]/60 sm:inline">
               {t("Saved")}
             </span>
           ) : null}
@@ -1819,7 +1819,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
           <div className="mx-1 h-5 w-px bg-[var(--border)]" />
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.97]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.97]"
           >
             <WandSparkles size={13} />
             {t("Full Draft")}
@@ -1855,7 +1855,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
           );
         })}
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 pl-3 text-[10.5px] text-[var(--muted-foreground)]">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 pl-3 text-[11px] text-[var(--muted-foreground)]">
           <Tooltip
             label={
               syncScrollEnabled
@@ -1868,7 +1868,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
               onClick={() => setSyncScrollEnabled((prev) => !prev)}
               disabled={!showEditor || !showPreview}
               aria-pressed={syncScrollEnabled}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[10.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                 syncScrollEnabled
                   ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                   : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55"
@@ -2111,7 +2111,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                   setIsToolMenuOpen((prev) => !prev);
                   setIsModeMenuOpen(false);
                 }}
-                className="flex h-8 w-full items-center justify-between rounded-lg border border-[var(--border)] px-2.5 text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55"
+                className="flex h-8 w-full items-center justify-between rounded-lg border border-[var(--border)] px-2.5 text-[13px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55"
               >
                 <span className="truncate">
                   {selectionTools.length === 0
@@ -2137,7 +2137,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                       <button
                         key={tool.name}
                         onClick={() => toggleSelectionTool(tool.name)}
-                        className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/45"
+                        className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[13px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/45"
                       >
                         <span>{t(tool.label)}</span>
                         {active ? (
@@ -2158,7 +2158,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                   setIsModeMenuOpen((prev) => !prev);
                   setIsToolMenuOpen(false);
                 }}
-                className="flex h-8 w-full items-center justify-between rounded-lg border border-[var(--border)] px-2.5 text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55"
+                className="flex h-8 w-full items-center justify-between rounded-lg border border-[var(--border)] px-2.5 text-[13px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55"
               >
                 <span>
                   {t(
@@ -2213,7 +2213,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
               value={kbName}
               onChange={(e) => setKbName(e.target.value)}
               aria-label={t("Knowledge Base")}
-              className="mt-2 h-8 w-full rounded-lg border border-[var(--border)] bg-transparent px-2.5 text-[12.5px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/35"
+              className="mt-2 h-8 w-full rounded-lg border border-[var(--border)] bg-transparent px-2.5 text-[13px] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/35"
             >
               <option value="">{t("Select a knowledge base...")}</option>
               {knowledgeBases.map((k) => (
@@ -2311,8 +2311,8 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
         <div
           className={`shrink-0 border-t px-4 py-1.5 text-xs ${
             error
-              ? "border-red-200 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
-              : "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-400"
+              ? "border-destructive/30 bg-destructive/10 text-destructive"
+              : "border-success/30 bg-success-surface text-success"
           }`}
         >
           {error || status}
@@ -2346,7 +2346,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                   <button
                     key={a}
                     onClick={() => setAction(a)}
-                    className={`rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors ${
+                    className={`rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${
                       action === a
                         ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
                         : "border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]/55"
@@ -2367,7 +2367,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
+                  <label className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
                     {t("Source")}
                   </label>
                   <select
@@ -2381,7 +2381,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
+                  <label className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
                     {t("Knowledge Base")}
                   </label>
                   <select
@@ -2401,7 +2401,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
               </div>
 
               <div>
-                <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
+                <label className="mb-1 block text-[11px] font-medium uppercase tracking-wider text-[var(--muted-foreground)]">
                   {t("Model")}
                 </label>
                 <ModelSelector
@@ -2421,7 +2421,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
               <button
                 onClick={applyAutoMark}
                 disabled={isEditing || isAutoMarking}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55 disabled:opacity-50"
               >
                 {isAutoMarking ? (
                   <Loader2 size={13} className="animate-spin" />
@@ -2433,7 +2433,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
               <button
                 onClick={applyEdit}
                 disabled={isEditing || isAutoMarking}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {isEditing ? (
                   <Loader2 size={13} className="animate-spin" />
@@ -2477,7 +2477,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
             </div>
 
             <div className="px-4 py-3">
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+              <div className="rounded-lg border border-warning/30 bg-warning-surface px-3 py-2 text-[11px] leading-relaxed text-warning">
                 {t(
                   "Undo is available with Ctrl/Cmd+Z or the toolbar Undo button.",
                 )}
@@ -2488,7 +2488,7 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
               <button
                 type="button"
                 onClick={() => setPendingConfirmAction(null)}
-                className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55"
+                className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/55"
               >
                 {t("Cancel")}
               </button>
@@ -2499,10 +2499,10 @@ export default function CoWriterWorkspace({ docId }: CoWriterWorkspaceProps) {
                   setPendingConfirmAction(null);
                   onConfirm();
                 }}
-                className={`rounded-lg px-3 py-1.5 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90 ${
+                className={`rounded-lg px-3 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 ${
                   confirmActionCopy.tone === "danger"
                     ? "bg-rose-600"
-                    : "bg-amber-600"
+                    : "bg-warning"
                 }`}
               >
                 {confirmActionCopy.confirmLabel}
@@ -2542,7 +2542,7 @@ function ToolbarIconBtn({
     tone === "danger"
       ? "hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400"
       : tone === "warning"
-        ? "hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300"
+        ? "hover:bg-warning/10 hover:text-warning"
         : "hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]";
 
   return (

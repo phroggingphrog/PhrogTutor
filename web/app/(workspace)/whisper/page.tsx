@@ -373,7 +373,7 @@ export default function WhisperPage() {
       {(crisisHit || roomClosed) && (
         <div
           role="status"
-          className="border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-800 dark:text-amber-200"
+          className="border-b border-warning/30 bg-warning/10 px-4 py-2 text-xs text-warning"
         >
           {crisisHit
             ? t("Crisis redirect detected. Sending is disabled for this room.")

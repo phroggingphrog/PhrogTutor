@@ -42,7 +42,7 @@ export function AdminLink({ collapsed = false }: AdminLinkProps) {
   return (
     <Link
       href="/admin/users"
-      className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] transition-colors
+      className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[14px] transition-colors
         ${
           active
             ? "bg-[var(--primary)]/10 text-[var(--primary)]"

@@ -79,7 +79,7 @@ export default function DiscussionModeSelector() {
               }`}
             >
               <span className="min-w-0 flex-1">
-                <span className="block text-[12.5px] font-medium text-[var(--foreground)]">{LABELS[mode]}</span>
+                <span className="block text-[13px] font-medium text-[var(--foreground)]">{LABELS[mode]}</span>
                 <span className="block text-[11px] text-[var(--muted-foreground)]">{HINTS[mode]}</span>
               </span>
               {value === mode && <Check size={14} strokeWidth={2} className="shrink-0 text-[var(--primary)]" />}

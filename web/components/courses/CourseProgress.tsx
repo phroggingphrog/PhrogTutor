@@ -156,7 +156,7 @@ function Tile({
     >
       <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
         <Icon size={14} strokeWidth={1.7} />
-        <span className="text-[11.5px]">{label}</span>
+        <span className="text-[12px]">{label}</span>
       </div>
       <p className="mt-2 font-serif text-[20px] font-semibold leading-none text-[var(--foreground)]">
         {value}

@@ -73,7 +73,7 @@ export default function LearnerProfileSettingsPage() {
       </div>
       <div className="mt-6 flex items-center gap-3">
         {status === "error" && (
-          <span className="text-sm text-red-600">
+          <span className="text-sm text-destructive">
             {t("Unable to save profile")}
           </span>
         )}

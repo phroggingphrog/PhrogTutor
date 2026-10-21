@@ -113,7 +113,7 @@ export default function CategoryMenu({
           onClick={() => setOpen((v) => !v)}
           aria-label={label || t("Add tag")}
           aria-expanded={open}
-          className={`inline-flex items-center gap-1.5 rounded-lg text-[11.5px] font-medium transition-colors disabled:opacity-40 ${
+          className={`inline-flex items-center gap-1.5 rounded-lg text-[12px] font-medium transition-colors disabled:opacity-40 ${
             variant === "outlined" ? "border px-2 py-1.5" : "p-1.5"
           } ${
             open
@@ -138,7 +138,7 @@ export default function CategoryMenu({
         >
           <div className="max-h-56 overflow-y-auto p-1.5">
             {categories.length === 0 && (
-              <p className="px-2 py-3 text-center text-[11.5px] text-[var(--muted-foreground)]">
+              <p className="px-2 py-3 text-center text-[12px] text-[var(--muted-foreground)]">
                 {t("No tags yet. Type a name below to create one.")}
               </p>
             )}
@@ -156,7 +156,7 @@ export default function CategoryMenu({
                       if (ok) setOpen(false);
                     })
                   }
-                  className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/70 disabled:opacity-50"
+                  className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/70 disabled:opacity-50"
                 >
                   <span className="min-w-0 flex-1 truncate">
                     {category.name}
@@ -164,7 +164,7 @@ export default function CategoryMenu({
                   {isActive ? (
                     <Check className="h-3.5 w-3.5 shrink-0 text-[var(--primary)]" />
                   ) : (
-                    <span className="shrink-0 text-[10.5px] tabular-nums text-[var(--muted-foreground)]">
+                    <span className="shrink-0 text-[11px] tabular-nums text-[var(--muted-foreground)]">
                       {category.entry_count}
                     </span>
                   )}

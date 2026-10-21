@@ -7,10 +7,10 @@ import { activityCalendar, type DailyUsage } from '@/lib/usage-statistics'
 
 const colors = [
   'bg-[var(--muted)]',
-  'bg-emerald-200 dark:bg-emerald-900',
-  'bg-emerald-400 dark:bg-emerald-700',
-  'bg-emerald-600 dark:bg-emerald-500',
-  'bg-emerald-800 dark:bg-emerald-300',
+  'bg-success-surface',
+  'bg-success',
+  'bg-success',
+  'bg-success',
 ]
 export default function UsageActivity({
   days,
@@ -65,7 +65,7 @@ export default function UsageActivity({
       </div>
       <div className="overflow-x-auto pb-2" ref={grid}>
         <div style={{ minWidth: weeks.length * 14 + 28 }}>
-          <div className="relative ml-7 mb-2 h-4 text-[10px] text-[var(--muted-foreground)]">
+          <div className="relative ml-7 mb-2 h-4 text-[11px] text-[var(--muted-foreground)]">
             {months.map(month => (
               <span key={month.label} className="absolute" style={{ left: month.week * 14 }}>
                 {month.label}
@@ -74,7 +74,7 @@ export default function UsageActivity({
           </div>
           <div className="flex gap-2">
             <div
-              className="grid w-5 shrink-0 grid-rows-7 gap-[3px] text-[9px] leading-[11px] text-[var(--muted-foreground)]"
+              className="grid w-5 shrink-0 grid-rows-7 gap-[3px] text-[11px] leading-[11px] text-[var(--muted-foreground)]"
               aria-hidden="true"
             >
               {Array.from({ length: 7 }, (_, i) => (
@@ -148,7 +148,7 @@ export default function UsageActivity({
           </div>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[10px] text-[var(--muted-foreground)]">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[11px] text-[var(--muted-foreground)]">
         <p className="min-h-4" aria-live="polite">
           {selected ? dayLabel(selected) : t('Daily activity')}
         </p>

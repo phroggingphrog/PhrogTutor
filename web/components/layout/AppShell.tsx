@@ -113,12 +113,12 @@ export default function AppShell({ sidebar, children }: AppShellProps) {
             <Link href="/" className="flex items-center gap-1.5">
               <Image
                 src="/logo.png"
-                alt="PhrogTutor"
+                alt=""
                 width={20}
                 height={20}
                 className="h-5 w-5"
               />
-              <span className="text-[15px] font-bold tracking-tight text-[#2e9b4f] transition-transform duration-200 group-hover:scale-105">PhrogTutor</span>
+              <span className="text-[15px] font-bold tracking-tight text-[var(--brand)] transition-transform duration-200 group-hover:scale-105">PhrogTutor</span>
             </Link>
           </div>
 

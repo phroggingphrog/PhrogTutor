@@ -55,7 +55,7 @@ export function CoverageNotice({
             {missing.slice(0, 8).map((gap) => (
               <li
                 key={`${gap.label}:${gap.document}`}
-                className="truncate text-[11.5px] text-[var(--muted-foreground)]"
+                className="truncate text-[12px] text-[var(--muted-foreground)]"
               >
                 {gap.document}
                 <span className="text-[color-mix(in_srgb,var(--muted-foreground)_70%,transparent)]">
@@ -64,7 +64,7 @@ export function CoverageNotice({
               </li>
             ))}
             {missing.length > 8 && (
-              <li className="text-[11.5px] text-[var(--muted-foreground)]">
+              <li className="text-[12px] text-[var(--muted-foreground)]">
                 {`+${missing.length - 8} ${t("more")}`}
               </li>
             )}
@@ -73,7 +73,7 @@ export function CoverageNotice({
             type="button"
             onClick={() => onCover(missing.map((gap) => gap.document))}
             disabled={busy}
-            className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-3 py-1.5 text-[11.5px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90 disabled:opacity-50"
+            className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary-foreground)] transition hover:opacity-90 disabled:opacity-50"
           >
             {busy && <Loader2 className="h-3 w-3 animate-spin" />}
             {t("Regenerate covering these too")}

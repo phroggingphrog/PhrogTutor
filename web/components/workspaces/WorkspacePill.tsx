@@ -153,7 +153,7 @@ export function WorkspacePill({
           <span
             role="alert"
             tabIndex={0}
-            className="max-w-[180px] truncate text-[11.5px] text-[var(--destructive)]"
+            className="max-w-[180px] truncate text-[12px] text-[var(--destructive)]"
           >
             {error}
           </span>
@@ -168,7 +168,7 @@ export function WorkspacePill({
         >
           <div className="max-h-[280px] overflow-y-auto [&>span]:w-full">
             {selectable.length === 0 ? (
-              <p className="px-3 py-2.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+              <p className="px-3 py-2.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 {t(
                   "Create a workspace to keep conversations and learning materials together.",
                 )}
@@ -189,7 +189,7 @@ export function WorkspacePill({
                       onSelect(row.workspace_id);
                       setOpen(false);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] text-[var(--foreground)] transition-colors hover:bg-[color-mix(in_srgb,var(--muted)_60%,transparent)] disabled:opacity-50"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-[var(--foreground)] transition-colors hover:bg-[color-mix(in_srgb,var(--muted)_60%,transparent)] disabled:opacity-50"
                   >
                     <Folder
                       size={13}
@@ -254,7 +254,7 @@ export function WorkspacePill({
             <Link
               href="/settings/workspace"
               onClick={() => setOpen(false)}
-              className="min-w-0 flex-1 rounded-md px-1 py-1.5 text-[11.5px] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ring)]"
+              className="min-w-0 flex-1 rounded-md px-1 py-1.5 text-[12px] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--ring)]"
             >
               {t("Manage workspaces")}
             </Link>

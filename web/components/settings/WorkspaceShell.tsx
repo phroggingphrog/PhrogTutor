@@ -259,9 +259,9 @@ export function WorkspaceDetailEmpty({
       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--muted)_65%,transparent)] text-[var(--muted-foreground)]">
         {icon}
       </span>
-      <p className="text-[13.5px] font-medium">{title}</p>
+      <p className="text-[14px] font-medium">{title}</p>
       {hint && (
-        <p className="max-w-[38ch] text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="max-w-[38ch] text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {hint}
         </p>
       )}

@@ -264,7 +264,7 @@ export default function MemoryRunPanel({
     <div className="flex h-full min-h-0 flex-col rounded-2xl border border-[var(--border)] bg-[var(--card)]">
       {/* Header */}
       <header className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-3 py-2">
-        <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--foreground)]">
+        <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--foreground)]">
           <Bot className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
           {t("LLM workspace")}
         </div>
@@ -301,7 +301,7 @@ export default function MemoryRunPanel({
               type="button"
               onClick={() => void handleReset()}
               disabled={isRunning}
-              className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 hover:bg-amber-500/20 hover:text-amber-800 disabled:opacity-40 dark:text-amber-300 dark:hover:text-amber-200"
+              className="inline-flex items-center gap-1 rounded-md border border-warning/40 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning hover:bg-warning/20 hover:text-warning disabled:opacity-40"
               aria-label={t("Reset memory (delete md + seen-id state)")}
             >
               <RotateCcw className="h-3 w-3" />
@@ -321,7 +321,7 @@ export default function MemoryRunPanel({
               disabled={isRunning}
               onClick={() => setMode(key)}
               className={
-                "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[var(--border)] px-2 py-1 text-[11.5px] transition disabled:opacity-50 " +
+                "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[var(--border)] px-2 py-1 text-[12px] transition disabled:opacity-50 " +
                 (mode === key
                   ? "bg-[var(--muted)] text-[var(--foreground)]"
                   : "bg-[var(--background)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]")
@@ -399,13 +399,13 @@ export default function MemoryRunPanel({
               <TurnCard key={`${turn.kind}-${turn.id}`} turn={turn} t={t} />
             ))}
             {isRunning && (
-              <li className="flex items-center gap-2 rounded-md bg-[var(--muted)]/40 px-2.5 py-1.5 text-[11.5px] text-[var(--muted-foreground)]">
+              <li className="flex items-center gap-2 rounded-md bg-[var(--muted)]/40 px-2.5 py-1.5 text-[12px] text-[var(--muted-foreground)]">
                 <Loader2 className="h-3 w-3 animate-spin" />
                 {t("Working…")}
               </li>
             )}
             {error && (
-              <li className="flex items-start gap-2 rounded-md border border-red-500/30 bg-red-500/5 px-2.5 py-1.5 text-[11.5px] text-red-500">
+              <li className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-2.5 py-1.5 text-[12px] text-destructive">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 {error}
               </li>
@@ -513,17 +513,17 @@ function SystemEventRow({
   return (
     <li
       className={
-        "flex items-start gap-2 rounded-md px-2 py-1.5 text-[11.5px] " +
+        "flex items-start gap-2 rounded-md px-2 py-1.5 text-[12px] " +
         (display.tone === "ok"
-          ? "border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
+          ? "border border-success/30 bg-success/5 text-success"
           : display.tone === "warn"
-            ? "border border-amber-500/30 bg-amber-500/5 text-amber-700 dark:text-amber-300"
+            ? "border border-warning/30 bg-warning/5 text-warning"
             : "bg-[var(--muted)]/40 text-[var(--muted-foreground)]")
       }
     >
       <display.icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <div className="min-w-0">
-        <div className="font-mono text-[10.5px] uppercase tracking-wide">
+        <div className="font-mono text-[11px] uppercase tracking-wide">
           {display.title}
         </div>
         {display.detail && (
@@ -707,7 +707,7 @@ function LLMTurnCard({
       : `t${turn.turn}`;
   return (
     <li className="space-y-1.5 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-2">
-      <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--muted-foreground)]">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
         <Bot className="h-3 w-3" />
         <span>{turn.label || "llm"}</span>
         <span>·</span>
@@ -729,15 +729,15 @@ function LLMTurnCard({
 
       <div className="text-[12px] text-[var(--foreground)]">
         {turn.response ? (
-          <pre className="whitespace-pre-wrap break-words font-mono text-[11.5px] leading-relaxed">
+          <pre className="whitespace-pre-wrap break-words font-mono text-[12px] leading-relaxed">
             {turn.response}
           </pre>
         ) : turn.error ? (
-          <div className="rounded border border-red-500/30 bg-red-500/5 px-2 py-1 text-[11px] text-red-500">
+          <div className="rounded border border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
             {turn.error}
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)]">
+          <div className="flex items-center gap-1.5 text-[12px] text-[var(--muted-foreground)]">
             <Loader2 className="h-3 w-3 animate-spin" />
             {t("Streaming…")}
           </div>
@@ -775,7 +775,7 @@ function Disclosure({
         <span className="opacity-60">·&nbsp;{body.length}</span>
       </button>
       {open && (
-        <pre className="mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap break-words rounded bg-[var(--muted)]/40 px-2 py-1.5 font-mono text-[10.5px] text-[var(--foreground)]">
+        <pre className="mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap break-words rounded bg-[var(--muted)]/40 px-2 py-1.5 font-mono text-[11px] text-[var(--foreground)]">
           {body}
         </pre>
       )}
@@ -805,7 +805,7 @@ function NumberInput({
   return (
     <label
       className={
-        "flex items-center justify-between gap-1 rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[11.5px] text-[var(--muted-foreground)] " +
+        "flex items-center justify-between gap-1 rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] text-[var(--muted-foreground)] " +
         (fullWidth ? "w-full" : "")
       }
     >
@@ -822,7 +822,7 @@ function NumberInput({
           const n = parseInt(v, 10);
           if (!Number.isNaN(n)) setValue(Math.max(min, Math.min(max, n)));
         }}
-        className="w-14 bg-transparent text-right text-[11.5px] text-[var(--foreground)] outline-none"
+        className="w-14 bg-transparent text-right text-[12px] text-[var(--foreground)] outline-none"
       />
     </label>
   );
@@ -882,7 +882,7 @@ function ModelPill({
           disabled={inactive}
           onClick={() => setOpen(!open)}
           className={
-            "flex w-full min-w-0 items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[11.5px] text-[var(--foreground)] transition hover:bg-[var(--muted)]/60 disabled:opacity-50 " +
+            "flex w-full min-w-0 items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[12px] text-[var(--foreground)] transition hover:bg-[var(--muted)]/60 disabled:opacity-50 " +
             (open ? "border-[var(--primary)]/40" : "")
           }
         >
@@ -908,7 +908,7 @@ function ModelPill({
                   setOpen(false);
                 }}
                 className={
-                  "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-[11.5px] transition hover:bg-[var(--muted)] " +
+                  "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-[12px] transition hover:bg-[var(--muted)] " +
                   (active
                     ? "bg-[var(--muted)] text-[var(--foreground)]"
                     : "text-[var(--muted-foreground)]")
@@ -918,12 +918,12 @@ function ModelPill({
                   <span className="truncate text-[var(--foreground)]">
                     {opt.model_name}
                   </span>
-                  <span className="shrink-0 text-[10px] opacity-60">
+                  <span className="shrink-0 text-[11px] opacity-60">
                     {opt.provider}
                   </span>
                 </span>
                 {opt.is_active_default && (
-                  <span className="shrink-0 rounded bg-[var(--primary)]/10 px-1 py-0.5 text-[9.5px] uppercase text-[var(--primary)]">
+                  <span className="shrink-0 rounded bg-[var(--primary)]/10 px-1 py-0.5 text-[11px] uppercase text-[var(--primary)]">
                     {t("default")}
                   </span>
                 )}
@@ -938,7 +938,7 @@ function ModelPill({
 
 function EmptyTrace({ t }: { t: (k: string) => string }) {
   return (
-    <div className="grid h-full place-items-center text-center text-[12.5px] text-[var(--muted-foreground)]">
+    <div className="grid h-full place-items-center text-center text-[13px] text-[var(--muted-foreground)]">
       <div className="max-w-xs space-y-1.5">
         <Bot className="mx-auto h-6 w-6 opacity-60" />
         <p>

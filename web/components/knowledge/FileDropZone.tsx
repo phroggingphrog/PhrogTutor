@@ -174,7 +174,7 @@ export default function FileDropZone({
         className={`group flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-center transition-colors ${padding} ${
           dropState.active
             ? dropState.invalid
-              ? "border-amber-400 bg-amber-50/60 dark:border-amber-700 dark:bg-amber-950/20"
+              ? "border-warning bg-warning-surface"
               : "border-sky-400 bg-sky-50/60 dark:border-sky-700 dark:bg-sky-950/20"
             : "border-[var(--border)] bg-[var(--background)] hover:border-[var(--foreground)]/25 hover:bg-[var(--muted)]/40"
         } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
@@ -285,17 +285,17 @@ function SelectionSummary({
     <div
       className={`rounded-2xl border p-3 ${
         hasIssues
-          ? "border-amber-200 bg-amber-50/80 dark:border-amber-900/70 dark:bg-amber-950/20"
-          : "border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-950/15"
+          ? "border-warning/30 bg-warning-surface"
+          : "border-success/30 bg-success-surface"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-[13px] font-medium text-[var(--foreground)]">
             {hasIssues ? (
-              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <AlertTriangle className="h-4 w-4 text-warning" />
             ) : (
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <CheckCircle2 className="h-4 w-4 text-success" />
             )}
             {hasIssues
               ? t("{{ready}} ready, {{skip}} will be skipped", {
@@ -327,14 +327,14 @@ function SelectionSummary({
             className={`flex items-start gap-3 rounded-xl border px-3 py-2.5 ${
               item.valid
                 ? "border-white/60 bg-white/70 dark:border-white/10 dark:bg-white/5"
-                : "border-amber-200/80 bg-amber-100/60 dark:border-amber-900/60 dark:bg-amber-950/20"
+                : "border-warning/80 bg-warning-surface"
             }`}
           >
             <div
               className={`mt-0.5 rounded-lg p-2 ${
                 item.valid
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
-                  : "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
+                  ? "bg-success-surface text-success"
+                  : "bg-warning-surface text-warning"
               }`}
             >
               <FileText className="h-3.5 w-3.5" />
@@ -343,21 +343,21 @@ function SelectionSummary({
               <div className="truncate text-[12px] font-medium text-[var(--foreground)]">
                 {item.file.name}
               </div>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
                 <span>{item.extension}</span>
                 <span>{item.sizeLabel}</span>
                 <span
                   className={`rounded-full px-2 py-0.5 normal-case tracking-normal ${
                     item.valid
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
-                      : "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
+                      ? "bg-success-surface text-success"
+                      : "bg-warning-surface text-warning"
                   }`}
                 >
                   {item.valid ? t("Supported") : t("Needs attention")}
                 </span>
               </div>
               {item.error && (
-                <p className="mt-1.5 text-[11px] leading-relaxed text-amber-700 dark:text-amber-300">
+                <p className="mt-1.5 text-[11px] leading-relaxed text-warning">
                   {item.error}
                 </p>
               )}

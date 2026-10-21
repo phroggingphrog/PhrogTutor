@@ -88,7 +88,7 @@ export function StudyOutline({
       >
         <ChevronsRight className="h-4 w-4" />
         <span
-          className="text-[10px] font-medium uppercase tracking-[0.16em]"
+          className="text-[11px] font-medium uppercase tracking-[0.16em]"
           style={{ writingMode: "vertical-rl" }}
         >
           {t("Outline")}
@@ -100,11 +100,11 @@ export function StudyOutline({
   return (
     <nav aria-label={t("Outline")} className="pb-10">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]/70">
+        <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]/70">
           {t("Outline")}
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-[10.5px] tabular-nums text-[var(--muted-foreground)]/55">
+          <span className="text-[11px] tabular-nums text-[var(--muted-foreground)]/55">
             {mastered}/{total}
           </span>
           <Tooltip label={t("Hide outline")}>
@@ -124,10 +124,10 @@ export function StudyOutline({
         {topic.map.modules.map((module, index) => (
           <section key={module.id}>
             <div className="flex items-baseline gap-2">
-              <span className="w-[18px] shrink-0 text-[10.5px] font-medium tabular-nums text-[var(--muted-foreground)]/45">
+              <span className="w-[18px] shrink-0 text-[11px] font-medium tabular-nums text-[var(--muted-foreground)]/45">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <h2 className="min-w-0 text-[12.5px] font-semibold leading-5 text-[var(--foreground)]">
+              <h2 className="min-w-0 text-[13px] font-semibold leading-5 text-[var(--foreground)]">
                 {module.name}
               </h2>
             </div>

@@ -569,7 +569,7 @@ export function MasteryStudy({
   const total = topic.map.counts.total;
 
   return (
-    <main className="mastery-shell flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="mastery-shell flex h-full min-h-0 flex-col overflow-hidden">
       {/* One line, not two: the topic and the waypoint the tutor is on read
           as a single "where am I" statement, and the ring + count are one
           unit rather than a ring on the left and its own number on the
@@ -586,7 +586,7 @@ export function MasteryStudy({
         </Tooltip>
 
         <div className="ml-1.5 flex min-w-0 flex-1 items-baseline gap-2">
-          <h1 className="shrink-0 truncate text-[14.5px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
+          <h1 className="shrink-0 truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
             {displayName}
           </h1>
           <span
@@ -596,7 +596,7 @@ export function MasteryStudy({
             /
           </span>
           {sessionMode === "study" ? (
-            <span className="hidden min-w-0 truncate text-[12.5px] text-[var(--muted-foreground)] sm:inline">
+            <span className="hidden min-w-0 truncate text-[13px] text-[var(--muted-foreground)] sm:inline">
               {waypoint.name}
             </span>
           ) : null}
@@ -708,8 +708,8 @@ export function MasteryStudy({
                     {t("Reopening this session…")}
                   </div>
                 ) : sessionError ? (
-                  <div className="mx-auto mt-20 max-w-md rounded-xl border border-red-500/20 bg-red-500/5 p-6 text-center">
-                    <MessageCircle className="mx-auto h-8 w-8 text-red-500/60" />
+                  <div className="mx-auto mt-20 max-w-md rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+                    <MessageCircle className="mx-auto h-8 w-8 text-destructive/60" />
                     <h2 className="mt-3 text-sm font-semibold">
                       {t("The session did not open")}
                     </h2>
@@ -877,6 +877,6 @@ export function MasteryStudy({
         onAutoOpen={() => setViewerOpen(true)}
       />
       <ChatViewerBridges viewerPanelRef={viewerPanelRef} />
-    </main>
+    </div>
   );
 }

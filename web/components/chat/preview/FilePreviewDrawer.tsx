@@ -241,7 +241,7 @@ export default function FilePreviewDrawer({
               <div className="truncate text-[13px] font-medium text-[var(--foreground)]">
                 {filename}
               </div>
-              <div className="truncate text-[10px] uppercase tracking-wide text-[var(--muted-foreground)]">
+              <div className="truncate text-[11px] uppercase tracking-wide text-[var(--muted-foreground)]">
                 {sizeLabel ? `${spec.label} · ${sizeLabel}` : spec.label}
               </div>
             </div>
@@ -253,7 +253,7 @@ export default function FilePreviewDrawer({
                   onClick={() => void handleOpenInReading()}
                   disabled={openingInReader}
                   aria-label={t("Open in Immersive Reading")}
-                  className="mr-1 inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)]/10 px-2.5 text-[10px] font-semibold text-[var(--primary)] transition hover:bg-[var(--primary)]/15 disabled:opacity-50"
+                  className="mr-1 inline-flex h-8 items-center gap-1.5 rounded-lg bg-[var(--primary)]/10 px-2.5 text-[11px] font-semibold text-[var(--primary)] transition hover:bg-[var(--primary)]/15 disabled:opacity-50"
                 >
                   {openingInReader ? (
                     <Loader2 size={12} className="animate-spin" />
@@ -289,7 +289,7 @@ export default function FilePreviewDrawer({
                     <Check
                       size={14}
                       strokeWidth={1.7}
-                      className="text-emerald-500"
+                      className="text-success"
                     />
                   ) : (
                     <Copy size={14} strokeWidth={1.7} />
@@ -311,7 +311,7 @@ export default function FilePreviewDrawer({
           </div>
 
           {readerError && (
-            <div className="border-b border-[var(--destructive)]/20 bg-[var(--destructive)]/[0.06] px-4 py-2 text-[10.5px] text-[var(--destructive)]">
+            <div className="border-b border-[var(--destructive)]/20 bg-[var(--destructive)]/[0.06] px-4 py-2 text-[11px] text-[var(--destructive)]">
               {readerError}
             </div>
           )}

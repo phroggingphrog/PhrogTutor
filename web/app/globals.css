@@ -2,6 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* Feature-page standards. Queries measure usable content after the sidebar
+   and gutters, so the same cards behave consistently in both route groups. */
+.dt-page-container {
+  container: feature-page / inline-size;
+}
+
+.dt-page-title {
+  font-size: 27px;
+}
+
+.dt-page-action,
+[data-page-actions] > button,
+[data-page-actions] > a,
+[data-page-actions] > div > button,
+[data-page-actions] > div > a {
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.dt-page-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.dt-page-grid > * {
+  min-width: 0;
+}
+
+@container feature-page (min-width: 520px) {
+  .dt-page-grid-2,
+  .dt-page-grid-3,
+  .dt-page-grid-4,
+  .dt-page-grid-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container feature-page (min-width: 640px) {
+  .dt-page-title { font-size: 30px; }
+  .dt-page-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .dt-page-action,
+  [data-page-actions] > button,
+  [data-page-actions] > a,
+  [data-page-actions] > div > button,
+  [data-page-actions] > div > a { min-height: 36px; }
+}
+
+@container feature-page (min-width: 800px) {
+  .dt-page-grid-3,
+  .dt-page-grid-5,
+  .dt-page-grid-board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container feature-page (min-width: 1040px) {
+  .dt-page-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dt-page-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
 @layer base {
   /* ────────────────────────────────────────────────────────────────────────
      Theme palettes — four families:
@@ -17,32 +85,35 @@
                      (replaces hardcoded bg-black/40 in components)
    ──────────────────────────────────────────────────────────────────────── */
 
-  /* Cream — near-white warm canvas. Reads as off-white at first glance;
+  /* Cream — Claude palette: Ivory #faf9f5 canvas, Slate #141413 text, warm
+     grays, and a darkened Clay primary (white text 5.1:1, on Ivory 4.8:1;
+     plain Clay #d97757 is only 3:1). Near-white warm canvas. Reads as off-white at first glance;
      the warm tint only surfaces on filled blocks (selected nav, panels)
      and against the terracotta primary. Inspired by Claude's chrome:
      keep bg essentially white, save the visible warmth for accents. */
   :root {
     color-scheme: light;
-    --background: #fdfcf9;
-    --foreground: #1c1816;
+    --background: #faf9f5;
+    --foreground: #141413;
     --card: #ffffff;
-    --card-foreground: #1c1816;
+    --card-foreground: #141413;
     --popover: #ffffff;
-    --popover-foreground: #1c1816;
-    --primary: #b0501e;
+    --popover-foreground: #141413;
+    --primary: #b5502f;
     --primary-foreground: #ffffff;
-    --secondary: #f5f2ea;
-    --secondary-foreground: #1c1816;
-    --muted: #f1ede2;
-    --muted-foreground: #6d645a;
-    --accent: #ece7d8;
-    --accent-foreground: #1c1816;
+    --secondary: #f5f4ed;
+    --secondary-foreground: #141413;
+    --muted: #f0eee6;
+    --muted-foreground: #5e5d59;
+    --accent: #e8e6dc;
+    --accent-foreground: #141413;
     --destructive: #c53a2c;
     --destructive-foreground: #ffffff;
-    --border: #e6decc;
-    --input: #e6decc;
-    --ring: #b0501e;
-    --overlay: rgba(28, 24, 22, 0.42);
+    --border: #e3e0d4;
+    --input: #d1cfc5;
+    --ring: #b5502f;
+    --brand: #1f7a3d;
+    --overlay: rgba(20, 20, 19, 0.45);
     --success: #237a4b;
     --success-foreground: #14532d;
     --success-surface: #ecf8f0;
@@ -53,32 +124,33 @@
     --info-foreground: #1e3a8a;
     --info-surface: #eff6ff;
     --surface-raised: #ffffff;
-    --shadow-raised: 0 16px 40px rgba(69, 49, 31, 0.12);
+    --shadow-raised: 0 16px 40px rgba(20, 20, 19, 0.12);
   }
 
-  /* Dark — warm near-black, same terracotta family as Cream. */
+  /* Dark — warm near-black, same Clay family as Cream. */
   .dark {
-    /* Flat neutral dark in the spirit of ChatGPT: no tint, panels told apart by shade, borders barely there. */
+    /* Warm Claude dark: #262624 canvas, #30302e panels, Clay #d97757 primary (dark text 5.9:1). */
     color-scheme: dark;
-    --background: #212121;
-    --foreground: #ececec;
-    --card: #2a2a2a;
-    --card-foreground: #ececec;
-    --popover: #2a2a2a;
-    --popover-foreground: #ececec;
-    --primary: #ececec;
-    --primary-foreground: #0d0d0d;
-    --secondary: #303030;
-    --secondary-foreground: #ececec;
-    --muted: #2a2a2a;
-    --muted-foreground: #a3a3a3;
-    --accent: #333333;
-    --accent-foreground: #ececec;
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
-    --border: #2f2f2f;
-    --input: #3a3a3a;
-    --ring: #8f8f8f;
+    --background: #262624;
+    --foreground: #faf9f5;
+    --card: #30302e;
+    --card-foreground: #faf9f5;
+    --popover: #30302e;
+    --popover-foreground: #faf9f5;
+    --primary: #d97757;
+    --primary-foreground: #141413;
+    --secondary: #30302e;
+    --secondary-foreground: #faf9f5;
+    --muted: #30302e;
+    --muted-foreground: #a3a199;
+    --accent: #3d3d3a;
+    --accent-foreground: #faf9f5;
+    --destructive: #f0786a;
+    --destructive-foreground: #141413;
+    --border: #3d3d3a;
+    --input: #4d4c48;
+    --ring: #d97757;
+    --brand: #5fd08a;
     --overlay: rgba(0, 0, 0, 0.6);
     --success: #5fd08a;
     --success-foreground: #bbf7d0;
@@ -89,7 +161,7 @@
     --info: #7ba7ff;
     --info-foreground: #bfdbfe;
     --info-surface: #172641;
-    --surface-raised: #2a2a2a;
+    --surface-raised: #30302e;
     --shadow-raised: 0 16px 44px rgba(0, 0, 0, 0.4);
   }
 
@@ -119,6 +191,7 @@
     --border: #e5e5e5;
     --input: #e5e5e5;
     --ring: #2563eb;
+    --brand: #1f7a3d;
     --overlay: rgba(0, 0, 0, 0.4);
     --success: #16794b;
     --success-foreground: #14532d;
@@ -156,6 +229,7 @@
     --border: rgba(255, 255, 255, 0.12);
     --input: rgba(255, 255, 255, 0.06);
     --ring: #a855f7;
+    --brand: #5fd08a;
     --overlay: rgba(0, 0, 0, 0.55);
     --success: #68dfa0;
     --success-foreground: #bbf7d0;
@@ -1404,8 +1478,9 @@ a[href^="#dt-locator-"]:hover {
 .notes-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--muted-foreground); pointer-events: none; }
 
 /* Font choice (Settings > Appearance > Font). "classic" keeps the original Geist UI + Lora reading font. */
-html[data-font="lexend"] { --font-sans: var(--font-lexend); --font-serif: var(--font-lexend); }
+/* Page titles and the greeting stay serif (the reference UI's display face) in every font choice except Atkinson Hyperlegible and Geist, which are all-sans on purpose. */
+html[data-font="lexend"] { --font-sans: var(--font-lexend); }
 html[data-font="atkinson"] { --font-sans: var(--font-atkinson); --font-serif: var(--font-atkinson); }
-html[data-font="inter"] { --font-sans: var(--font-inter); --font-serif: var(--font-inter); }
+html[data-font="inter"] { --font-sans: var(--font-inter); }
 html[data-font="geist"] { --font-serif: var(--font-sans); }
-html[data-font="system"] { --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --font-serif: var(--font-sans); }
+html[data-font="system"] { --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }

@@ -162,7 +162,7 @@ export default function KnowledgeSelector({
                             : "text-[var(--muted-foreground)]"
                         }`}
                       />
-                      <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                      <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--foreground)]">
                         {kb.name}
                         {kb.provenance_label && (
                           <span className="ml-2 opacity-60">

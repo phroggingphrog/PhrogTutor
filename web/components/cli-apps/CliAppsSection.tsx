@@ -93,7 +93,7 @@ export default function CliAppsSection() {
           "Command-line tools from the CLI-Anything catalog. Once enabled, the chat agent can call them directly.",
         )}
         meta={
-          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
             {t("{{count}} available to you", { count: usable })}
           </span>
         }
@@ -240,7 +240,7 @@ function Installed({
                   )}
                 </div>
                 {app.description && (
-                  <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+                  <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
                     {app.description}
                   </p>
                 )}
@@ -253,7 +253,7 @@ function Installed({
                   {app.pin ? ` · ${app.pin.slice(0, 12)}` : ""}
                 </p>
                 {!app.granted && (
-                  <p className="mt-2 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--muted-foreground)]">
+                  <p className="mt-2 inline-flex items-center gap-1.5 text-[12px] text-[var(--muted-foreground)]">
                     <Lock size={11} />
                     {t(
                       "Not assigned to your account. An administrator has to grant it before you can use it.",
@@ -294,7 +294,7 @@ function Installed({
                         void act(app.id, () => uninstallCliApp(app.id));
                       }}
                       aria-label={t("Uninstall")}
-                      className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-500 disabled:opacity-50"
+                      className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive disabled:opacity-50"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -306,7 +306,7 @@ function Installed({
         ))}
       </ul>
 
-      <p className="text-[11.5px] text-[var(--muted-foreground)]">
+      <p className="text-[12px] text-[var(--muted-foreground)]">
         {t("Installed under")}{" "}
         <span className="font-mono text-[var(--foreground)]/65">
           {"data/cli-apps"}
@@ -513,7 +513,7 @@ function Store({
             ))}
           </ul>
           <div className="flex items-center justify-center gap-3 pt-1">
-            <span className="text-[11.5px] text-[var(--muted-foreground)]">
+            <span className="text-[12px] text-[var(--muted-foreground)]">
               {t("{{shown}} of {{total}} apps", {
                 shown: entries.length,
                 total,
@@ -677,11 +677,11 @@ function EntryDetail({
       )}
       {entry.installable && (
         <Field label={t("Installs")}>
-          <code className="break-all font-mono text-[11.5px] text-[var(--foreground)]/80">
+          <code className="break-all font-mono text-[12px] text-[var(--foreground)]/80">
             {entry.install_target}
           </code>
           {!entry.pinned && (
-            <span className="mt-1.5 block text-[11.5px] text-amber-700 dark:text-amber-400">
+            <span className="mt-1.5 block text-[12px] text-warning">
               {t(
                 "This resolves to whatever that source publishes today — it is not pinned to a reviewed revision.",
               )}
@@ -691,7 +691,7 @@ function EntryDetail({
       )}
       {entry.installable && (
         <Field label={t("Tool name in chat")}>
-          <code className="font-mono text-[11.5px] text-[var(--foreground)]/80">
+          <code className="font-mono text-[12px] text-[var(--foreground)]/80">
             {`cli_${entry.id}`}
           </code>
         </Field>
@@ -745,7 +745,7 @@ function EntryDetail({
               type="button"
               onClick={() => void install()}
               disabled={installing}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {installing ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -756,7 +756,7 @@ function EntryDetail({
               )}
               {entry.installed ? t("Reinstall") : t("Install")}
             </button>
-            <span className="text-[11.5px] text-[var(--muted-foreground)]">
+            <span className="text-[12px] text-[var(--muted-foreground)]">
               {installing
                 ? t(
                     "This can take a few minutes — it builds a fresh environment.",
@@ -786,10 +786,10 @@ const secondaryButton =
   "inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] disabled:opacity-60";
 
 const okChip =
-  "inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400";
+  "inline-flex shrink-0 items-center gap-1 rounded-md bg-success/12 px-1.5 py-0.5 text-[11px] font-medium text-success";
 
 const warnChip =
-  "inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10.5px] font-medium text-amber-700 dark:text-amber-400";
+  "inline-flex shrink-0 items-center gap-1 rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning";
 
 /**
  * Where the code came from, and whether the install is fixed to one revision.
@@ -802,7 +802,7 @@ function TrustChip({ trust, pinned }: { trust: string; pinned: boolean }) {
   const { t } = useTranslation();
   if (trust === "first-party") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-medium text-emerald-700 dark:text-emerald-400">
+      <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success">
         <ShieldCheck size={9} />
         {t("Pinned")}
       </span>
@@ -856,10 +856,10 @@ function Field({
 }) {
   return (
     <div className="rounded-lg border border-[var(--border)]/60 bg-[var(--card)]/40 px-4 py-3">
-      <div className="mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
+      <div className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]/80">
         {label}
       </div>
-      <div className="text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <div className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {children}
       </div>
     </div>
@@ -874,13 +874,13 @@ function Banner({
   children: React.ReactNode;
 }) {
   const styles = {
-    error: "border-red-500/40 bg-red-500/5 text-red-500",
-    warn: "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    error: "border-destructive/40 bg-destructive/5 text-destructive",
+    warn: "border-warning/25 bg-warning/10 text-warning",
     info: "border-[var(--border)] bg-[var(--muted)]/40 text-[var(--muted-foreground)]",
   }[tone];
   return (
     <div
-      className={`rounded-lg border px-3 py-2 text-[12.5px] leading-relaxed ${styles}`}
+      className={`rounded-lg border px-3 py-2 text-[13px] leading-relaxed ${styles}`}
     >
       {children}
     </div>
@@ -912,7 +912,7 @@ function Empty({
       <p className="text-[14px] font-medium text-[var(--foreground)]">
         {title}
       </p>
-      <p className="mx-auto mt-1 max-w-md text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mx-auto mt-1 max-w-md text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {body}
       </p>
       {action && <div className="mt-4">{action}</div>}
@@ -943,7 +943,7 @@ function TabButton({
     >
       {label}
       {typeof count === "number" && (
-        <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-normal text-[var(--muted-foreground)]">
+        <span className="ml-2 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-normal text-[var(--muted-foreground)]">
           {count}
         </span>
       )}

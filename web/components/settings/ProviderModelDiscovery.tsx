@@ -127,13 +127,13 @@ function DiscoveryForm({
         </span>
       </div>
       <div role="status" aria-live="polite" className="break-words text-sm">
-        {error && <p className="text-red-600 dark:text-red-400">{error}</p>}
+        {error && <p className="text-destructive">{error}</p>}
         {result && (
           <p
             className={
               result.status === "connected"
-                ? "text-emerald-700 dark:text-emerald-400"
-                : "text-amber-700 dark:text-amber-400"
+                ? "text-success"
+                : "text-warning"
             }
           >
             {result.status === "connected" && (

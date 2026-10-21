@@ -39,7 +39,7 @@ function ToggleRow({
           {name}
         </span>
         {description && (
-          <span className="block truncate text-[11.5px] text-[var(--muted-foreground)]">
+          <span className="block truncate text-[12px] text-[var(--muted-foreground)]">
             {description}
           </span>
         )}
@@ -152,7 +152,7 @@ export default function ToolPicker({
               </button>
             </div>
           </div>
-          <p className="mb-1.5 px-2 text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mb-1.5 px-2 text-[12px] text-[var(--muted-foreground)]">
             {t(
               "Mounted automatically when the context calls for it — a knowledge base attached, memory available, the sandbox enabled. Deny any you don't want this partner to have.",
             )}
@@ -177,7 +177,7 @@ export default function ToolPicker({
         <h4 className="mb-1.5 text-[13px] font-medium text-[var(--muted-foreground)]">
           {t("Memory")}
         </h4>
-        <p className="px-2 text-[11.5px] text-[var(--muted-foreground)]">
+        <p className="px-2 text-[12px] text-[var(--muted-foreground)]">
           {t(
             "Always on and built in — not configurable. partner_read sees the owner's shared memory plus the partner's own; partner_memorize writes only the partner's own memory; partner_search keyword-searches past conversations.",
           )}

@@ -20,12 +20,9 @@ import {
 } from '@/lib/learning-dashboard'
 import {
   LearningShell,
-  LearningEmptyState,
   LearningErrorState,
   LearningSkeleton,
 } from './LearningShell'
-import MindAtlasDigest from '@/components/learning/MindAtlasDigest'
-import CourseMaterialDrop from '@/components/learning/CourseMaterialDrop'
 import { LearningCard } from './LearningCard'
 import { LearningWays } from './LearningWays'
 import { LEARNING_SURFACES, learningSurface } from './surfaces'
@@ -94,8 +91,6 @@ export function LearningDashboard() {
       {/* The ways in lead the page: everything below them assumes you already
           chose one. Each opens its own introduction before it commits you. */}
       <LearningWays />
-      <MindAtlasDigest />
-      <CourseMaterialDrop />
       {failed.length > 0 && (
         <LearningErrorState
           message={t('Some learning activity could not be loaded: {{sources}}.', {
@@ -112,7 +107,7 @@ export function LearningDashboard() {
         <>
           {(todos.reviews.length > 0 || todos.books.length > 0) && (
             <section aria-labelledby="learning-todos" className="mb-9">
-              <h2 id="learning-todos" className="mb-3 text-[13.5px] font-semibold">
+              <h2 id="learning-todos" className="mb-3 text-[14px] font-semibold">
                 {t('What needs your attention')}
               </h2>
               <div className="grid gap-3 md:grid-cols-2">
@@ -159,7 +154,7 @@ export function LearningDashboard() {
           )}
           {recent.length > 0 && (
             <section aria-labelledby="learning-recent">
-              <h2 id="learning-recent" className="mb-3 text-[13.5px] font-semibold">
+              <h2 id="learning-recent" className="mb-3 text-[14px] font-semibold">
                 {t('Recent activity')}
               </h2>
               <div className="grid gap-3 md:grid-cols-2">
@@ -179,12 +174,6 @@ export function LearningDashboard() {
                 })}
               </div>
             </section>
-          )}
-          {!recent.length && failed.length === 0 && (
-            <LearningEmptyState
-              title={t('Your next learning journey starts here')}
-              description={t('Choose a book, a topic, a collection or a video to begin.')}
-            />
           )}
         </>
       )}

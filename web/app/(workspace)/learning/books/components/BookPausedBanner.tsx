@@ -30,7 +30,7 @@ export default function BookPausedBanner({
   const manual = book.metadata?.pause_kind === "user";
 
   return (
-    <div className="border-b border-amber-300/70 bg-amber-50 px-8 py-3 text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+    <div className="border-b border-warning/70 bg-warning-surface px-8 py-3 text-warning">
       <div className="mx-auto flex w-full max-w-[78ch] items-start gap-3">
         <PauseCircle className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="min-w-0 flex-1">

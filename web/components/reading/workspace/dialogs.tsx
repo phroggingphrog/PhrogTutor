@@ -206,7 +206,7 @@ export function NotebookCaptureDialog({
                 <span className="min-w-0 flex-1 truncate text-[11px] font-medium">
                   {notebook.name}
                 </span>
-                <span className="text-[10px] text-[var(--muted-foreground)]">
+                <span className="text-[11px] text-[var(--muted-foreground)]">
                   {notebook.record_count ?? 0}
                 </span>
               </button>
@@ -218,7 +218,7 @@ export function NotebookCaptureDialog({
           </p>
         )}
       </div>
-      {error && <p className="mt-3 text-[10px] text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-[11px] text-destructive">{error}</p>}
       <div className="mt-5 flex justify-end gap-2">
         <button
           type="button"
@@ -261,7 +261,7 @@ export function OrganizedNotesDialog({
   const { t } = useTranslation();
   return (
     <ModalShell title={t("Organized reading notes")} onClose={onClose} wide>
-      <div className="mb-3 flex items-center justify-between text-[10.5px] text-[var(--muted-foreground)]">
+      <div className="mb-3 flex items-center justify-between text-[11px] text-[var(--muted-foreground)]">
         <span>
           {t("{{count}} annotations", { count: notes.annotation_count })}
         </span>
@@ -279,7 +279,7 @@ export function OrganizedNotesDialog({
           <Copy size={11} /> {t("Copy Markdown")}
         </button>
       </div>
-      <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 font-sans text-[10.5px] leading-relaxed text-[var(--muted-foreground)] dark:border-[var(--border)] dark:bg-[var(--background)] dark:text-[var(--foreground)]">
+      <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 font-sans text-[11px] leading-relaxed text-[var(--muted-foreground)] dark:border-[var(--border)] dark:bg-[var(--background)] dark:text-[var(--foreground)]">
         {notes.markdown}
       </pre>
     </ModalShell>
@@ -327,7 +327,7 @@ export function WorkspaceValueDialog({
           void submit();
         }}
       >
-        <label className="block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+        <label className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
           {label}
           <input
             autoFocus
@@ -336,7 +336,7 @@ export function WorkspaceValueDialog({
             className="mt-2 h-10 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-[12px] font-normal normal-case tracking-normal outline-none focus:border-[var(--ring)] dark:border-[var(--border)] dark:bg-[var(--background)]"
           />
         </label>
-        {error && <p className="mt-3 text-[11px] text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-[11px] text-destructive">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
@@ -380,7 +380,7 @@ export function WorkspaceConfirmDialog({
       <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
         {body}
       </p>
-      {error && <p className="mt-3 text-[11px] text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-[11px] text-destructive">{error}</p>}
       <div className="mt-5 flex justify-end gap-2">
         <button
           type="button"
@@ -403,7 +403,7 @@ export function WorkspaceConfirmDialog({
               )
               .finally(() => setWorking(false));
           }}
-          className="flex h-9 items-center gap-2 rounded-xl bg-red-700 px-4 text-[11px] font-semibold text-white disabled:opacity-60"
+          className="flex h-9 items-center gap-2 rounded-xl bg-destructive px-4 text-[11px] font-semibold text-white disabled:opacity-60"
         >
           {working && <Loader2 size={12} className="animate-spin" />}
           {actionLabel}

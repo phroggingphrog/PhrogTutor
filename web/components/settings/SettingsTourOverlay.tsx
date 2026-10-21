@@ -211,7 +211,7 @@ export function SettingsTourOverlay() {
           >
             {t(guideStep.titleKey)}
           </h2>
-          <p className="text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {t(guideStep.descKey)}
           </p>
         </div>

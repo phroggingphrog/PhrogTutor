@@ -454,7 +454,7 @@ export function SubagentSettingsEditor({ kind }: { kind: string }) {
       )}
 
       {!loading && error && (
-        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
           {error}
         </div>
       )}
@@ -501,8 +501,8 @@ export function SubagentSettingsEditor({ kind }: { kind: string }) {
                 <span
                   className={`inline-flex items-center gap-1.5 text-[12px] ${
                     options.available
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-amber-600 dark:text-amber-400"
+                      ? "text-success"
+                      : "text-warning"
                   }`}
                 >
                   {Glyph ? <Glyph size={15} /> : null}

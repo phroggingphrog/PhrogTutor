@@ -100,7 +100,7 @@ export function WorkspaceMenu({
                       aria-hidden
                     />
                   )}
-                  <p className="px-2.5 pb-0.5 pt-1.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+                  <p className="px-2.5 pb-0.5 pt-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                     {heading}
                   </p>
                   {items.map((item) => (

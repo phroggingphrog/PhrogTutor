@@ -183,7 +183,7 @@ export default function BookHealthBanner({
   };
 
   return (
-    <div className="mx-6 mt-4 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm text-amber-900 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+    <div className="mx-6 mt-4 rounded-xl border border-warning/60 bg-warning-surface px-4 py-3 text-sm text-warning shadow-sm">
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="flex-1 space-y-1.5">
@@ -358,13 +358,13 @@ export default function BookHealthBanner({
           )}
           <button
             onClick={() => setDismissed(true)}
-            className="rounded p-1 text-amber-700 hover:bg-white/40 dark:text-amber-200"
+            className="rounded p-1 text-warning hover:bg-white/40"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         {acknowledgeError && (
-          <div className="text-xs font-medium text-red-700 dark:text-red-200">
+          <div className="text-xs font-medium text-destructive">
             {acknowledgeError}
           </div>
         )}

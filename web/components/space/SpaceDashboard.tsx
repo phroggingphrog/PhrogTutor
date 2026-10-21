@@ -12,6 +12,7 @@ import {
   Ear,
   Github,
   History,
+  ListChecks,
   NotebookPen,
   Plug,
   Terminal,
@@ -40,6 +41,7 @@ import { listSkills } from "@/lib/skills-api";
 type Lang = { zh: string; en: string };
 
 type DashKey =
+  | "study-list"
   | "knowledge"
   | "memory"
   | "chat_history"
@@ -113,7 +115,7 @@ const GROUPS: DashboardGroup[] = [
           en: "Organize saved outputs from chat, research, Co-Writer, and more.",
         },
         unit: { zh: "个笔记本", en: "notebooks" },
-        tile: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+        tile: "bg-warning/10 text-warning",
         load: async () => (await listNotebooks()).length,
       },
       {
@@ -126,7 +128,7 @@ const GROUPS: DashboardGroup[] = [
           en: "Review and organize quiz questions across sessions.",
         },
         unit: { zh: "道题", en: "questions" },
-        tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        tile: "bg-success/10 text-success",
         load: async () => (await listNotebookEntries({ limit: 1 })).total,
       },
       {
@@ -216,6 +218,17 @@ const GROUPS: DashboardGroup[] = [
           en: "Review what your tutor remembers about you.",
         },
         tile: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+      },
+      {
+        key: "study-list",
+        href: "/what-i-know",
+        icon: ListChecks,
+        title: { zh: "学习清单", en: "Study list" },
+        blurb: {
+          zh: "你已学会与待巩固内容的证据清单。",
+          en: "What you have learned, with the evidence behind it.",
+        },
+        tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
       },
     ],
   },
@@ -368,7 +381,7 @@ function DashboardCard({
           <Icon size={18} strokeWidth={1.7} />
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[14.5px] font-medium leading-tight tracking-tight text-[var(--foreground)]">
+          <h3 className="truncate text-[14px] font-medium leading-tight tracking-tight text-[var(--foreground)]">
             {tr(item.title)}
           </h3>
           {item.unit ? (
@@ -393,7 +406,7 @@ function DashboardCard({
           className="shrink-0 text-[var(--muted-foreground)]/40 transition-colors group-hover:text-[var(--foreground)]"
         />
       </div>
-      <p className="mt-3 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+      <p className="mt-3 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
         {tr(item.blurb)}
       </p>
       {item.credit ? (

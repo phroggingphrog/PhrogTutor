@@ -218,7 +218,7 @@ export default function PersonaSelector({
                   }`}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
+                  <div className="truncate text-[13px] font-medium leading-snug text-[var(--foreground)]">
                     {defaultLabel}
                   </div>
                   <div className="truncate text-[11px] leading-snug text-[var(--muted-foreground)]">
@@ -258,11 +258,11 @@ export default function PersonaSelector({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex min-w-0 items-center gap-1.5">
-                      <span className="truncate text-[12.5px] font-medium leading-snug text-[var(--foreground)]">
+                      <span className="truncate text-[13px] font-medium leading-snug text-[var(--foreground)]">
                         {persona.name}
                       </span>
                       {persona.source === "admin" && (
-                        <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+                        <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-px text-[11px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
                           {t("Preset")}
                         </span>
                       )}

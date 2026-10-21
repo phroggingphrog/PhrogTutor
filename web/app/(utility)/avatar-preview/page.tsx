@@ -45,7 +45,7 @@ function SidebarMock({
       {TITLES.map((title, i) => (
         <div
           key={title}
-          className="group/session flex items-center gap-2.5 rounded-lg px-2 py-[7px] text-[13.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50"
+          className="group/session flex items-center gap-2.5 rounded-lg px-2 py-[7px] text-[14px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50"
         >
           <SessionAvatar sessionId={title} mark={marks[i]} size={size} />
           <span className="min-w-0 truncate">{title}</span>
@@ -76,11 +76,11 @@ export default function AvatarPreview() {
   return (
     <div className="h-full overflow-y-auto bg-[var(--background)] p-8 text-[var(--foreground)]">
       <h1 className="text-[15px] font-semibold">{t("Session avatars — states")}</h1>
-      <p className="mt-1 max-w-[720px] text-[12.5px] leading-[1.7] text-[var(--muted-foreground)]">
+      <p className="mt-1 max-w-[720px] text-[13px] leading-[1.7] text-[var(--muted-foreground)]">
         {t("Avatar state preview description")}
       </p>
 
-      <div className="mt-5 flex items-center gap-3 text-[12.5px]">
+      <div className="mt-5 flex items-center gap-3 text-[13px]">
         <button
           type="button"
           onClick={() => setAuto((v) => !v)}

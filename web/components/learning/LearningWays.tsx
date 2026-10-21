@@ -88,7 +88,7 @@ export function LearningWays() {
                     layout="position"
                     layoutId={sharedId('description', surface.kind)}
                     transition={spring}
-                    className="mt-2 text-[12.5px] leading-[1.7] text-muted-foreground"
+                    className="mt-2 text-[13px] leading-[1.7] text-muted-foreground"
                   >
                     {t(surface.description)}
                   </motion.p>
@@ -250,7 +250,7 @@ function WayPanel({
             layoutId={sharedId('description', surface.kind)}
             transition={spring}
             id={`${id}-description`}
-            className="mt-5 text-[12.5px] leading-[1.7] text-muted-foreground"
+            className="mt-5 text-[13px] leading-[1.7] text-muted-foreground"
           >
             {t(surface.description)}
           </motion.p>
@@ -265,7 +265,7 @@ function WayPanel({
             <p className="mt-4 text-[14px] leading-[1.85]">{t(surface.intro)}</p>
             <ul className="mb-1 mt-6 space-y-3 rounded-2xl bg-muted/50 p-4">
               {surface.highlights.map(highlight => (
-                <li key={highlight} className="flex items-start gap-3 text-[12.5px] leading-[1.7]">
+                <li key={highlight} className="flex items-start gap-3 text-[13px] leading-[1.7]">
                   <span
                     className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${surface.accent}`}
                   >

@@ -68,7 +68,7 @@ export default function KbKiwixArticlesSection({ kb }: { kb: KnowledgeBase }) {
           {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}{t("Search")}
         </button>
       </form>
-      {error && <p role="alert" className="text-[12px] text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-[12px] text-destructive">{error}</p>}
       {searched && results.length === 0 && <p className="text-[12px] text-[var(--muted-foreground)]">{t("No readable articles found.")}</p>}
       <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)]">
         {results.map((article) => (

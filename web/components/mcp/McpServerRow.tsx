@@ -95,7 +95,7 @@ export default function McpServerRow({
               {name}
             </span>
             {transport && (
-              <span className="rounded-full bg-[var(--muted)]/40 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+              <span className="rounded-full bg-[var(--muted)]/40 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                 {transport}
               </span>
             )}
@@ -107,7 +107,7 @@ export default function McpServerRow({
             {t("{{count}} tools", { count: toolCount })}
           </p>
           {rowStatus === "error" && status?.error && (
-            <p className="mt-1 text-[11.5px] leading-relaxed text-red-500">
+            <p className="mt-1 text-[12px] leading-relaxed text-destructive">
               {status.error}
             </p>
           )}
@@ -118,7 +118,7 @@ export default function McpServerRow({
                   key={field}
                   label={t("Stored on the server and never shown here.")}
                 >
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)]/60 bg-[var(--muted)]/40 px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)]/60 bg-[var(--muted)]/40 px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
                     <KeyRound className="h-2.5 w-2.5" />
                     <span className="font-mono">{field}</span>
                     <span className="opacity-70">{t("configured")}</span>
@@ -143,7 +143,7 @@ export default function McpServerRow({
             type="button"
             onClick={onAuthorize}
             disabled={saving}
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
               oauthAuthorized
                 ? "border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
                 : "border-[var(--primary)]/40 bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/15"
@@ -235,7 +235,7 @@ function IconButton({
         disabled={disabled}
         aria-label={label}
         className={`rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] ${
-          danger ? "hover:text-red-500" : "hover:text-[var(--foreground)]"
+          danger ? "hover:text-destructive" : "hover:text-[var(--foreground)]"
         } disabled:cursor-not-allowed disabled:opacity-60`}
       >
         {icon}

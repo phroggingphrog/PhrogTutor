@@ -58,7 +58,7 @@ export default function ArchivedConversations({
 
   if (archiveCount(buckets) === 0) {
     return (
-      <p className="px-2 py-6 text-center text-[12.5px] text-[var(--muted-foreground)]">
+      <p className="px-2 py-6 text-center text-[13px] text-[var(--muted-foreground)]">
         {t("Nothing is archived yet.")}
       </p>
     );
@@ -86,7 +86,7 @@ export default function ArchivedConversations({
           >
             {displaySessionTitle(session.title, placeholder)}
           </div>
-          <p className="mt-0.5 truncate text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mt-0.5 truncate text-[12px] text-[var(--muted-foreground)]">
             {[
               row.container,
               formatRelativeTime(session.updated_at, i18n.language),
@@ -102,7 +102,7 @@ export default function ArchivedConversations({
               onClick={() => onDelete(session.session_id)}
               disabled={disabled || busy || deletingId === session.session_id}
               aria-label={t("Delete permanently")}
-              className="shrink-0 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-600 disabled:opacity-50"
+              className="shrink-0 rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
             >
               {deletingId === session.session_id ? (
                 <Loader2 size={15} className="animate-spin" />

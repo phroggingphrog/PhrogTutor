@@ -486,18 +486,18 @@ function PartnerDetail() {
               <span className="truncate text-[14px] font-medium text-[var(--foreground)]">
                 {partner.name}
               </span>
-              <span className="inline-flex shrink-0 items-center gap-1 text-[10px] text-[var(--muted-foreground)]">
+              <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
                 <span
                   aria-hidden
                   className={`h-1.5 w-1.5 rounded-full ${
-                    partner.running ? "bg-emerald-500" : "bg-[var(--border)]"
+                    partner.running ? "bg-success" : "bg-[var(--border)]"
                   }`}
                 />
                 {partner.running ? t("Running") : t("Stopped")}
               </span>
             </div>
             {partner.description ? (
-              <p className="truncate text-[11.5px] text-[var(--muted-foreground)]">
+              <p className="truncate text-[12px] text-[var(--muted-foreground)]">
                 {partner.description}
               </p>
             ) : null}
@@ -615,7 +615,7 @@ function PartnerDetail() {
                   type="button"
                   onClick={() => void handleDestroy()}
                   aria-label={t("Delete partner")}
-                  className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-red-500"
+                  className="rounded-md p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -721,7 +721,7 @@ function PartnerDetail() {
       />
 
       {toast && (
-        <div className="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-[var(--foreground)] px-3.5 py-2 text-[12.5px] text-[var(--background)] shadow-lg">
+        <div className="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-[var(--foreground)] px-3.5 py-2 text-[13px] text-[var(--background)] shadow-lg">
           {toast}
         </div>
       )}

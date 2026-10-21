@@ -162,7 +162,7 @@ export default function MemoryL1Workbench({
                       setFocusRef(null);
                     }}
                     className={
-                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] transition " +
+                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition " +
                       (active
                         ? "bg-[var(--muted)] text-[var(--foreground)]"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]")
@@ -172,12 +172,12 @@ export default function MemoryL1Workbench({
                     <span className="flex-1 truncate">{t(label)}</span>
                     {p > 0 ? (
                       <span
-                        className="rounded-full bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-600 dark:text-amber-400"
+                        className="rounded-full bg-warning/10 px-1.5 py-0.5 text-[11px] text-warning"
                       >
                         {t("{{n}} pending", { n: p })}
                       </span>
                     ) : typeof c === "number" ? (
-                      <span className="rounded-full bg-[var(--background)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                      <span className="rounded-full bg-[var(--background)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                         {c}
                       </span>
                     ) : null}
@@ -206,7 +206,7 @@ export default function MemoryL1Workbench({
       </div>
 
       {toast && (
-        <div className="self-start rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1 text-[11.5px] text-[var(--primary)]">
+        <div className="self-start rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1 text-[12px] text-[var(--primary)]">
           {toast}
         </div>
       )}
@@ -235,7 +235,7 @@ function LayerSwitcher({ t }: { t: (k: string) => string }) {
           return (
             <span
               key={key}
-              className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-[11.5px] font-medium text-[var(--foreground)]"
+              className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-2.5 py-0.5 text-[12px] font-medium text-[var(--foreground)]"
             >
               <Icon className="h-3 w-3" />
               {label}
@@ -246,7 +246,7 @@ function LayerSwitcher({ t }: { t: (k: string) => string }) {
           <Link
             key={key}
             href={href}
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11.5px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] text-[var(--muted-foreground)] transition hover:bg-[var(--muted)]/60 hover:text-[var(--foreground)]"
           >
             <Icon className="h-3 w-3" />
             {label}
@@ -259,7 +259,7 @@ function LayerSwitcher({ t }: { t: (k: string) => string }) {
 
 function Breadcrumb({ label, t }: { label: string; t: (k: string) => string }) {
   return (
-    <div className="flex items-center gap-2 text-[12.5px]">
+    <div className="flex items-center gap-2 text-[13px]">
       <Link
         href="/memory"
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"

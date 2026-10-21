@@ -353,7 +353,7 @@ export default function SpineEditor({
                       <span
                         tabIndex={0}
                         role="note"
-                        className="cursor-help text-[10px] opacity-60"
+                        className="cursor-help text-[11px] opacity-60"
                       >
                         ⓘ
                       </span>
@@ -493,7 +493,7 @@ export default function SpineEditor({
                         <span className="text-[var(--foreground)]">
                           {t(ALWAYS_ON_TYPE)}
                         </span>
-                        <span className="ml-auto text-[10.5px] opacity-70">
+                        <span className="ml-auto text-[11px] opacity-70">
                           {t("always")}
                         </span>
                       </li>

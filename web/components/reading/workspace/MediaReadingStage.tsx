@@ -484,8 +484,8 @@ export function MediaReadingStage({
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex h-10 shrink-0 items-center justify-between border-b border-[var(--border)] bg-[var(--background)] px-3 dark:border-[var(--border)] dark:bg-[var(--background)]">
         <div className="min-w-0">
-          <p className="truncate text-[10.5px] font-semibold">{title}</p>
-          <p className="truncate text-[10.5px] text-[var(--muted-foreground)]">
+          <p className="truncate text-[11px] font-semibold">{title}</p>
+          <p className="truncate text-[11px] text-[var(--muted-foreground)]">
             {provider} · {activeRef?.title || t("Transcript")}
           </p>
         </div>
@@ -506,7 +506,7 @@ export function MediaReadingStage({
               href={officialUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[10px] text-[var(--primary)] hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] text-[var(--primary)] hover:underline"
             >
               {t("Open official")}
               <ExternalLink size={9} />
@@ -604,7 +604,7 @@ export function MediaReadingStage({
 
             <div
               aria-live="polite"
-              className="grid shrink-0 grid-cols-1 gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[11.5px] leading-[1.55] dark:border-[var(--border)] dark:bg-[var(--card)]"
+              className="grid shrink-0 grid-cols-1 gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[12px] leading-[1.55] dark:border-[var(--border)] dark:bg-[var(--card)]"
             >
               {[activeCue, nextCue].map((row, index) =>
                 row ? (
@@ -619,7 +619,7 @@ export function MediaReadingStage({
                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
                     }`}
                   >
-                    <span className="w-9 shrink-0 text-right text-[10px] tabular-nums text-[var(--muted-foreground)]">
+                    <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-[var(--muted-foreground)]">
                       {formatMediaTime(
                         timeFromSourceHref(row.sourceHref) || 0,
                       )}
@@ -636,7 +636,7 @@ export function MediaReadingStage({
           </div>
 
           {(playerError || transcriptUnavailable) && (
-            <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-[10.5px] leading-relaxed text-[var(--muted-foreground)] dark:border-[var(--border)] dark:bg-[var(--card)]">
+            <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-[11px] leading-relaxed text-[var(--muted-foreground)] dark:border-[var(--border)] dark:bg-[var(--card)]">
               {playerError ||
                 (chaptersOnly
                   ? t(
@@ -661,7 +661,7 @@ export function MediaReadingStage({
 
           <div className="mt-4 flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 dark:border-[var(--border)] dark:bg-[var(--card)]">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--primary)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--primary)]">
                 {t("Current passage")}
               </p>
               <p className="mt-1 truncate text-[11px] text-[var(--muted-foreground)] dark:text-[var(--foreground)]">
@@ -671,7 +671,7 @@ export function MediaReadingStage({
                   cannot report its position leaves this label frozen, which
                   reads as a broken feature rather than a platform limit. */}
               {untrackedPlayback && (
-                <p className="mt-1 text-[10.5px] leading-relaxed text-[var(--muted-foreground)]">
+                <p className="mt-1 text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                   {t(
                     "This player does not report playback position, so the passage follows the controls below rather than the video.",
                   )}
@@ -683,7 +683,7 @@ export function MediaReadingStage({
                 type="button"
                 onClick={() => onLocatorChange(Math.max(1, activeLocator - 1))}
                 disabled={activeLocator <= 1}
-                className="rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-30"
+                className="rounded-lg px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-30"
               >
                 {t("Previous")}
               </button>
@@ -693,7 +693,7 @@ export function MediaReadingStage({
                   onLocatorChange(Math.min(refs.length, activeLocator + 1))
                 }
                 disabled={activeLocator >= refs.length}
-                className="rounded-lg px-2 py-1 text-[10.5px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-30"
+                className="rounded-lg px-2 py-1 text-[11px] text-[var(--muted-foreground)] hover:bg-[var(--muted)] disabled:opacity-30"
               >
                 {t("Next")}
               </button>
@@ -731,13 +731,13 @@ export function MediaReadingStage({
                       moveTranscriptMatch(event.shiftKey ? -1 : 1);
                     }
                   }}
-                  className="h-8 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] pl-8 pr-2 text-[10.5px] outline-none"
+                  className="h-8 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] pl-8 pr-2 text-[11px] outline-none"
                 />
               </label>
               {!!normalizedTranscriptQuery && (
                 <span
                   aria-live="polite"
-                  className="text-[10px] tabular-nums text-[var(--muted-foreground)]"
+                  className="text-[11px] tabular-nums text-[var(--muted-foreground)]"
                 >
                   {t("{{count}} transcript matches", {
                     count: transcriptMatches.length,
@@ -770,7 +770,7 @@ export function MediaReadingStage({
                   }
                   disabled={Boolean(normalizedTranscriptQuery)}
                   aria-pressed={followTranscript}
-                  className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[10px] font-medium disabled:cursor-not-allowed disabled:opacity-40 ${
+                  className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[11px] font-medium disabled:cursor-not-allowed disabled:opacity-40 ${
                     followTranscript
                       ? "border-[var(--primary)] text-[var(--primary)]"
                       : "border-[var(--border)] text-[var(--muted-foreground)]"
@@ -801,17 +801,17 @@ export function MediaReadingStage({
               }}
             >
               {transcriptUnavailable ? (
-                <p className="p-3 text-[10.5px] text-[var(--muted-foreground)]">
+                <p className="p-3 text-[11px] text-[var(--muted-foreground)]">
                   {chaptersOnly
                     ? t("Only chapter markers are available for this video.")
                     : t("No transcript cues available.")}
                 </p>
               ) : normalizedTranscriptQuery && transcriptMatches.length === 0 ? (
-                <p className="p-3 text-[10.5px] text-[var(--muted-foreground)]">
+                <p className="p-3 text-[11px] text-[var(--muted-foreground)]">
                   {t("No transcript matches.")}
                 </p>
               ) : transcript.length === 0 ? (
-                <p className="p-3 text-[10.5px] text-[var(--muted-foreground)]">
+                <p className="p-3 text-[11px] text-[var(--muted-foreground)]">
                   {t("No transcript cues available.")}
                 </p>
               ) : (
@@ -832,7 +832,7 @@ export function MediaReadingStage({
                           setFollowTranscript(false);
                           selectCue(row);
                         }}
-                        className={`flex w-full items-baseline gap-2 rounded-md px-2 py-1 text-left text-[10.5px] ${
+                        className={`flex w-full items-baseline gap-2 rounded-md px-2 py-1 text-left text-[11px] ${
                           active
                             ? "bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-[var(--primary)]"
                             : selectedMatch
@@ -840,7 +840,7 @@ export function MediaReadingStage({
                               : "text-[var(--foreground)] hover:bg-[var(--muted)]"
                         }`}
                       >
-                        <span className="w-9 shrink-0 text-right text-[10px] tabular-nums text-[var(--muted-foreground)]">
+                        <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-[var(--muted-foreground)]">
                           {row.title}
                         </span>
                         <span className="line-clamp-2 min-w-0 leading-[1.5]">

@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HeartHandshake, Loader2, Plus, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { PageHeader, pageActionClass } from "@/components/layout/FeaturePage";
 import { listPartners, type PartnerInfo } from "@/lib/partners-api";
 import { listPartnerGroups, type PartnerGroup } from "@/lib/partner-groups-api";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -61,29 +62,24 @@ export default function PartnersPage() {
 
   return (
     <div className="mx-auto h-full max-w-4xl overflow-y-auto px-6 py-8">
-      <header className="mb-7 flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[19px] font-semibold tracking-tight text-[var(--foreground)]">
-            {t("Partners")}
-          </h1>
-          <p className="mt-1 text-[12.5px] text-[var(--muted-foreground)]">
-            {anyAssigned
-              ? t(
-                  "Your companions, plus the ones shared with you — each with its own soul, library, and channels.",
-                )
-              : t(
-                  "Companions with their own soul, library, and channels — reachable from your IM apps.",
-                )}
-          </p>
-        </div>
-        <Link
-          href="/partners/new"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)] hover:opacity-90"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          {t("New partner")}
-        </Link>
-      </header>
+      <PageHeader
+        title={t("Partners")}
+        description={
+          anyAssigned
+            ? t(
+                "Your companions, plus the ones shared with you — each with its own soul, library, and channels.",
+              )
+            : t(
+                "Companions with their own soul, library, and channels — reachable from your IM apps.",
+              )
+        }
+        action={
+          <Link href="/partners/new" className={pageActionClass()}>
+            <Plus className="h-3.5 w-3.5" />
+            {t("New partner")}
+          </Link>
+        }
+      />
 
       {loading ? (
         <div className="flex min-h-[320px] items-center justify-center">
@@ -98,14 +94,14 @@ export default function PartnersPage() {
           <p className="text-[14px] font-medium text-[var(--foreground)]">
             {t("No partners yet")}
           </p>
-          <p className="mt-1.5 max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Create a partner, give it a soul and a slice of your library, then talk to it here or from Feishu, Telegram, Slack and more.",
             )}
           </p>
           <Link
             href="/partners/new"
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12.5px] font-medium text-[var(--primary-foreground)]"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[13px] font-medium text-[var(--primary-foreground)]"
           >
             <Plus className="h-3.5 w-3.5" />
             {t("Create your first partner")}
@@ -133,17 +129,17 @@ export default function PartnersPage() {
                     <span className="truncate text-[14px] font-medium text-[var(--foreground)]">
                       {partner.name}
                     </span>
-                    <span className="inline-flex shrink-0 items-center gap-1 text-[10px] text-[var(--muted-foreground)]">
+                    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
                       <span
                         aria-hidden
                         className={`h-1.5 w-1.5 rounded-full ${
-                          partner.running ? "bg-emerald-500" : "bg-[var(--border)]"
+                          partner.running ? "bg-success" : "bg-[var(--border)]"
                         }`}
                       />
                       {partner.running ? t("Running") : t("Stopped")}
                     </span>
                     {partner.can_manage === false ? (
-                      <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10.5px] text-[var(--muted-foreground)]">
+                      <span className="shrink-0 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                         {t("Shared with you")}
                       </span>
                     ) : null}
@@ -184,7 +180,7 @@ export default function PartnersPage() {
               <h2 className="text-[14px] font-medium text-[var(--foreground)]">
                 {t("Groups")}
               </h2>
-              <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+              <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
                 {t("Ask several Partners at once and compare how they differ.")}
               </p>
             </div>

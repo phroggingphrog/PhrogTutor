@@ -85,7 +85,7 @@ export default function KanbanPage() {
 
   return (
     <div className="h-full overflow-y-auto bg-[var(--background)] [scrollbar-gutter:stable]">
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-8 pb-12 font-sans text-[var(--foreground)]">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-8 pb-12 font-sans text-[var(--foreground)]">
         <SpaceSectionHeader
           icon={ClipboardList}
           title={t('Task Board')}
@@ -336,7 +336,7 @@ export default function KanbanPage() {
           ))}
         </div>
         <p className="mt-6 text-xs text-[var(--muted-foreground)]">{t('kanban.footer')}</p>
-      </main>
+      </div>
     </div>
   )
 }

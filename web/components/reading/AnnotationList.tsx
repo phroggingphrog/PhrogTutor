@@ -105,7 +105,7 @@ export function AnnotationList({
         <div className="dt-reader-scroll min-h-0 flex-1 overflow-y-auto px-2.5 py-2">
           {groups.map(([locator, rows]) => (
             <section key={locator} className="mb-3 last:mb-1">
-              <h4 className="sticky top-0 z-10 mb-1 bg-[color-mix(in_srgb,var(--background)_95%,transparent)] px-1 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--muted-foreground)] backdrop-blur">
+              <h4 className="sticky top-0 z-10 mb-1 bg-[color-mix(in_srgb,var(--background)_95%,transparent)] px-1 py-1 font-mono text-[11px] uppercase tracking-[0.06em] text-[var(--muted-foreground)] backdrop-blur">
                 {t(unitLabel(unit))} {locator}
               </h4>
               <ul className="space-y-1">
@@ -149,30 +149,30 @@ export function AnnotationList({
                       )}
                       <div className="mt-1 flex items-center gap-1.5 pl-1.5">
                         {annotation.author === "assistant" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-1.5 py-[1px] text-[10px] font-medium text-[var(--primary)]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-1.5 py-[1px] text-[11px] font-medium text-[var(--primary)]">
                             <Bot size={9} />
                             {t("AI")}
                           </span>
                         )}
                         {annotation.kind === "underline" && (
-                          <span className="text-[10px] text-[var(--muted-foreground)]">
+                          <span className="text-[11px] text-[var(--muted-foreground)]">
                             {t("Underline")}
                           </span>
                         )}
                         {annotation.kind === "citation" && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-[var(--muted-foreground)]">
+                          <span className="inline-flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
                             <Bookmark size={9} />
                             {t("Citation")}
                           </span>
                         )}
                         {annotation.resolution === "unresolved" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] px-1.5 py-[1px] text-[10px] font-medium text-[var(--destructive)]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] px-1.5 py-[1px] text-[11px] font-medium text-[var(--destructive)]">
                             <AlertCircle size={9} />
                             {t("Not found")}
                           </span>
                         )}
                         {annotation.resolution === "ambiguous" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--warning,oklch(0.78_0.16_70))_10%,transparent)] px-1.5 py-[1px] text-[10px] font-medium text-[var(--warning,oklch(0.62_0.16_45))]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--warning,oklch(0.78_0.16_70))_10%,transparent)] px-1.5 py-[1px] text-[11px] font-medium text-[var(--warning,oklch(0.62_0.16_45))]">
                             <AlertCircle size={9} />
                             {t("Ambiguous")}
                           </span>

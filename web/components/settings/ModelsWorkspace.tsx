@@ -315,12 +315,12 @@ export function ModelsWorkspace({
                       provider={provider?.provider || "custom"}
                       size={15}
                     />
-                    <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium">
+                    <span className="min-w-0 flex-1 truncate text-[14px] font-medium">
                       {label}
                     </span>
                     {isDefault && (
                       <span
-                        className="inline-flex shrink-0 items-center gap-0.5 text-[10px] text-[var(--primary)]"
+                        className="inline-flex shrink-0 items-center gap-0.5 text-[11px] text-[var(--primary)]"
                       >
                         <Check size={13} />
                         {t("Default model")}
@@ -337,7 +337,7 @@ export function ModelsWorkspace({
                     )}
                   </span>
                   {(page === "voice" || page === "multimodal" || row.service === "task") && (
-                    <span className="mt-1.5 ml-[23px] inline-flex rounded-md bg-[color-mix(in_srgb,var(--muted)_70%,transparent)] px-1.5 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                    <span className="mt-1.5 ml-[23px] inline-flex rounded-md bg-[color-mix(in_srgb,var(--muted)_70%,transparent)] px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                       {t(SERVICE_TITLES[row.service])}
                     </span>
                   )}

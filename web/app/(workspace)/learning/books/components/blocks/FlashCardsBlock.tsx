@@ -37,7 +37,7 @@ export default function FlashCardsBlock({ block }: FlashCardsBlockProps) {
         onClick={() => setShowBack((v) => !v)}
         className="mt-3 flex h-40 w-full flex-col items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-6 text-center transition hover:border-[var(--primary)]/40"
       >
-        <span className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+        <span className="text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
           {showBack ? t("Answer") : t("Question")}
         </span>
         <span className="text-base font-medium text-[var(--foreground)]">

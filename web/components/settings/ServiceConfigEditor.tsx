@@ -543,7 +543,7 @@ export function ServiceConfigEditor({
             </p>
           </div>
           {serviceChanged && (
-            <span className="text-xs text-amber-600 dark:text-amber-400">
+            <span className="text-xs text-warning">
               {t("Apply pending settings using the bar below.")}
             </span>
           )}
@@ -632,7 +632,7 @@ export function ServiceConfigEditor({
                         <button
                           type="button"
                           onClick={() => setDeletingProfile(openedProfile)}
-                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--muted-foreground)] hover:bg-red-500/10 hover:text-red-500"
+                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--muted-foreground)] hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 size={14} />
                           {t("Delete provider")}
@@ -1639,10 +1639,10 @@ function ProfileFields({
           <p
             className={`mt-1.5 text-[11px] ${
               isSupportedSearchProvider
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-success"
                 : isDeprecatedSearchProvider
-                  ? "text-amber-600 dark:text-amber-400"
-                  : "text-red-500"
+                  ? "text-warning"
+                  : "text-destructive"
             }`}
           >
             {isSupportedSearchProvider
@@ -1679,7 +1679,7 @@ function ProfileFields({
       )}
       {linkedConnection && (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/25 px-3 py-2.5 sm:col-span-2">
-          <span className="text-[11.5px] text-[var(--muted-foreground)]">
+          <span className="text-[12px] text-[var(--muted-foreground)]">
             {t(
               "These credentials are shared by {{name}}. Editing them updates its linked services.",
               {
@@ -1691,7 +1691,7 @@ function ProfileFields({
             <button
               type="button"
               onClick={() => unlinkProfile(service, profile.id)}
-              className="text-[11.5px] text-[var(--muted-foreground)] underline-offset-2 transition-colors hover:text-[var(--foreground)] hover:underline"
+              className="text-[12px] text-[var(--muted-foreground)] underline-offset-2 transition-colors hover:text-[var(--foreground)] hover:underline"
             >
               {t("Use its own key")}
             </button>
@@ -1778,7 +1778,7 @@ function ProfileFields({
                   </p>
                 )}
                 {missingRequiredBaseUrl && (
-                  <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-400">
+                  <p className="mt-1.5 text-[11px] text-warning">
                     {t(
                       "Required — without it, search falls back to DuckDuckGo.",
                     )}

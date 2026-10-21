@@ -106,7 +106,7 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
           </button>
         )}
       </div>
-      <pre className="m-0 overflow-x-auto p-3 font-mono text-sm">
+      <pre tabIndex={0} className="m-0 overflow-x-auto p-3 font-mono text-sm">
         <NodeViewContent as={"code" as "div"} />
       </pre>
       {result && (
@@ -116,7 +116,7 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
         >
           {result.stdout && <pre className="whitespace-pre-wrap">{result.stdout}</pre>}
           {(result.stderr || result.error) && (
-            <pre className="whitespace-pre-wrap text-red-500">
+            <pre className="whitespace-pre-wrap text-destructive">
               {result.stderr || result.error}
             </pre>
           )}

@@ -112,7 +112,7 @@ export function ReviewHome() {
         <div className="mt-7 space-y-6">
           {error && <LearningErrorState message={error} onRetry={() => void refresh()} />}
           {notice && (
-            <p role="status" className="flex items-center gap-2 text-sm text-emerald-600">
+            <p role="status" className="flex items-center gap-2 text-sm text-success">
               <Check size={16} />
               {notice}
             </p>

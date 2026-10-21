@@ -82,7 +82,7 @@ export function ObjectiveDetail({
                 {attempt.is_correct ? (
                   <Check className="mt-0.5 h-3 w-3 shrink-0 text-green-500" />
                 ) : (
-                  <X className="mt-0.5 h-3 w-3 shrink-0 text-red-500" />
+                  <X className="mt-0.5 h-3 w-3 shrink-0 text-destructive" />
                 )}
                 <div className="min-w-0">
                   <div className="text-[var(--foreground)]">
@@ -138,7 +138,7 @@ export function ObjectiveDetail({
             ))}
           </ul>
           {evidenceCount > evidence.length && (
-            <p className="mt-1 text-[10px] text-[var(--muted-foreground)]">
+            <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
               {t("Showing the latest 20 events")}
             </p>
           )}

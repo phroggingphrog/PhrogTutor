@@ -210,7 +210,7 @@ export function ProvidersWorkspace() {
                 >
                   <span className="flex items-center gap-2">
                     <ProviderIcon provider={p.provider} size={16} />
-                    <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium">
+                    <span className="min-w-0 flex-1 truncate text-[14px] font-medium">
                       {p.name}
                     </span>
                   </span>

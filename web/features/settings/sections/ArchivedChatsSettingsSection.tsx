@@ -155,7 +155,7 @@ export default function ArchivedChatsSettingsSection() {
               if (failed) throw new Error("Partial deletion");
             });
           }}
-          className="mb-6 inline-flex items-center gap-2 rounded-lg bg-red-500/10 px-3 py-2 text-[13px] font-medium text-red-600 hover:bg-red-500/15 disabled:opacity-40 dark:text-red-400"
+          className="mb-6 inline-flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-[13px] font-medium text-destructive hover:bg-destructive/15 disabled:opacity-40"
         >
           {busy === "all" ? (
             <Loader2 size={15} className="animate-spin" />
@@ -205,7 +205,7 @@ export default function ArchivedChatsSettingsSection() {
         </Tooltip>
       </div>
       {error && (
-        <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="mb-4 text-sm text-destructive">
           {error}
         </p>
       )}

@@ -387,7 +387,7 @@ export function ExtensionResult({
     <section
       className={
         card
-          ? "text-[12.5px] leading-relaxed text-[var(--foreground)] [&>*:first-child]:mt-0"
+          ? "text-[13px] leading-relaxed text-[var(--foreground)] [&>*:first-child]:mt-0"
           : "relative shrink-0 border-b border-[var(--border)] bg-[var(--card)] px-3 py-3 text-xs text-[var(--foreground)]"
       }
     >
@@ -554,8 +554,8 @@ function QuizQuestions({
                 role="status"
                 className={`mt-1 font-medium ${
                   verdicts[key]
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-amber-600 dark:text-amber-400"
+                    ? "text-success"
+                    : "text-warning"
                 }`}
               >
                 {verdicts[key] ? t("Correct") : t("Incorrect")}
@@ -567,7 +567,7 @@ function QuizQuestions({
       {reward ? (
         <p
           role="status"
-          className="mt-3 flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400"
+          className="mt-3 flex items-center gap-1.5 font-medium text-warning"
         >
           <Star size={14} fill="currentColor" aria-hidden="true" />
           {t("Quiz stars: {{count}}", { count: reward.stars })}

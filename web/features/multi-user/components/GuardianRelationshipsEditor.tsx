@@ -201,7 +201,7 @@ export function GuardianRelationshipsEditor({
                     type="button"
                     disabled={busy}
                     onClick={() => setConfirm({ kind: "revoke", relationship })}
-                    className="rounded-md p-1.5 text-red-600 hover:bg-red-500/10 disabled:opacity-40"
+                    className="rounded-md p-1.5 text-destructive hover:bg-destructive/10 disabled:opacity-40"
                     aria-label={t("Revoke access")}
                   >
                     <ShieldOff className="h-4 w-4" />
@@ -293,7 +293,7 @@ export function GuardianRelationshipsEditor({
               type="button"
               disabled={busy || newPassword.length < 8}
               onClick={() => setConfirm({ kind: "reset" })}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-red-500/40 px-3 py-1.5 text-xs text-red-600 disabled:opacity-40"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-destructive/40 px-3 py-1.5 text-xs text-destructive disabled:opacity-40"
             >
               <KeyRound className="h-3.5 w-3.5" />
               {t("Reset learner credentials")}
@@ -302,9 +302,9 @@ export function GuardianRelationshipsEditor({
         </>
       )}
 
-      {error ? <p className="mt-3 text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
       {message ? (
-        <p className="mt-3 text-xs text-emerald-600">{message}</p>
+        <p className="mt-3 text-xs text-success">{message}</p>
       ) : null}
 
       <ConfirmDialog

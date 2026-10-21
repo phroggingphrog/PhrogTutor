@@ -135,7 +135,7 @@ export default function SubagentTabBody({
       </div>
       <div className="shrink-0 border-t border-[var(--border)] bg-[var(--background)] px-3 py-2.5">
         {error && (
-          <div className="mb-1.5 text-[11.5px] text-red-600 dark:text-red-400">
+          <div className="mb-1.5 text-[12px] text-destructive">
             {error}
           </div>
         )}

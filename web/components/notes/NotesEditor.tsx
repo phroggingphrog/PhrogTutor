@@ -321,7 +321,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       </aside>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
         {current ? (
           <>
             <div className="flex flex-wrap items-center gap-2 whitespace-nowrap border-b border-[var(--border)] px-4 py-2">
@@ -354,7 +354,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
                     <button onClick={() => setShowFormat((v) => !v)} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">{showFormat ? "Hide" : "Show"} formatting bar</button>
                     <button onClick={runAll} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">▶▶ Run all cells</button>
                     <button onClick={restartKernels} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">↻ Restart cells</button>
-                    {!readOnly && <button onClick={remove} className="px-3 py-1.5 text-left text-red-500 hover:bg-[var(--muted)]">Delete note</button>}
+                    {!readOnly && <button onClick={remove} className="px-3 py-1.5 text-left text-destructive hover:bg-[var(--muted)]">Delete note</button>}
                     {readOnly && <span className="px-3 py-1.5 text-xs text-[var(--muted-foreground)]">Read-only note</span>}
                   </div>
                 )}
@@ -383,7 +383,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
             {compact && <button onClick={() => setShowList(true)} className="rounded border border-[var(--border)] px-3 py-1 text-sm">Open notes</button>}
           </div>
         )}
-      </main>
+      </div>
       {showTerminal && <TerminalPanel key={current ?? ""} note={current ?? ""} />}
       </div>
     </div>

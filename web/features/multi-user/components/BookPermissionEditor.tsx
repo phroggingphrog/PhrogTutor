@@ -179,17 +179,17 @@ export function BookPermissionEditor({ userId }: { userId: string }) {
       </div>
 
       {error ? (
-        <p className="mt-3 flex items-center gap-1.5 text-xs text-red-600">
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-destructive">
           <AlertCircle className="h-3.5 w-3.5" />
           {error}
         </p>
       ) : savedNow ? (
-        <p className="mt-3 flex items-center gap-1.5 text-xs text-emerald-600">
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-success">
           <CheckCircle2 className="h-3.5 w-3.5" />
           {t("Saved")}
         </p>
       ) : dirty ? (
-        <p className="mt-3 text-xs text-amber-600">
+        <p className="mt-3 text-xs text-warning">
           {t("Unsaved book permission changes")}
         </p>
       ) : null}

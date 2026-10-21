@@ -200,7 +200,7 @@ export function CreateTopicWizard({
             />
           )}
           {error && (
-            <div className="mt-5 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/[0.06] p-3 text-xs leading-5 text-red-700 dark:text-red-300">
+            <div className="mt-5 flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/[0.06] p-3 text-xs leading-5 text-destructive">
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               {error}
             </div>

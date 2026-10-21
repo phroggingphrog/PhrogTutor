@@ -123,7 +123,7 @@ export default function KbGitHubSourcesSection({
           <div className="text-[13px] font-medium text-[var(--foreground)]">
             {t("GitHub Sources")}
           </div>
-          <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
             {t(
               "Track a GitHub repo's Markdown docs. DeepTutor auto-syncs daily; you can also trigger a sync manually.",
             )}
@@ -156,7 +156,7 @@ export default function KbGitHubSourcesSection({
 
       {/* Error banner */}
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50/60 p-2.5 text-[11.5px] text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-300">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[12px] text-destructive">
           {error}
         </div>
       )}
@@ -171,7 +171,7 @@ export default function KbGitHubSourcesSection({
                 value={repoInput}
                 onChange={(e) => setRepoInput(e.target.value)}
                 placeholder={t("e.g. owner/repo")}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
             <FormField label={t("Branch")}>
@@ -180,7 +180,7 @@ export default function KbGitHubSourcesSection({
                 value={branchInput}
                 onChange={(e) => setBranchInput(e.target.value)}
                 placeholder={t("main")}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
             <FormField
@@ -192,7 +192,7 @@ export default function KbGitHubSourcesSection({
                 value={pathInput}
                 onChange={(e) => setPathInput(e.target.value)}
                 placeholder={t("docs/")}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
             <FormField label={t("Glob pattern")}>
@@ -201,7 +201,7 @@ export default function KbGitHubSourcesSection({
                 value={globInput}
                 onChange={(e) => setGlobInput(e.target.value)}
                 placeholder={t("*.md")}
-                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
             </FormField>
           </div>
@@ -260,9 +260,9 @@ function SourceCard({
 
   const statusColor =
     source.last_sync_status === "success"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-success"
       : source.last_sync_status === "error"
-        ? "text-red-600 dark:text-red-400"
+        ? "text-destructive"
         : "text-[var(--muted-foreground)]";
 
   const lastSync = formatKnowledgeTimestamp(source.last_synced_at);
@@ -272,10 +272,10 @@ function SourceCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <Github className="h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)]" />
-          <span className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
+          <span className="truncate text-[13px] font-medium text-[var(--foreground)]">
             {source.repo}
           </span>
-          <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]">
+          <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]">
             @{source.branch}
           </span>
         </div>
@@ -301,7 +301,7 @@ function SourceCard({
           )}
         </div>
         {source.last_sync_error && (
-          <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+          <p className="mt-1 text-[11px] text-destructive">
             {source.last_sync_error}
           </p>
         )}
@@ -311,7 +311,7 @@ function SourceCard({
           type="button"
           onClick={onRemove}
           aria-label={t("Remove source")}
-          className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600"
+          className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -336,7 +336,7 @@ function FormField({
       </span>
       {children}
       {help && (
-        <span className="mt-0.5 block text-[10px] text-[var(--muted-foreground)]">
+        <span className="mt-0.5 block text-[11px] text-[var(--muted-foreground)]">
           {help}
         </span>
       )}

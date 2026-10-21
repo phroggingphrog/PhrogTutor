@@ -1022,7 +1022,7 @@ function BookPageInner() {
         />
       )}
 
-      <main className="relative flex flex-1 overflow-hidden bg-[var(--background)]">
+      <div className="relative flex flex-1 overflow-hidden bg-[var(--background)]">
         {/* One slot, one place, every view. The predecessor put a gradient
             progress card *inside* the creator's scrolling content and a
             second chip floating over the corner, so starting generation
@@ -1244,7 +1244,7 @@ function BookPageInner() {
             onSessionResolved={sessionId => void handlePageChatSession(sessionId)}
           />
         )}
-      </main>
+      </div>
     </div>
   )
 }

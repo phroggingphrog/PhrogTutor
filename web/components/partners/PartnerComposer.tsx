@@ -448,7 +448,7 @@ export const PartnerComposer = memo(function PartnerComposer({
                   : "hover:bg-[var(--muted)]/60"
               }`}
             >
-              <span className="font-mono text-[12.5px] text-[var(--foreground)]">
+              <span className="font-mono text-[13px] text-[var(--foreground)]">
                 {command.command}
               </span>
               {command.arg_hint && (
@@ -456,7 +456,7 @@ export const PartnerComposer = memo(function PartnerComposer({
                   {command.arg_hint}
                 </span>
               )}
-              <span className="ml-auto truncate pl-3 text-[11.5px] text-[var(--muted-foreground)]">
+              <span className="ml-auto truncate pl-3 text-[12px] text-[var(--muted-foreground)]">
                 {command.description}
               </span>
             </button>
@@ -528,7 +528,7 @@ export const PartnerComposer = memo(function PartnerComposer({
                     <div className="truncate text-[12px] font-medium text-[var(--foreground)]">
                       {attachment.filename}
                     </div>
-                    <div className="truncate text-[10px] uppercase text-[var(--muted-foreground)]">
+                    <div className="truncate text-[11px] uppercase text-[var(--muted-foreground)]">
                       {spec.label} · {formatBytes(attachment.size)}
                     </div>
                   </div>
@@ -548,7 +548,7 @@ export const PartnerComposer = memo(function PartnerComposer({
       )}
 
       {attachmentError && (
-        <div className="px-3.5 pb-2 text-[11px] text-red-600">
+        <div className="px-3.5 pb-2 text-[11px] text-destructive">
           {attachmentError}
         </div>
       )}
@@ -579,7 +579,7 @@ export const PartnerComposer = memo(function PartnerComposer({
               <Info className="h-4 w-4" strokeWidth={1.9} />
             </button>
             {showHelp && (
-              <div className="absolute bottom-full left-0 z-20 mb-2 w-64 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 text-[11.5px] leading-relaxed text-[var(--muted-foreground)] shadow-lg">
+              <div className="absolute bottom-full left-0 z-20 mb-2 w-64 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 text-[12px] leading-relaxed text-[var(--muted-foreground)] shadow-lg">
                 <p className="mb-1 font-medium text-[var(--foreground)]">
                   {t("Tips")}
                 </p>

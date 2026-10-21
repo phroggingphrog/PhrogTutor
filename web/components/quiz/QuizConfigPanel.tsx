@@ -51,7 +51,7 @@ const TYPE_ACCENT: Record<
   { fill: string; dot: string }
 > = {
   choice: { fill: "bg-orange-500", dot: "bg-orange-500" },
-  concept: { fill: "bg-emerald-500", dot: "bg-emerald-500" },
+  concept: { fill: "bg-success", dot: "bg-success" },
   fill_in_blank: { fill: "bg-sky-500", dot: "bg-sky-500" },
   short_answer: { fill: "bg-violet-500", dot: "bg-violet-500" },
   written: { fill: "bg-rose-500", dot: "bg-rose-500" },
@@ -226,7 +226,7 @@ export default memo(function QuizConfigPanel({
 
           {showRatioBar && (
             <div className="rounded-lg border border-[var(--border)]/30 bg-[var(--background)]/40 p-2.5">
-              <div className="mb-1.5 flex items-center justify-between text-[10px] font-medium text-[var(--muted-foreground)]/60">
+              <div className="mb-1.5 flex items-center justify-between text-[11px] font-medium text-[var(--muted-foreground)]/60">
                 <span>{t("Type Mix")}</span>
                 <span className="tabular-nums">
                   {totalCount}/{value.num_questions}

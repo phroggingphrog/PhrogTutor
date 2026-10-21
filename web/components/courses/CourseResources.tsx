@@ -167,7 +167,7 @@ export default function CourseResources({
           <h2 className="font-serif text-[16px] font-semibold text-[var(--foreground)]">
             {t("Materials")}
           </h2>
-          <p className="mt-0.5 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Everything this course studies with. Conversations here start with these already in hand.",
             )}
@@ -176,7 +176,7 @@ export default function CourseResources({
         <button
           type="button"
           onClick={() => setPicking((open) => !open)}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50"
         >
           <Plus size={13} />
           {t("Add")}
@@ -184,7 +184,7 @@ export default function CourseResources({
       </div>
 
       {resources.length === 0 ? (
-        <p className="mt-3 rounded-xl border border-dashed border-[var(--border)] px-3 py-4 text-center text-[11.5px] text-[var(--muted-foreground)]">
+        <p className="mt-3 rounded-xl border border-dashed border-[var(--border)] px-3 py-4 text-center text-[12px] text-[var(--muted-foreground)]">
           {t(
             "Nothing attached yet. Add a textbook or knowledge base and this course starts knowing what it is about.",
           )}
@@ -204,7 +204,7 @@ export default function CourseResources({
                   className="shrink-0 text-[var(--muted-foreground)]"
                 />
                 <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-                  <span className="truncate text-[12.5px] text-[var(--foreground)]">
+                  <span className="truncate text-[13px] text-[var(--foreground)]">
                     {resource.label}
                   </span>
                   {/* Grouped with the label rather than given its own column:
@@ -220,14 +220,14 @@ export default function CourseResources({
                       <span
                         role="note"
                         tabIndex={0}
-                        className="shrink-0 cursor-help text-[10.5px] text-[var(--muted-foreground)]/80"
+                        className="shrink-0 cursor-help text-[11px] text-[var(--muted-foreground)]/80"
                       >
                         · {t("Unavailable")}
                       </span>
                     </Tooltip>
                   ) : null}
                 </span>
-                <span className="shrink-0 text-[10.5px] text-[var(--muted-foreground)]/70">
+                <span className="shrink-0 text-[11px] text-[var(--muted-foreground)]/70">
                   {kindNames[resource.kind]}
                 </span>
                 <button
@@ -247,13 +247,13 @@ export default function CourseResources({
       {picking ? (
         <div className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
           {loadingCandidates ? (
-            <p className="text-[11.5px] text-[var(--muted-foreground)]">
+            <p className="text-[12px] text-[var(--muted-foreground)]">
               {t("Loading")}
             </p>
           ) : (
             <div className="space-y-3">
               {candidateCount === 0 ? (
-                <p className="text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+                <p className="text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                   {t(
                     "Nothing made yet to attach. Start one below and it joins this course as soon as it exists.",
                   )}
@@ -264,7 +264,7 @@ export default function CourseResources({
                 if (rows.length === 0) return null;
                 return (
                   <div key={kind}>
-                    <p className="text-[10.5px] text-[var(--muted-foreground)]/80">
+                    <p className="text-[11px] text-[var(--muted-foreground)]/80">
                       {kindNames[kind] ?? kind}
                     </p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -279,7 +279,7 @@ export default function CourseResources({
                             onClick={() =>
                               void attach(kind, row.ref_id, row.label)
                             }
-                            className="max-w-[220px] truncate rounded-lg border border-[var(--border)] px-2 py-1 text-[11.5px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50 disabled:opacity-40"
+                            className="max-w-[220px] truncate rounded-lg border border-[var(--border)] px-2 py-1 text-[12px] text-[var(--foreground)] transition-colors hover:bg-[var(--muted)]/50 disabled:opacity-40"
                           >
                             {already ? `✓ ${row.label}` : row.label}
                           </button>
@@ -291,7 +291,7 @@ export default function CourseResources({
               })}
 
               <div className="border-t border-[var(--border)]/70 pt-3">
-                <p className="text-[10.5px] text-[var(--muted-foreground)]/80">
+                <p className="text-[11px] text-[var(--muted-foreground)]/80">
                   {t("Start something new")}
                 </p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -301,7 +301,7 @@ export default function CourseResources({
                       <Link
                         key={route.kind}
                         href={route.href(courseId)}
-                        className="inline-flex max-w-[220px] items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2 py-1 text-[11.5px] text-[var(--muted-foreground)] transition-colors hover:border-[var(--ring)] hover:text-[var(--foreground)]"
+                        className="inline-flex max-w-[220px] items-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2 py-1 text-[12px] text-[var(--muted-foreground)] transition-colors hover:border-[var(--ring)] hover:text-[var(--foreground)]"
                       >
                         <Icon
                           size={12}

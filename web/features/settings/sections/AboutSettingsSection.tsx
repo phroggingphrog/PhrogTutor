@@ -47,8 +47,8 @@ const INSTALLATION_LABELS: Record<InstallMode, string> = {
 };
 
 function jobTone(status: UpdateJobStatus) {
-  if (status === "failed") return "text-red-600 dark:text-red-400";
-  if (status === "succeeded") return "text-emerald-700 dark:text-emerald-400";
+  if (status === "failed") return "text-destructive";
+  if (status === "succeeded") return "text-success";
   return "text-sky-700 dark:text-sky-400";
 }
 
@@ -208,7 +208,7 @@ export default function AboutSettingsPage() {
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-success" />
               {t("Running version")}
             </div>
             <div className="font-serif text-[38px] font-semibold leading-none tracking-[-0.035em] text-[var(--foreground)]">
@@ -255,7 +255,7 @@ export default function AboutSettingsPage() {
       </section>
 
       {error && !forkOnly && (
-        <div className="mb-7 flex items-start gap-2 border-l-2 border-red-500/70 py-1 pl-3 text-[12.5px] leading-relaxed text-red-600 dark:text-red-400">
+        <div className="mb-7 flex items-start gap-2 border-l-2 border-destructive/70 py-1 pl-3 text-[13px] leading-relaxed text-destructive">
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -272,7 +272,7 @@ export default function AboutSettingsPage() {
             status?.installation.reason || "How DeepTutor is installed here.",
           )}
           control={
-            <span className="text-[12.5px] text-[var(--foreground)]">
+            <span className="text-[13px] text-[var(--foreground)]">
               {t(INSTALLATION_LABELS[installMode])}
             </span>
           }
@@ -283,7 +283,7 @@ export default function AboutSettingsPage() {
             "Only stable, published DeepTutor releases are considered.",
           )}
           control={
-            <span className="text-[12.5px] text-[var(--foreground)]">
+            <span className="text-[13px] text-[var(--foreground)]">
               {t("Stable")}
             </span>
           }
@@ -310,7 +310,7 @@ export default function AboutSettingsPage() {
                 onChange={(enabled) => void changeChecks(enabled)}
               />
             ) : (
-              <span className="text-[12.5px] text-[var(--muted-foreground)]">
+              <span className="text-[13px] text-[var(--muted-foreground)]">
                 {status?.check_enabled ? t("On") : t("Off")}
               </span>
             )
@@ -327,14 +327,14 @@ export default function AboutSettingsPage() {
           }
           control={
             <div className="flex items-center gap-2">
-              {upToDate && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+              {upToDate && <Check className="h-3.5 w-3.5 text-success" />}
               <CodeValue value={latestVersion ?? "—"} />
             </div>
           }
         />
 
         {status?.release?.migration_warning && (
-          <div className="flex items-start gap-2 border-t border-[var(--border)]/50 py-3.5 text-[12.5px] leading-relaxed text-amber-700 dark:text-amber-400">
+          <div className="flex items-start gap-2 border-t border-[var(--border)]/50 py-3.5 text-[13px] leading-relaxed text-warning">
             <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
             {t(
               "This release mentions migrations or breaking changes. Read the release notes before updating.",
@@ -347,7 +347,7 @@ export default function AboutSettingsPage() {
             <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
               {status.release.name || t("What changed")}
             </div>
-            <p className="max-w-2xl whitespace-pre-line text-[12.5px] leading-6 text-[var(--muted-foreground)]">
+            <p className="max-w-2xl whitespace-pre-line text-[13px] leading-6 text-[var(--muted-foreground)]">
               {status.release.excerpt}
             </p>
           </div>
@@ -355,14 +355,14 @@ export default function AboutSettingsPage() {
 
         {status && !status.installation.automatic_update && (
           <div className="border-t border-[var(--border)]/50 py-4">
-            <div className="mb-2 flex items-center gap-2 text-[12.5px] font-medium text-[var(--foreground)]">
+            <div className="mb-2 flex items-center gap-2 text-[13px] font-medium text-[var(--foreground)]">
               <ShieldCheck className="h-4 w-4 text-[var(--muted-foreground)]" />
               {t("Managed by your installation")}
             </div>
-            <p className="mb-3 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+            <p className="mb-3 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
               {t(status.installation.reason)}
             </p>
-            <code className="block overflow-x-auto rounded-lg bg-[var(--accent)]/60 px-3 py-2 text-[11.5px] text-[var(--foreground)]">
+            <code className="block overflow-x-auto rounded-lg bg-[var(--accent)]/60 px-3 py-2 text-[12px] text-[var(--foreground)]">
               {status.installation.command}
             </code>
           </div>
@@ -374,7 +374,7 @@ export default function AboutSettingsPage() {
             aria-live="polite"
           >
             <div
-              className={`flex items-center gap-2 text-[12.5px] font-medium ${jobTone(job.status)}`}
+              className={`flex items-center gap-2 text-[13px] font-medium ${jobTone(job.status)}`}
             >
               {updateJobIsActive(job.status) ? (
                 <RotateCw className="h-3.5 w-3.5 animate-spin" />
@@ -386,7 +386,7 @@ export default function AboutSettingsPage() {
               {t(`updateJob.${job.status}`)}
             </div>
             {job.error && (
-              <p className="mt-2 text-[12px] text-red-600 dark:text-red-400">
+              <p className="mt-2 text-[12px] text-destructive">
                 {job.error}
               </p>
             )}
@@ -418,7 +418,7 @@ export default function AboutSettingsPage() {
 
 function CodeValue({ value }: { value: string }) {
   return (
-    <code className="rounded-md bg-[var(--accent)]/60 px-2 py-1 text-[11.5px] tabular-nums text-[var(--foreground)]">
+    <code className="rounded-md bg-[var(--accent)]/60 px-2 py-1 text-[12px] tabular-nums text-[var(--foreground)]">
       {value}
     </code>
   );
@@ -443,7 +443,7 @@ function ResourceRow({
       className="group flex items-center justify-between gap-5 border-t border-[var(--border)]/50 py-3.5 first:border-t-0"
     >
       <div>
-        <div className="text-[13.5px] font-medium text-[var(--foreground)]">
+        <div className="text-[14px] font-medium text-[var(--foreground)]">
           {title}
         </div>
         <p className="mt-1 text-[12px] text-[var(--muted-foreground)]">

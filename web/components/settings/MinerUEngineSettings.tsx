@@ -273,8 +273,8 @@ export function MinerUEngineSettings() {
           <span
             className={`inline-flex max-w-[40vw] items-center gap-1 text-[12px] ${
               testResult.ok
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
+                ? "text-success"
+                : "text-destructive"
             }`}
           >
             {testResult.ok ? (
@@ -309,7 +309,7 @@ export function MinerUEngineSettings() {
 
   if (error && !draft) {
     return (
-      <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+      <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
         {error}
       </div>
     );
@@ -320,7 +320,7 @@ export function MinerUEngineSettings() {
   return (
     <>
       {error && (
-        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
           {error}
         </div>
       )}
@@ -512,10 +512,10 @@ export function MinerUEngineSettings() {
               <div
                 className={`mb-2 inline-flex items-center gap-1.5 text-[12px] ${
                   download.state === "done"
-                    ? "text-emerald-600 dark:text-emerald-400"
+                    ? "text-success"
                     : download.state === "running"
                       ? "text-[var(--muted-foreground)]"
-                      : "text-red-600 dark:text-red-400"
+                      : "text-destructive"
                 }`}
               >
                 {download.state === "running" ? (

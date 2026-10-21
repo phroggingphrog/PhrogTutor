@@ -394,20 +394,20 @@ export default function KnowledgePage() {
   return (
     <div className="flex h-full flex-col bg-[var(--background)]">
       {error && (
-        <div className="flex items-center justify-between gap-3 border-b border-red-200 bg-red-50 px-4 py-2 text-[12.5px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="flex items-center justify-between gap-3 border-b border-destructive/30 bg-destructive/10 px-4 py-2 text-[13px] text-destructive">
           <span className="truncate">{error}</span>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => void refresh({ force: true })}
-              className="rounded-md border border-red-300 px-2 py-0.5 text-[11.5px] font-medium hover:bg-red-100 dark:border-red-900 dark:hover:bg-red-950/50"
+              className="rounded-md border border-destructive/30 px-2 py-0.5 text-[12px] font-medium hover:bg-destructive/20"
             >
               {t("Retry")}
             </button>
             <button
               type="button"
               onClick={() => setError(null)}
-              className="rounded-md px-2 py-0.5 text-[11.5px] font-medium hover:bg-red-100 dark:hover:bg-red-950/50"
+              className="rounded-md px-2 py-0.5 text-[12px] font-medium hover:bg-destructive/20"
             >
               {t("Dismiss")}
             </button>

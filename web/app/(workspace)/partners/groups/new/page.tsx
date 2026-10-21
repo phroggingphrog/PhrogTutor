@@ -84,7 +84,7 @@ export default function NewPartnerGroupPage() {
       <h1 className="mt-6 text-[20px] font-semibold tracking-tight text-[var(--foreground)]">
         {t("Create a Partner Group")}
       </h1>
-      <p className="mt-1 text-[12.5px] text-[var(--muted-foreground)]">
+      <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
         {t("Choose at least two Partners, then how they should discuss.")}
       </p>
 
@@ -239,11 +239,11 @@ export default function NewPartnerGroupPage() {
                       size={34}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                      <div className="truncate text-[13px] font-medium text-[var(--foreground)]">
                         {partner.name}
                       </div>
                       {partner.description ? (
-                        <div className="truncate text-[10.5px] text-[var(--muted-foreground)]">
+                        <div className="truncate text-[11px] text-[var(--muted-foreground)]">
                           {partner.description}
                         </div>
                       ) : null}
@@ -273,14 +273,14 @@ export default function NewPartnerGroupPage() {
           )}
         />
 
-        {error ? <p className="text-[12px] text-red-500">{error}</p> : null}
+        {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
 
         <div className="flex justify-end pb-8">
           <button
             type="button"
             onClick={submit}
             disabled={creating || !ready}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-[12.5px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-[13px] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-40"
           >
             {creating ? (
               <Loader2 size={14} className="animate-spin" />

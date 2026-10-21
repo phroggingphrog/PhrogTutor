@@ -415,7 +415,7 @@ export default function HistorySessionPicker({
                     </div>
                   </div>
                   {selectedIds.includes(activeId!) && (
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)]">
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--primary)]">
                       <Check size={10} strokeWidth={3} />
                       {t("Selected")}
                     </span>
@@ -541,7 +541,7 @@ function ConversationPreview({
               )}
               {isUser ? t("You") : t("Assistant")}
             </div>
-            <div className="whitespace-pre-wrap break-words text-[12.5px] leading-relaxed text-[var(--foreground)]/85">
+            <div className="whitespace-pre-wrap break-words text-[13px] leading-relaxed text-[var(--foreground)]/85">
               {turn.text}
             </div>
           </div>

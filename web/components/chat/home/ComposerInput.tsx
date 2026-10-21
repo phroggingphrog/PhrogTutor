@@ -580,7 +580,7 @@ export const ComposerInput = memo(
                         }`}
                       >
                         <Glyph size={15} className="shrink-0" />
-                        <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-[var(--foreground)]">
+                        <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-[var(--foreground)]">
                           {agent.name}
                         </span>
                         {active && (
@@ -636,7 +636,7 @@ export const ComposerInput = memo(
                     aria-selected={index === activeSlashIndex}
                     onMouseEnter={() => setActiveSlashIndex(index)}
                     onClick={() => handleSelectSlashCommand(command)}
-                    className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-[12.5px] transition-colors ${
+                    className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors ${
                       index === activeSlashIndex
                         ? "bg-[var(--muted)]/60"
                         : "hover:bg-[var(--muted)]/45"
@@ -690,7 +690,7 @@ export const ComposerInput = memo(
                       aria-selected={selected}
                       onMouseEnter={() => setActiveLanguageIndex(index)}
                       onClick={() => handleSelectReplyLanguage(choice.value)}
-                      className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-[12.5px] transition-colors ${
+                      className={`flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-[13px] transition-colors ${
                         index === activeLanguageIndex
                           ? "bg-[var(--muted)]/60"
                           : "hover:bg-[var(--muted)]/45"

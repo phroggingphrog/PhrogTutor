@@ -21,7 +21,7 @@ function PlaybackToggle({
   return (
     <div className="flex items-start justify-between gap-6 rounded-xl border border-[var(--border)]/60 bg-[var(--card)]/40 px-5 py-4">
       <div className="min-w-0 flex-1">
-        <div className="text-[13.5px] font-medium text-[var(--foreground)]">
+        <div className="text-[14px] font-medium text-[var(--foreground)]">
           {label}
         </div>
         <p className="mt-1 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
@@ -59,7 +59,7 @@ export function VoicePlaybackPrefs() {
         <h2 className="text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
           {t("Playback")}
         </h2>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+        <p className="mt-1 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
           {t("How spoken replies behave in chat.")}
         </p>
       </div>

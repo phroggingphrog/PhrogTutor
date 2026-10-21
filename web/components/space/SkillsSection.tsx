@@ -405,7 +405,7 @@ export default function SkillsSection() {
           "Capability playbooks the model reads on demand. Built-in and preset skills are read-only.",
         )}
         meta={
-          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
             {skills.length} {t("skills.count.suffix")}
           </span>
         }
@@ -413,14 +413,14 @@ export default function SkillsSection() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setImportOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--foreground)] shadow-sm transition-colors hover:bg-[var(--muted)]/50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--foreground)] shadow-sm transition-colors hover:bg-[var(--muted)]/50"
             >
               <Store size={13} strokeWidth={1.9} />
               {t("Import from EduHub")}
             </button>
             <button
               onClick={openCreate}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
             >
               <Plus size={13} strokeWidth={2} />
               {t("New skill")}
@@ -448,7 +448,7 @@ export default function SkillsSection() {
               className="text-[var(--muted-foreground)]"
             />
             {t("Manage Tags")}
-            <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] tabular-nums text-[var(--muted-foreground)]">
+            <span className="rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[11px] tabular-nums text-[var(--muted-foreground)]">
               {tagVocab.length}
             </span>
           </span>
@@ -462,7 +462,7 @@ export default function SkillsSection() {
 
         {tagManagerOpen && (
           <div className="border-t border-[var(--border)]/70 px-4 pb-4 pt-3">
-            <p className="mb-3 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+            <p className="mb-3 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
               {t(
                 "Tags help you group skills by purpose. Renaming a tag updates every skill using it.",
               )}
@@ -514,7 +514,7 @@ export default function SkillsSection() {
                     <Tooltip label={t("Delete")} side="top">
                       <button
                         onClick={() => void handleDeleteTag(tag)}
-                        className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
+                        className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive"
                         aria-label={t("Delete")}
                       >
                         <Trash2 size={12} />
@@ -579,7 +579,7 @@ export default function SkillsSection() {
       </div>
 
       {errorMsg && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
           {errorMsg}
         </div>
       )}
@@ -596,14 +596,14 @@ export default function SkillsSection() {
           <p className="text-[14px] font-medium text-[var(--foreground)]">
             {t("No skills yet")}
           </p>
-          <p className="mx-auto mt-1 max-w-sm text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mx-auto mt-1 max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Create a skill to define reusable guidance (e.g. a patient tutor, a rigorous research assistant).",
             )}
           </p>
           <button
             onClick={openCreate}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--primary-foreground)] shadow-sm transition-opacity hover:opacity-90"
           >
             <Plus size={13} strokeWidth={2} />
             {t("Create your first skill")}
@@ -650,7 +650,7 @@ export default function SkillsSection() {
                             {skill.name}
                           </span>
                           {sourceBadge ? (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                               {readOnly ? <Lock size={9} /> : null}
                               {sourceBadge}
                             </span>
@@ -692,7 +692,7 @@ export default function SkillsSection() {
                               void handleDelete(skill.name);
                             }}
                             disabled={deleting === skill.name}
-                            className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:hover:bg-red-950/30"
+                            className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-destructive/20 hover:text-destructive disabled:opacity-50"
                             aria-label={t("Delete")}
                           >
                             {deleting === skill.name ? (
@@ -715,7 +715,7 @@ export default function SkillsSection() {
                             e.stopPropagation();
                             setFilterTag(tag);
                           }}
-                          className="inline-flex items-center gap-1 rounded-full border border-[var(--border)]/60 bg-[var(--muted)]/40 px-2 py-0.5 text-[10.5px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)]/30 hover:text-[var(--foreground)]"
+                          className="inline-flex items-center gap-1 rounded-full border border-[var(--border)]/60 bg-[var(--muted)]/40 px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)]/30 hover:text-[var(--foreground)]"
                         >
                           <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[var(--foreground)]/40" />
                           {tag}
@@ -724,7 +724,7 @@ export default function SkillsSection() {
                     </div>
                   ) : (
                     <div className="mt-auto pt-2">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[10.5px] text-[var(--muted-foreground)]/70">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]/70">
                         <TagIcon size={10} />
                         {t("Untagged")}
                       </span>
@@ -759,7 +759,7 @@ export default function SkillsSection() {
                   {viewer.name}
                 </h3>
                 {viewer.readOnly ? (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--muted)] px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
                     <Lock size={9} />
                     {viewer.source === "admin" ? t("Preset") : t("Built-in")}
                   </span>
@@ -800,11 +800,11 @@ export default function SkillsSection() {
                   <Loader2 size={18} className="animate-spin" />
                 </div>
               ) : viewer.error ? (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive">
                   {viewer.error}
                 </div>
               ) : (
-                <div className="prose-skill text-[13.5px] leading-relaxed text-[var(--foreground)]">
+                <div className="prose-skill text-[14px] leading-relaxed text-[var(--foreground)]">
                   <SkillMarkdown content={stripFrontmatter(viewer.content)} />
                 </div>
               )}
@@ -852,14 +852,14 @@ export default function SkillsSection() {
                   placeholder={t("e.g. socratic-math-mentor")}
                   className={`w-full rounded-lg border bg-[var(--background)] px-3 py-2 text-[13px] outline-none transition-colors focus:border-[var(--foreground)]/25 ${
                     editorNameInvalid
-                      ? "border-red-400 dark:border-red-600"
+                      ? "border-destructive"
                       : "border-[var(--border)]"
                   }`}
                 />
                 <p
                   className={`mt-1 text-[11px] transition-colors ${
                     editorNameInvalid
-                      ? "text-red-500 dark:text-red-400"
+                      ? "text-destructive"
                       : "text-[var(--muted-foreground)]/70"
                   }`}
                 >
@@ -898,7 +898,7 @@ export default function SkillsSection() {
                         key={tag}
                         type="button"
                         onClick={() => toggleEditorTag(tag)}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] transition-colors ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] transition-colors ${
                           active
                             ? "bg-[var(--foreground)] text-[var(--background)]"
                             : "border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] hover:border-[var(--foreground)]/30 hover:text-[var(--foreground)]"
@@ -960,7 +960,7 @@ export default function SkillsSection() {
               </div>
 
               {editor.error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12px] text-destructive">
                   {editor.error}
                 </div>
               )}

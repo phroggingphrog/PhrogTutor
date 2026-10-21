@@ -96,7 +96,7 @@ export default function DeepDiveBlock({
                       <div className="flex items-center gap-1.5 text-sm font-medium text-[var(--foreground)]">
                         {topic}
                         {existingPageId && (
-                          <span className="rounded-full bg-[var(--primary)]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--primary)]">
+                          <span className="rounded-full bg-[var(--primary)]/10 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--primary)]">
                             {t("Created")}
                           </span>
                         )}

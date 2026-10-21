@@ -56,20 +56,19 @@ export default function CourseMaterialDrop() {
   };
 
   return (
-    <section className="mb-9 rounded-xl border border-[var(--border)] p-4">
-      <h2 className="mb-1 text-[13.5px] font-semibold">Add course material</h2>
-      <p className="mb-3 text-xs text-[var(--muted-foreground)]">
+    <section aria-label="Add course material">
+      <p className="mb-3 text-sm text-[var(--muted-foreground)]">
         PDFs, slides, books or a website. It is parsed into a knowledge base the tutor can search.
       </p>
       <div className="grid gap-2 text-sm">
-        <input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="Course or topic name (e.g. Statistics 101)"
-          className="rounded border border-[var(--border)] bg-transparent px-2 py-1.5 outline-none" />
-        <input type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx,.epub,.md,.txt,.html" onChange={(e) => setFiles(e.target.files)} />
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…or a website URL (optional)"
-          className="rounded border border-[var(--border)] bg-transparent px-2 py-1.5 outline-none" />
+        <input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="Course or topic name (e.g. Statistics 101)" aria-label="Course or topic name"
+          className="min-h-11 rounded-lg border border-[var(--input)] bg-transparent px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
+        <input type="file" multiple aria-label="Course material files" accept=".pdf,.ppt,.pptx,.doc,.docx,.epub,.md,.txt,.html" onChange={(e) => setFiles(e.target.files)} />
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…or a website URL (optional)" aria-label="Website URL (optional)"
+          className="min-h-11 rounded-lg border border-[var(--input)] bg-transparent px-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
         <label className="flex items-start gap-2 text-xs">
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5" />
-          <span>I own this material or have the right to use it, and I agree to it being processed by AI models to help me study.</span>
+          <span>I have the right to use this material, and I agree that AI models may process it to help me study.</span>
         </label>
         <label className={`flex items-start gap-2 text-xs ${localModel ? "" : "opacity-50"}`}>
           <input type="checkbox" disabled={!localModel} checked={local} onChange={(e) => setLocal(e.target.checked)} className="mt-0.5" />

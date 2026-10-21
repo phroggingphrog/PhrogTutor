@@ -83,7 +83,7 @@ export default function SelectedResources({
                     {repeat ? (
                       <Pin size={11} aria-hidden="true" />
                     ) : (
-                      <span className="text-[10px]">{t("This turn only")}</span>
+                      <span className="text-[11px]">{t("This turn only")}</span>
                     )}
                   </span>
                 </Tooltip>

@@ -317,7 +317,7 @@ export default function MasteryTopicPage() {
     // Under `lg` the columns stack and the page scrolls normally — a phone has
     // no second column to balance, and a fixed-height stack there would just
     // be three tiny scrollers.
-    <main className="mastery-shell flex h-full flex-col overflow-y-auto [scrollbar-gutter:stable]">
+    <div className="mastery-shell flex h-full flex-col overflow-y-auto [scrollbar-gutter:stable]">
       <div className="mx-auto flex w-full min-h-0 max-w-[1180px] flex-1 flex-col px-4 pb-40 pt-6 sm:px-7 sm:pb-10 lg:px-8 lg:py-8">
         <div className="flex items-center justify-between gap-3">
           <Link
@@ -356,7 +356,7 @@ export default function MasteryTopicPage() {
                   onClick={(event) =>
                     openConfirmation("delete", event.currentTarget)
                   }
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-red-600 hover:bg-red-500/10"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="h-3.5 w-3.5" /> {t("Delete topic")}
                 </button>
@@ -384,7 +384,7 @@ export default function MasteryTopicPage() {
                 {sourceLabels.map((source) => (
                   <span
                     key={source.id}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)] px-2.5 py-1 text-[10px] text-[var(--muted-foreground)]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--muted)] px-2.5 py-1 text-[11px] text-[var(--muted-foreground)]"
                   >
                     <BookOpen className="h-3 w-3" /> {source.label}
                   </span>
@@ -673,6 +673,6 @@ export default function MasteryTopicPage() {
           onClose={() => setConfirmAction(null)}
         />
       )}
-    </main>
+    </div>
   );
 }

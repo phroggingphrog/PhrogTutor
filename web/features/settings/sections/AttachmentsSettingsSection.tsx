@@ -168,7 +168,7 @@ export default function AttachmentSettingsPage() {
       )}
 
       {!loading && error && (
-        <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-600 dark:text-red-300">
+        <div className="mb-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] text-destructive">
           {error}
         </div>
       )}
@@ -263,7 +263,7 @@ export default function AttachmentSettingsPage() {
             />
           </SettingSection>
 
-          <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--muted-foreground)]">
+          <p className="mt-2 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
             {t(
               "Note: images are sent to the model provider as-is — provider-side size limits still apply regardless of these caps.",
             )}

@@ -53,7 +53,7 @@ export default function EmbeddingModelSelector({
         )}
       </p>
       {catalog.error && (
-        <p role="alert" className="text-xs text-red-600">
+        <p role="alert" className="text-xs text-destructive">
           {catalog.error}
         </p>
       )}

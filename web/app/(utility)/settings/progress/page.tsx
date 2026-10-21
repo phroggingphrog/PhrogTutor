@@ -37,13 +37,13 @@ export default function LearningProgressPage() {
   const hasRecords = progress.length > 0 || activities.length > 0;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-8">
+    <div className="mx-auto max-w-3xl px-6 py-8">
       <h1 className="text-xl font-semibold">{t("Learning progress")}</h1>
       <p className="mt-1 text-sm text-[var(--muted-foreground)]">
         {t("Review your own reading and learning activity.")}
       </p>
       {error ? (
-        <p className="mt-8 text-sm text-red-600">{t("Unable to load learning progress")}</p>
+        <p className="mt-8 text-sm text-destructive">{t("Unable to load learning progress")}</p>
       ) : records === null ? (
         <p className="mt-8 text-sm text-[var(--muted-foreground)]">{t("Loading progress")}</p>
       ) : !hasRecords ? (
@@ -111,6 +111,6 @@ export default function LearningProgressPage() {
           </section>
         </>
       )}
-    </main>
+    </div>
   );
 }

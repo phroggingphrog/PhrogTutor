@@ -17,12 +17,23 @@ export default function TerminalPanel({ note, className }: { note: string; class
     const fit = new FitAddon();
     term.loadAddon(fit);
     term.open(host.current);
-    fit.fit();
+    // xterm throws from fit() while it has no measurable size or once it is disposed, so
+    // fit only a live, laid-out terminal.
+    let disposed = false;
+    const safeFit = () => {
+      if (disposed || !host.current?.clientWidth || !host.current.clientHeight) return;
+      try {
+        fit.fit();
+      } catch {
+        /* renderer not ready yet; the next resize fits it */
+      }
+    };
+    safeFit();
     const ws = new WebSocket(wsUrl(`/ws/terminal?note=${encodeURIComponent(note)}`));
     ws.binaryType = "arraybuffer";
     const resize = () => {
-      fit.fit();
-      if (ws.readyState === WebSocket.OPEN)
+      safeFit();
+      if (!disposed && ws.readyState === WebSocket.OPEN)
         ws.send(JSON.stringify({ type: "resize", rows: term.rows, cols: term.cols }));
     };
     ws.onopen = resize;
@@ -34,6 +45,7 @@ export default function TerminalPanel({ note, className }: { note: string; class
     const observer = new ResizeObserver(resize);
     observer.observe(host.current);
     return () => {
+      disposed = true;
       observer.disconnect();
       input.dispose();
       ws.close();

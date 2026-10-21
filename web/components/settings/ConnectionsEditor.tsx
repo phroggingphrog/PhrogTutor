@@ -387,7 +387,7 @@ function ConnectionRow({
             type="button"
             onClick={onAskDelete}
             aria-label={t("Delete")}
-            className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-500"
+            className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -414,7 +414,7 @@ function ConnectionRow({
             <button
               type="button"
               onClick={onDelete}
-              className="h-7 rounded-md bg-red-500/10 px-2.5 text-[11px] font-medium text-red-600 transition-colors hover:bg-red-500/15 dark:text-red-400"
+              className="h-7 rounded-md bg-destructive/10 px-2.5 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/15"
             >
               {t("Delete")}
             </button>
@@ -689,7 +689,7 @@ function AddConnectionPanel({
                   >
                     {checked && <Check className="h-3 w-3" />}
                   </button>
-                  <span className="w-24 shrink-0 text-[12.5px] text-[var(--foreground)]">
+                  <span className="w-24 shrink-0 text-[13px] text-[var(--foreground)]">
                     {label(service)}
                   </span>
                   {service === "llm" ? (
@@ -703,7 +703,7 @@ function AddConnectionPanel({
                       />
                     </div>
                   ) : (
-                    <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-[var(--muted-foreground)]">
+                    <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-[var(--muted-foreground)]">
                       {spec.default_model || t("Set on its own page")}
                     </span>
                   )}

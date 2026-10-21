@@ -159,7 +159,7 @@ export default function KbWebSourcesSection({
       <div className="flex flex-col items-center justify-center gap-2 py-10">
         {error ? (
           <>
-            <p className="text-[12px] text-red-600 dark:text-red-400">
+            <p className="text-[12px] text-destructive">
               {error}
             </p>
             <button
@@ -189,7 +189,7 @@ export default function KbWebSourcesSection({
           <div className="text-[13px] font-medium text-[var(--foreground)]">
             {t("Web Sources")}
           </div>
-          <p className="mt-0.5 text-[11.5px] text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
             {t(
               "Crawl a documentation website on demand with bounded depth and page limits.",
             )}
@@ -221,7 +221,7 @@ export default function KbWebSourcesSection({
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50/60 p-2.5 text-[11.5px] text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-300">
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2.5 text-[12px] text-destructive">
           {error}
         </div>
       )}
@@ -237,7 +237,7 @@ export default function KbWebSourcesSection({
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder={t("https://example.com/")}
-              className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              className="w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
             />
           </label>
           <label className="block">
@@ -250,7 +250,7 @@ export default function KbWebSourcesSection({
               max={5}
               value={maxDepth}
               onChange={(e) => setMaxDepth(Number(e.target.value) || 3)}
-              className="w-24 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[12.5px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
+              className="w-24 rounded-md border border-[var(--border)] bg-[var(--card)] px-2.5 py-1.5 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
             />
           </label>
           <div className="flex items-center gap-2">
@@ -342,18 +342,18 @@ function WebSourceCard({
   const { t } = useTranslation();
   const statusColor =
     source.last_sync_status === "success"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-success"
       : source.last_sync_status === "error"
-        ? "text-red-600 dark:text-red-400"
+        ? "text-destructive"
         : "text-[var(--muted-foreground)]";
   const lastSync = formatKnowledgeTimestamp(source.last_synced_at);
   const jobColor =
     job?.state === "running"
       ? "text-blue-600 dark:text-blue-400"
       : job?.state === "error" || job?.state === "interrupted"
-        ? "text-red-600 dark:text-red-400"
+        ? "text-destructive"
         : job?.state === "cancelled"
-          ? "text-amber-600 dark:text-amber-400"
+          ? "text-warning"
           : "text-[var(--muted-foreground)]";
   const nextRun =
     job?.state === "pending" && job.next_run_at
@@ -365,7 +365,7 @@ function WebSourceCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <Globe className="h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)]" />
-          <span className="truncate text-[12.5px] font-medium text-[var(--foreground)]">
+          <span className="truncate text-[13px] font-medium text-[var(--foreground)]">
             {source.url}
           </span>
         </div>
@@ -383,7 +383,7 @@ function WebSourceCard({
           )}
           {source.bilingual_pairings && source.bilingual_pairings.length > 0 && (
             <span
-              className="font-medium text-emerald-600 dark:text-emerald-400"
+              className="font-medium text-success"
               title={source.bilingual_pairings
                 .map(
                   (p) =>
@@ -441,12 +441,12 @@ function WebSourceCard({
           </label>
         </div>
         {source.last_sync_error && (
-          <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+          <p className="mt-1 text-[11px] text-destructive">
             {source.last_sync_error}
           </p>
         )}
         {job?.error && (
-          <p className="mt-1 text-[11px] text-red-600 dark:text-red-400">
+          <p className="mt-1 text-[11px] text-destructive">
             {job.error}
           </p>
         )}
@@ -459,7 +459,7 @@ function WebSourceCard({
               onClick={onCancel}
               disabled={busy}
               aria-label={t("Cancel sync")}
-              className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600 disabled:opacity-50"
+              className="rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive disabled:opacity-50"
             >
               <Ban className="h-3.5 w-3.5" />
             </button>
@@ -482,7 +482,7 @@ function WebSourceCard({
             type="button"
             onClick={onRemove}
             aria-label={t("Remove source")}
-            className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-red-600"
+            className="shrink-0 rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>

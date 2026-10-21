@@ -55,7 +55,7 @@ export function LearningShell({
               </h1>
               {scopeChip}
             </div>
-            <p className="mt-1.5 max-w-2xl text-[12.5px] leading-relaxed text-[var(--muted-foreground)]">
+            <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-[var(--muted-foreground)]">
               {subtitle}
             </p>
           </div>

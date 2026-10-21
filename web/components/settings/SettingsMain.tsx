@@ -120,7 +120,7 @@ export default function SettingsMain({ children }: { children: React.ReactNode }
       >
         <div className="space-y-5 p-5">
           {leaveFailed && (
-            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            <p role="alert" className="text-sm text-destructive">
               {toast}
             </p>
           )}

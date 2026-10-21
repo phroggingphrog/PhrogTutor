@@ -192,7 +192,7 @@ function GraphCallout() {
             <h3 className="text-[15px] font-semibold text-[var(--foreground)]">
               {t("Memory graph")}
             </h3>
-            <span className="rounded-full border border-[var(--border)] bg-[var(--background)]/60 px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+            <span className="rounded-full border border-[var(--border)] bg-[var(--background)]/60 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
               {t("New")}
             </span>
           </div>
@@ -236,7 +236,7 @@ function LayerCard({
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
           <Icon className="h-4 w-4" />
         </span>
-        <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
+        <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
           {tag}
         </span>
       </div>

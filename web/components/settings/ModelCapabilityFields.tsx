@@ -100,7 +100,7 @@ export function ModelCapabilityFields({
                 });
           return (
             <label key={key} className="block">
-              <span className="mb-1 block text-[11.5px] text-[var(--muted-foreground)]">
+              <span className="mb-1 block text-[12px] text-[var(--muted-foreground)]">
                 {t(label)}
               </span>
               <span className="relative block">

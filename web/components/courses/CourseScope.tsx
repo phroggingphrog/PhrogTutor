@@ -121,7 +121,7 @@ export function CourseScopeChip({ scope }: { scope: CourseScope }) {
   const pathname = usePathname();
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--card)] py-0.5 pl-2 pr-1 text-[10.5px] font-medium text-[var(--muted-foreground)]">
+    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--card)] py-0.5 pl-2 pr-1 text-[11px] font-medium text-[var(--muted-foreground)]">
       <Link
         href={`/courses/${scope.id}`}
         className="inline-flex items-center gap-1 transition-colors hover:text-[var(--foreground)]"

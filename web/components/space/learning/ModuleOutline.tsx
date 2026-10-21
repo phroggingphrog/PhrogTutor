@@ -165,7 +165,7 @@ export function ModuleOutline({
                         {point.name}
                       </span>
                       {current && (
-                        <span className="shrink-0 rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)]">
+                        <span className="shrink-0 rounded-full bg-[var(--primary)]/10 px-2 py-0.5 text-[11px] font-semibold text-[var(--primary)]">
                           {t("Next")}
                         </span>
                       )}
@@ -345,7 +345,7 @@ function ObjectiveDrawer({
                   {t("I already know this — advance")}
                 </button>
               )}
-              {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+              {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
             </div>
           )}
         </>
