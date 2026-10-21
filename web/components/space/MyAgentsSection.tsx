@@ -676,11 +676,6 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         <h2 className="font-serif text-[16px] font-semibold tracking-tight text-[var(--foreground)]">
           {t("No agents yet")}
         </h2>
-        <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-          {t(
-            "Import a ChatGPT data export or add a Claude Code or Codex folder, then open any conversation to continue it in DeepTutor.",
-          )}
-        </p>
       </div>
       <button
         type="button"

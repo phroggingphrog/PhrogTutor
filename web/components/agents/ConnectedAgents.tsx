@@ -129,14 +129,7 @@ export default function ConnectedAgents() {
             en: "No supported local agent or configured remote Hermes gateway is available. Set up a local CLI or configure the gateway to connect one.",
           })}
         </div>
-      ) : connections.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-4 py-5 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-          {tr({
-            zh: "尚未连接任何智能体。点击「连接智能体」接入本机智能体或远程 Hermes 网关。",
-            en: "No agents connected yet. Click “Connect agent” to add a local agent or remote Hermes gateway.",
-          })}
-        </div>
-      ) : (
+      ) : connections.length === 0 ? null : (
         <div className="grid gap-3 sm:grid-cols-2">
           {connections.map((conn) => {
             const Glyph = agentGlyph(conn.agent_kind);

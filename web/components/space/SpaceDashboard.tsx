@@ -12,6 +12,7 @@ import {
   Ear,
   Github,
   History,
+  ListChecks,
   NotebookPen,
   Plug,
   Terminal,
@@ -40,6 +41,7 @@ import { listSkills } from "@/lib/skills-api";
 type Lang = { zh: string; en: string };
 
 type DashKey =
+  | "study-list"
   | "knowledge"
   | "memory"
   | "chat_history"
@@ -216,6 +218,17 @@ const GROUPS: DashboardGroup[] = [
           en: "Review what your tutor remembers about you.",
         },
         tile: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+      },
+      {
+        key: "study-list",
+        href: "/what-i-know",
+        icon: ListChecks,
+        title: { zh: "学习清单", en: "Study list" },
+        blurb: {
+          zh: "你已学会与待巩固内容的证据清单。",
+          en: "What you have learned, with the evidence behind it.",
+        },
+        tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
       },
     ],
   },

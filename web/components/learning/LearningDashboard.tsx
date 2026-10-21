@@ -20,12 +20,9 @@ import {
 } from '@/lib/learning-dashboard'
 import {
   LearningShell,
-  LearningEmptyState,
   LearningErrorState,
   LearningSkeleton,
 } from './LearningShell'
-import MindAtlasDigest from '@/components/learning/MindAtlasDigest'
-import CourseMaterialDrop from '@/components/learning/CourseMaterialDrop'
 import { LearningCard } from './LearningCard'
 import { LearningWays } from './LearningWays'
 import { LEARNING_SURFACES, learningSurface } from './surfaces'
@@ -94,8 +91,6 @@ export function LearningDashboard() {
       {/* The ways in lead the page: everything below them assumes you already
           chose one. Each opens its own introduction before it commits you. */}
       <LearningWays />
-      <MindAtlasDigest />
-      <CourseMaterialDrop />
       {failed.length > 0 && (
         <LearningErrorState
           message={t('Some learning activity could not be loaded: {{sources}}.', {
@@ -179,12 +174,6 @@ export function LearningDashboard() {
                 })}
               </div>
             </section>
-          )}
-          {!recent.length && failed.length === 0 && (
-            <LearningEmptyState
-              title={t('Your next learning journey starts here')}
-              description={t('Choose a book, a topic, a collection or a video to begin.')}
-            />
           )}
         </>
       )}
