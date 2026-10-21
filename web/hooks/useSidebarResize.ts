@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
+import { sidebarMemory } from "@/lib/sidebar-memory";
 import { browserStorage } from "@/shared/storage";
 
 const WIDTH_KEY = "deeptutor.sidebar.width";
@@ -19,7 +20,7 @@ function clampWidth(width: number, max: number) {
 }
 
 export function useSidebarResize(disabled: boolean) {
-  const [preferredWidth, setPreferredWidth] = useState(DEFAULT_WIDTH);
+  const [preferredWidth, setPreferredWidth] = useState(() => sidebarMemory.width ?? DEFAULT_WIDTH);
   const [max, setMax] = useState(MAX_WIDTH);
   const [resizing, setResizing] = useState(false);
   const drag = useRef<{
@@ -31,7 +32,8 @@ export function useSidebarResize(disabled: boolean) {
 
   useEffect(() => {
     const stored = Number(browserStorage.readRaw("local", WIDTH_KEY));
-    if (Number.isFinite(stored) && stored > 0) {
+    if (sidebarMemory.width === undefined && Number.isFinite(stored) && stored > 0) {
+      sidebarMemory.width = clampWidth(stored, MAX_WIDTH);
       // Hydrate after mount to keep the initial render consistent with SSR.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPreferredWidth(clampWidth(stored, MAX_WIDTH));
@@ -62,6 +64,7 @@ export function useSidebarResize(disabled: boolean) {
   const saveWidth = (next: number) => {
     const bounded = clampWidth(next, max);
     setPreferredWidth(bounded);
+    sidebarMemory.width = bounded;
     browserStorage.writeRaw("local", WIDTH_KEY, String(bounded));
   };
   const finishDrag = (event: PointerEvent<HTMLDivElement>) => {

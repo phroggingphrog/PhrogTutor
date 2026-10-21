@@ -33,6 +33,7 @@ import {
 import { readingWorkspaceIdOf, sessionRoute } from "@/lib/mastery-session";
 import { readingCollectionRoute } from "@/lib/learning-routes";
 import { subscribeSessionChanges } from "@/lib/session-events";
+import { isFresh, sidebarMemory } from "@/lib/sidebar-memory";
 
 export default function WorkspaceSidebar() {
   const { t } = useTranslation();
@@ -45,14 +46,19 @@ export default function WorkspaceSidebar() {
     sessionStatuses,
     sidebarRefreshToken,
   } = useChatStateAdapter();
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [courses, setCourses] = useState<StudyCourse[]>([]);
-  const [masteryTopics, setMasteryTopics] = useState<MasteryTopicLabel[]>([]);
+  const [sessions, setSessions] = useState<SessionSummary[]>(() => sidebarMemory.data?.sessions ?? []);
+  const [courses, setCourses] = useState<StudyCourse[]>(() => sidebarMemory.data?.courses ?? []);
+  const [masteryTopics, setMasteryTopics] = useState<MasteryTopicLabel[]>(() => sidebarMemory.data?.masteryTopics ?? []);
   const [readingCollections, setReadingCollections] = useState<
     ReadingCollectionLabel[]
-  >([]);
+  >(() => sidebarMemory.data?.readingCollections ?? []);
   const [loadingSessions, setLoadingSessions] = useState(false);
-  const hasLoadedSessionsRef = useRef(false);
+  const hasLoadedSessionsRef = useRef(Boolean(sidebarMemory.data));
+  // A sidebar that replaces another one starts from what that one showed and only asks the server
+  // again when the lists are stale; later refreshes (a stream ending, an archive restore) always do.
+  // The token it started with is remembered, so React's double-run of effects in development does
+  // not count as a refresh request.
+  const startTokenRef = useRef(sidebarRefreshToken);
 
   const refreshSessions = useCallback(async () => {
     if (!hasLoadedSessionsRef.current) {
@@ -74,6 +80,13 @@ export default function WorkspaceSidebar() {
       setMasteryTopics(nextTopics);
       setReadingCollections(nextCollections);
       hasLoadedSessionsRef.current = true;
+      sidebarMemory.data = {
+        sessions: nextSessions,
+        courses: nextCourses,
+        masteryTopics: nextTopics,
+        readingCollections: nextCollections,
+        at: Date.now(),
+      };
     } catch (error) {
       console.error("Failed to load sessions", error);
     } finally {
@@ -87,8 +100,22 @@ export default function WorkspaceSidebar() {
   // each refresh briefly re-renders the loading skeleton, which the
   // user perceives as a flicker on every message send / Answer Now.
   useEffect(() => {
+    if (isFresh(sidebarMemory.data) && sidebarRefreshToken === startTokenRef.current) return;
     void refreshSessions();
   }, [refreshSessions, sidebarRefreshToken]);
+  // Keep the memory in step with what is on screen, local edits included, so the next sidebar to
+  // mount shows the same list. The fetch time only moves when the server was actually asked.
+  useEffect(() => {
+    if (!hasLoadedSessionsRef.current) return;
+    sidebarMemory.data = {
+      sessions,
+      courses,
+      masteryTopics,
+      readingCollections,
+      at: sidebarMemory.data?.at ?? Date.now(),
+    };
+  }, [sessions, courses, masteryTopics, readingCollections]);
+
 
   // The token above covers mutations made through the chat runtime. A restore
   // from Settings › Archive, or a delete from another surface, arrives on the

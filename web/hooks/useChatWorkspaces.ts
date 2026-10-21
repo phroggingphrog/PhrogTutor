@@ -1,5 +1,6 @@
 "use client";
 
+import { sidebarMemory } from "@/lib/sidebar-memory";
 import { useEffect, useState } from "react";
 
 import { subscribeSessionChanges } from "@/lib/session-events";
@@ -19,7 +20,7 @@ import {
  * each keeping its own idea of what exists.
  */
 export function useChatWorkspaces() {
-  const [workspaces, setWorkspaces] = useState<ChatWorkspaceRegistration[]>([]);
+  const [workspaces, setWorkspaces] = useState<ChatWorkspaceRegistration[]>(() => sidebarMemory.workspaces ?? []);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -28,7 +29,9 @@ export function useChatWorkspaces() {
       void listWorkspaces(true)
         .then((rows) => {
           if (!alive) return;
-          setWorkspaces(rows.filter((row) => row.kind === "workspace"));
+          const next = rows.filter((row) => row.kind === "workspace");
+          sidebarMemory.workspaces = next;
+          setWorkspaces(next);
           setError("");
         })
         .catch((err) => {
