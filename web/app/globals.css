@@ -1478,8 +1478,9 @@ a[href^="#dt-locator-"]:hover {
 .notes-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--muted-foreground); pointer-events: none; }
 
 /* Font choice (Settings > Appearance > Font). "classic" keeps the original Geist UI + Lora reading font. */
-html[data-font="lexend"] { --font-sans: var(--font-lexend); --font-serif: var(--font-lexend); }
+/* Page titles and the greeting stay serif (the reference UI's display face) in every font choice except Atkinson Hyperlegible and Geist, which are all-sans on purpose. */
+html[data-font="lexend"] { --font-sans: var(--font-lexend); }
 html[data-font="atkinson"] { --font-sans: var(--font-atkinson); --font-serif: var(--font-atkinson); }
-html[data-font="inter"] { --font-sans: var(--font-inter); --font-serif: var(--font-inter); }
+html[data-font="inter"] { --font-sans: var(--font-inter); }
 html[data-font="geist"] { --font-serif: var(--font-sans); }
-html[data-font="system"] { --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --font-serif: var(--font-sans); }
+html[data-font="system"] { --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
