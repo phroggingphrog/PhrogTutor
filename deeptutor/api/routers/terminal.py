@@ -62,8 +62,15 @@ async def terminal(websocket: WebSocket):
     await websocket.accept()
     pid, fd = pty.fork()
     if pid == 0:  # child: become the sandboxed shell
-        argv = _argv(_home(websocket.query_params.get("note", "")))
-        os.execvp(argv[0], argv)
+        # The child is a copy of the whole server. If the sandbox cannot start it must exit here:
+        # an exception would unwind into the server's own event loop and keep a second server
+        # process alive on the inherited listening socket.
+        try:
+            argv = _argv(_home(websocket.query_params.get("note", "")))
+            os.execvp(argv[0], argv)
+        except BaseException as exc:
+            os.write(2, f"Terminal unavailable: {exc}\r\n".encode())
+            os._exit(127)
     loop = asyncio.get_running_loop()
     output: asyncio.Queue[bytes] = asyncio.Queue()
     loop.add_reader(fd, lambda: output.put_nowait(_read(fd)))
