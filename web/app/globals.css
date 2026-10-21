@@ -112,6 +112,7 @@
     --border: #e3e0d4;
     --input: #d1cfc5;
     --ring: #b5502f;
+    --brand: #1f7a3d;
     --overlay: rgba(20, 20, 19, 0.45);
     --success: #237a4b;
     --success-foreground: #14532d;
@@ -149,6 +150,7 @@
     --border: #3d3d3a;
     --input: #4d4c48;
     --ring: #d97757;
+    --brand: #5fd08a;
     --overlay: rgba(0, 0, 0, 0.6);
     --success: #5fd08a;
     --success-foreground: #bbf7d0;
@@ -189,6 +191,7 @@
     --border: #e5e5e5;
     --input: #e5e5e5;
     --ring: #2563eb;
+    --brand: #1f7a3d;
     --overlay: rgba(0, 0, 0, 0.4);
     --success: #16794b;
     --success-foreground: #14532d;
@@ -226,6 +229,7 @@
     --border: rgba(255, 255, 255, 0.12);
     --input: rgba(255, 255, 255, 0.06);
     --ring: #a855f7;
+    --brand: #5fd08a;
     --overlay: rgba(0, 0, 0, 0.55);
     --success: #68dfa0;
     --success-foreground: #bbf7d0;

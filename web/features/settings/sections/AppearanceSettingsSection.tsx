@@ -60,7 +60,7 @@ function FontRow() {
     <SettingRow
       title="Font"
       control={
-        <select value={font} onChange={(e) => choose(e.target.value)} className={`${selectClass} min-w-[260px] pr-8`}>
+        <select aria-label="Font" value={font} onChange={(e) => choose(e.target.value)} className={`${selectClass} min-w-[260px] pr-8`}>
           {FONTS.map(([id, label]) => (
             <option key={id} value={id}>{label}</option>
           ))}
@@ -169,6 +169,7 @@ export default function AppearanceSettingsPage() {
           )}
           control={
             <select
+              aria-label="Code block theme"
               value={codeBlockTheme}
               onChange={(event) =>
                 void updateCodeBlockTheme(

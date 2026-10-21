@@ -184,7 +184,7 @@ export function SidebarShell({
   /* ---- Collapsed state ---- */
   if (collapsed) {
     return (
-      <aside className="group/sb relative flex h-dvh w-[60px] shrink-0 flex-col items-center bg-[var(--secondary)] py-3 transition-all duration-200">
+      <aside aria-label="Sidebar" className="group/sb relative flex h-dvh w-[60px] shrink-0 flex-col items-center bg-[var(--secondary)] py-3 transition-all duration-200">
         {/* Header: logo + collapse toggle (toggle replaces logo on hover) */}
         <div className="relative mb-2 flex h-9 w-9 items-center justify-center">
           <Link
@@ -251,6 +251,7 @@ export function SidebarShell({
   /* ---- Expanded state ---- */
   return (
     <aside
+      aria-label="Sidebar"
       style={{ "--sidebar-width": `${resize.width}px` } as CSSProperties}
       className="relative flex h-dvh w-[var(--sidebar-width)] max-w-[45vw] shrink-0 flex-col bg-[var(--secondary)] max-md:w-[220px] max-md:max-w-[85vw]"
     >
@@ -259,12 +260,12 @@ export function SidebarShell({
         <Link href="/" prefetch={false} className="group flex items-center gap-1.5">
           <Image
             src="/logo.png"
-            alt="PhrogTutor"
+            alt=""
             width={22}
             height={22}
             className="h-[22px] w-[22px] transition-transform duration-200 group-hover:scale-105"
           />
-          <span className="text-[17px] font-bold tracking-tight text-[#2e9b4f] transition-transform duration-200 group-hover:scale-105">PhrogTutor</span>
+          <span className="text-[17px] font-bold tracking-tight text-[var(--brand)] transition-transform duration-200 group-hover:scale-105">PhrogTutor</span>
         </Link>
         {/* The rail is a desktop affordance; in the drawer the scrim and the
             top-bar toggle already own "make this go away". */}

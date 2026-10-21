@@ -196,7 +196,7 @@ export function SidebarNav({
    * features through one overflow button so nothing becomes unreachable. */
   if (collapsed) {
     return (
-      <nav className="mt-1 flex w-full flex-col items-center gap-1 px-1.5">
+      <nav aria-label="Primary" className="mt-1 flex w-full flex-col items-center gap-1 px-1.5">
         {resolved.visible.map((href) => (
           <RailRow
             key={href}
@@ -393,7 +393,7 @@ export function SidebarNav({
   };
 
   return (
-    <nav className="px-2 pt-1">
+    <nav aria-label="Primary" className="px-2 pt-1">
       <div className="space-y-px">
         {resolved.visible.map((href) => (
           <Fragment key={href}>{renderRow(href, visibleDrag, false)}</Fragment>

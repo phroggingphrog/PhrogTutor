@@ -64,7 +64,7 @@ export default function CourseMaterialDrop() {
       <div className="grid gap-2 text-sm">
         <input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="Course or topic name (e.g. Statistics 101)"
           className="rounded border border-[var(--border)] bg-transparent px-2 py-1.5 outline-none" />
-        <input type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx,.epub,.md,.txt,.html" onChange={(e) => setFiles(e.target.files)} />
+        <input type="file" multiple aria-label="Course material files" accept=".pdf,.ppt,.pptx,.doc,.docx,.epub,.md,.txt,.html" onChange={(e) => setFiles(e.target.files)} />
         <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…or a website URL (optional)"
           className="rounded border border-[var(--border)] bg-transparent px-2 py-1.5 outline-none" />
         <label className="flex items-start gap-2 text-xs">

@@ -321,7 +321,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       </aside>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
         {current ? (
           <>
             <div className="flex flex-wrap items-center gap-2 whitespace-nowrap border-b border-[var(--border)] px-4 py-2">
@@ -383,7 +383,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
             {compact && <button onClick={() => setShowList(true)} className="rounded border border-[var(--border)] px-3 py-1 text-sm">Open notes</button>}
           </div>
         )}
-      </main>
+      </div>
       {showTerminal && <TerminalPanel key={current ?? ""} note={current ?? ""} />}
       </div>
     </div>

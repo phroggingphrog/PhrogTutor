@@ -317,7 +317,7 @@ export default function MasteryTopicPage() {
     // Under `lg` the columns stack and the page scrolls normally — a phone has
     // no second column to balance, and a fixed-height stack there would just
     // be three tiny scrollers.
-    <main className="mastery-shell flex h-full flex-col overflow-y-auto [scrollbar-gutter:stable]">
+    <div className="mastery-shell flex h-full flex-col overflow-y-auto [scrollbar-gutter:stable]">
       <div className="mx-auto flex w-full min-h-0 max-w-[1180px] flex-1 flex-col px-4 pb-40 pt-6 sm:px-7 sm:pb-10 lg:px-8 lg:py-8">
         <div className="flex items-center justify-between gap-3">
           <Link
@@ -673,6 +673,6 @@ export default function MasteryTopicPage() {
           onClose={() => setConfirmAction(null)}
         />
       )}
-    </main>
+    </div>
   );
 }

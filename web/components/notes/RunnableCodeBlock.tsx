@@ -106,7 +106,7 @@ function CodeBlockView({ node, updateAttributes }: NodeViewProps) {
           </button>
         )}
       </div>
-      <pre className="m-0 overflow-x-auto p-3 font-mono text-sm">
+      <pre tabIndex={0} className="m-0 overflow-x-auto p-3 font-mono text-sm">
         <NodeViewContent as={"code" as "div"} />
       </pre>
       {result && (

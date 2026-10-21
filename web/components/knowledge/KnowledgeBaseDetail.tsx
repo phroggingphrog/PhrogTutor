@@ -130,7 +130,7 @@ export default function KnowledgeBaseDetail({
 
   if (!kb) {
     return (
-      <main className="flex flex-1 items-center justify-center bg-[var(--background)] p-6">
+      <div className="flex flex-1 items-center justify-center bg-[var(--background)] p-6">
         <div className="max-w-sm rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 p-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--muted)] text-[var(--muted-foreground)]">
             <Database className="h-5 w-5" />
@@ -151,7 +151,7 @@ export default function KnowledgeBaseDetail({
             {t("Create your first knowledge base")}
           </button>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -203,7 +203,7 @@ export default function KnowledgeBaseDetail({
   const fullBleed = FULL_BLEED_SECTIONS.has(activeSection);
 
   return (
-    <main className="flex h-full flex-1 flex-col overflow-hidden bg-[var(--background)]">
+    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[var(--background)]">
       {/* Header */}
       <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-4">
         <div className="flex items-start justify-between gap-3">
@@ -398,6 +398,6 @@ export default function KnowledgeBaseDetail({
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
