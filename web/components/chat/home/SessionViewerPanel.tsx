@@ -1,5 +1,7 @@
 "use client";
 
+import TaskPanelSection from "@/components/tasks/TaskPanelSection";
+
 import { browserStorage } from "@/shared/storage";
 
 /**
@@ -30,6 +32,7 @@ import dynamic from "next/dynamic";
 import {
   Activity,
   AlertCircle,
+  ArrowLeft,
   ArrowRight,
   ChevronRight,
   Compass,
@@ -216,6 +219,8 @@ export interface SessionViewerPanelProps {
   activity: SessionActivity;
   /** Optional capability-config card appended below the activity sections. */
   configSection?: ReactNode;
+  taskDraftIds?: string[];
+  onTaskDraftChange?: (ids: string[]) => void;
 }
 
 function fileTabIdFor(a: MessageAttachment, fallback: number): string {
@@ -283,6 +288,8 @@ function SessionViewerPanelInner(
     onAutoOpen,
     activity,
     configSection,
+    taskDraftIds,
+    onTaskDraftChange,
   }: SessionViewerPanelProps,
   ref: React.Ref<SessionViewerPanelHandle>,
 ) {
@@ -826,12 +833,16 @@ function SessionViewerPanelInner(
           />
         ) : (
           <ActivityHome
+            sessionId={sessionId}
+            taskDraftIds={taskDraftIds}
+            onTaskDraftChange={onTaskDraftChange}
             activity={activity}
             open={visible}
             configSection={configSection}
             onOpenAttachment={openFileTab}
             onOpenWebTab={openWebTab}
             onOpenLocalFile={openLocalFile}
+            onClose={onClose}
           />
         )}
       </div>
@@ -999,22 +1010,47 @@ function TabBar({
  * this same panel.
  */
 function ActivityHome({
+  sessionId,
+  taskDraftIds,
+  onTaskDraftChange,
   activity,
   open,
   configSection,
   onOpenAttachment,
   onOpenWebTab,
   onOpenLocalFile,
+  onClose,
 }: {
+  sessionId: string | null;
+  taskDraftIds?: string[];
+  onTaskDraftChange?: (ids: string[]) => void;
   activity: SessionActivity;
   open: boolean;
   configSection?: ReactNode;
   onOpenAttachment: (a: MessageAttachment) => void;
   onOpenWebTab: (url: string) => void;
   onOpenLocalFile: (file: File) => void;
+  onClose: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="h-full space-y-5 overflow-y-auto px-3 pb-8 pt-1 sm:px-3.5">
+      <div className="sticky top-0 z-10 -mx-3 flex justify-start border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_94%,transparent)] px-3 py-2 backdrop-blur-sm sm:-mx-3.5 sm:px-3.5">
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          aria-label={t("Back to conversation")}
+        >
+          <ArrowLeft size={16} strokeWidth={1.8} />
+          <span>{t("Back to conversation")}</span>
+        </button>
+      </div>
+      <TaskPanelSection
+        sessionId={sessionId}
+        draftTaskIds={taskDraftIds}
+        onDraftChange={onTaskDraftChange}
+      />
       <ActivityBody
         activity={activity}
         open={open}

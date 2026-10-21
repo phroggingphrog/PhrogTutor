@@ -5,6 +5,7 @@
 # Without it the default knowledge-base pipeline reports how to install it.
 
 llama-index>=0.14.12
+bm25s>=0.3.14,<0.4.0
 # PyStemmer 2.x has no Python 3.14 wheels. LlamaIndex falls back to vector
 # retrieval when this optional BM25 integration is unavailable.
 llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < "3.14"

@@ -62,7 +62,7 @@ def test_agentic_kwargs_enable_qwen_thinking_for_custom_binding() -> None:
     assert kwargs["extra_body"] == {"enable_thinking": True}
 
 
-def test_agentic_kwargs_disable_qwen_thinking_for_custom_minimal_reasoning() -> None:
+def test_agentic_kwargs_omit_thinking_for_qwen_instruct() -> None:
     kwargs = build_completion_kwargs(
         temperature=0.7,
         model="Qwen/Qwen3-235B-A22B-Instruct",
@@ -72,7 +72,7 @@ def test_agentic_kwargs_disable_qwen_thinking_for_custom_minimal_reasoning() -> 
     )
 
     assert "reasoning_effort" not in kwargs
-    assert kwargs["extra_body"] == {"enable_thinking": False}
+    assert "extra_body" not in kwargs
 
 
 def test_agentic_kwargs_preserve_legacy_shape_without_binding() -> None:
@@ -149,6 +149,9 @@ def test_registered_cloud_openai_compat_providers_enable_native_tools() -> None:
         "api_route",
         "requesty",
         "futureinfra",
+        "opper",
+        "y_api",
+        "onomeo",
         "edenai",
         "novita",
         "volcengine_coding_plan",

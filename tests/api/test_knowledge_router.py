@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import importlib
 import json
+import logging
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -1921,6 +1922,72 @@ def test_reindex_task_preserves_prepublication_failure(monkeypatch, tmp_path: Pa
     assert task["error"] == "original indexing failure"
 
 
+def test_reindex_task_surfaces_failed_error_progress_write(
+    monkeypatch, tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """A failing error-progress write must not vanish silently.
+
+    The rebuild's task-level failure stays authoritative; the router logs the
+    degraded progress write instead of swallowing it with ``except: pass``.
+    """
+    base_dir = tmp_path / "knowledge_bases"
+    raw_dir = base_dir / "kb" / "raw"
+    raw_dir.mkdir(parents=True)
+    (raw_dir / "fixture.txt").write_text("fixture", encoding="utf-8")
+    (base_dir / "kb_config.json").write_text(
+        json.dumps(
+            {
+                "knowledge_bases": {
+                    "kb": {
+                        "path": "kb",
+                        "rag_provider": "lightrag",
+                        "status": "processing",
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    class _FailingRagService:
+        def __init__(self, *_args, **_kwargs) -> None:
+            pass
+
+        async def initialize(self, *_args, **_kwargs) -> bool:
+            raise RuntimeError("original indexing failure")
+
+    rag_service_module = importlib.import_module("deeptutor.services.rag.service")
+    monkeypatch.setattr(rag_service_module, "RAGService", _FailingRagService)
+
+    class _ErrorWriteFailsTracker(knowledge_router_module.ProgressTracker):
+        def update(self, stage, *args, **kwargs):
+            if stage is knowledge_router_module.ProgressStage.ERROR:
+                raise OSError("synthetic error progress write failure")
+            return super().update(stage, *args, **kwargs)
+
+    monkeypatch.setattr(knowledge_router_module, "ProgressTracker", _ErrorWriteFailsTracker)
+
+    task_id = knowledge_router_module._build_unique_task_id("kb_reindex", "error-progress")
+    with caplog.at_level(logging.WARNING, logger="deeptutor.api.routers.knowledge"):
+        asyncio.run(
+            knowledge_router_module.run_reindex_task(
+                kb_name="kb",
+                base_dir=str(base_dir),
+                task_id=task_id,
+                signature_hash="lightrag",
+            )
+        )
+
+    task = knowledge_router_module.TaskIDManager.get_instance().get_task_metadata(task_id)
+    assert task is not None
+    assert task["status"] == "error"
+    assert task["error"] == "original indexing failure"
+    warnings = [
+        record.getMessage() for record in caplog.records if record.levelno >= logging.WARNING
+    ]
+    assert any("error progress" in message and "kb" in message for message in warnings), warnings
+
+
 @pytest.mark.parametrize("failed_sink", ["progress_file", "central_config"])
 def test_reindex_task_does_not_report_a_published_version_as_failed_when_bookkeeping_fails(
     monkeypatch, tmp_path: Path, failed_sink: str
@@ -3132,6 +3199,32 @@ def test_delete_reports_a_missing_knowledge_base_as_404(monkeypatch, tmp_path: P
     with TestClient(_build_app()) as client:
         response = client.post("/api/knowledge-bases/delete", json={"name": "never-created"})
     assert response.status_code == 404
+
+
+def test_delete_kb_file_success_and_traversal(monkeypatch, tmp_path: Path) -> None:
+    manager = _real_manager(monkeypatch, tmp_path)
+    kb_dir = tmp_path / "kbs" / "chem"
+    kb_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir = kb_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    test_file = raw_dir / "notes.txt"
+    test_file.write_text("chemical reaction formulas")
+    manager.config.setdefault("knowledge_bases", {})["chem"] = {
+        "rag_provider": "llamaindex",
+        "status": "ready",
+    }
+    manager._save_config()
+
+    with TestClient(_build_app()) as client:
+        # Non-existent file
+        res_404 = client.delete("/api/knowledge-bases/chem/files/nonexistent.txt")
+        assert res_404.status_code == 404
+
+        # Successful deletion
+        res_ok = client.delete("/api/knowledge-bases/chem/files/notes.txt")
+        assert res_ok.status_code == 200
+        assert res_ok.json()["status"] == "ok"
+        assert not test_file.exists()
 
 
 @pytest.mark.parametrize("first_upload_fails", [False, True])

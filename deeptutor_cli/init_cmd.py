@@ -10,42 +10,23 @@ intentionally thin so the order of steps is easy to read top-to-bottom.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
+import time
 from typing import Any
 
+import httpx
 from rich.console import Console
 import typer
-
-from deeptutor.runtime.home import DEEPTUTOR_HOME_ENV, get_runtime_home
 
 from . import init_wizard as wiz
 
 
 def _reset_runtime_singletons() -> None:
-    """Drop cached service instances so the new DEEPTUTOR_HOME takes effect.
+    """Compatibility entry point for runtime-home selection."""
+    from deeptutor.runtime.cache_reset import reset_runtime_singletons
 
-    ``deeptutor init`` may pass ``--home`` to target a different workspace; the
-    singletons cache paths from the *previous* PathService and will silently
-    write to the wrong place if not cleared.
-    """
-    try:
-        from deeptutor.services.path_service import PathService
-
-        PathService.reset_instance()
-    except Exception:
-        pass
-    try:
-        from deeptutor.services.config.runtime_settings import RuntimeSettingsService
-
-        RuntimeSettingsService._instances.clear()
-    except Exception:
-        pass
-    try:
-        from deeptutor.services.config.model_catalog import ModelCatalogService
-
-        ModelCatalogService._instances.clear()
-    except Exception:
-        pass
+    reset_runtime_singletons()
 
 
 def _ensure_model_service(catalog: dict, service_name: str, profile_id: str, model_id: str):
@@ -409,19 +390,36 @@ def _ensure_search_service(catalog: dict, profile_id: str) -> dict:
     return profile
 
 
-def run_init(*, cli_only: bool = False, home: str | Path | None = None) -> None:
-    runtime_home = get_runtime_home(home)
-    runtime_home.mkdir(parents=True, exist_ok=True)
-    import os
+def run_init(
+    *, cli_only: bool = False, home: str | Path | None = None, non_interactive: bool = False
+) -> None:
+    from .setup_config import select_runtime_home
 
-    os.environ[DEEPTUTOR_HOME_ENV] = str(runtime_home)
-    _reset_runtime_singletons()
+    runtime_home = select_runtime_home(home)
+    runtime_home.mkdir(parents=True, exist_ok=True)
 
     from deeptutor.runtime.banner import labels_for, print_banner, resolve_language
     from deeptutor.services.config import get_model_catalog_service, get_runtime_settings_service
     from deeptutor.services.setup import init_user_directories
 
     init_user_directories(runtime_home)
+
+    if non_interactive:
+        import json
+
+        get_runtime_settings_service().ensure_defaults()
+        get_model_catalog_service().load()
+        Console().print_json(
+            json.dumps(
+                {
+                    "ok": True,
+                    "status": "initialized",
+                    "runtime_home": str(runtime_home),
+                    "next_step": "deeptutor config apply setup.json",
+                }
+            )
+        )
+        return
 
     language = resolve_language()
     strings = labels_for(language)
@@ -543,7 +541,12 @@ def register(app: typer.Typer) -> None:
     def init_command(
         cli: bool = typer.Option(False, "--cli", help="Initialize for CLI-only use."),
         home: Path | None = typer.Option(None, "--home", help="Runtime workspace root."),
+        non_interactive: bool = typer.Option(
+            False,
+            "--non-interactive",
+            help="Create missing defaults without prompts; preserves saved settings.",
+        ),
     ) -> None:
         """Create or update data/user/settings for this workspace."""
 
-        run_init(cli_only=cli, home=home)
+        run_init(cli_only=cli, home=home, non_interactive=non_interactive)

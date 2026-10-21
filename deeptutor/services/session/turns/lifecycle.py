@@ -657,8 +657,15 @@ class TurnLifecycle:
         execution: _TurnExecution,
         event: StreamEvent,
     ) -> dict[str, Any]:
-        if event.type == StreamEventType.DONE and not event.metadata.get("status"):
-            event.metadata = {**event.metadata, "status": "completed"}
+        if event.type == StreamEventType.DONE:
+            from deeptutor.services.llm.metrics import current_usage
+
+            collector = current_usage.get()
+            if collector is not None and collector.turn_id == execution.turn_id:
+                if summary := collector.summary():
+                    event.metadata = {**event.metadata, "usage_summary": summary}
+            if not event.metadata.get("status"):
+                event.metadata = {**event.metadata, "status": "completed"}
         event.session_id = execution.session_id
         event.turn_id = execution.turn_id
         payload = event.to_dict()

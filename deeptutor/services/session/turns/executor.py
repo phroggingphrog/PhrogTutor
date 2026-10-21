@@ -51,8 +51,6 @@ from .._turn_runtime_shared import (
     _retracted_round_call_id,
     _should_capture_assistant_content,
     _stamp_content_offset,
-    _timed_media_id,
-    _timed_media_viewport,
     _topic_material_manifest,
     _TurnExecution,
     _workspace_mode,
@@ -75,7 +73,7 @@ class TurnExecutor:
         _executions: dict[str, _TurnExecution]
         _reply_queues: dict[str, asyncio.Queue[dict[str, Any] | None]]
 
-        def _create_context_builder(self) -> Any: ...
+        def _create_context_builder(self, *, tutoring: bool = False) -> Any: ...
 
         async def _publish_live_event(
             self,
@@ -220,8 +218,14 @@ class TurnExecutor:
         # body so prompt building, the deferred tool view and ``read_skill``
         # all resolve against the same selection; ContextVars are task-local,
         # so a concurrent turn in another conversation is unaffected.
+        # #1920/#1926: context condensation and pre-capability grading are
+        # part of this turn too; the orchestrator inherits this collector.
+        from deeptutor.services.llm.metrics import TurnUsage, current_usage
         from deeptutor.services.workspace.resources import turn_resource_selection
 
+        usage_token = current_usage.set(
+            TurnUsage(session_id=session_id, turn_id=turn_id, source=capability_name)
+        )
         resource_scope = contextlib.ExitStack()
         resource_scope.enter_context(
             turn_resource_selection(
@@ -240,6 +244,7 @@ class TurnExecutor:
             from deeptutor.agents.notebook import NotebookAnalysisAgent
             from deeptutor.book.context import build_book_context
             from deeptutor.core.context import Attachment, TurnRuntimeContext, UnifiedContext
+            from deeptutor.services.learning_journal import get_learning_journal_store
             from deeptutor.services.memory import get_memory_store
             from deeptutor.services.model_selection.runtime import (
                 activate_llm_selection,
@@ -566,7 +571,11 @@ class TurnExecutor:
                 _llm_config_module.reset_scoped_llm_config(llm_scope_token)
                 llm_config = llm_config.model_copy({"reasoning_effort": _turn_effort})
                 llm_scope_token = _llm_config_module.set_scoped_llm_config(llm_config)
-            builder = self._create_context_builder()
+            builder = (
+                self._create_context_builder(tutoring=True)
+                if workspace_mode == WORKSPACE_MODE_MASTERY
+                else self._create_context_builder()
+            )
 
             async def _emit_context_event(event: StreamEvent) -> None:
                 if event.source in {"context", "context_builder"}:
@@ -582,6 +591,15 @@ class TurnExecutor:
             )
             memory_store = get_memory_store()
             memory_context = memory_store.read_l3_concat() if memory_references else ""
+
+            # One snapshot per turn; selected-text tutoring stays independent
+            # of an unrelated mission from earlier conversations (#1407).
+            learning_journal_context = ""
+            if not selection_tutor_context:
+                try:
+                    learning_journal_context = get_learning_journal_store().injection_markdown()
+                except (OSError, ValueError):
+                    logger.exception("Unable to read the learning journal; preserving its file")
 
             # Persona: at most one behaviour preset per turn, eagerly
             # injected (a persona must shape the voice from the first
@@ -908,6 +926,17 @@ class TurnExecutor:
                     **parent_kwargs,
                 )
 
+            if not selection_tutor_context:
+                from deeptutor.services.task_board import get_task_board_store
+                from deeptutor.services.workspace.context import current_workspace_id
+
+                task_context = await asyncio.to_thread(
+                    get_task_board_store(migrate_legacy=False).context_text,
+                    current_workspace_id(),
+                    session_id,
+                )
+                source_manifest_text += task_context
+
             context = UnifiedContext(
                 session_id=session_id,
                 user_message=effective_user_message,
@@ -922,6 +951,7 @@ class TurnExecutor:
                 config_overrides=request_config,
                 language=payload.get("language", "en"),
                 memory_context=memory_context,
+                learning_journal_context=learning_journal_context,
                 persona_context=persona_context,
                 sidebar_context=sidebar_system_context,
                 skills_manifest=skills_manifest,
@@ -939,6 +969,7 @@ class TurnExecutor:
                         session_id=session_id,
                         turn_id=turn_id,
                         workspace_id=payload.get("_content_workspace_id"),
+                        instructions=payload.get("_workspace_instructions"),
                     ),
                 ),
                 metadata={
@@ -989,10 +1020,6 @@ class TurnExecutor:
                     ),
                     "immersive_reading_mode": workspace_mode == WORKSPACE_MODE_READING,
                     "reading_viewport": _reading_viewport(payload.get("reading_viewport")),
-                    "timed_media_id": _timed_media_id(payload.get("timed_media_id")),
-                    "timed_media_viewport": _timed_media_viewport(
-                        payload.get("timed_media_viewport")
-                    ),
                     "book_context": book_context,
                     "book_context_warnings": book_context_result.warnings,
                     "memory_references": memory_references,
@@ -1015,7 +1042,10 @@ class TurnExecutor:
                     # ``MasteryLoopCapability.augment_kwargs``). Kept separate
                     # from ``source_index`` so topic materials never trigger
                     # explore_context's forced pre-pass.
-                    "mastery_topic_source_index": mastery_topic_source_index,
+                    "mastery_topic_source_index": {
+                        **mastery_topic_source_index,
+                        **getattr(history_result, "history_sources", {}),
+                    },
                 },
             )
 
@@ -1180,10 +1210,13 @@ class TurnExecutor:
             # Attach the persisted row ids so the frontend can reconcile its
             # optimistic (negative) message ids with a targeted in-place swap
             # instead of refetching and re-rendering the whole session.
+            accepted_user_message_id = new_user_message_id
+            if accepted_user_message_id is None and is_regenerate:
+                accepted_user_message_id = payload.get("regenerated_from_message_id")
             persisted_ids = {
                 key: value
                 for key, value in (
-                    ("user_message_id", new_user_message_id),
+                    ("user_message_id", accepted_user_message_id),
                     ("assistant_message_id", assistant_message_id),
                 )
                 if value
@@ -1218,6 +1251,8 @@ class TurnExecutor:
                 # open briefly so the later ``session_meta`` title update can
                 # still arrive.
                 try:
+                    current_usage.reset(usage_token)
+                    usage_token = None
                     await self._maybe_generate_session_title(
                         execution=execution,
                         session_id=session_id,
@@ -1402,6 +1437,8 @@ class TurnExecutor:
                     retryable=resolved_retryable,
                 )
         finally:
+            if usage_token is not None:
+                current_usage.reset(usage_token)
             if execution.flush_task is not None:
                 execution.flush_task.cancel()
                 with contextlib.suppress(asyncio.CancelledError):

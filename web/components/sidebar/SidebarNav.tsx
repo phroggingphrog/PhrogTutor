@@ -43,7 +43,9 @@ import {
   DEFAULT_COLLAPSED_NAV,
   PRIMARY_NAV_HREFS,
   isNavActive,
+  navVisibleUnderPolicy,
 } from "@/components/sidebar/nav-entries";
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { Tooltip } from "@/shared/ui/Tooltip";
 import { sidebarMemory } from "@/lib/sidebar-memory";
 import { useDragSort, type DragSort } from "@/hooks/useDragSort";
@@ -116,9 +118,17 @@ export function SidebarNav({
     setMoreExpanded(expanded);
   }, []);
 
+  const { learningPolicy } = useAuthStatus();
+  const moduleHrefs = useMemo(
+    () =>
+      MODULE_NAV_HREFS.filter((href) =>
+        navVisibleUnderPolicy(href, learningPolicy?.allowedSurfaces ?? null),
+      ),
+    [learningPolicy],
+  );
   const resolved = useMemo(
-    () => resolveNavLayout(MODULE_NAV_HREFS, layout, DEFAULT_COLLAPSED_NAV),
-    [layout],
+    () => resolveNavLayout(moduleHrefs, layout, DEFAULT_COLLAPSED_NAV),
+    [layout, moduleHrefs],
   );
   /** Always edit the resolved order: the stored one may still be empty. */
   const editable = useMemo<SidebarNavLayout>(
@@ -536,7 +546,14 @@ export function SidebarHome({
   const { t } = useTranslation();
   const pathname = usePathname();
   const { has } = useCapabilityAccess();
+  const { learningPolicy } = useAuthStatus();
   const entry = NAV_BY_HREF.get("/chat")!;
+  if (
+    learningPolicy &&
+    !navVisibleUnderPolicy("/chat", learningPolicy.allowedSurfaces)
+  ) {
+    return null;
+  }
   const active = isNavActive(pathname, entry.href);
   const locked = entry.requires ? !has(entry.requires) : false;
   const lockedTooltip = t("Locked — contact your administrator to get access.");

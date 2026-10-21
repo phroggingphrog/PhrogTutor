@@ -71,6 +71,21 @@ BUILTIN_TOOL_SPECS: tuple[BuiltinToolSpec, ...] = (
             ("geogebra_analysis", "GeoGebraAnalysisTool"),
         ),
     ),
+    *_specs(
+        "deeptutor.tools.learning_journal_tools",
+        (
+            ("learning_status", "LearningStatusTool"),
+            ("learning_update", "LearningUpdateTool"),
+        ),
+    ),
+    *_specs(
+        "deeptutor.tools.research_tools",
+        (
+            ("preprint", "PreprintTool"),
+            ("research_audit", "ResearchAuditTool"),
+            ("research_lit", "ResearchLiteratureTool"),
+        ),
+    ),
     BuiltinToolSpec("exec", "deeptutor.tools.exec_tool:ExecTool"),
     BuiltinToolSpec("map_project", "deeptutor.tools.project_map:MapProjectTool"),
     BuiltinToolSpec("read_project_file", "deeptutor.tools.project_map:ReadProjectFileTool"),
@@ -100,7 +115,9 @@ BUILTIN_TOOL_SPECS: tuple[BuiltinToolSpec, ...] = (
         "deeptutor.capabilities.mastery.tools",
         (
             ("mastery_status", "MasteryStatusTool"),
+            ("mastery_prepare_lesson", "MasteryPrepareLessonTool"),
             ("mastery_quiz", "MasteryQuizTool"),
+            ("mastery_note_explained", "MasteryNoteExplainedTool"),
             ("mastery_grade", "MasteryGradeTool"),
             ("mastery_skip_question", "MasterySkipQuestionTool"),
             ("mastery_repair_question", "MasteryRepairQuestionTool"),

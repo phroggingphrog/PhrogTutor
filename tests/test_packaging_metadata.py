@@ -191,6 +191,7 @@ def test_lightrag_extra_is_the_exact_native_sdk_without_parser_transitives() -> 
 @pytest.mark.parametrize(
     "expected",
     [
+        "packaging>=24.2",
         "loguru>=0.7.3,<1.0.0",
         "json-repair>=0.57.0,<1.0.0",
         "pyte>=0.8.1",
@@ -232,3 +233,54 @@ def test_default_install_leaves_out_the_heavy_retrieval_engines() -> None:
     for everything in ("dev", "all"):  # tests and the full set still get them
         assert "deeptutor[rag-llamaindex]" in extras[everything]
         assert "deeptutor[rag-pageindex]" in extras[everything]
+def test_timezone_database_is_installed_on_every_install_surface() -> None:
+    """Windows has no system zoneinfo database, so named zones need ``tzdata``.
+
+    Without it ``ZoneInfo("UTC")`` raises on Windows and the usage statistics,
+    practice review and cron features reject every timezone (issue #1907).
+    """
+    expected = "tzdata>=2024.1"
+    root = _project(REPOSITORY_ROOT / "pyproject.toml")
+    cli_package = _project(REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml")
+
+    assert root["dependencies"].count(expected) == 1
+    assert cli_package["dependencies"].count(expected) == 1
+    assert _cli_requirement_lines().count(expected) == 1
+
+
+def test_windows_mineru_worker_dependencies_match_every_install_surface() -> None:
+    from packaging.requirements import Requirement
+
+    root = _project(REPOSITORY_ROOT / "pyproject.toml")
+    cli_package = _project(REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml")
+    for dependencies in (
+        root["dependencies"],
+        root["optional-dependencies"]["cli"],
+        cli_package["dependencies"],
+        _cli_requirement_lines(),
+    ):
+        requirements = {
+            requirement.name: requirement
+            for line in dependencies
+            if not line.startswith("-")
+            for requirement in [Requirement(line)]
+        }
+        assert "psutil" in requirements
+        win32 = requirements["pywin32"]
+        assert win32.marker.evaluate({"sys_platform": "win32"})
+        assert not win32.marker.evaluate({"sys_platform": "linux"})
+        assert not win32.marker.evaluate({"sys_platform": "darwin"})
+
+
+def test_legacy_page_lexical_engine_is_available_on_every_supported_python() -> None:
+    from packaging.requirements import Requirement
+
+    root = _project(REPOSITORY_ROOT / "pyproject.toml")
+    cli = _project(REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml")
+    for dependencies in (
+        root["optional-dependencies"]["rag-llamaindex"],
+        cli["optional-dependencies"]["rag-llamaindex"],
+        _requirement_lines("rag-llamaindex.txt"),
+    ):  # the lexical engine belongs to the optional LlamaIndex engine
+        engine = next(Requirement(line) for line in dependencies if line.startswith("bm25s"))
+        assert engine.marker is None or engine.marker.evaluate({"python_version": "3.14"})

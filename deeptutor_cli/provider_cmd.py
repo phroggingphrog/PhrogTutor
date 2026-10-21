@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import webbrowser
 
+import httpx
 import typer
 
 from deeptutor.services.codex_auth import CodexAuthError, get_codex_oauth_service

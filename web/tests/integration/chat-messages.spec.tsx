@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ChatMessageList } from '@/features/chat/messages'
 import type { StreamEvent } from '@/features/chat/model/protocol'
-import { WatchingProvider } from '@/context/WatchingContext'
 import { initI18n } from '@/i18n/init'
 
 initI18n('en')
@@ -155,7 +154,7 @@ describe('chat message feature', () => {
     })
 
     const { container } = render(
-      <WatchingProvider>
+
         <ChatMessageList
           messages={[
             {
@@ -193,7 +192,7 @@ describe('chat message feature', () => {
           onCopyAssistantMessage={async () => undefined}
           onRegenerateMessage={() => undefined}
         />
-      </WatchingProvider>
+
     )
 
     const fold = container.querySelector('div.grid')
@@ -241,14 +240,54 @@ describe('empty reply outcomes', () => {
       type: 'error', source: 'chat', stage: '', content, timestamp: 0,
       metadata: status === 'legacy' ? {} : { turn_terminal: true, status },
     }];
-    render(<WatchingProvider><ChatMessageList
+    render(<ChatMessageList
       messages={[{ id: 1, role: 'user', content: 'hi' }, { id: 2, role: 'assistant', content: '', events }]}
       isStreaming={false}
       onCopyAssistantMessage={async () => undefined}
       onRegenerateMessage={() => undefined}
       onDeleteTurn={() => undefined}
-    /></WatchingProvider>);
+    />);
     expect(screen.getByText(expected)).toBeVisible();
     if (status === 'cancelled') expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
+
+
+describe('unsent message recovery actions', () => {
+  const pending = [
+    { id: -1, role: 'user' as const, content: 'same outline request', parentMessageId: null, failedSubmission: true },
+    { id: -2, role: 'user' as const, content: 'same outline request', parentMessageId: -1, failedSubmission: true },
+  ];
+
+  it('offers discard and causal retry for each pending record', async () => {
+    const discard = vi.fn(() => true);
+    const retry = vi.fn(async () => true);
+    const edit = vi.fn();
+    render(<ChatMessageList messages={pending} isStreaming={false}
+      onCopyAssistantMessage={vi.fn()} onRegenerateMessage={vi.fn()}
+      onRetryFailedSubmission={retry}
+      onDiscardFailedSubmission={discard} onEditMessage={edit} />);
+    expect(screen.getAllByText('Not sent')).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+    const user = userEvent.setup();
+    await user.click(screen.getAllByRole('button', { name: 'Discard unsent draft' })[0]);
+    expect(discard).toHaveBeenCalledWith(-1);
+    await user.click(screen.getAllByRole('button', { name: 'Retry' })[0]);
+    await user.click(screen.getAllByRole('button', { name: 'Retry' })[1]);
+    expect(retry.mock.calls).toEqual([[-1], [-2]]);
+  });
+
+  it('blocks recovery mutations while streaming and unsafe retries of incomplete snapshots', () => {
+    const { rerender } = render(<ChatMessageList messages={pending} isStreaming
+      onCopyAssistantMessage={vi.fn()} onRegenerateMessage={vi.fn()}
+      onRetryFailedSubmission={vi.fn()} onDiscardFailedSubmission={vi.fn()} />);
+    for (const button of screen.getAllByRole('button', { name: /^(Retry|Discard unsent draft)$/ })) {
+      expect(button).toBeDisabled();
+    }
+    rerender(<ChatMessageList messages={[{ ...pending[0], failedSubmissionNeedsReview: true }]}
+      isStreaming={false} onCopyAssistantMessage={vi.fn()} onRegenerateMessage={vi.fn()}
+      onRetryFailedSubmission={vi.fn()} onDiscardFailedSubmission={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Retry' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Discard unsent draft' })).toBeEnabled();
   });
 });

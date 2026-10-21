@@ -63,7 +63,7 @@ def is_owner_bound(profile: dict[str, Any]) -> bool:
     a billable team key, so those profiles are never lent to other accounts
     through grants — each user signs in for themselves or goes without.
     """
-    binding = str(profile.get("binding") or "").strip().lower()
+    binding = str(profile.get("binding") or "").strip().lower().replace("-", "_")
     if binding in OWNER_BOUND_BINDINGS:
         return True
     return bool(profile.get("owner_bound"))
