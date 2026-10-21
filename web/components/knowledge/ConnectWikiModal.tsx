@@ -63,11 +63,11 @@ export default function ConnectWikiModal({ onClose, onConnect }: Props) {
           <input value={name} onChange={(event) => { setName(event.target.value); setError(""); }} className={inputClass} placeholder={t("my-wiki")} data-autofocus />
         </label>
         <label className="block text-[12px] font-medium">{t("qmd server URL")}
-          <input value={serverUrl} onChange={(event) => { setServerUrl(event.target.value); setVerified(false); setError(""); }} className={inputClass} placeholder="http://127.0.0.1:8906/mcp" />
+          <input value={serverUrl} onChange={(event) => { setServerUrl(event.target.value); setVerified(false); setError(""); }} className={inputClass} placeholder={t("http://127.0.0.1:8906/mcp")} />
           <span className="mt-1 block text-[11px] font-normal text-[var(--muted-foreground)]">{t("Leave empty to use the default local address.")}</span>
         </label>
         <label className="block text-[12px] font-medium">{t("Collections")}
-          <input value={collections} onChange={(event) => setCollections(event.target.value)} className={inputClass} placeholder="university, personal-learning" />
+          <input value={collections} onChange={(event) => setCollections(event.target.value)} className={inputClass} placeholder={t("university, personal-learning")} />
           <span className="mt-1 block text-[11px] font-normal text-[var(--muted-foreground)]">{t("Comma-separated qmd collections. Leave empty to search the defaults.")}</span>
         </label>
         <div className="flex items-center gap-3">

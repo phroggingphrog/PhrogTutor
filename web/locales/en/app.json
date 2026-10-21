@@ -5540,5 +5540,8 @@
   "Could not update the packages": "Could not update the packages",
   "Install pi packages that add tools, skills or prompts to the tutor. A package runs code on this machine, so install only sources you trust. It is active from the next message.": "Install pi packages that add tools, skills or prompts to the tutor. A package runs code on this machine, so install only sources you trust. It is active from the next message.",
   "Package source": "Package source",
-  "No extensions installed.": "No extensions installed."
+  "No extensions installed.": "No extensions installed.",
+  "http://127.0.0.1:8906/mcp": "http://127.0.0.1:8906/mcp",
+  "university, personal-learning": "university, personal-learning",
+  "npm:@scope/pi-package": "npm:@scope/pi-package"
 }

@@ -86,7 +86,7 @@ export default function PiPackagesAdmin() {
               <input
                 value={source}
                 onChange={(event) => { setSource(event.target.value); setError(""); }}
-                placeholder="npm:@scope/pi-package"
+                placeholder={t("npm:@scope/pi-package")}
                 className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               />
             </label>
