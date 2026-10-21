@@ -753,6 +753,13 @@ def _assert_provider_ready(provider: str) -> None:
 
     PageIndex needs an API key; GraphRAG needs the optional package installed.
     """
+    from deeptutor.services.rag.availability import RagDependencyMissing, require_engine
+
+    try:
+        require_engine(provider)  # LlamaIndex and the PageIndex SDK are optional extras
+    except RagDependencyMissing as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     if provider == PAGEINDEX_PROVIDER:
         from deeptutor.services.rag.pipelines.pageindex.config import is_pageindex_configured
 

@@ -60,7 +60,7 @@ def rss_mb(pid: int) -> float:
 def backend() -> dict[str, float]:
     start = time.time()
     proc = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "deeptutor.api.main:app", "--port", str(PORT)],
+        [os.environ.get("FOOTPRINT_PYTHON", sys.executable), "-m", "uvicorn", "deeptutor.api.main:app", "--port", str(PORT)],
         cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     try:

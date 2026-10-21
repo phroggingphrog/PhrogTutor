@@ -57,8 +57,9 @@ def test_python_314_rag_dependency_guards_match_every_install_surface() -> None:
     root = _project(REPOSITORY_ROOT / "pyproject.toml")
     cli_package = _project(REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml")
 
+    # The server wheel offers the LlamaIndex stack as an extra; the CLI-only package still carries it.
     for dependencies in (
-        root["dependencies"],
+        root["optional-dependencies"]["rag-llamaindex"],
         root["optional-dependencies"]["cli"],
         cli_package["dependencies"],
     ):
@@ -168,7 +169,7 @@ def test_pageindex_sdk_range_matches_every_install_surface() -> None:
     with (REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml").open("rb") as file:
         cli_package = tomllib.load(file)["project"]
 
-    assert root["dependencies"].count(expected) == 1
+    assert root["optional-dependencies"]["rag-pageindex"].count(expected) == 1
     assert root["optional-dependencies"]["cli"].count(expected) == 1
     assert cli_package["dependencies"].count(expected) == 1
     assert (REPOSITORY_ROOT / "requirements" / "cli.txt").read_text(
@@ -213,3 +214,16 @@ def test_cli_runtime_dependencies_match_every_install_surface(expected: str) -> 
         .splitlines()
     ]
     assert requirement_lines.count(expected) == 1
+
+
+def test_default_install_leaves_out_the_heavy_retrieval_engines() -> None:
+    """LlamaIndex/FAISS and the PageIndex SDK are about 300 MB and are optional extras of the server wheel."""
+    root = _project(REPOSITORY_ROOT / "pyproject.toml")
+    heavy = ("llama-index", "faiss", "pageindex")
+    assert [dep for dep in root["dependencies"] if dep.startswith(heavy)] == []
+    extras = root["optional-dependencies"]
+    assert any(dep.startswith("llama-index>=") for dep in extras["rag-llamaindex"])
+    assert any(dep.startswith("pageindex>=") for dep in extras["rag-pageindex"])
+    for everything in ("dev", "all"):  # tests and the full set still get them
+        assert "deeptutor[rag-llamaindex]" in extras[everything]
+        assert "deeptutor[rag-pageindex]" in extras[everything]
