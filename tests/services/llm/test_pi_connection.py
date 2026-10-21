@@ -49,11 +49,26 @@ def test_profiles_pi_cannot_serve_yet_fall_back() -> None:
     assert pi_connection(_config(binding="azure_openai", provider_name="azure_openai", api_version="2024-06-01")) is None
 
 
-def test_the_mode_is_off_unless_asked_for(monkeypatch) -> None:
+def test_the_catalog_is_used_by_default_only_when_no_gateway_is_configured(monkeypatch, tmp_path) -> None:
+    from deeptutor.services.llm import pi_connection as module
+
     monkeypatch.delenv("PI_TUTOR_LLM_FROM_CATALOG", raising=False)
-    assert not catalog_connections_enabled()
+    monkeypatch.delenv("PI_TUTOR_LLM_BASE_URL", raising=False)
+    monkeypatch.setattr(module, "_GATEWAY_FILE", tmp_path / "models.json")
+    assert catalog_connections_enabled()  # fresh install: nothing else to use
+
+    (tmp_path / "models.json").write_text("{}")
+    assert not catalog_connections_enabled()  # an existing gateway file keeps working untouched
+
+    (tmp_path / "models.json").unlink()
+    monkeypatch.setenv("PI_TUTOR_LLM_BASE_URL", "http://gateway.test/v1")
+    assert not catalog_connections_enabled()  # so does the environment variable
+
     monkeypatch.setenv("PI_TUTOR_LLM_FROM_CATALOG", "1")
-    assert catalog_connections_enabled()
+    assert catalog_connections_enabled()  # and the switch overrides both
+    monkeypatch.setenv("PI_TUTOR_LLM_FROM_CATALOG", "0")
+    monkeypatch.delenv("PI_TUTOR_LLM_BASE_URL")
+    assert not catalog_connections_enabled()
 
 
 # ---- the engine against mock endpoints ----------------------------------------------------------

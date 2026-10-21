@@ -5,13 +5,16 @@ catalog held a second copy of the same endpoint. A request can now carry a ``con
 API format to speak, the base URL, the key and any headers. ``pi_engine/convert.ts`` uses it in place of
 the gateway.
 
-Off unless ``PI_TUTOR_LLM_FROM_CATALOG`` is set, so an existing gateway setup keeps working untouched.
+``PI_TUTOR_LLM_FROM_CATALOG`` decides: ``1`` forces it on, ``0`` forces it off. Unset, it is on only when
+no gateway is configured (no ``PI_TUTOR_LLM_BASE_URL`` and no ``agent-dir/models.json``), so a fresh
+install uses the catalog while an existing gateway setup keeps working untouched.
 Profiles pi cannot serve yet (OAuth sign-ins, Azure deployments) return ``None`` and use the old path.
 """
 
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
 
 from deeptutor.services.provider_registry import effective_backend, find_by_name
@@ -19,8 +22,14 @@ from deeptutor.services.provider_registry import effective_backend, find_by_name
 from .config import LLMConfig
 
 
+_GATEWAY_FILE = Path(__file__).resolve().parents[3] / "pi_engine" / "agent-dir" / "models.json"
+
+
 def catalog_connections_enabled() -> bool:
-    return os.environ.get("PI_TUTOR_LLM_FROM_CATALOG", "").strip().lower() in {"1", "true", "yes"}
+    setting = os.environ.get("PI_TUTOR_LLM_FROM_CATALOG", "").strip().lower()
+    if setting:
+        return setting in {"1", "true", "yes"}
+    return not os.environ.get("PI_TUTOR_LLM_BASE_URL", "").strip() and not _GATEWAY_FILE.exists()
 
 
 def _pi_api(config: LLMConfig, backend: str) -> str | None:
