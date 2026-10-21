@@ -1,0 +1,13 @@
+# ============================================
+# LlamaIndex + FAISS knowledge-base engine (optional, ~300 MB)
+# ============================================
+# Mirrors pyproject.toml `[project.optional-dependencies].rag-llamaindex`.
+# Without it the default knowledge-base pipeline reports how to install it.
+
+llama-index>=0.14.12
+# PyStemmer 2.x has no Python 3.14 wheels. LlamaIndex falls back to vector
+# retrieval when this optional BM25 integration is unavailable.
+llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < "3.14"
+llama-index-vector-stores-faiss>=0.4.0,<1.0.0
+faiss-cpu>=1.8.0,<2.0.0; python_version < "3.14"
+faiss-cpu>=1.12.0,<2.0.0; python_version >= "3.14"

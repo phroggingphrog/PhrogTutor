@@ -102,16 +102,6 @@ cli = [
     "dashscope>=1.14.0",
     "perplexityai>=0.1.0",
     "oauth-cli-kit>=0.1.1",
-    "pageindex>=0.2.10,<0.3.0",
-    # RAG (LlamaIndex)
-    "llama-index>=0.14.12",
-    "llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < '3.14'",
-    # FAISS vector store: vectorized ANN retrieval that replaces SimpleVectorStore's
-    # brute-force per-query scan for large knowledge bases (issue #552). The
-    # pipeline imports it lazily and falls back to SimpleVectorStore if absent.
-    "llama-index-vector-stores-faiss>=0.4.0,<1.0.0",
-    "faiss-cpu>=1.8.0,<2.0.0; python_version < '3.14'",
-    "faiss-cpu>=1.12.0,<2.0.0; python_version >= '3.14'",
     "PyMuPDF>=1.26.0",
     "Pillow>=10.0.0",
     "numpy>=1.24.0,<3.0.0",

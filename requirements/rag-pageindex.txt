@@ -1,0 +1,4 @@
+# PageIndex knowledge-base engine (optional).
+# Mirrors pyproject.toml `[project.optional-dependencies].rag-pageindex`.
+
+pageindex>=0.2.10,<0.3.0

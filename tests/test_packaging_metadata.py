@@ -15,14 +15,18 @@ def _project(path: Path) -> dict:
         return tomllib.load(file)["project"]
 
 
-def _cli_requirement_lines() -> list[str]:
+def _requirement_lines(name: str) -> list[str]:
     return [
         line.split("#", 1)[0].strip()
-        for line in (REPOSITORY_ROOT / "requirements" / "cli.txt")
+        for line in (REPOSITORY_ROOT / "requirements" / name)
         .read_text(encoding="utf-8")
         .splitlines()
         if line.split("#", 1)[0].strip()
     ]
+
+
+def _cli_requirement_lines() -> list[str]:
+    return _requirement_lines("cli.txt")
 
 
 def test_parser_extras_track_current_upstream_floors() -> None:
@@ -57,18 +61,17 @@ def test_python_314_rag_dependency_guards_match_every_install_surface() -> None:
     root = _project(REPOSITORY_ROOT / "pyproject.toml")
     cli_package = _project(REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml")
 
-    # The server wheel offers the LlamaIndex stack as an extra; the CLI-only package still carries it.
+    # Both distributions offer the LlamaIndex stack as the same optional extra.
     for dependencies in (
         root["optional-dependencies"]["rag-llamaindex"],
-        root["optional-dependencies"]["cli"],
-        cli_package["dependencies"],
+        cli_package["optional-dependencies"]["rag-llamaindex"],
     ):
         assert [
             item for item in dependencies if item.startswith("llama-index-retrievers-bm25")
         ] == [bm25]
         assert [item for item in dependencies if item.startswith("faiss-cpu")] == faiss
 
-    requirement_lines = _cli_requirement_lines()
+    requirement_lines = _requirement_lines("rag-llamaindex.txt")
     assert [
         item for item in requirement_lines if item.startswith("llama-index-retrievers-bm25")
     ] == [bm25.replace("'3.14'", '"3.14"')]
@@ -170,11 +173,8 @@ def test_pageindex_sdk_range_matches_every_install_surface() -> None:
         cli_package = tomllib.load(file)["project"]
 
     assert root["optional-dependencies"]["rag-pageindex"].count(expected) == 1
-    assert root["optional-dependencies"]["cli"].count(expected) == 1
-    assert cli_package["dependencies"].count(expected) == 1
-    assert (REPOSITORY_ROOT / "requirements" / "cli.txt").read_text(
-        encoding="utf-8"
-    ).splitlines().count(expected) == 1
+    assert cli_package["optional-dependencies"]["rag-pageindex"].count(expected) == 1
+    assert _requirement_lines("rag-pageindex.txt").count(expected) == 1
 
 
 def test_lightrag_extra_is_the_exact_native_sdk_without_parser_transitives() -> None:
@@ -224,6 +224,11 @@ def test_default_install_leaves_out_the_heavy_retrieval_engines() -> None:
     extras = root["optional-dependencies"]
     assert any(dep.startswith("llama-index>=") for dep in extras["rag-llamaindex"])
     assert any(dep.startswith("pageindex>=") for dep in extras["rag-pageindex"])
+    # the server, CLI and Docker requirement sets are lean too; Docker adds the engines by build arg
+    assert [dep for dep in extras["cli"] if dep.startswith(heavy)] == []
+    assert [line for line in _cli_requirement_lines() if line.startswith(heavy)] == []
+    cli_package = _project(REPOSITORY_ROOT / "packaging" / "deeptutor-cli" / "pyproject.toml")
+    assert [dep for dep in cli_package["dependencies"] if dep.startswith(heavy)] == []
     for everything in ("dev", "all"):  # tests and the full set still get them
         assert "deeptutor[rag-llamaindex]" in extras[everything]
         assert "deeptutor[rag-pageindex]" in extras[everything]
