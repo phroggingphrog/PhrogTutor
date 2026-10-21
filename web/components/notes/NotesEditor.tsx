@@ -8,6 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Mathematics from "@tiptap/extension-mathematics";
+import { TableKit } from "@tiptap/extension-table";
 import "katex/dist/katex.min.css";
 import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion,
   MoreHorizontal,
@@ -113,12 +114,16 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
 
   const save = useCallback(async (name: string, md: string) => {
     setStatus("Saving…");
-    const r = await apiFetch(api(`/${encPath(name)}`), {
-      method: "PUT",
-      headers: json,
-      body: JSON.stringify({ content: md }),
-    });
-    setStatus(r.ok ? "Saved" : "Save failed");
+    try {
+      const r = await apiFetch(api(`/${encPath(name)}`), {
+        method: "PUT",
+        headers: json,
+        body: JSON.stringify({ content: md }),
+      });
+      setStatus(r.ok ? "Saved" : "Save failed");
+    } catch {
+      setStatus("Save failed");
+    }
   }, []);
 
   const editor = useEditor({
@@ -130,10 +135,12 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       TaskItem.configure({ nested: true }),
       Placeholder.configure({ placeholder: "Write something…" }),
       Mathematics,
+      // Without this a markdown table is dropped on the first edit of the note.
+      TableKit,
       Markdown,
     ],
     editorProps: {
-      attributes: { class: "notes-prose min-h-[60vh] px-8 py-6 outline-none" },
+      attributes: { class: "notes-prose min-h-[60vh] px-8 py-6 outline-none", "aria-label": "Note content", "aria-multiline": "true" },
     },
     onUpdate: ({ editor }) => {
       const name = currentRef.current;
@@ -142,6 +149,17 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       timer.current = setTimeout(() => save(name, tidyMarkdown(editor.getMarkdown())).then(refresh), 800);
     },
   });
+
+  // The debounced save reads the editor when it fires, so it must run (or be dropped) before the
+  // editor shows a different note or the note changes name: otherwise it writes one note's text
+  // into another note's file.
+  const flushPendingSave = useCallback(async () => {
+    if (!timer.current) return;
+    clearTimeout(timer.current);
+    timer.current = null;
+    const name = currentRef.current;
+    if (editor && name && !loading.current) await save(name, tidyMarkdown(editor.getMarkdown()));
+  }, [editor, save]);
 
   useEffect(() => {
     refresh();
@@ -160,8 +178,9 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const open = useCallback(
     async (name: string) => {
       if (!editor) return;
+      await flushPendingSave();
       const r = await apiFetch(api(`/${encPath(name)}`));
-      if (!r.ok) return;
+      if (!r.ok) return setStatus("Could not open note");
       const { content, read_only } = await r.json();
       loading.current = true;
       editor.commands.setContent(content, { contentType: "markdown" });
@@ -171,7 +190,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       setCurrent(name);
       setStatus("");
     },
-    [editor],
+    [editor, flushPendingSave],
   );
   openRef.current = open;
 
@@ -181,6 +200,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     if (!typed || typed.startsWith("@")) return;
     let n = typed;
     for (let i = 2; notes.some((x) => x.name === n); i++) n = `${typed} ${i}`;
+    await flushPendingSave();
     await save(n, "");
     await refresh();
     await open(n);
@@ -188,6 +208,8 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
 
   const remove = async () => {
     if (!current || !confirm(`Delete "${current}"? (moved to .trash)`)) return;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
     await apiFetch(api(`/${encPath(current)}`), { method: "DELETE" });
     setCurrent(null);
     editor?.commands.clearContent();
@@ -197,6 +219,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const rename = async (newName: string) => {
     const name = newName.trim();
     if (!current || !name || name === current) return;
+    await flushPendingSave();
     const r = await apiFetch(api(`/${encPath(current)}/rename`), {
       method: "POST",
       headers: json,
@@ -332,6 +355,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
               )}
               <input
                 key={current}
+                aria-label="Note name"
                 readOnly={readOnly}
                 defaultValue={current}
                 onBlur={(e) => rename(e.target.value)}

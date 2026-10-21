@@ -303,16 +303,10 @@ export default function OrganizedSessionList({
 
     return (
       <div key={session.session_id} className="relative">
+        {/* The title is the one real button; the row only widens its click target, so the expand and
+            action buttons inside it are not nested inside another interactive element. */}
         <div
-          role="button"
-          tabIndex={0}
           onClick={() => void onSelect(session.session_id)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              void onSelect(session.session_id);
-            }
-          }}
           className={`group/session flex min-w-0 items-center gap-1.5 rounded-lg py-1.5 pr-1 transition-colors ${
             child ? "ml-4 border-l border-[var(--border)]/60 pl-2" : "pl-1.5"
           } ${
@@ -377,13 +371,19 @@ export default function OrganizedSessionList({
               side="top"
               className="min-w-0 flex-1"
             >
-              <span
-                className={isPlaceholderSessionTitle(session.title)
-                  ? "dt-breathing-text min-w-0 flex-1 truncate text-[13px] italic text-[var(--foreground)]"
-                  : "min-w-0 flex-1 truncate text-[13px]"}
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  void onSelect(session.session_id);
+                }}
+                aria-current={active ? "page" : undefined}
+                className={`${isPlaceholderSessionTitle(session.title)
+                  ? "dt-breathing-text min-w-0 flex-1 truncate text-left text-[13px] italic text-[var(--foreground)]"
+                  : "min-w-0 flex-1 truncate text-left text-[13px]"} rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
               >
                 {displaySessionTitle(session.title, placeholderLabel)}
-              </span>
+              </button>
             </Tooltip>
           )}
           {pinned ? <Pin size={10} className="shrink-0 opacity-55" /> : null}
