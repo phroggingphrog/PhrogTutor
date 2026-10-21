@@ -40,7 +40,7 @@ dependencies = [
     # default chat/tool surface includes configurable MCP servers, so a plain
     # install must be able to connect them without an optional extra.
     "mcp>=1.26.0,<2.0.0",
-    "pageindex>=0.2.10,<0.3.0",
+    # LlamaIndex/FAISS and the PageIndex SDK are optional: see the rag-llamaindex and rag-pageindex extras.
     # Partner channel QR onboarding (WeChat, WeCom, Feishu). Same reasoning as
     # `mcp` above: scan-based onboarding is part of the default partner setup
     # surface, it is pure Python with no compiled or system dependencies, and
@@ -52,17 +52,6 @@ dependencies = [
     "dashscope>=1.14.0",
     "perplexityai>=0.1.0",
     "oauth-cli-kit>=0.1.1",
-    "llama-index>=0.14.12",
-    # The current BM25 integration pins PyStemmer <3, whose 2.x line has no
-    # Python 3.14 wheels. Skip it there so ordinary installs never require a C
-    # compiler; the retriever already falls back to vector search when absent.
-    "llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < '3.14'",
-    # FAISS vector store: vectorized ANN retrieval that replaces SimpleVectorStore's
-    # brute-force per-query scan for large knowledge bases (issue #552). The
-    # pipeline imports it lazily and falls back to SimpleVectorStore if absent.
-    "llama-index-vector-stores-faiss>=0.4.0,<1.0.0",
-    "faiss-cpu>=1.8.0,<2.0.0; python_version < '3.14'",
-    "faiss-cpu>=1.12.0,<2.0.0; python_version >= '3.14'",
     "PyMuPDF>=1.26.0",
     "Pillow>=10.0.0",
     "numpy>=1.24.0,<3.0.0",
@@ -104,25 +93,15 @@ quiz = "deeptutor.reading.quiz:ReadingQuizExtension"
 translation = "deeptutor.reading.translation:TranslationExtension"
 
 [project.optional-dependencies]
-# Compatibility extra for source installs and older docs. These packages are
-# already included in the public `deeptutor` wheel; the local CLI-only project
-# under `packaging/deeptutor-cli` uses the same list without Web assets/server deps.
+# Compatibility extra for source installs and older docs: the local CLI-only project under
+# `packaging/deeptutor-cli` uses this list, which still carries the retrieval engines (the
+# server wheel offers them as the rag-llamaindex and rag-pageindex extras instead).
 cli = [
     # LLM provider SDKs
     "anthropic>=0.30.0",
     "dashscope>=1.14.0",
     "perplexityai>=0.1.0",
     "oauth-cli-kit>=0.1.1",
-    "pageindex>=0.2.10,<0.3.0",
-    # RAG (LlamaIndex)
-    "llama-index>=0.14.12",
-    "llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < '3.14'",
-    # FAISS vector store: vectorized ANN retrieval that replaces SimpleVectorStore's
-    # brute-force per-query scan for large knowledge bases (issue #552). The
-    # pipeline imports it lazily and falls back to SimpleVectorStore if absent.
-    "llama-index-vector-stores-faiss>=0.4.0,<1.0.0",
-    "faiss-cpu>=1.8.0,<2.0.0; python_version < '3.14'",
-    "faiss-cpu>=1.12.0,<2.0.0; python_version >= '3.14'",
     "PyMuPDF>=1.26.0",
     "Pillow>=10.0.0",
     "numpy>=1.24.0,<3.0.0",
@@ -137,19 +116,6 @@ cli = [
     "defusedxml>=0.7.1",
     "youtube-transcript-api>=1.2.0,<2.0.0",
 ]
-
-# CodeBuddy chat works over HTTP with the login state the IDE plugin / CLI
-# already stores. This extra adds the Agent SDK (a ~130 MB bundled headless
-# CLI) for in-app browser login and CLI-driven agent tools.
-# Upper-bounded on purpose: the provider probes the SDK for its turn-limit
-# and permission-mode kwargs, and a minor bump that renames them would make
-# every options build fail — codebuddy_provider fails closed with a clear
-# message rather than running the agent unrestricted. The floor tracks the
-# published series: there is no 0.1.24 on PyPI (0.1.x stops at 0.1.19), so the
-# old `>=0.1.24,<0.2` range was unsatisfiable and any resolver rejected it.
-# Not in `all` — it vendors a ~130 MB headless CLI and chat works over plain
-# HTTP without it.
-codebuddy = ["codebuddy-agent-sdk>=0.3,<0.4"]
 
 # Native YouTube playback has no Python dependency. This small, optional
 # adapter enables transcript-grounded learning when public captions exist.
@@ -267,11 +233,30 @@ rag-lightrag = ["lightrag-hku==1.5.7"]
 # sentence-transformers/torch stack is heavy and model-dependent, so it stays
 # out of `all`; retrieval lazily falls back to embedding-only ranking when the
 # package or configured model is unavailable.
+# Local vector retrieval for uploaded documents (the default knowledge-base engine, about 300 MB with
+# its dependencies). Not needed to chat, or to retrieve from a connected wiki or server.
+rag-llamaindex = [
+    "llama-index>=0.14.12",
+    # The current BM25 integration pins PyStemmer <3, whose 2.x line has no
+    # Python 3.14 wheels. Skip it there so ordinary installs never require a C
+    # compiler; the retriever already falls back to vector search when absent.
+    "llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < '3.14'",
+    # FAISS vector store: vectorized ANN retrieval that replaces SimpleVectorStore's
+    # brute-force per-query scan for large knowledge bases (issue #552). The
+    # pipeline imports it lazily and falls back to SimpleVectorStore if absent.
+    "llama-index-vector-stores-faiss>=0.4.0,<1.0.0",
+    "faiss-cpu>=1.8.0,<2.0.0; python_version < '3.14'",
+    "faiss-cpu>=1.12.0,<2.0.0; python_version >= '3.14'",
+]
+# PageIndex Cloud and PageIndex OSS document indexing.
+rag-pageindex = ["pageindex>=0.2.10,<0.3.0"]
 rag-rerank = ["sentence-transformers>=3.0.0,<6.0.0; python_version < '3.14'"]
 
 # Dev/test tooling. Mirrors requirements/dev.txt.
 dev = [
     "deeptutor[server]",
+    "deeptutor[rag-llamaindex]",
+    "deeptutor[rag-pageindex]",
     "pytest>=7.0.0",
     "pytest-asyncio>=0.23.0",
     "pre-commit>=3.0.0",
@@ -289,6 +274,8 @@ dev = [
 
 # Everything: server + partners + non-E2EE matrix + math-animator + dev tools.
 all = [
+    "deeptutor[rag-llamaindex]",
+    "deeptutor[rag-pageindex]",
     "deeptutor[partners]",
     "deeptutor[matrix]",
     "deeptutor[math-animator]",

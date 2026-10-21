@@ -157,6 +157,9 @@ def provider_failure_summary(
 
 
 def _build_pipeline(provider: str, kb_base_dir: Optional[str], **kwargs: Any):
+    from .availability import require_engine
+
+    require_engine(provider)  # a missing optional package is named, with its install command
     if provider in {PAGEINDEX_PROVIDER, PAGEINDEX_OSS_PROVIDER}:
         from .pipelines.pageindex.pipeline import PageIndexPipeline
 
@@ -241,14 +244,20 @@ def get_pipeline(
 
 def list_pipelines() -> List[Dict[str, Any]]:
     """Describe the available pipelines for the UI provider picker."""
+    from .availability import engine_installed, install_hint
+
+    llamaindex_ready = engine_installed(DEFAULT_PROVIDER)
+    pageindex_installed = engine_installed(PAGEINDEX_PROVIDER)
     try:
         from .pipelines.pageindex.config import is_pageindex_configured
 
-        pageindex_ready = is_pageindex_configured()
+        pageindex_ready = pageindex_installed and is_pageindex_configured()
     except Exception:
         pageindex_ready = False
 
     try:
+        if not pageindex_installed:
+            raise RuntimeError(f"Not installed. Run `{install_hint(PAGEINDEX_PROVIDER)}`.")
         from .pipelines.pageindex.client import resolve_oss_sdk_config
 
         resolve_oss_sdk_config()
@@ -298,8 +307,12 @@ def list_pipelines() -> List[Dict[str, Any]]:
         {
             "id": DEFAULT_PROVIDER,
             "name": "LlamaIndex",
-            "description": "Local vector retrieval with hybrid BM25/vector fusion. Works out of the box.",
-            "configured": True,
+            "description": (
+                "Local vector retrieval with hybrid BM25/vector fusion."
+                if llamaindex_ready
+                else f"Local vector retrieval with hybrid BM25/vector fusion. Not installed: run `{install_hint(DEFAULT_PROVIDER)}` on the server."
+            ),
+            "configured": llamaindex_ready,
             "requires_api_key": False,
         },
         {

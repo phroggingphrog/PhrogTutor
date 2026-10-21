@@ -2,6 +2,7 @@
 # DeepTutor CLI — Full Dependencies
 # ============================================
 # Mirrors pyproject.toml `[project.optional-dependencies].cli` plus core deps.
+# The LlamaIndex/FAISS and PageIndex retrieval engines are optional: see rag-llamaindex.txt / rag-pageindex.txt.
 # Keep in sync with pyproject.toml when adding/updating dependencies.
 #
 # Public install: pip install deeptutor-cli
@@ -37,16 +38,6 @@ pydantic-settings>=2.0.0
 jsonschema>=4.20.0,<5.0.0
 aiosqlite>=0.19.0
 
-# --- RAG (LlamaIndex) ---
-llama-index>=0.14.12
-# PyStemmer 2.x has no Python 3.14 wheels. LlamaIndex falls back to vector
-# retrieval when this optional BM25 integration is unavailable.
-llama-index-retrievers-bm25>=0.7.1,<0.8.0; python_version < "3.14"
-# FAISS vector store: ANN retrieval replacing SimpleVectorStore brute force for
-# large KBs (issue #552); imported lazily with SimpleVectorStore fallback.
-llama-index-vector-stores-faiss>=0.4.0,<1.0.0
-faiss-cpu>=1.8.0,<2.0.0; python_version < "3.14"
-faiss-cpu>=1.12.0,<2.0.0; python_version >= "3.14"
 PyMuPDF>=1.26.0
 Pillow>=10.0.0
 numpy>=1.24.0,<3.0.0
@@ -77,7 +68,6 @@ json-repair>=0.57.0,<1.0.0
 
 # --- MCP client (configurable deferred tools; core, not partners-only) ---
 mcp>=1.26.0,<2.0.0
-pageindex>=0.2.10,<0.3.0
 
 # --- Partner channel QR onboarding (WeChat, WeCom, Feishu; core) ---
 qrcode>=7.4.0,<9.0.0

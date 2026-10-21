@@ -11,15 +11,18 @@ Architecture:
               ↓
          LLM Factory (complete / stream)
               ↓
-         provider_factory.get_runtime_provider()
-              ↓
-    provider_core.* (one SDK-backed class per backend:
-    openai_compat / anthropic / azure_openai / openai_codex /
-    github_copilot / codebuddy)
+         pi_bridge (the pi engine: pi-ai speaks OpenAI-compatible,
+                    Anthropic, Azure and ChatGPT/Codex)
+
+Where provider rules live (one place each):
+    provider_registry.py   what a provider *is*: names, endpoints, wire format, model-intrinsic request overrides
+    pi_connection.py       how a configured profile reaches the pi engine (API, base URL, key, headers, sign-in)
+    capabilities.py        what a provider/model supports (tools, vision, JSON mode), overridable per model in Settings
+    reasoning_params.py    how a reasoning effort becomes request fields for each vendor
+    The wire protocols themselves (OpenAI, Anthropic, Azure, Codex) are pi-ai's.
 
 Features:
 - Unified interface for all LLM providers (cloud + local)
-- Automatic retry with exponential backoff
 - Provider capability detection, overridable per model in Settings
 
 ``cloud_provider`` and ``local_provider`` remain only for listing models and

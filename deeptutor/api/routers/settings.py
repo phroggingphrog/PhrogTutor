@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 from deeptutor.multi_user.context import get_current_user
 from deeptutor.multi_user.model_access import allowed_llm_options
-from deeptutor.services.codebuddy_auth import get_codebuddy_auth_service
 from deeptutor.services.codex_auth import (
     CodexAuthError,
     get_codex_oauth_service,
@@ -949,6 +948,16 @@ async def start_openai_codex_oauth() -> dict[str, Any]:
         raise _codex_http_exception(exc) from None
 
 
+@router.post("/providers/openai-codex/oauth/device/start")
+async def start_openai_codex_device_oauth() -> dict[str, Any]:
+    """Sign in with a short code entered at OpenAI: no browser redirect to this server is needed."""
+    _require_codex_oauth_actor()
+    try:
+        return await get_codex_oauth_service().start_device_login()
+    except CodexAuthError as exc:
+        raise _codex_http_exception(exc) from None
+
+
 @router.get("/providers/openai-codex/oauth/status")
 async def get_openai_codex_oauth_status() -> dict[str, Any]:
     _require_codex_oauth_actor()
@@ -1007,30 +1016,6 @@ async def refresh_openai_codex_models() -> dict[str, Any]:
         return await get_codex_oauth_service().refresh_models()
     except CodexAuthError as exc:
         raise _codex_http_exception(exc) from None
-
-
-@router.get("/providers/codebuddy/auth/status")
-async def get_codebuddy_auth_status() -> dict[str, Any]:
-    _require_settings_admin()
-    return await get_codebuddy_auth_service().status()
-
-
-@router.post("/providers/codebuddy/auth/start")
-async def start_codebuddy_auth() -> dict[str, Any]:
-    _require_settings_admin()
-    return await get_codebuddy_auth_service().start_login()
-
-
-@router.post("/providers/codebuddy/auth/cancel")
-async def cancel_codebuddy_auth() -> dict[str, Any]:
-    _require_settings_admin()
-    return await get_codebuddy_auth_service().cancel_login()
-
-
-@router.post("/providers/codebuddy/auth/logout")
-async def logout_codebuddy_auth() -> dict[str, Any]:
-    _require_settings_admin()
-    return await get_codebuddy_auth_service().logout()
 
 
 @router.post("/providers/openai-codex/models/reasoning-effort")
@@ -2005,17 +1990,14 @@ async def fetch_models_from_provider(payload: FetchModelsPayload):
     """List selectable model IDs using the provider's own authentication.
 
     Thin HTTP surface over ``factory.fetch_models`` so the settings UI can
-    populate a model picker. Copilot uses the caller's owner-private CLI login,
-    not the profile's API key or base URL.
+    populate a model picker.
     """
     _require_settings_admin()
     from deeptutor.services.llm.factory import fetch_models as fetch_llm_models
-    from deeptutor.services.provider_registry import canonical_provider_name
 
     base_url = (payload.base_url or "").strip()
     binding = (payload.binding or "").strip().lower() or "openai"
-    is_copilot = canonical_provider_name(binding) == "github_copilot"
-    if not base_url and binding != "codebuddy" and not is_copilot:
+    if not base_url:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="base_url is required for this provider.",
@@ -2023,9 +2005,7 @@ async def fetch_models_from_provider(payload: FetchModelsPayload):
 
     api_key = payload.api_key
     api_format = (payload.api_format or "").strip().lower()
-    if is_copilot:
-        base_url, api_key, api_format = "", None, "auto"
-    elif payload.profile_id and (api_key == CATALOG_SECRET_MASK or not api_format):
+    if payload.profile_id and (api_key == CATALOG_SECRET_MASK or not api_format):
         service = get_model_catalog_service().load().get("services", {}).get(payload.service, {})
         profile = next(
             (item for item in service.get("profiles", []) if item.get("id") == payload.profile_id),
@@ -2039,18 +2019,6 @@ async def fetch_models_from_provider(payload: FetchModelsPayload):
     try:
         model_ids = await fetch_llm_models(binding, base_url, api_key, api_format or "auto")
     except Exception as exc:  # noqa: BLE001 — surface any provider error as 502
-        if is_copilot:
-            # OAuth exceptions can contain credential-bearing URLs or responses.
-            # Never echo or log their raw text at this public HTTP boundary.
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=(
-                    "Could not list GitHub Copilot models. "
-                    "Run: deeptutor provider login github-copilot "
-                    "for this account in the server's DeepTutor home, "
-                    "then retry. If already logged in, check Copilot access and connectivity."
-                ),
-            ) from None
         logger.exception("Failed to fetch models from %s", base_url)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

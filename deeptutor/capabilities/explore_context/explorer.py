@@ -46,7 +46,6 @@ from deeptutor.runtime.stream_bus import StreamBus
 from deeptutor.services.config.loader import get_capability_params
 from deeptutor.services.llm import clean_thinking_tags, get_llm_config, get_token_limit_kwargs
 from deeptutor.services.llm import stream as llm_stream
-from deeptutor.services.llm.capabilities import threads_session_id
 from deeptutor.services.session.provider_response_state import normalize_provider_response_state
 
 logger = logging.getLogger(__name__)
@@ -333,8 +332,6 @@ class ContextExplorer:
                 reasoning_effort=self.reasoning_effort,
             ),
         }
-        if threads_session_id(self.binding):
-            kwargs["deeptutor_session_id"] = f"{session_id}:explore"
         if tool_schemas:
             kwargs["tools"] = tool_schemas
             kwargs["tool_choice"] = "auto"

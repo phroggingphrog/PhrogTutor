@@ -139,12 +139,14 @@ Requirements files mirror the same dependency groups for Docker/CI installs.
 
 ```
 pip install deeptutor      — Full app (CLI + Web/API + packaged Web assets)
-pip install deeptutor-cli  — CLI-only (LLM + RAG + providers + document parsing)
+pip install deeptutor-cli  — CLI-only (LLM + providers + document parsing; RAG engines via extras)
 pip install -e .           — Source install for development
 
 Source extras (.[ extra ], defined in pyproject.toml):
-.[cli]            — CLI-only dependency set
+.[cli]            — CLI-only dependency set (without the RAG engines)
 .[server]         — Web/API server dependencies
+.[rag-llamaindex] — LlamaIndex + FAISS knowledge-base engine (default KB pipeline, ~300 MB)
+.[rag-pageindex]  — PageIndex knowledge-base engine
 .[partners]       — Partner channel SDKs  (legacy alias: .[tutorbot])
 .[matrix]         — Matrix channel for Partners (matrix-nio; needs libolm)
 .[matrix-e2e]     — Matrix with end-to-end encryption (matrix-nio[e2e])

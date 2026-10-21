@@ -232,24 +232,6 @@ def test_profile_api_key_list_resolves_without_crash(monkeypatch) -> None:
     assert config.get_api_key() == "sk-one"
 
 
-def test_profile_api_key_list_reaches_provider_key_pool() -> None:
-    """The full key list must flow resolver → LLMConfig → provider KeyPool."""
-    from deeptutor.services.llm.provider_factory import _build_runtime_provider
-
-    keys = ["sk-one", "sk-two", "sk-three", "sk-four"]
-    config = LLMConfig(
-        model="doubao-seed-1-6",
-        api_key=list(keys),
-        base_url="https://example.com/v1",
-        binding="openai_compat_test",
-        provider_name="openai_compat_test",
-    )
-
-    provider = _build_runtime_provider(config)
-    assert provider._key_pool is not None
-    assert list(provider._key_pool._keys) == keys
-
-
 def test_placeholder_detection_uses_primary_key_of_list(monkeypatch) -> None:
     """A list whose keys are all placeholders still counts as unconfigured."""
     _reset_config_cache()

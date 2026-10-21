@@ -168,7 +168,7 @@ async def main() -> None:
         except Exception as exc:  # noqa: BLE001
             status, snippet = "FAIL", f"{type(exc).__name__}: {exc}"[:300]
             traceback.print_exc(file=sys.stderr)
-        engine = "pi" if pi_bridge.pi_sdk_enabled() else "vanilla"
+        engine = "pi"
         if os.environ.get("TRACE_CALLS"):
             print("\n".join(TRACE), flush=True)
         TRACE.clear()

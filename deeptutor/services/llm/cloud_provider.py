@@ -1,7 +1,7 @@
 """Model discovery for hosted OpenAI-compatible and Anthropic endpoints.
 
 Chat traffic goes through :mod:`deeptutor.services.llm.factory` and the
-``provider_core`` classes; this module only lists what an endpoint serves.
+the pi engine; this module only lists what an endpoint serves.
 ``complete`` / ``stream`` remain as deprecated shims for out-of-tree callers.
 """
 

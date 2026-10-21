@@ -6,12 +6,14 @@
 * Single model calls: :func:`complete` / :func:`stream` (``services.llm.factory``: BaseAgent.call_llm /
   stream_llm) and :class:`PiClient` ``create()`` use pi's model layer (pi-ai ``stream``).
 
-Agent turns always run on pi. ``PI_TUTOR_SDK=0`` only sends single model calls back to DeepTutor's own clients.
+Every model call runs on pi.
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 import json
 import os
@@ -22,11 +24,53 @@ import uuid
 _LLM_TS = Path(__file__).resolve().parents[3] / "pi_engine" / "llm.ts"
 # The bun binary that runs pi_engine (name it e.g. "pi-engine" via a symlink so OOM killers can spare it).
 _ENGINE_BIN = os.path.expanduser(os.environ.get("PI_TUTOR_ENGINE_BIN", "bun"))
-_PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort")
+_PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "connection", "cache_key")
 
 
-def pi_sdk_enabled() -> bool:
-    return os.environ.get("PI_TUTOR_SDK", "1").lower() not in ("0", "false", "no")
+_warned_unserved = False
+
+
+def cache_key(messages: list[dict[str, Any]] | None) -> str | None:
+    """Routing affinity for upstream prompt caches: calls that share a system prefix share a key.
+
+    The key must survive ordinary history growth, so it hashes only the leading system messages; the provider
+    still verifies every token of the prefix before it reuses a cache.
+    """
+    prefix = []
+    for message in messages or []:
+        if message.get("role") != "system":
+            break
+        prefix.append({"role": "system", "content": message.get("content")})
+    if not prefix:
+        return None
+    return hashlib.sha256(json.dumps(prefix, ensure_ascii=True, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
+    """Attach the active catalog profile as the request's endpoint (and the cache key), when pi can serve it."""
+    if request.get("cache_key") is None and (key := cache_key(request.get("messages"))):
+        request = {**request, "cache_key": key}
+    from .pi_connection import catalog_connections_enabled, codex_model_slug, is_codex, resolve_connection
+
+    if request.get("connection") is not None or not catalog_connections_enabled():
+        return request
+    global _warned_unserved
+    from .config import get_llm_config
+
+    config = get_llm_config()
+    connection = await resolve_connection(config)
+    if connection is None and not _warned_unserved:
+        _warned_unserved = True
+        logging.getLogger(__name__).warning(
+            "PI_TUTOR_LLM_FROM_CATALOG is on but the active profile cannot be served through pi "
+            "(Azure preview); using the gateway in pi_engine/agent-dir/models.json"
+        )
+    if not connection:
+        return request
+    request = {**request, "connection": connection}
+    if is_codex(config) and request.get("model"):
+        request["model"] = codex_model_slug(request["model"])
+    return request
 
 
 class _PiProcess:
@@ -40,8 +84,13 @@ class _PiProcess:
     async def _ensure(self) -> asyncio.subprocess.Process:
         async with self.lock:
             if self.proc is None or self.proc.returncode is not None:
+                env = dict(os.environ)
+                from .openai_http_client import disable_ssl_verify_enabled
+
+                if disable_ssl_verify_enabled():  # the "disable SSL verification" setting, for self-signed gateways
+                    env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"
                 self.proc = await asyncio.create_subprocess_exec(
-                    _ENGINE_BIN, str(_LLM_TS), "--serve",
+                    _ENGINE_BIN, str(_LLM_TS), "--serve", env=env,
                     stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=open(os.environ["PI_TUTOR_DEBUG_LOG"], "a") if os.environ.get("PI_TUTOR_DEBUG_LOG") else asyncio.subprocess.DEVNULL,
                     limit=16 * 1024 * 1024,
                 )
@@ -59,6 +108,31 @@ class _PiProcess:
             queue.put_nowait({"end": True, "error": "pi SDK process exited"})
 
     async def chunks(self, request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+        """Stream one call; a profile with several API keys moves to the next key after a 429 that came before any output."""
+        from .config import get_llm_config
+        from .pi_connection import key_pool, mark_rate_limited
+
+        try:
+            config = get_llm_config()
+        except Exception:  # no catalog profile (gateway mode): one key, nothing to rotate
+            config = None
+        attempts = len(key_pool(config) or []) or 1 if config is not None else 1
+        for attempt in range(attempts):
+            sent = False
+            connected = request
+            try:
+                connected = await _with_connection(request)
+                async for chunk in self._chunks_once(connected):
+                    sent = True
+                    yield chunk
+                return
+            except RuntimeError as exc:
+                key = (connected.get("connection") or {}).get("apiKey") or ""
+                limited = "429" in str(exc) or "rate limit" in str(exc).lower()
+                if sent or not limited or attempt + 1 >= attempts or not mark_rate_limited(config, key):
+                    raise
+
+    async def _chunks_once(self, request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
         rid = uuid.uuid4().hex
         queue: asyncio.Queue = asyncio.Queue()
         self.queues[rid] = queue
@@ -86,6 +160,7 @@ class _PiProcess:
         queue: asyncio.Queue = asyncio.Queue()
         self.queues[rid] = queue
         try:
+            request = await _with_connection(request)
             req = {k: request[k] for k in _PASS if request.get(k) is not None}
             await self._send({"rid": rid, "kind": "loop", "req": req, "cfg": cfg})
             while True:
@@ -132,15 +207,26 @@ async def stream(
     prompt: str, system_prompt: str, model: str | None, messages: list[dict[str, Any]] | None,
     outcome: Any = None, **kwargs: Any,
 ) -> AsyncGenerator[str, None]:
+    from openai.types.chat import ChatCompletionChunk
+
+    from .metrics import CallMeasurement
+
     request = {"model": model, "messages": _messages(prompt, system_prompt, messages), **kwargs}
-    async for chunk in _chunks(request):
-        choice = (chunk.get("choices") or [{}])[0]
-        text = (choice.get("delta") or {}).get("content")
-        if text:
-            yield text
-        if choice.get("finish_reason") and outcome is not None:
-            outcome.finish_reason = choice["finish_reason"]
-            outcome.usage = chunk.get("usage") or {}
+    meter = CallMeasurement(model=model or "", provider="pi", messages=request["messages"])
+    try:
+        async for chunk in _chunks(request):
+            meter.chunk(ChatCompletionChunk.model_validate(chunk))
+            choice = (chunk.get("choices") or [{}])[0]
+            text = (choice.get("delta") or {}).get("content")
+            if text:
+                yield text
+            if choice.get("finish_reason") and outcome is not None:
+                outcome.finish_reason = choice["finish_reason"]
+                outcome.usage = chunk.get("usage") or {}
+    except BaseException:  # a cancelled or failed call is metered too
+        meter.finish(status="interrupted")
+        raise
+    meter.finish()
 
 
 async def complete(

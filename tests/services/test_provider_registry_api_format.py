@@ -21,7 +21,6 @@ def test_api_formats_follow_the_backend() -> None:
     # Fixed by the backend: nothing for a profile to choose.
     assert find_by_name("azure_openai").api_formats == ()
     assert find_by_name("openai_codex").api_formats == ()
-    assert find_by_name("codebuddy").api_formats == ()
 
 
 def test_effective_backend_switches_only_for_anthropic_on_openai_compat() -> None:

@@ -18,7 +18,7 @@ editor. The profile is merged into the catalog the runtime resolves against
 per request instead — which is safe because a managed Codex profile carries
 no secret at all (``api_key`` is empty; the token is read from the owner's
 credential store at call time by
-:class:`~deeptutor.services.llm.provider_core.openai_codex_provider.OpenAICodexProvider`).
+:func:`~deeptutor.services.llm.pi_connection.codex_connection`).
 
 Ownership resolution is shared with the credential store via
 :func:`~deeptutor.multi_user.paths.get_owner_path_service`, so a profile and

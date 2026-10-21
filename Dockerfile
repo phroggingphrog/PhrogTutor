@@ -95,8 +95,14 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 # Copy requirements and install Python dependencies
 COPY requirements/ ./requirements/
 COPY requirements.txt ./
+# The LlamaIndex/FAISS and PageIndex knowledge-base engines add about 300 MB. They stay on by default so
+# knowledge bases work out of the box; build with `--build-arg RAG_ENGINES=0` for a slimmer image.
+ARG RAG_ENGINES=1
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r requirements.txt && \
+    if [ "$RAG_ENGINES" = "1" ]; then \
+        pip install -r requirements/rag-llamaindex.txt -r requirements/rag-pageindex.txt; \
+    fi
 
 # ============================================
 # Stage 3: Production Image

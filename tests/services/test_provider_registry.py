@@ -149,14 +149,6 @@ def test_openai_codex_provider_is_oauth_backed() -> None:
     assert spec.env_key == ""
 
 
-def test_github_copilot_is_oauth_backed() -> None:
-    spec = find_by_name("github_copilot")
-
-    assert spec is not None
-    assert spec.auth_mode == "oauth"
-    assert spec.env_key == ""
-
-
 def test_orcarouter_is_not_a_builtin_provider() -> None:
     assert find_by_name("orcarouter") is None
     assert find_by_name("orca_router") is None

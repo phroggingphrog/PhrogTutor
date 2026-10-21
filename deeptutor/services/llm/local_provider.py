@@ -1,7 +1,7 @@
 """Model discovery for local OpenAI-compatible servers (Ollama, LM Studio, vLLM, llama.cpp).
 
 Chat traffic goes through :mod:`deeptutor.services.llm.factory` and the
-``provider_core`` classes; this module only lists what a local server serves.
+the pi engine; this module only lists what a local server serves.
 ``complete`` / ``stream`` remain as deprecated shims for out-of-tree callers.
 """
 

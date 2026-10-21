@@ -44,7 +44,7 @@ describe('provider branding', () => {
   })
 
   it('resolves legacy aliases but leaves unknown custom brands generic', () => {
-    expect(providerIconSpec(' workbuddy ')).toEqual(providerIconSpec('codebuddy'))
+    expect(providerIconSpec(' Claude ')).toEqual(providerIconSpec('anthropic'))
     expect(providerIconSpec('atlas_cloud')).toEqual(providerIconSpec('atlascloud'))
     for (const id of ['my-gateway', '__proto__', 'constructor', '', null]) {
       expect(providerIconSpec(id)).toBeUndefined()

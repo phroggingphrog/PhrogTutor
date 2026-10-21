@@ -63,7 +63,7 @@ def test_accounting_errors_never_propagate() -> None:
 
 
 def test_records_dict_frame_from_native_adapters() -> None:
-    # Native-adapter providers (anthropic, codex, copilot, codebuddy) emit
+    # Native-adapter providers (anthropic, codex) emit
     # usage as a plain dict rather than an object with attributes.
     tracker = UsageTracker()
     record_streamed_usage(

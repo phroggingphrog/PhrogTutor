@@ -19,6 +19,8 @@ export type CodexOAuthStatus = {
     | "expired"
     | "failed"
     | null;
+  login_method?: "browser" | "device" | null;
+  user_code?: string | null;
   authorize_url: string | null;
   expires_in: number | null;
   callback_port: number | null;
@@ -46,6 +48,14 @@ export type CodexLoginStart = {
   callback_forward_port: number;
   redirect_uri: string;
   ssh_forward_command: string;
+};
+
+export type CodexDeviceLoginStart = {
+  operation_id: string;
+  login_method: "device";
+  authorize_url: string;
+  user_code: string;
+  expires_in: number;
 };
 
 export type CodexRemoteGuidance = Omit<CodexLoginStart, "ssh_forward_command">;
@@ -174,6 +184,11 @@ export function getCodexStatus(): Promise<CodexOAuthStatus> {
 
 export function startCodexLogin(): Promise<CodexLoginStart> {
   return requestCodex<CodexLoginStart>("/oauth/start", "POST");
+}
+
+/** Sign in with a short code entered at OpenAI; needs no redirect back to this server. */
+export function startCodexDeviceLogin(): Promise<CodexDeviceLoginStart> {
+  return requestCodex<CodexDeviceLoginStart>("/oauth/device/start", "POST");
 }
 
 export function cancelCodexLogin(): Promise<CodexOAuthStatus> {

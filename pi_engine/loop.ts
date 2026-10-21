@@ -13,8 +13,10 @@
  *   notice       (one-way) show a localized warning by key
  * and gets the outcome at the end: {rid, end, outcome}.
  */
-import { createAgentSession, DefaultResourceLoader, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
-import { AGENT_DIR, HERE, buildModel, chunkWriter, convert, text, THINKING, toolSpecs } from "./convert.ts";
+import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
+import { randomUUID } from "node:crypto";
+import { join } from "node:path";
+import { AGENT_DIR, HERE, buildModel, chunkWriter, connectionOf, convert, text, THINKING, toolSpecs, withCacheKey } from "./convert.ts";
 
 export type Host = { write(o: any): void; ask(kind: string, data?: any): Promise<any> };
 type Mode = "explore" | "settle" | "forced";
@@ -27,7 +29,21 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export async function runLoop(first: any, host: Host): Promise<any> {
 	const cfg = first.cfg ?? {};
 	const req = { ...first.req };
-	const model = buildModel(req);
+	let model = buildModel(req);
+	// A request that brings its own endpoint runs on a provider registered for this turn only.
+	const conn = connectionOf(req);
+	let modelRuntime: ModelRuntime | undefined;
+	const connProvider = `conn-${randomUUID().slice(0, 8)}`;
+	if (conn) {
+		modelRuntime = await ModelRuntime.create({ authPath: join(AGENT_DIR, "auth.json"), modelsPath: join(AGENT_DIR, "models.json"), refreshOnCreate: false });
+		modelRuntime.registerProvider(connProvider, {
+			baseUrl: conn.baseUrl, api: conn.api as any, headers: conn.headers ?? undefined,
+			models: [{ id: model.id, name: model.id, reasoning: model.reasoning, input: model.input, cost: model.cost, contextWindow: model.contextWindow, maxTokens: model.maxTokens }],
+		});
+		// A runtime key is used as given; a key in the provider config would be run if it began with "!".
+		if (conn.apiKey) await modelRuntime.setRuntimeApiKey(connProvider, conn.apiKey);
+		model = modelRuntime.getModel(connProvider, model.id) ?? model;
+	}
 	const budget = Math.max(1, cfg.budget ?? 1);
 	const T = (k: string) => cfg.texts?.[k] ?? "";
 	let transcript: any[] = [...req.messages];
@@ -195,11 +211,12 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		pi.on("before_provider_request", (ev: any) => {
 			// DeepTutor forces a named tool on the first round (Ask Questions -> ask_user); pi-ai has only auto/none.
 			const name = cfg.initial_tool_choice;
-			const p = ev.payload;
+			const p = withCacheKey(ev.payload, req);
 			if (s.rounds === 0 && name && p && Array.isArray(p.tools) && p.tools.some((t: any) => t.function?.name === name)) {
 				if (process.env.PI_TUTOR_DEBUG) process.stderr.write(`[tool_choice] forced ${name}\n`);
 				return { ...p, tool_choice: { type: "function", function: { name } } };
 			}
+			return p === ev.payload ? undefined : p;
 		});
 		pi.on("message_start", (ev: any) => { if (ev.message?.role === "assistant") { roundError = ""; writer = chunkWriter(model.id, host.write); } });
 		pi.on("message_update", (ev: any) => { if (ev.message?.role === "assistant") writer?.event(ev.assistantMessageEvent); });
@@ -231,9 +248,11 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	});
 	await loader.reload();
 	const settings = SettingsManager.inMemory({ compaction: { enabled: false }, retry: { enabled: false } });
+	if (conn?.transport) settings.setTransport(conn.transport as any);
 	const { session } = await createAgentSession({
 		cwd: HERE, agentDir: AGENT_DIR, model, thinkingLevel: (THINKING[req.reasoning_effort] ?? "off") as any,
-		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE), noTools: "builtin",
+		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE, req.cache_key ? { id: req.cache_key } : undefined), noTools: "builtin",
+		...(modelRuntime ? { modelRuntime } : {}),
 	});
 	try {
 		await session.bindExtensions({});
@@ -256,6 +275,7 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		outcome = outcome ?? { error: String(e?.message ?? e), error_kind: "transport", partial: s.rounds > 0 };
 	} finally {
 		try { session.dispose(); } catch {}
+		if (modelRuntime) { try { modelRuntime.unregisterProvider(connProvider); } catch {} }
 	}
 	return { ...outcome, messages: transcript, tools, rounds: s.rounds, settlement_rounds: s.settlement, tool_steps: s.toolSteps };
 }
