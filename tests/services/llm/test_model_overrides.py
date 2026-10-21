@@ -105,3 +105,8 @@ def test_the_k3_family_covers_its_variants_without_capturing_short_ids() -> None
     assert find_by_model("k3-256k") is moonshot
     assert find_by_model("k3-1m") is moonshot
     assert find_by_model("sk3") is None
+
+
+def test_models_with_a_fixed_temperature_are_sent_that_temperature() -> None:
+    assert _payload("openai", "gpt-5")["temperature"] == 1.0
+    assert _payload("openai", "gpt-4o")["temperature"] == pytest.approx(0.7)

@@ -470,68 +470,11 @@ def _static_capability(
     return default
 
 
-# Runtime cache for response_format incompatibilities discovered at request time.
-# Keyed by (binding_lower, model_lower). Populated when a provider rejects a
-# request with response_format={"type": "json_object"} (commonly LM Studio /
-# Ollama serving Gemma/Qwen-style models that only accept "json_schema" or "text").
-# Once a pair is recorded here, subsequent calls skip response_format entirely
-# instead of paying the cost of a failed request + retry.
-_RUNTIME_DISABLED_RESPONSE_FORMAT: set[tuple[str, str]] = set()
-
-
-def disable_response_format_at_runtime(binding: str | None, model: str | None) -> None:
-    """Mark a (binding, model) pair as not supporting ``response_format``.
-
-    Subsequent calls to :func:`supports_response_format` for the same pair
-    will return ``False`` without re-checking the static configuration. This
-    is useful when a provider unexpectedly rejects ``response_format`` at
-    runtime (e.g. LM Studio + ``gemma-4-e2b`` returning
-    ``"'response_format.type' must be 'json_schema' or 'text'"``).
-    """
-    if not binding or not model:
-        return
-    _RUNTIME_DISABLED_RESPONSE_FORMAT.add((binding.lower(), model.lower()))
-
-
-def is_response_format_disabled_at_runtime(binding: str | None, model: str | None) -> bool:
-    """Return True if (binding, model) was disabled via :func:`disable_response_format_at_runtime`."""
-    if not binding or not model:
-        return False
-    return (binding.lower(), model.lower()) in _RUNTIME_DISABLED_RESPONSE_FORMAT
-
-
-# Runtime cache for providers that refuse to be told *which* tool to call.
-# Keyed by (binding_lower, model_lower), populated when a request naming a
-# function is rejected (DeepSeek V4 with thinking: "Thinking mode does not
-# support this tool_choice"). Recorded so the next forced round asks for
-# ``"required"`` up front instead of paying for a failed request first.
-_RUNTIME_DISABLED_FORCED_TOOL_CHOICE: set[tuple[str, str]] = set()
-
-
-def disable_forced_tool_choice_at_runtime(binding: str | None, model: str | None) -> None:
-    """Mark a (binding, model) pair as unable to have one tool forced."""
-    if not binding or not model:
-        return
-    _RUNTIME_DISABLED_FORCED_TOOL_CHOICE.add((binding.lower(), model.lower()))
-
-
-def is_forced_tool_choice_disabled_at_runtime(
-    binding: str | None,
-    model: str | None,
-) -> bool:
-    """Whether this pair was recorded by :func:`disable_forced_tool_choice_at_runtime`."""
-    if not binding or not model:
-        return False
-    return (binding.lower(), model.lower()) in _RUNTIME_DISABLED_FORCED_TOOL_CHOICE
-
-
 def supports_response_format(binding: str, model: str | None = None) -> bool:
     """
     Check if the provider/model supports response_format parameter.
 
     This is a convenience function for the most common capability check.
-    A runtime override (set via :func:`disable_response_format_at_runtime`)
-    always wins over static capability configuration.
 
     Args:
         binding: Provider binding name
@@ -540,8 +483,6 @@ def supports_response_format(binding: str, model: str | None = None) -> bool:
     Returns:
         True if response_format is supported
     """
-    if is_response_format_disabled_at_runtime(binding, model):
-        return False
     value = get_capability(binding, "supports_response_format", model, default=True)
     return bool(value)
 
@@ -691,8 +632,4 @@ __all__ = [
     "supports_vision",
     "requires_api_version",
     "get_effective_temperature",
-    "disable_response_format_at_runtime",
-    "is_response_format_disabled_at_runtime",
-    "disable_forced_tool_choice_at_runtime",
-    "is_forced_tool_choice_disabled_at_runtime",
 ]

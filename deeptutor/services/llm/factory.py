@@ -20,7 +20,7 @@ from deeptutor.services.provider_registry import (
     model_overrides_for,
 )
 
-from .capabilities import supports_response_format, supports_vision
+from .capabilities import get_effective_temperature, supports_vision
 from .config import LLMConfig, get_llm_config
 from .multimodal import prepare_multimodal_messages
 from .types import StreamOutcome
@@ -290,6 +290,8 @@ def _pi_kwargs(kwargs: dict[str, Any], model: str | None = None, spec: Any = Non
             request.pop(key, None)
         else:
             request[key] = value
+    if "temperature" in request and model:  # o-series and gpt-5 accept only their fixed temperature
+        request["temperature"] = get_effective_temperature(getattr(spec, "name", None) or "openai", model, request["temperature"])
     return request
 
 
