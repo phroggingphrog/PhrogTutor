@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 
 import { apiFetch, apiUrl } from "@/lib/api";
+import LearningActivity from "@/components/learning/LearningActivity";
 
 type Rec = { id: number; ts: number; kind: string; quote: string };
 type Gap = { page: string; title: string; status: string; via: string };
@@ -112,6 +113,7 @@ export default function MasteryRecords() {
           </ul>
         </details>
       ))}
+      <LearningActivity />
     </div>
     </div>
   );
