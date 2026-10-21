@@ -22,23 +22,51 @@ def _key(value: str) -> str:
     return value.lower()
 
 
+def _rank(name: str) -> tuple[bool, int, str]:
+    return (name.startswith("@"), name.count("/"), name.lower())
+
+
+class LinkResolver:
+    """Resolves many link targets against one list of note names in O(1) each."""
+
+    def __init__(self, names: Iterable[str]) -> None:
+        self._exact: dict[str, str] = {}
+        self._tail: dict[str, str] = {}
+        for name in names:
+            key = _key(name)
+            if key not in self._exact or _rank(name) < _rank(self._exact[key]):
+                self._exact[key] = name
+            tail = key.rsplit("/", 1)[-1]
+            if tail not in self._tail or _rank(name) < _rank(self._tail[tail]):
+                self._tail[tail] = name
+
+    def resolve(self, target: str) -> str | None:
+        wanted = _key(target)
+        if not wanted:
+            return None
+        found = self._exact.get(wanted)
+        if found is None and "/" not in wanted:
+            found = self._tail.get(wanted)
+        return found
+
+
 def resolve_link(target: str, names: Iterable[str]) -> str | None:
     """The note a link target points at, or None when no note matches."""
-    wanted = _key(target)
-    if not wanted:
-        return None
-    exact: list[str] = []
-    by_tail: list[str] = []
-    for name in names:
-        key = _key(name)
-        if key == wanted:
-            exact.append(name)
-        elif "/" not in wanted and key.rsplit("/", 1)[-1] == wanted:
-            by_tail.append(name)
-    pool = exact or by_tail
-    if not pool:
-        return None
-    return min(pool, key=lambda n: (n.startswith("@"), n.count("/"), n.lower()))
+    return LinkResolver(names).resolve(target)
+
+
+_TAG_RE = re.compile(r"(?<![\w&/#])#([A-Za-z][\w/-]*)")
+
+
+def parse_tags(text: str) -> list[str]:
+    """``#tags`` in the text outside code, lowercased and de-duplicated. ``# Heading`` is not a tag."""
+    seen: dict[str, None] = {}
+    for chunk, skip in _split(text):
+        if skip:
+            continue
+        for match in _TAG_RE.finditer(chunk):
+            seen.setdefault(match.group(1).rstrip("/-").lower(), None)
+    return [tag for tag in seen if tag]
 
 
 def parse_links(text: str) -> list[str]:

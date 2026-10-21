@@ -113,3 +113,67 @@ def test_asset_route_refuses_traversal_and_unknown_names(client) -> None:
     assert client.get("/api/notes/_assets/..%2Fsecret.png").status_code in (400, 404)
     assert client.get("/api/notes/_assets/abcdef0123456789.png").status_code == 404
     assert client.get("/api/notes/_assets/notes.md").status_code == 404
+
+
+def test_parse_tags_ignores_headings_code_urls_and_fragments() -> None:
+    from deeptutor.services.notes_links import parse_tags
+
+    text = "# Heading\n\nStudy #Physics and #math/calculus, #physics again.\nSee http://x.test/#anchor and page#frag.\n`#code`\n```\n#fenced\n```\n#1 #2024"
+    assert parse_tags(text) == ["physics", "math/calculus"]
+
+
+def test_search_ranks_title_and_tags_above_body_and_filters_by_tag(client) -> None:
+    put(client, "Fourier", "The fourier transform. #physics")
+    put(client, "Notes on waves", "mentions fourier once")
+    put(client, "Unrelated", "nothing here #physics")
+    hits = client.get("/api/notes/search", params={"q": "fourier"}).json()["hits"]
+    assert [h["name"] for h in hits] == ["Fourier", "Notes on waves"]
+    assert "fourier" in hits[0]["snippet"].lower()
+    tagged = client.get("/api/notes/search", params={"tag": "#Physics"}).json()["hits"]
+    assert sorted(h["name"] for h in tagged) == ["Fourier", "Unrelated"]
+    both = client.get("/api/notes/search", params={"q": "fourier", "tag": "physics"}).json()["hits"]
+    assert [h["name"] for h in both] == ["Fourier"]
+    assert client.get("/api/notes/search").json() == {"hits": []}
+
+
+def test_tags_endpoint_counts(client) -> None:
+    put(client, "A", "#x #y")
+    put(client, "B", "#x")
+    assert client.get("/api/notes/_tags").json()["tags"] == [{"tag": "x", "count": 2}, {"tag": "y", "count": 1}]
+
+
+def test_graph_has_resolved_edges_and_keeps_loose_notes(client) -> None:
+    put(client, "A", "to [[B]] and [[Nope]]")
+    put(client, "B", "back [[A]]")
+    put(client, "C", "alone")
+    g = client.get("/api/notes/_graph").json()
+    assert {n["id"]: n["links"] for n in g["nodes"]} == {"A": 2, "B": 2, "C": 0}
+    assert {(e["source"], e["target"]) for e in g["edges"]} == {("A", "B"), ("B", "A")}
+
+
+def test_index_rereads_only_changed_files(tmp_path, monkeypatch) -> None:
+    from deeptutor.services.notes_index import NotesIndex
+
+    a, b = tmp_path / "a.md", tmp_path / "b.md"
+    a.write_text("alpha")
+    b.write_text("beta")
+    rows = [("a", a, False), ("b", b, False)]
+    index = NotesIndex()
+    index.sync(rows)
+    reads: list[str] = []
+    real = type(a).read_text
+
+    def spy(self, *args, **kwargs):
+        reads.append(self.name)
+        return real(self, *args, **kwargs)
+
+    monkeypatch.setattr(type(a), "read_text", spy)
+    index.sync(rows)
+    assert reads == []
+    b.write_text("gamma!")
+    index.sync(rows)
+    assert reads == ["b.md"]
+    assert [h["name"] for h in index.search("gamma")] == ["b"]
+    b.unlink()
+    index.sync([("a", a, False)])
+    assert index.search("gamma") == []

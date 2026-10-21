@@ -18,7 +18,8 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from deeptutor.services.notes_links import links_to, rewrite_links
+from deeptutor.services.notes_index import NotesIndex, index_for
+from deeptutor.services.notes_links import rewrite_links
 from deeptutor.services.path_service import get_path_service
 
 router = APIRouter()
@@ -95,6 +96,12 @@ def _all_notes() -> list[tuple[str, Path, bool]]:
     return found
 
 
+def _index() -> NotesIndex:
+    index = index_for(_dir().resolve())
+    index.sync(_all_notes())
+    return index
+
+
 @router.get("")
 def list_notes():
     notes = [
@@ -159,48 +166,25 @@ def read_asset(filename: str):
 def backlinks(name: str):
     """Notes that link to ``name`` with ``[[wikilinks]]``, each with a short snippet."""
     _locate(name)
-    notes = _all_notes()
-    names = [n for n, _, _ in notes]
-    hits = []
-    for other, p, _ in notes:
-        if other == name:
-            continue
-        try:
-            text = p.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        if "[[" in text and links_to(text, name, names):
-            at = text.find("[[")
-            hits.append({"name": other, "snippet": " ".join(text[max(0, at - 60) : at + 100].split())})
-            if len(hits) >= 100:
-                break
-    return {"backlinks": hits}
+    return {"backlinks": _index().backlinks(name)}
+
+
+@router.get("/_tags")
+def tags():
+    """Every ``#tag`` used in the notes, most used first."""
+    return {"tags": _index().tags()}
+
+
+@router.get("/_graph")
+def graph():
+    """Notes as nodes and resolved wikilinks as edges."""
+    return _index().graph()
 
 
 @router.get("/search")
-def search_notes(q: str = ""):
-    """Notes whose text contains every word of q (case-insensitive), with a short snippet."""
-    words = [w for w in q.lower().split() if w]
-    hits = []
-    if not words:
-        return {"hits": hits}
-    roots = [(None, _dir().resolve()), *_sources().items()]
-    for label, root in roots:
-        for p in root.rglob("*.md"):
-            if any(part.startswith(".") for part in p.relative_to(root).parts):
-                continue
-            try:
-                text = p.read_text(encoding="utf-8", errors="replace")
-            except OSError:
-                continue
-            low = text.lower()
-            if all(w in low for w in words):
-                at = low.find(words[0])
-                snippet = " ".join(text[max(0, at - 60): at + 100].split())
-                hits.append({"name": _name(root, p, label), "snippet": snippet})
-                if len(hits) >= 50:
-                    return {"hits": hits}
-    return {"hits": hits}
+def search_notes(q: str = "", tag: str = ""):
+    """Notes whose text contains every word of q (best matches first), optionally only those with a tag."""
+    return {"hits": _index().search(q, tag)}
 
 
 @router.get("/{name:path}")
