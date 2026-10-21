@@ -100,17 +100,17 @@ export default function AppShell({ sidebar, children }: AppShellProps) {
         </div>
 
         <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[var(--background)]">
-          <div className="flex h-11 shrink-0 items-center gap-1 border-b border-[var(--border)] px-2 md:hidden">
+          <div className="flex h-12 shrink-0 items-center gap-1 border-b border-[var(--border)] px-2 md:hidden">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label={t("Open navigation")}
               aria-expanded={drawerOpen}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               <Menu size={18} strokeWidth={1.7} />
             </button>
-            <Link href="/" className="flex items-center gap-1.5">
+            <Link href="/" className="flex min-h-11 items-center gap-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
               <Image
                 src="/logo.png"
                 alt=""

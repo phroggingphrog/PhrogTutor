@@ -13,21 +13,34 @@ import "katex/dist/katex.min.css";
 import { ChevronDown, ChevronRight, FilePlus, Folder, MessageCircleQuestion,
   MoreHorizontal,
   PanelLeft,
-  WandSparkles, SquareTerminal, Trash2 } from "lucide-react";
+  Network, Tag, WandSparkles, SquareTerminal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
 const TerminalPanel = dynamic(() => import("./TerminalPanel"), { ssr: false });
 
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, apiUrl } from "@/lib/api";
+import { IconButton } from "@/shared/ui/IconButton";
+import BacklinksPanel from "./BacklinksPanel";
+import NotesGraph from "./NotesGraph";
+import NoteNameDialog from "./NoteNameDialog";
+import { NoteImage, altFromFile, isImageFile, uploadNoteImage } from "./noteImage";
 import { RunnableCodeBlock, cellRunners, notebook } from "./RunnableCodeBlock";
+import { SlashMenu, slashItems } from "./slashMenu";
+import { Wikilink, WikilinkSuggest, refreshWikilinks } from "./wikilinks";
 
 type NoteMeta = { name: string; updated_at: number; read_only?: boolean };
+type Dialog = "new" | "rename" | "ai" | "delete" | null;
 
 const api = (path = "") => apiUrl(`/api/notes${path}`);
 const json = { "Content-Type": "application/json" };
 const encPath = (name: string) => name.split("/").map(encodeURIComponent).join("/");
+
+const menuItem =
+  "w-full px-3 py-2 text-left hover:bg-[var(--muted)] focus-visible:bg-[var(--muted)] focus-visible:outline-none";
 
 const BUTTONS: [string, string, (e: any) => void, (e: any) => boolean][] = [
   ["H1", "Heading 1", (e) => e.chain().focus().toggleHeading({ level: 1 }).run(), (e) => e.isActive("heading", { level: 1 })],
@@ -41,8 +54,15 @@ const BUTTONS: [string, string, (e: any) => void, (e: any) => boolean][] = [
   ["</>", "Code block", (e) => e.chain().focus().toggleCodeBlock({ language: "python" }).run(), (e) => e.isActive("codeBlock")],
 ];
 
+// Below this width the note list folds away behind a button, like the chat side panel's view.
+const NARROW = "(max-width: 767px)";
+
 // compact: the chat side panel's view (note list folds away behind a button, toolbar wraps).
 export default function NotesEditor({ compact = false }: { compact?: boolean }) {
+  const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
+  const [narrow, setNarrow] = useState(false);
   const [showList, setShowList] = useState(!compact);
   const [notes, setNotes] = useState<NoteMeta[]>([]);
   const [current, setCurrent] = useState<string | null>(null);
@@ -50,7 +70,36 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const [readOnly, setReadOnly] = useState(false);
   const [showTerminal, setShowTerminal] = useState(false);
   const [query, setQuery] = useState("");
+  const [dialog, setDialog] = useState<Dialog>(null);
+  const [mode, setMode] = useState<"note" | "graph">("note");
+  const [tags, setTags] = useState<{ tag: string; count: number }[]>([]);
+  const [activeTag, setActiveTag] = useState("");
+  const [linksVersion, setLinksVersion] = useState(0);
+  const [renameNonce, setRenameNonce] = useState(0);
+  const imageInput = useRef<HTMLInputElement>(null);
+  const insertImagesRef = useRef<((files: File[], at?: number) => Promise<void>) | null>(null);
+  const aiRange = useRef<{ from: number; to: number; whole: boolean } | null>(null);
   const router = useRouter();
+  const overlay = compact || narrow;
+
+  useEffect(() => {
+    const media = window.matchMedia(NARROW);
+    const sync = () => {
+      setNarrow(media.matches);
+      if (media.matches) setShowList(false);
+    };
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  // On a narrow screen the list covers the note: Escape (or a tap outside it) puts it away.
+  useEffect(() => {
+    if (!overlay || !showList) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setShowList(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [overlay, showList]);
 
   // Open chat with this note in the message box; the learner adds their question.
   const askTutor = () => {
@@ -71,58 +120,91 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     router.push("/");
   };
   const [menu, setMenu] = useState(false);
+  const menuRef = useRef<HTMLSpanElement>(null);
   const [showFormat, setShowFormat] = useState(false);
+
+  // The "More" menu closes on Escape and on any click outside it.
+  useEffect(() => {
+    if (!menu) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenu(false);
+    const onDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenu(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onDown);
+    };
+  }, [menu]);
+
   // Co-Writer inside Notes: rewrite the selection (or the whole note) by an instruction.
-  const aiEdit = async () => {
+  const startAiEdit = () => {
     if (!editor || readOnly) return;
     const { from, to } = editor.state.selection;
-    const whole = from === to;
+    aiRange.current = { from, to, whole: from === to };
+    setDialog("ai");
+  };
+  const aiEdit = async (instruction: string) => {
+    const range = aiRange.current;
+    setDialog(null);
+    if (!editor || readOnly || !range) return;
+    const { from, to, whole } = range;
     const text = whole ? editor.getMarkdown() : editor.state.doc.textBetween(from, to, "\n");
-    const instruction = window.prompt(whole ? "AI edit the whole note — what should change?" : "AI edit the selection — what should change?");
-    if (!instruction) return;
-    setStatus("AI editing…");
+    setStatus(t("AI editing…"));
     const r = await apiFetch(apiUrl("/api/documents/actions/edit"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: text.slice(0, 50000), instruction, action: "rewrite" }),
     });
-    if (!r.ok) return setStatus("AI edit failed");
+    if (!r.ok) return setStatus(t("AI edit failed"));
     const edited = (await r.json()).edited_text as string;
     if (whole) editor.commands.setContent(edited, { contentType: "markdown" });
     else editor.chain().focus().insertContentAt({ from, to }, edited, { contentType: "markdown" }).run();
-    setStatus("AI edited — Ctrl+Z to undo");
+    setStatus(t("AI edited — Ctrl+Z to undo"));
   };
   const [hits, setHits] = useState<{ name: string; snippet: string }[] | null>(null);
 
   // Typing filters by name; Enter also searches inside every note's text (own notes + extra sources).
-  const searchText = async () => {
-    if (!query.trim()) return setHits(null);
-    const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}`));
+  const searchText = async (tag = activeTag) => {
+    if (!query.trim() && !tag) return setHits(null);
+    const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}&tag=${encodeURIComponent(tag)}`));
     setHits(r.ok ? (await r.json()).hits : []);
+  };
+  const chooseTag = (tag: string) => {
+    const next = tag === activeTag ? "" : tag;
+    setActiveTag(next);
+    if (next) void searchText(next);
+    else setHits(null);
   };
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const openRef = useRef<((name: string) => Promise<void>) | null>(null);
+  const openLinkRef = useRef<((target: string, resolved: string | null) => void) | null>(null);
+  const namesRef = useRef<string[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loading = useRef(false);
   const currentRef = useRef<string | null>(null);
   currentRef.current = current;
+  namesRef.current = notes.map((n) => n.name);
 
   const refresh = useCallback(async () => {
     const r = await apiFetch(api());
     if (r.ok) setNotes((await r.json()).notes);
+    const tagResponse = await apiFetch(api("/_tags")).catch(() => null);
+    if (tagResponse?.ok) setTags((await tagResponse.json()).tags);
   }, []);
 
   const save = useCallback(async (name: string, md: string) => {
-    setStatus("Saving…");
+    setStatus(tRef.current("Saving…"));
     try {
       const r = await apiFetch(api(`/${encPath(name)}`), {
         method: "PUT",
         headers: json,
         body: JSON.stringify({ content: md }),
       });
-      setStatus(r.ok ? "Saved" : "Save failed");
+      setStatus(r.ok ? tRef.current("Saved") : tRef.current("Save failed"));
     } catch {
-      setStatus("Save failed");
+      setStatus(tRef.current("Save failed"));
     }
   }, []);
 
@@ -133,14 +215,44 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       RunnableCodeBlock,
       TaskList,
       TaskItem.configure({ nested: true }),
-      Placeholder.configure({ placeholder: "Write something…" }),
+      Placeholder.configure({ placeholder: () => tRef.current("Write something… type / for blocks, [[ to link a note") }),
       Mathematics,
       // Without this a markdown table is dropped on the first edit of the note.
       TableKit,
+      NoteImage,
+      Wikilink.configure({
+        getNames: () => namesRef.current,
+        onOpen: (target, resolved) => openLinkRef.current?.(target, resolved),
+      }),
+      WikilinkSuggest.configure({
+        getNames: () => namesRef.current,
+        createLabel: (name) => tRef.current("Create note “{{name}}”", { name }),
+        menuLabel: tRef.current("Link to a note"),
+        emptyLabel: tRef.current("No matching notes"),
+      }),
+      SlashMenu.configure({
+        getItems: () => slashItems((key) => tRef.current(key), { pickImage: () => imageInput.current?.click() }),
+        menuLabel: tRef.current("Insert a block"),
+        emptyLabel: tRef.current("No matching blocks"),
+      }),
       Markdown,
     ],
     editorProps: {
-      attributes: { class: "notes-prose min-h-[60vh] px-8 py-6 outline-none", "aria-label": "Note content", "aria-multiline": "true" },
+      attributes: { class: "notes-prose min-h-[60vh] px-4 py-6 outline-none sm:px-8", "aria-label": tRef.current("Note content"), "aria-multiline": "true" },
+      // Pasted or dropped images are uploaded and inserted; everything else keeps its default handling.
+      handlePaste: (view, event) => {
+        const files = [...(event.clipboardData?.files ?? [])].filter(isImageFile);
+        if (!files.length || !view.editable) return false;
+        void insertImagesRef.current?.(files);
+        return true;
+      },
+      handleDrop: (view, event) => {
+        const files = [...(event.dataTransfer?.files ?? [])].filter(isImageFile);
+        if (!files.length || !view.editable) return false;
+        const at = view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos;
+        void insertImagesRef.current?.(files, at);
+        return true;
+      },
     },
     onUpdate: ({ editor }) => {
       const name = currentRef.current;
@@ -149,6 +261,27 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       timer.current = setTimeout(() => save(name, tidyMarkdown(editor.getMarkdown())).then(refresh), 800);
     },
   });
+
+  insertImagesRef.current = async (files, at) => {
+    if (!editor) return;
+    setStatus(t("Uploading image…"));
+    try {
+      for (const file of files) {
+        const path = await uploadNoteImage(file);
+        const image = { type: "image", attrs: { src: path, alt: altFromFile(file, t("Pasted image")) } };
+        if (at === undefined) editor.chain().focus().insertContent(image).run();
+        else editor.chain().focus().insertContentAt(at, image).run();
+      }
+      setStatus("");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t("Could not add the image"));
+    }
+  };
+
+  // Links to notes that do not exist yet are styled differently; re-check when the note list changes.
+  useEffect(() => {
+    if (editor) refreshWikilinks(editor);
+  }, [editor, notes]);
 
   // The debounced save reads the editor when it fires, so it must run (or be dropped) before the
   // editor shows a different note or the note changes name: otherwise it writes one note's text
@@ -180,7 +313,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       if (!editor) return;
       await flushPendingSave();
       const r = await apiFetch(api(`/${encPath(name)}`));
-      if (!r.ok) return setStatus("Could not open note");
+      if (!r.ok) return setStatus(tRef.current("Could not open note"));
       const { content, read_only } = await r.json();
       loading.current = true;
       editor.commands.setContent(content, { contentType: "markdown" });
@@ -189,15 +322,13 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       setReadOnly(Boolean(read_only));
       setCurrent(name);
       setStatus("");
+      setLinksVersion((v) => v + 1);
     },
     [editor, flushPendingSave],
   );
   openRef.current = open;
 
-  const create = async () => {
-    // "folder/name" puts the note in a folder (created if needed).
-    const typed = prompt("New note name (use folder/name for a folder)", "Untitled")?.trim().replace(/^\/+|\/+$/g, "");
-    if (!typed || typed.startsWith("@")) return;
+  const createNote = async (typed: string) => {
     let n = typed;
     for (let i = 2; notes.some((x) => x.name === n); i++) n = `${typed} ${i}`;
     await flushPendingSave();
@@ -206,8 +337,15 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     await open(n);
   };
 
+  // Follow a [[link]]: open the note, or create it first when it does not exist yet.
+  openLinkRef.current = (target, resolved) => {
+    if (resolved) void open(resolved);
+    else if (target && !target.startsWith("@")) void createNote(target.replace(/^\/+|\/+$/g, ""));
+  };
+
   const remove = async () => {
-    if (!current || !confirm(`Delete "${current}"? (moved to .trash)`)) return;
+    setDialog(null);
+    if (!current) return;
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
     await apiFetch(api(`/${encPath(current)}`), { method: "DELETE" });
@@ -217,7 +355,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   };
 
   const rename = async (newName: string) => {
-    const name = newName.trim();
+    const name = newName.trim().replace(/^\/+|\/+$/g, "");
     if (!current || !name || name === current) return;
     await flushPendingSave();
     const r = await apiFetch(api(`/${encPath(current)}/rename`), {
@@ -226,9 +364,13 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       body: JSON.stringify({ new_name: name }),
     });
     if (r.ok) {
-      setCurrent(name);
-      refresh();
-    } else alert("Could not rename");
+      await refresh();
+      // The server also rewrote [[links]] to this note; reload so the next save does not undo that.
+      await open(name);
+    } else {
+      setStatus(r.status === 409 ? t("A note with that name already exists") : t("Could not rename"));
+      setRenameNonce((n) => n + 1); // put the old name back in the field
+    }
   };
 
   notebook.note = current ?? "";
@@ -252,55 +394,92 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     window.dispatchEvent(new Event("notebook-restart"));
   };
 
+  const pick = (name: string) => {
+    setMode("note");
+    void open(name);
+    if (overlay) setShowList(false);
+  };
+
+  const noteNameProblem = (value: string) => {
+    const name = value.replace(/^\/+|\/+$/g, "");
+    if (name.startsWith("@")) return t("Names starting with @ are read-only sources.");
+    if (name.split("/").some((part) => part.startsWith("."))) return t("A name cannot start with a dot.");
+    return "";
+  };
+
   return (
     <div className={`relative flex ${compact ? "h-full" : "h-[calc(100vh-4rem)]"} text-[var(--foreground)]`}>
+      {!compact && <h1 className="sr-only">{t("Notes")}</h1>}
+      {overlay && showList && <div aria-hidden="true" onClick={() => setShowList(false)} className="absolute inset-0 z-[9] bg-black/20" />}
       {showList && (
-      <aside className={`flex w-64 shrink-0 flex-col border-r border-[var(--border)] ${compact ? "absolute inset-y-0 left-0 z-10 bg-[var(--background)] shadow-lg" : ""}`}>
+      <aside aria-label={t("Notes")} className={`flex w-64 shrink-0 flex-col border-r border-[var(--border)] ${overlay ? "absolute inset-y-0 left-0 z-10 bg-[var(--background)] shadow-lg" : ""}`}>
         <div className="flex items-center justify-between p-3">
-          <span className="font-medium">Notes</span>
+          <span className="font-medium">{t("Notes")}</span>
           <span className="flex gap-1">
-            <button
+            <IconButton
+              label={t("Terminal (sandboxed, no internet)")}
+              aria-pressed={showTerminal}
               onClick={() => setShowTerminal((v) => !v)}
-              title="Terminal (sandboxed, no internet)"
-              className={`rounded p-1 hover:bg-[var(--muted)] ${showTerminal ? "bg-[var(--muted)]" : ""}`}
-            >
-              <SquareTerminal size={16} />
-            </button>
-            <button onClick={create} title="New note" className="rounded p-1 hover:bg-[var(--muted)]">
-              <FilePlus size={16} />
-            </button>
+              className={showTerminal ? "bg-[var(--muted)]" : ""}
+              icon={<SquareTerminal size={16} />}
+            />
+            <IconButton
+              label={t("Graph view")}
+              aria-pressed={mode === "graph"}
+              onClick={() => { setMode((m) => (m === "graph" ? "note" : "graph")); if (overlay) setShowList(false); }}
+              className={mode === "graph" ? "bg-[var(--muted)]" : ""}
+              icon={<Network size={16} />}
+            />
+            <IconButton label={t("New note")} onClick={() => setDialog("new")} icon={<FilePlus size={16} />} />
           </span>
         </div>
         <input
           value={query}
+          aria-label={t("Search notes")}
           onChange={(e) => {
             setQuery(e.target.value);
             setHits(null);
           }}
           onKeyDown={(e) => e.key === "Enter" && searchText()}
-          placeholder="Search notes (Enter = search text)"
-          className="mx-3 mb-2 rounded border border-[var(--border)] bg-transparent px-2 py-1 text-sm outline-none"
+          placeholder={t("Search notes…")}
+          className="mx-3 rounded-lg border border-[var(--border)] bg-transparent px-2 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         />
-        {query.trim() ? (
+        <p className="mx-3 mb-2 mt-1 text-xs text-[var(--muted-foreground)]">{t("Press Enter to search inside notes.")}</p>
+        {tags.length > 0 && (
+          <div role="group" aria-label={t("Filter by tag")} className="mx-3 mb-2 flex flex-wrap gap-1">
+            {tags.slice(0, 12).map(({ tag, count }) => (
+              <button
+                key={tag}
+                type="button"
+                aria-pressed={tag === activeTag}
+                onClick={() => chooseTag(tag)}
+                className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${tag === activeTag ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]" : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}
+              >
+                <Tag size={10} aria-hidden /> {tag} <span className="tabular-nums opacity-70">{count}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        {query.trim() || activeTag ? (
           <ul className="flex-1 overflow-y-auto pb-2">
             {[
-              ...notes
+              ...(activeTag ? [] : notes
                 .filter((n) => n.name.toLowerCase().includes(query.trim().toLowerCase()))
                 .slice(0, 50)
-                .map((n) => ({ name: n.name, snippet: "" })),
+                .map((n) => ({ name: n.name, snippet: "" }))),
               ...(hits ?? []),
             ].map((h, i) => (
               <li key={`${h.name}:${i}`}>
                 <button
-                  onClick={() => { open(h.name); if (compact) setShowList(false); }}
-                  className={`w-full px-3 py-1.5 text-left text-sm hover:bg-[var(--muted)] ${h.name === current ? "bg-[var(--muted)]" : ""}`}
+                  onClick={() => pick(h.name)}
+                  className={`w-full px-3 py-1.5 text-left text-sm hover:bg-[var(--muted)] focus-visible:bg-[var(--muted)] focus-visible:outline-none ${h.name === current ? "bg-[var(--muted)]" : ""}`}
                 >
                   <div className="truncate font-medium">{h.name}</div>
                   {h.snippet && <div className="line-clamp-2 text-xs text-[var(--muted-foreground)]">{h.snippet}</div>}
                 </button>
               </li>
             ))}
-            {hits && !hits.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">No text matches.</li>}
+            {hits && !hits.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">{t("No text matches.")}</li>}
           </ul>
         ) : (
         <ul className="flex-1 overflow-y-auto pb-2">
@@ -308,6 +487,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
             row.kind === "folder" ? (
               <li key={`f:${row.path}`}>
                 <button
+                  aria-expanded={openFolders.has(row.path)}
                   onClick={() =>
                     setOpenFolders((prev) => {
                       const next = new Set(prev);
@@ -317,82 +497,82 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
                     })
                   }
                   style={{ paddingLeft: 12 + row.depth * 14 }}
-                  className="flex w-full items-center gap-1 truncate py-1 pr-3 text-left text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                  className="flex w-full items-center gap-1 truncate py-1.5 pr-3 text-left text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] focus-visible:bg-[var(--muted)] focus-visible:outline-none"
                 >
-                  {openFolders.has(row.path) ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                  <Folder size={14} /> {row.label}
+                  {openFolders.has(row.path) ? <ChevronDown size={14} aria-hidden /> : <ChevronRight size={14} aria-hidden />}
+                  <Folder size={14} aria-hidden /> {row.label}
                 </button>
               </li>
             ) : (
               <li key={row.path}>
                 <button
-                  onClick={() => { open(row.path); if (compact) setShowList(false); }}
+                  onClick={() => pick(row.path)}
+                  aria-current={row.path === current ? "page" : undefined}
                   style={{ paddingLeft: 30 + row.depth * 14 }}
-                  className={`w-full truncate py-1.5 pr-3 text-left text-sm hover:bg-[var(--muted)] ${row.path === current ? "bg-[var(--muted)] font-medium" : ""}`}
+                  className={`w-full truncate py-1.5 pr-3 text-left text-sm hover:bg-[var(--muted)] focus-visible:bg-[var(--muted)] focus-visible:outline-none ${row.path === current ? "bg-[var(--muted)] font-medium" : ""}`}
                 >
                   {row.label}
                 </button>
               </li>
             ),
           )}
-          {!notes.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">No notes yet.</li>}
+          {!notes.length && <li className="px-3 text-sm text-[var(--muted-foreground)]">{t("No notes yet.")}</li>}
         </ul>
         )}
-        <Link href="/notebooks" className="border-t border-[var(--border)] p-3 text-sm text-[var(--muted-foreground)] hover:underline">
-          Saved from chat →
+        <Link href="/notebooks" className="border-t border-[var(--border)] p-3 text-sm text-[var(--muted-foreground)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
+          {t("Saved from chat")} →
         </Link>
       </aside>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
+      {mode === "graph" ? (
+        <NotesGraph current={current} onOpen={pick} onClose={() => setMode("note")} />
+      ) : (
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
         {current ? (
           <>
             <div className="flex flex-wrap items-center gap-2 whitespace-nowrap border-b border-[var(--border)] px-4 py-2">
-              {compact && (
-                <button onClick={() => setShowList((v) => !v)} title="All notes" className="rounded p-1 hover:bg-[var(--muted)]">
-                  <PanelLeft size={16} />
-                </button>
+              {overlay && (
+                <IconButton label={t("All notes")} aria-expanded={showList} onClick={() => setShowList((v) => !v)} icon={<PanelLeft size={16} />} />
               )}
               <input
-                key={current}
-                aria-label="Note name"
+                key={`${current}:${renameNonce}`}
+                aria-label={t("Note name")}
                 readOnly={readOnly}
                 defaultValue={current}
                 onBlur={(e) => rename(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
-                className="min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none"
+                className="min-h-9 min-w-0 flex-1 bg-transparent text-lg font-semibold outline-none focus-visible:underline"
               />
-              <span className="text-xs text-[var(--muted-foreground)]">{status}</span>
-              <button onClick={askTutor} title="Ask the tutor about the selection (or the whole note)" className="rounded p-1 hover:bg-[var(--muted)]">
-                <MessageCircleQuestion size={16} />
-              </button>
+              <span role="status" aria-live="polite" className="text-xs text-[var(--muted-foreground)]">{status}</span>
+              <IconButton label={t("Ask the tutor about the selection (or the whole note)")} onClick={askTutor} icon={<MessageCircleQuestion size={16} />} />
               {!readOnly && (
-                <button onClick={aiEdit} title="AI edit: select text first, or edit the whole note" className="rounded p-1 hover:bg-[var(--muted)]">
-                  <WandSparkles size={16} />
-                </button>
+                <IconButton label={t("AI edit: select text first, or edit the whole note")} onClick={startAiEdit} icon={<WandSparkles size={16} />} />
               )}
-              <span className="relative">
-                <button onClick={() => setMenu((v) => !v)} title="More" className="rounded p-1 hover:bg-[var(--muted)]"><MoreHorizontal size={16} /></button>
+              <span ref={menuRef} className="relative">
+                <IconButton label={t("More")} aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu((v) => !v)} icon={<MoreHorizontal size={16} />} />
                 {menu && (
-                  <div onClick={() => setMenu(false)} className="absolute right-0 z-20 mt-1 flex w-44 flex-col rounded-md border border-[var(--border)] bg-[var(--background)] py-1 text-sm shadow-lg">
-                    <button onClick={() => setShowFormat((v) => !v)} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">{showFormat ? "Hide" : "Show"} formatting bar</button>
-                    <button onClick={runAll} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">▶▶ Run all cells</button>
-                    <button onClick={restartKernels} className="px-3 py-1.5 text-left hover:bg-[var(--muted)]">↻ Restart cells</button>
-                    {!readOnly && <button onClick={remove} className="px-3 py-1.5 text-left text-destructive hover:bg-[var(--muted)]">Delete note</button>}
-                    {readOnly && <span className="px-3 py-1.5 text-xs text-[var(--muted-foreground)]">Read-only note</span>}
+                  <div role="menu" onClick={() => setMenu(false)} className="absolute right-0 z-20 mt-1 flex w-52 flex-col rounded-lg border border-[var(--border)] bg-[var(--background)] py-1 text-sm shadow-lg">
+                    <button role="menuitem" onClick={() => setShowFormat((v) => !v)} className={menuItem}>{showFormat ? t("Hide formatting bar") : t("Show formatting bar")}</button>
+                    {!readOnly && <button role="menuitem" onClick={() => setDialog("rename")} className={menuItem}>{t("Rename or move…")}</button>}
+                    <button role="menuitem" onClick={runAll} className={menuItem}>▶▶ {t("Run all cells")}</button>
+                    <button role="menuitem" onClick={restartKernels} className={menuItem}>↻ {t("Restart cells")}</button>
+                    {!readOnly && <button role="menuitem" onClick={() => setDialog("delete")} className={`${menuItem} text-destructive`}>{t("Delete note")}</button>}
+                    {readOnly && <span className="px-3 py-1.5 text-xs text-[var(--muted-foreground)]">{t("Read-only note")}</span>}
                   </div>
                 )}
               </span>
             </div>
             {showFormat && (
-            <div className="flex flex-wrap gap-1 border-b border-[var(--border)] px-4 py-1">
+            <div role="toolbar" aria-label={t("Formatting")} className="flex flex-wrap gap-1 border-b border-[var(--border)] px-4 py-1">
               {editor && !readOnly &&
                 BUTTONS.map(([label, title, fn, active]) => (
                   <button
                     key={title}
-                    title={title}
+                    aria-label={t(title)}
+                    aria-pressed={active(editor)}
                     onClick={() => fn(editor)}
-                    className={`rounded px-2 py-0.5 text-sm hover:bg-[var(--muted)] ${active(editor) ? "bg-[var(--muted)] font-bold" : ""}`}
+                    className={`min-h-9 min-w-9 rounded-lg px-2 py-0.5 text-sm hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${active(editor) ? "bg-[var(--muted)] font-bold" : ""}`}
                   >
                     {label}
                   </button>
@@ -400,16 +580,83 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
             </div>
             )}
             <EditorContent editor={editor} />
+            <input
+              ref={imageInput}
+              type="file"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+              multiple
+              hidden
+              aria-label={t("Add an image")}
+              onChange={(event) => {
+                const files = [...(event.target.files ?? [])];
+                event.target.value = "";
+                if (files.length) void insertImagesRef.current?.(files);
+              }}
+            />
+            <BacklinksPanel note={current} version={linksVersion} onOpen={(name) => void open(name)} />
           </>
         ) : (
-          <div className="m-auto flex flex-col items-center gap-2 text-[var(--muted-foreground)]">
-            Pick a note or create one.
-            {compact && <button onClick={() => setShowList(true)} className="rounded border border-[var(--border)] px-3 py-1 text-sm">Open notes</button>}
+          <div className="m-auto flex flex-col items-center gap-2 p-6 text-center text-[var(--muted-foreground)]">
+            {t("Pick a note or create one.")}
+            {overlay && <button onClick={() => setShowList(true)} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">{t("Open notes")}</button>}
           </div>
         )}
       </div>
+      )}
       {showTerminal && <TerminalPanel key={current ?? ""} note={current ?? ""} />}
       </div>
+
+      <NoteNameDialog
+        open={dialog === "new"}
+        title={t("New note")}
+        label={t("Name (use folder/name for a folder)")}
+        initial={t("Untitled")}
+        confirmLabel={t("Create")}
+        validate={noteNameProblem}
+        onClose={() => setDialog(null)}
+        onSubmit={(value) => {
+          setDialog(null);
+          void createNote(value.replace(/^\/+|\/+$/g, ""));
+        }}
+      />
+      <NoteNameDialog
+        open={dialog === "rename"}
+        title={t("Rename or move")}
+        label={t("New name (use folder/name to move it)")}
+        initial={current ?? ""}
+        confirmLabel={t("Rename")}
+        validate={(value) =>
+          noteNameProblem(value) ||
+          (value !== current && notes.some((n) => n.name === value.replace(/^\/+|\/+$/g, ""))
+            ? t("A note with that name already exists")
+            : "")
+        }
+        onClose={() => setDialog(null)}
+        onSubmit={(value) => {
+          setDialog(null);
+          void rename(value);
+        }}
+      />
+      <NoteNameDialog
+        open={dialog === "ai"}
+        title={t("AI edit")}
+        label={aiRange.current?.whole ? t("What should change in the whole note?") : t("What should change in the selection?")}
+        initial=""
+        multiline
+        confirmLabel={t("Edit")}
+        onClose={() => setDialog(null)}
+        onSubmit={(value) => void aiEdit(value)}
+      />
+      <ConfirmDialog
+        open={dialog === "delete"}
+        title={t("Delete this note?")}
+        confirmLabel={t("Delete")}
+        tone="danger"
+        onConfirm={() => void remove()}
+        onCancel={() => setDialog(null)}
+      >
+        {t("“{{name}}” is moved to the trash folder, not erased.", { name: current ?? "" })}
+      </ConfirmDialog>
     </div>
   );
 }
