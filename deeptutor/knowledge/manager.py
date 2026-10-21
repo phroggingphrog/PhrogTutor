@@ -1244,6 +1244,40 @@ class KnowledgeBaseManager:
         self._save_config()
         return entry
 
+    def register_wiki_kb(
+        self,
+        name: str,
+        server_url: str,
+        collections: list[str] | None = None,
+    ) -> dict:
+        """Register a read-only pointer to the owner's wiki served by qmd."""
+        from deeptutor.knowledge.kb_types import WIKI_KB_TYPE
+        from deeptutor.services.rag.pipelines.wiki.client import normalize_endpoint
+
+        name = validate_knowledge_base_name(name)
+        server_url = normalize_endpoint(server_url)
+        names = [str(c).strip() for c in (collections or []) if str(c).strip()]
+        self.config = self._load_config()
+        bases = self.config.setdefault("knowledge_bases", {})
+        if name in bases:
+            raise ValueError(f"A knowledge base named '{name}' already exists.")
+        now = datetime.now().isoformat()
+        entry = {
+            "path": name,
+            "type": WIKI_KB_TYPE,
+            "rag_provider": WIKI_KB_TYPE,
+            "server_url": server_url,
+            "collections": names,
+            "description": "Wiki (qmd)",
+            "status": "ready",
+            "needs_reindex": False,
+            "created_at": now,
+            "updated_at": now,
+        }
+        bases[name] = entry
+        self._save_config()
+        return entry
+
     def get_knowledge_base_path(self, name: str | None = None) -> Path:
         """Get path to a knowledge base.
 

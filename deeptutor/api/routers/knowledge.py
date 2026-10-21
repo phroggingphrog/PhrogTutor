@@ -2573,6 +2573,44 @@ class ConnectKiwixRequest(KiwixConnectionRequest):
     name: str
 
 
+class ConnectWikiRequest(BaseModel):
+    name: str
+    server_url: str = ""
+    collections: list[str] = []
+
+
+@router.post("/knowledge-bases/probe-wiki", dependencies=[Depends(require_admin)])
+async def probe_wiki_route(payload: ConnectWikiRequest) -> dict[str, Any]:
+    """Check that the qmd server answers; nothing is stored."""
+    from deeptutor.services.rag.pipelines.wiki.client import DEFAULT_URL, WikiQmdClient, WikiQmdError
+
+    try:
+        client = WikiQmdClient(payload.server_url or DEFAULT_URL, timeout=30.0)
+        status = await client.status()
+    except WikiQmdError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "status": status[:2000]}
+
+
+@router.post("/knowledge-bases/connect-wiki", dependencies=[Depends(require_admin)])
+async def connect_wiki_route(payload: ConnectWikiRequest) -> dict[str, Any]:
+    """Bind a KB to the wiki qmd server; no ingest or index is created."""
+    from deeptutor.services.rag.pipelines.wiki.client import DEFAULT_URL, WikiQmdClient, WikiQmdError
+
+    try:
+        client = WikiQmdClient(payload.server_url or DEFAULT_URL, timeout=30.0)
+        await client.status()
+        entry = get_kb_manager().register_wiki_kb(payload.name, client.url, payload.collections)
+    except (WikiQmdError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {
+        "status": "connected",
+        "name": payload.name,
+        "collections": entry["collections"],
+        "rag_provider": entry["rag_provider"],
+    }
+
+
 @router.get("/knowledge-bases/kiwix-catalog", dependencies=[Depends(require_admin)])
 async def list_kiwix_catalog(
     server_url: str = Query(min_length=1, max_length=2048),

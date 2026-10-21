@@ -16,6 +16,7 @@ import os
 from typing import Any
 
 from deeptutor.runtime.home import get_runtime_data_root
+from deeptutor.services.rag.provider_binding import load_kb_config_entry
 
 from .client import (
     DEFAULT_URL,
@@ -59,6 +60,7 @@ class WikiQmdPipeline:
     ) -> None:
         self.kb_base_dir = kb_base_dir or str(get_runtime_data_root() / "knowledge_bases")
         self.url = url or wiki_url()
+        self._default_factory = client_factory is None
         self._client_factory = client_factory or (lambda: WikiQmdClient(self.url))
         self.logger = logger
 
@@ -67,13 +69,18 @@ class WikiQmdPipeline:
 
     async def search(self, query: str, kb_name: str, **kwargs: Any) -> dict[str, Any]:
         """Retrieve wiki notes for ``query``, in the shared RAG result shape."""
+        # A connected wiki KB carries its own URL and collections; the env
+        # fallback path (PI_TUTOR_RAG=wiki) has no entry and keeps the old behaviour.
+        entry = load_kb_config_entry(self.kb_base_dir, kb_name)
+        pointed = entry.get("type") == PROVIDER
+        wanted = kwargs.get("collections") or (entry.get("collections") if pointed else None)
         try:
-            collections = resolve_collections(kwargs.get("collections"))
+            collections = resolve_collections(wanted)
         except WikiQmdError as exc:
             return self._error(query, str(exc), "not_configured")
         limit = max(1, min(int(kwargs.get("top_k") or DEFAULT_TOP_K), 20))
         try:
-            client = self._client()
+            client = WikiQmdClient(entry["server_url"]) if pointed and entry.get("server_url") and self._default_factory else self._client()
             found = await client.query(
                 query,
                 collections=collections,
