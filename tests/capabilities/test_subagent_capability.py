@@ -338,3 +338,17 @@ def test_legacy_partner_kb_is_not_a_subagent_selection(monkeypatch):
     _bind(monkeypatch, kind="partner")
     context = UnifiedContext(user_message="hi", knowledge_bases=["myagent"])
     assert not SubagentCapability().is_active(context)
+
+
+@pytest.mark.parametrize("auth_on,is_admin,allowed", [(False, False, True), (True, False, False), (True, True, True)])
+def test_local_agent_consults_need_an_admin_once_sign_in_is_on(monkeypatch, auth_on, is_admin, allowed):
+    from types import SimpleNamespace
+
+    from deeptutor.capabilities.subagent import tools as subagent_tools
+
+    monkeypatch.setattr("deeptutor.services.auth.AUTH_ENABLED", auth_on)
+    monkeypatch.setattr(
+        "deeptutor.multi_user.context.get_current_user_or_none",
+        lambda: SimpleNamespace(is_admin=is_admin),
+    )
+    assert subagent_tools._may_run_local_cli() is allowed

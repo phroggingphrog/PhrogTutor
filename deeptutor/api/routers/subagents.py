@@ -70,7 +70,7 @@ async def backend_options():
     return {"backends": [o.to_dict() for o in options]}
 
 
-@router.post("/backends/{kind}/sync")
+@router.post("/backends/{kind}/sync", dependencies=[Depends(require_admin)])
 async def sync_backend(kind: str):
     """Re-pull one backend's model catalog (the settings "sync" button).
 
@@ -113,7 +113,7 @@ async def list_connections():
     return {"connections": connections}
 
 
-@router.post("/connections")
+@router.post("/connections", dependencies=[Depends(require_admin)])
 async def create_connection(payload: ConnectSubagentRequest):
     """Connect a local or remote subagent as a selectable KB."""
     name = (payload.name or "").strip()
@@ -175,7 +175,7 @@ def _ndjson(obj: dict) -> str:
     return json.dumps(obj, ensure_ascii=False) + "\n"
 
 
-@router.post("/connections/{name}/message")
+@router.post("/connections/{name}/message", dependencies=[Depends(require_admin)])
 async def message_connection(name: str, payload: SubagentMessageRequest):
     """Send a message straight to a connected subagent and stream its run.
 

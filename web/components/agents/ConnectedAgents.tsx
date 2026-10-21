@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Cpu, Loader2, Plug, Plus, Trash2, X } from "lucide-react";
 
+import { useAuthStatus } from "@/hooks/useAuthStatus";
 import { agentGlyph } from "@/components/agents/agent-icons";
 import SpaceSectionHeader from "@/components/space/SpaceSectionHeader";
 import {
@@ -42,6 +43,10 @@ export default function ConnectedAgents() {
   const zh = i18n.language?.toLowerCase().startsWith("zh");
   const tr = useCallback((l: Lang) => (zh ? l.zh : l.en), [zh]);
 
+  const { isAdmin, loading: authLoading } = useAuthStatus();
+  // Local agents start programs on the server, so with sign-in on only an administrator connects them.
+  const adminOnly = !authLoading && !isAdmin;
+
   const [backends, setBackends] = useState<SubagentBackendInfo[]>([]);
   const [connections, setConnections] = useState<SubagentConnection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +75,7 @@ export default function ConnectedAgents() {
     () => backends.filter((b) => b.available),
     [backends],
   );
-  const canConnect = available.length > 0;
+  const canConnect = !adminOnly && (available.length > 0);
 
   const handleDisconnect = useCallback(
     async (name: string) => {
@@ -124,7 +129,10 @@ export default function ConnectedAgents() {
         </div>
       ) : !canConnect ? (
         <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)]/40 px-4 py-5 text-[13px] leading-relaxed text-[var(--muted-foreground)]">
-          {tr({
+          {adminOnly ? tr({
+            zh: "本机智能体会在服务器上运行程序，因此只能由管理员连接。",
+            en: "Local agents run programs on the server, so only an administrator can connect them.",
+          }) : tr({
             zh: "未检测到可用的本机智能体或已配置的远程 Hermes 网关。安装并登录受支持的 CLI 或配置远程网关，即可连接。",
             en: "No supported local agent or configured remote Hermes gateway is available. Set up a local CLI or configure the gateway to connect one.",
           })}

@@ -40,6 +40,17 @@ SUBAGENT_TOOL_NAMES: tuple[str, ...] = ("consult_subagent",)
 _TRACE_KIND = "subagent_event"
 
 
+def _may_run_local_cli() -> bool:
+    """Local agent CLIs start processes on the server host: administrators only, once sign-in is on."""
+    from deeptutor.multi_user.context import get_current_user_or_none
+    from deeptutor.services.auth import AUTH_ENABLED
+
+    if not AUTH_ENABLED:
+        return True
+    user = get_current_user_or_none()
+    return bool(user and user.is_admin)
+
+
 class ConsultSubagentTool(BaseTool):
     """Put one question to the connected subagent and stream its native run."""
 
@@ -117,6 +128,14 @@ class ConsultSubagentTool(BaseTool):
         if backend is None:
             return ToolResult(
                 content=f"Unknown subagent backend: {spec.get('kind')!r}", success=False
+            )
+        if getattr(backend, "local_cli", False) and not _may_run_local_cli():
+            return ToolResult(
+                content=(
+                    "Connected local agents run programs on the server, so only an administrator "
+                    "can consult them. Answer without it."
+                ),
+                success=False,
             )
 
         state["count"] = int(state.get("count", 0)) + 1
