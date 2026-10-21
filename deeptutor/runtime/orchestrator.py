@@ -21,6 +21,8 @@ from deeptutor.events.event_bus import Event, EventType, get_event_bus
 from deeptutor.runtime.registry.capability_registry import get_capability_registry
 from deeptutor.runtime.registry.tool_registry import get_tool_registry
 from deeptutor.runtime.stream_bus import StreamBus, register_bus, unregister_bus
+from deeptutor.services.prompt.lookup import prompt_text
+from deeptutor.services.prompt.manager import get_prompt_manager
 
 logger = logging.getLogger(__name__)
 
@@ -133,8 +135,18 @@ class ChatOrchestrator:
         async def _run() -> None:
             from deeptutor.services.llm.metrics import TurnUsage, current_usage
 
-            turn_usage = TurnUsage(session_id=context.session_id, turn_id=_turn_id, source=cap_name)
-            usage_token = current_usage.set(turn_usage)
+            turn_usage = current_usage.get()
+            usage_token = None
+            if (
+                turn_usage is None
+                or not _turn_id
+                or turn_usage.turn_id != _turn_id
+                or turn_usage.session_id != context.session_id
+            ):
+                turn_usage = TurnUsage(
+                    session_id=context.session_id, turn_id=_turn_id, source=cap_name
+                )
+                usage_token = current_usage.set(turn_usage)
             status = "completed"
             terminal_error_metadata: dict[str, Any] = {}
             try:
@@ -145,9 +157,11 @@ class ChatOrchestrator:
                         "error_code": "capability_incomplete",
                         "retryable": True,
                     }
+                    prompts = get_prompt_manager().load_prompts(
+                        "capabilities", "turn_status", language=context.language
+                    )
                     await bus.error(
-                        "The requested operation did not complete. Please retry; "
-                        "previously saved work is preserved.",
+                        prompt_text(prompts, ("notices", "capability_incomplete")),
                         source=cap_name,
                         metadata={
                             "turn_terminal": True,
@@ -193,7 +207,8 @@ class ChatOrchestrator:
                         },
                     )
                 )
-                current_usage.reset(usage_token)
+                if usage_token is not None:
+                    current_usage.reset(usage_token)
                 await bus.close()
                 if _turn_id:
                     unregister_bus(_turn_id)

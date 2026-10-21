@@ -1,5 +1,7 @@
 "use client";
 
+import { supportsSubmissionReplacement } from "@/lib/session-api";
+
 import { activeWorkspaceId } from "@/lib/workspace-scope";
 import {
   clearFailedSubmission,
@@ -41,6 +43,7 @@ import { UnifiedTurnClient } from "@/features/chat/transport/UnifiedTurnClient";
 import { buildStartTurnInput } from "@/features/chat/controllers/buildStartTurnInput";
 import {
   getSession,
+  replaceSubmission,
   getMessageTrace,
   deleteMessage,
   updateBranchSelection,
@@ -70,6 +73,7 @@ import {
   tipMessageId,
 } from "@/lib/message-branches";
 import { nextOptimisticId, resolvePersistedMessage } from "@/lib/optimistic-id";
+import { recoveryPrincipal, RECOVERY_PRINCIPAL_CHANGED } from "@/lib/recovery-principal";
 import {
   SUBMIT_CONNECT_RETRY_INTERVAL_MS,
   SUBMIT_CONNECT_RETRY_LIMIT,
@@ -89,7 +93,6 @@ import {
   normalizeReadingMaterialRevision,
   readingTurnFields,
 } from "@/lib/reading-turn-state";
-import { watchingTurnFields } from "@/lib/watching-turn-state";
 import {
   decideIdleTurnRecovery,
   resolveLoadedRunStatus,
@@ -136,6 +139,9 @@ export interface SendMessageOptions {
   requestSnapshotOverride?: MessageRequestSnapshot;
   /** Internal resend identity: reuse the original server correlation token. */
   retrySubmissionId?: string;
+  replacesSubmissionId?: string;
+  replacementRootSubmissionId?: string;
+  replacedMessageId?: number;
   bookReferences?: BookReferencePayload[];
   readingReferences?: ReadingReferencePayload[];
   /** Edit-branching: when set, the new user message is inserted as a
@@ -179,7 +185,6 @@ export interface ChatState {
   activeCapability: string | null;
   /** Stable product surface; per-turn capability selection is orthogonal. */
   workspaceMode: WorkspaceMode | null;
-  timedMediaId: string | null;
   knowledgeBases: string[];
   llmSelection: LLMSelection | null;
   /** Persistent mastery state associated with this conversation. */
@@ -226,7 +231,6 @@ export interface ChatState {
 export interface SessionConfiguration {
   capability?: string | null;
   workspaceMode?: WorkspaceMode | null;
-  timedMediaId?: string | null;
   knowledgeBases?: string[];
   masteryPathId?: string | null;
   masterySessionMode?: string | null;
@@ -271,6 +275,10 @@ export interface MessageAttachment {
 }
 
 export interface MessageRequestSnapshot {
+  /** Durable edit intent; replay the exact reserved wire request after a lost acknowledgement. */
+  replacesSubmissionId?: string;
+  replacementRootSubmissionId?: string;
+  replacementRequest?: Record<string, unknown>;
   resourceSelection?: ResourceSelection;
   content: string;
   capability?: string | null;
@@ -304,7 +312,7 @@ export interface MessageRequestSnapshot {
   readingSelection?: ReadingSelectionSnapshot;
   /** Complete wire context captured at first send for deterministic retry. */
   readingTurnFields?: ReturnType<typeof readingTurnFields>;
-  watchingTurnFields?: ReturnType<typeof watchingTurnFields>;
+  watchingTurnFields?: { timed_media_id?: string; timed_media_viewport?: { time_seconds: number } };
   /** `capability` ran for this turn only (see SendMessageOptions.capability). */
   capabilityOnce?: boolean;
 }
@@ -341,6 +349,8 @@ export interface MessageItem {
 interface SessionEntry extends Omit<ChatState, "sessionKey"> {
   key: string;
   status: SessionRuntimeStatus;
+  /** Runtime status underneath locally restored unsent messages. */
+  submissionBaseStatus: SessionRuntimeStatus;
   activeTurnId: string | null;
   lastSeq: number;
   updatedAt: number;
@@ -365,10 +375,10 @@ interface SessionSnapshot {
   messages: MessageItem[];
   activeTurnId?: string | null;
   status?: SessionRuntimeStatus;
+  serverStatus?: SessionRuntimeStatus;
   tools?: string[];
   capability?: string | null;
   workspaceMode?: WorkspaceMode | null;
-  timedMediaId?: string | null;
   knowledgeBases?: string[];
   llmSelection?: LLMSelection | null;
   masteryPathId?: string | null;
@@ -383,6 +393,7 @@ interface SessionSnapshot {
 }
 
 type Action =
+  | { type: "RESET_ACCOUNT" }
   | { type: "SET_TOOLS"; tools: string[] }
   | { type: "SET_CAPABILITY"; cap: string | null }
   | { type: "SET_KB"; kbs: string[] }
@@ -490,7 +501,6 @@ function createSessionEntry(
     enabledTools: [],
     activeCapability: null,
     workspaceMode: null,
-    timedMediaId: null,
     knowledgeBases: [],
     llmSelection: null,
     masteryPathId: null,
@@ -506,6 +516,7 @@ function createSessionEntry(
       typeof window === "undefined" ? "en" : readStoredResponseLanguage(),
     replyLanguageOverride: null,
     status: "idle",
+    submissionBaseStatus: "idle",
     activeTurnId: null,
     lastSeq: 0,
     updatedAt: Date.now(),
@@ -586,10 +597,6 @@ function applySessionConfiguration(
       configuration.capability !== undefined
         ? configuration.capability
         : session.activeCapability,
-    timedMediaId:
-      configuration.timedMediaId !== undefined
-        ? configuration.timedMediaId
-        : session.timedMediaId,
     workspaceMode:
       configuration.workspaceMode !== undefined
         ? configuration.workspaceMode
@@ -651,6 +658,7 @@ function isSameTurnEvent(a: StreamEvent, b: StreamEvent): boolean {
 }
 
 function reducer(state: ProviderState, action: Action): ProviderState {
+  if (action.type === "RESET_ACCOUNT") return initialState;
   switch (action.type) {
     case "SET_TOOLS":
       return updateSelectedSession(state, (session) => ({
@@ -756,6 +764,9 @@ function reducer(state: ProviderState, action: Action): ProviderState {
           ...state.sessions,
           [action.key]: {
             ...session,
+            submissionBaseStatus: session.messages.some(message => message.failedSubmission)
+              ? session.submissionBaseStatus
+              : session.status,
             messages: [
               ...session.messages,
               {
@@ -798,6 +809,44 @@ function reducer(state: ProviderState, action: Action): ProviderState {
               message.failedSubmissionId === action.submissionId
                 ? { ...message, failedSubmissionNotSaved: !action.saved }
                 : message),
+          },
+        },
+      };
+    }
+    case "DISCARD_FAILED_SUBMISSION": {
+      const session = state.sessions[action.key];
+      if (!session || session.isStreaming) return state;
+      const target = session.messages.find(message =>
+        message.id === action.messageId && message.role === "user" &&
+        message.failedSubmission && message.failedSubmissionId === action.submissionId && action.messageId < 0);
+      if (!target) return state;
+      // Pending rows form a chain after server history. Removing an earlier
+      // one must leave later recoverable submissions on the visible branch.
+      const messages = session.messages
+        .filter(message => message !== target)
+        .map(message => message.parentMessageId === target.id
+          ? { ...message, parentMessageId: target.parentMessageId ?? null }
+          : message);
+      const selectedBranches = { ...session.selectedBranches };
+      const parentKey = String(target.parentMessageId ?? "null");
+      if (selectedBranches[parentKey] === target.id) {
+        const child = selectedBranches[String(target.id)];
+        if (child !== undefined) selectedBranches[parentKey] = child;
+        else delete selectedBranches[parentKey];
+      }
+      delete selectedBranches[String(target.id)];
+      for (const [key, id] of Object.entries(selectedBranches)) {
+        if (id === target.id) delete selectedBranches[key];
+      }
+      return {
+        ...state,
+        sessions: {
+          ...state.sessions,
+          [action.key]: {
+            ...session, messages, selectedBranches,
+            status: messages.some(message => message.failedSubmission)
+              ? session.status : session.submissionBaseStatus,
+            updatedAt: Date.now(),
           },
         },
       };
@@ -1087,6 +1136,7 @@ function reducer(state: ProviderState, action: Action): ProviderState {
             isStreaming: false,
             currentStage: "",
             status: action.status ?? "completed",
+            submissionBaseStatus: action.status ?? "completed",
             activeTurnId:
               action.status === "running" || pendingAskUser
                 ? action.turnId ||
@@ -1167,10 +1217,6 @@ function reducer(state: ProviderState, action: Action): ProviderState {
               action.capability !== undefined
                 ? action.capability
                 : existing.activeCapability,
-            timedMediaId:
-              action.timedMediaId !== undefined
-                ? action.timedMediaId
-                : existing.timedMediaId,
             workspaceMode:
               action.workspaceMode !== undefined
                 ? action.workspaceMode
@@ -1209,6 +1255,7 @@ function reducer(state: ProviderState, action: Action): ProviderState {
             // turn from the start rather than trusting a cached cursor.
             lastSeq: 0,
             status: action.status || "idle",
+            submissionBaseStatus: action.serverStatus ?? action.status ?? "idle",
             language: action.language ?? existing.language,
             replyLanguageOverride:
               action.replyLanguageOverride !== undefined
@@ -1587,7 +1634,8 @@ interface ChatContextValue {
    *  Uses the composer's current capability / refs — only the text is
    *  taken from ``newContent``. Re-runs the turn from the original's
    *  parent context. */
-  editMessage: (messageId: number, newContent: string) => Promise<void>;
+  editMessage: (messageId: number, newContent: string) => Promise<boolean>;
+  retryFailedSubmission: (messageId: number) => Promise<boolean>;
   /** Switch which sibling is currently visible at a branch point. */
   switchBranch: (parentMessageId: number | null, childId: number) => void;
   renameSessionTitle: (title: string) => Promise<void>;
@@ -1854,6 +1902,12 @@ export function ChatStateAdapterProvider({
     Map<string, { storageKey: string; sourceStorageKey?: string; submissionId: string; visibleSubmissionIds: string[] }>
   >(new Map());
   const resolvingResendRef = useRef<Set<string>>(new Set());
+  // Parked (``waiting_input``) turns already resubscribed to on load, keyed
+  // ``<sessionKey>:<turnId>``. A parked turn keeps the conversation's lease
+  // while it waits, and its ask_user card exists only in the live event
+  // stream (no assistant row is persisted until the turn settles), so opening
+  // the conversation must replay that stream or the card is unreachable.
+  const resumedParkedTurnsRef = useRef<Set<string>>(new Set());
   const traceCacheRef = useRef<TraceCache>(new TraceCache());
   const traceRequestsRef = useRef<Map<string, AbortController>>(new Map());
   // Forward-declared so ``handleRunnerEvent`` (created above
@@ -1862,6 +1916,41 @@ export function ChatStateAdapterProvider({
   const loadSessionRef = useRef<
     ((sessionId: string) => Promise<MessageItem[] | undefined>) | null
   >(null);
+  const principalRef = useRef(recoveryPrincipal());
+  const principalResolvedRef = useRef(principalRef.current !== null);
+
+  useEffect(() => {
+    const onPrincipalChanged = () => {
+      const principal = recoveryPrincipal();
+      if (principal === principalRef.current) return;
+      const firstResolution = !principalResolvedRef.current && principalRef.current === null;
+      principalRef.current = principal;
+      if (principal !== null) principalResolvedRef.current = true;
+      if (!firstResolution) {
+        runtimeGeneration.current += 1;
+        runnersRef.current.forEach(({ client }) => client.disconnect());
+        runnersRef.current.clear();
+        retryTimersRef.current.forEach(clearTimeout);
+        retryTimersRef.current.clear();
+        traceRequestsRef.current.forEach((controller) => controller.abort());
+        traceRequestsRef.current.clear();
+        traceCacheRef.current.clear();
+        pendingSubmissionIdsRef.current.clear();
+        pendingRegenerateRef.current.clear();
+        pendingResendRef.current.clear();
+        resolvingResendRef.current.clear();
+        resumedParkedTurnsRef.current.clear();
+        stateRef.current = initialState;
+        dispatch({ type: "RESET_ACCOUNT" });
+        writeStoredActiveSessionId(null);
+      }
+      dispatch({ type: "ENSURE_DRAFT_SESSION", key: `draft_${Date.now()}_${++draftCounterRef.current}`,
+        failedRecords: readFailedSubmissions(draftFailedSubmissionKey()) });
+    };
+    window.addEventListener(RECOVERY_PRINCIPAL_CHANGED, onPrincipalChanged);
+    onPrincipalChanged();
+    return () => window.removeEventListener(RECOVERY_PRINCIPAL_CHANGED, onPrincipalChanged);
+  }, []);
 
   useLayoutEffect(() => {
     stateRef.current = state;
@@ -1947,6 +2036,8 @@ export function ChatStateAdapterProvider({
                 ? null
                 : message.parent_message_id,
             ...(requestSnapshot ? { requestSnapshot } : {}),
+            ...(typeof message.metadata?.client_submission_id === "string"
+              ? { failedSubmissionId: message.metadata.client_submission_id } : {}),
             ...(message.role === "user" && message.metadata?.orphaned_failed_turn
               ? { orphanedFailedTurn: message.metadata.orphaned_failed_turn }
               : {}),
@@ -2226,6 +2317,7 @@ export function ChatStateAdapterProvider({
         if (!existing.client.connected) existing.client.connect();
         return existing;
       }
+      const generation = runtimeGeneration.current;
       const record: {
         key: string;
         client: UnifiedTurnClient;
@@ -2233,8 +2325,11 @@ export function ChatStateAdapterProvider({
       } = {
         key,
         client: new UnifiedTurnClient(
-          (event) => handleRunnerEvent(record.key, event),
+          (event) => {
+            if (generation === runtimeGeneration.current) handleRunnerEvent(record.key, event);
+          },
           () => {
+            if (generation !== runtimeGeneration.current) return;
             const session = stateRef.current.sessions[record.key];
             if (session?.isStreaming) {
               if (
@@ -2507,23 +2602,42 @@ export function ChatStateAdapterProvider({
       // was accepted; equal text from another tab is not enough.
       let restoredMessages = messages;
       let restoredStatus = loadedStatus;
-      if (!options?.revalidate && loadedStatus !== "running") {
-        for (const failedRecord of readFailedSubmissions(key)) {
-          if (serverContainsFailedSubmission(session.messages ?? [], failedRecord)) {
-            clearFailedSubmission(key, failedRecord.submissionId);
-          } else {
-            restoredMessages = [
-              ...restoredMessages,
-              restoredFailedMessage(
-                failedRecord,
-                tipMessageId(buildVisiblePath(
-                  restoredMessages,
-                  normalizeSelectedBranches(session.preferences?.selected_branches),
-                ).messages),
-              ),
-            ];
-            restoredStatus = "failed";
-          }
+      const pendingRecords = readFailedSubmissions(key).filter(record => {
+        if (!serverContainsFailedSubmission(session.messages ?? [], record)) return true;
+        clearFailedSubmission(key, record.submissionId);
+        return false;
+      });
+      // A background refresh must reconcile pending records exactly like a
+      // foreground load; otherwise they vanish until the next full reload.
+      if (loadedStatus !== "running") {
+        for (const failedRecord of pendingRecords) {
+          restoredMessages = [
+            ...restoredMessages,
+            restoredFailedMessage(
+              failedRecord,
+              tipMessageId(buildVisiblePath(
+                restoredMessages,
+                normalizeSelectedBranches(session.preferences?.selected_branches),
+              ).messages),
+            ),
+          ];
+          restoredStatus = "failed";
+        }
+      }
+      if (loadedStatus !== "running") {
+        for (const local of stateRef.current.sessions[key]?.messages ?? []) {
+          if (!local.failedSubmission || !local.failedSubmissionNotSaved ||
+              !local.failedSubmissionId ||
+              serverContainsFailedSubmission(session.messages ?? [], { submissionId: local.failedSubmissionId }) ||
+              restoredMessages.some(message => message.failedSubmissionId === local.failedSubmissionId)) continue;
+          restoredMessages = [...restoredMessages, {
+            ...local,
+            parentMessageId: tipMessageId(buildVisiblePath(
+              restoredMessages,
+              normalizeSelectedBranches(session.preferences?.selected_branches),
+            ).messages),
+          }];
+          restoredStatus = "failed";
         }
       }
       dispatch({
@@ -2534,6 +2648,7 @@ export function ChatStateAdapterProvider({
         messages: restoredMessages,
         activeTurnId: activeTurn?.turn_id || activeTurn?.id || null,
         status: restoredStatus,
+        serverStatus: loadedStatus,
         tools: Array.isArray(session.preferences?.tools)
           ? session.preferences.tools
           : [],
@@ -2541,18 +2656,10 @@ export function ChatStateAdapterProvider({
         // promoted to a workspace mode, that value means the default Chat
         // action rather than a hidden legacy entry in the action picker.
         capability:
-          session.preferences?.capability === loadedWorkspaceMode &&
-          loadedWorkspaceMode !== "immersive_watching"
+          session.preferences?.capability === loadedWorkspaceMode
             ? null
             : session.preferences?.capability || null,
         workspaceMode: loadedWorkspaceMode,
-        timedMediaId:
-          session.preferences?.timed_media_id ||
-          [...messages]
-            .reverse()
-            .find((message) => message.requestSnapshot?.timedMediaId)
-            ?.requestSnapshot?.timedMediaId ||
-          null,
         knowledgeBases: Array.isArray(session.preferences?.knowledge_bases)
           ? session.preferences.knowledge_bases
           : [],
@@ -2589,7 +2696,8 @@ export function ChatStateAdapterProvider({
           session.preferences?.selected_branches,
         ),
       });
-      if (loadedStatus === "running" && (activeTurn?.turn_id || activeTurn?.id)) {
+      const activeTurnId = activeTurn?.turn_id || activeTurn?.id || "";
+      if (activeTurnId && loadedStatus === "running") {
         // Reached on a revalidate too, when the turn is live on the server but
         // not in this tab (started in another tab, or our socket dropped) —
         // that is exactly the case that still needs a subscribe. A turn we
@@ -2597,13 +2705,33 @@ export function ChatStateAdapterProvider({
         // socket for a turn that will never speak again.
         sendThroughRunner(key, {
           type: "subscribe_turn",
-          turn_id: activeTurn.turn_id || activeTurn.id,
+          turn_id: activeTurnId,
           after_seq: 0,
         });
+      } else if (activeTurnId && String(session.status || "") === "waiting_input") {
+        // A parked turn still owns the conversation's lease, and its ask_user
+        // card only lives in the live event stream: nothing about the pause is
+        // persisted as a message until the turn settles. Without a
+        // resubscribe, a reload loses the card while the turn keeps waiting —
+        // the user can neither answer nor send, and only a backend restart
+        // recovers the conversation. Send through the client's durable queue
+        // rather than ``sendThroughRunner``: its retry gate drops a command
+        // for a session that is not streaming, and a parked turn is exactly
+        // that. Once per turn per tab is enough; the reducer de-duplicates a
+        // replayed stream anyway.
+        const resumeKey = `${key}:${activeTurnId}`;
+        if (!resumedParkedTurnsRef.current.has(resumeKey)) {
+          resumedParkedTurnsRef.current.add(resumeKey);
+          ensureRunner(key).client.send({
+            type: "subscribe_turn",
+            turn_id: activeTurnId,
+            after_seq: 0,
+          });
+        }
       }
       return messages;
     },
-    [hydrateMessages, sendThroughRunner],
+    [ensureRunner, hydrateMessages, sendThroughRunner],
   );
 
   useLayoutEffect(() => {
@@ -2708,7 +2836,7 @@ export function ChatStateAdapterProvider({
   }, [sendThroughRunner]);
 
   const sendMessage = useCallback(
-    (
+    async (
       content: string,
       attachments?: OutgoingAttachment[],
       config?: Record<string, unknown>,
@@ -2719,6 +2847,7 @@ export function ChatStateAdapterProvider({
       persona?: string,
       memoryReferences?: MemoryReferencePayload,
     ) => {
+      const generation = runtimeGeneration.current;
       const msgAttachments = attachments?.map((a) => ({
         type: a.type,
         filename: a.filename,
@@ -2734,7 +2863,7 @@ export function ChatStateAdapterProvider({
       }
       const session = currentState.sessions[key] ?? createSessionEntry(key);
       const replaySnapshot = options?.requestSnapshotOverride;
-      const exactReplay = Boolean(options?.retrySubmissionId && replaySnapshot);
+      const exactReplay = Boolean(replaySnapshot);
       const effectiveCapability =
         exactReplay ? (replaySnapshot?.capability ?? null) :
         replaySnapshot?.capability ??
@@ -2854,17 +2983,10 @@ export function ChatStateAdapterProvider({
         effectiveReadingTurnFields.reading_material_id;
       const effectiveReadingMaterialRevision =
         effectiveReadingTurnFields.reading_material_revision;
-      const liveWatchingFields = exactReplay ? {} : watchingTurnFields(effectiveCapability);
-      const effectiveWatchingTurnFields = exactReplay
-        ? (replaySnapshot?.watchingTurnFields ?? (replaySnapshot?.timedMediaId
-          ? { timed_media_id: replaySnapshot.timedMediaId }
-          : {}))
-        : replaySnapshot?.timedMediaId
-        ? { timed_media_id: replaySnapshot.timedMediaId }
-        : liveWatchingFields;
-      const effectiveTimedMediaId =
-        effectiveWatchingTurnFields.timed_media_id;
-      const requestSnapshot: MessageRequestSnapshot = replaySnapshot ?? {
+      const effectiveTimedMediaId = replaySnapshot?.timedMediaId;
+      const effectiveWatchingTurnFields = replaySnapshot?.watchingTurnFields ??
+        (effectiveTimedMediaId ? { timed_media_id: effectiveTimedMediaId } : {});
+      const requestSnapshot: MessageRequestSnapshot = replaySnapshot ? { ...replaySnapshot } : {
         resourceSelection: {skills:[...effectiveResources.skills],mcp:[...effectiveResources.mcp]},
         content,
         capability: effectiveCapability,
@@ -2960,12 +3082,16 @@ export function ChatStateAdapterProvider({
         options?.displayUserMessage !== false &&
         !options?.masteryAnswer &&
         !options?.masterySkip &&
-        content.trim() !== "";
+        (content.trim() !== "" || Boolean(effectiveAttachments?.length));
       const submissionId = options?.retrySubmissionId ??
         (trackNewSubmission ? randomUuid() : undefined);
       const persistSubmission = Boolean(submissionId) &&
         (trackNewSubmission || Boolean(options?.retrySubmissionId));
-      if (options?.displayUserMessage !== false) {
+      const replacesSubmissionId = options?.replacesSubmissionId ?? replaySnapshot?.replacesSubmissionId;
+      if (replacesSubmissionId && !(await supportsSubmissionReplacement())) return false;
+      if (generation !== runtimeGeneration.current) return false;
+      const showSubmission = () => {
+        if (options?.displayUserMessage !== false) {
         dispatch({
           type: "ADD_USER_MSG",
           key,
@@ -2976,8 +3102,10 @@ export function ChatStateAdapterProvider({
           parentMessageId: localParentId,
           failedSubmissionId: submissionId,
         });
-      }
-      dispatch({ type: "STREAM_START", key, startedAt: Date.now() / 1000 });
+        }
+        dispatch({ type: "STREAM_START", key, startedAt: Date.now() / 1000 });
+      };
+      if (!replacesSubmissionId) showSubmission();
       const {
         _persist_user_message: legacyPersistUserMessage,
         _course_id: _legacyCourseId,
@@ -2997,7 +3125,7 @@ export function ChatStateAdapterProvider({
       // Persist before attempting the socket, including a first turn that
       // has no server session yet. Replays reuse their original identity.
       const submissionStorageKey = session.sessionId ?? draftFailedSubmissionKey();
-      if (persistSubmission && submissionId) {
+      if (persistSubmission && submissionId && !replacesSubmissionId) {
         const saved = storeFailedSubmission(submissionStorageKey, {
           content,
           capability: effectiveCapability,
@@ -3026,9 +3154,7 @@ export function ChatStateAdapterProvider({
           ],
         });
       }
-      return sendThroughRunner(
-        key,
-        buildStartTurnInput({
+      let command = buildStartTurnInput({
         content,
         clientSubmissionId: submissionId,
         tools: effectiveTools,
@@ -3096,9 +3222,8 @@ export function ChatStateAdapterProvider({
         readingMaterialRevision:
           effectiveReadingTurnFields.reading_material_revision ?? null,
         readingViewport: effectiveReadingTurnFields.reading_viewport ?? null,
-        timedMediaId: effectiveWatchingTurnFields.timed_media_id ?? null,
-        timedMediaViewport:
-          effectiveWatchingTurnFields.timed_media_viewport ?? null,
+        timedMediaId: effectiveTimedMediaId ?? null,
+        timedMediaViewport: null,
         // Always sent (possibly ""): an explicit key is the backend's signal
         // to persist the value into session.preferences — "" clears back to
         // Default. Omitting the key would make the backend fall back to the
@@ -3114,13 +3239,52 @@ export function ChatStateAdapterProvider({
         // negative id, omit the key and let the backend auto-append to
         // the latest persisted row.
         parentMessageId: wireParentId,
-        }),
-      );
+        });
+      if (replacesSubmissionId && submissionId) {
+        command = (replaySnapshot?.replacementRequest ?? command) as typeof command;
+        requestSnapshot.replacesSubmissionId = replacesSubmissionId;
+        requestSnapshot.replacementRootSubmissionId = options?.replacementRootSubmissionId ??
+          replaySnapshot?.replacementRootSubmissionId ?? replacesSubmissionId;
+        requestSnapshot.replacementRequest = { ...command };
+        // Save the edit and its identity before fencing the original. A lost
+        // HTTP receipt then retries the same native reservation after reload.
+        if (!storeFailedSubmission(submissionStorageKey, {
+          content, capability: effectiveCapability, requestSnapshot, submissionId,
+        })) return false;
+        const durable = readFailedSubmissions(submissionStorageKey).find((record) => record.submissionId === submissionId);
+        if (!durable || durable.retryRequiresReview || JSON.stringify(durable.requestSnapshot) !== JSON.stringify(requestSnapshot)) {
+          notify(i18n.t("This unsent message could not be saved in your browser. Copy it before leaving this page."), { tone: "error" });
+          return false;
+        }
+        try {
+          const receipt = await replaceSubmission(replacesSubmissionId, { ...command });
+          if (generation !== runtimeGeneration.current) return true;
+          command.session_id = receipt.session_id;
+          // The server receipt, not transcript absence, authorizes retirement
+          // of the superseded local copy. The new durable record already exists.
+          clearFailedSubmission(submissionStorageKey, replacesSubmissionId);
+          if (options?.replacedMessageId != null) {
+            const replaced = session.messages.find((message) => message.id === options.replacedMessageId);
+            if (replaced?.failedSubmissionId) dispatch({ type: "DISCARD_FAILED_SUBMISSION", key,
+              messageId: options.replacedMessageId, submissionId: replaced.failedSubmissionId });
+          }
+          showSubmission();
+          // HTTP acknowledged native admission. Subscribe/replay the same
+          // turn; never send another start command for this edit.
+          ensureRunner(key).client.send({ type: "subscribe_turn", turn_id: receipt.turn.id, after_seq: 0 });
+          return true;
+        } catch {
+          pendingSubmissionIdsRef.current.delete(key);
+          return false;
+        }
+      }
+      return sendThroughRunner(key, command);
     },
-    [makeDraftKey, sendThroughRunner],
+    [makeDraftKey, sendThroughRunner, ensureRunner],
   );
 
-  const cancelStreamingTurn = useCallback(() => {
+  const cancelStreamingTurn = useCallback(async () => {
+    const generation = runtimeGeneration.current;
     const currentState = stateRef.current;
     const key = currentState.selectedKey;
     if (!key) return;
@@ -3129,8 +3293,17 @@ export function ChatStateAdapterProvider({
     const turnId = session.activeTurnId;
     const runner = runnersRef.current.get(key);
     if (runner) {
-      if (runner.client.connected && turnId) {
-        runner.client.send({ type: "cancel_turn", turn_id: turnId });
+      if (turnId) {
+        try {
+          if (!await runner.client.sendAwaitingAck({ type: "cancel_turn", turn_id: turnId })) {
+            notify(i18n.t("Couldn't reach the server. Please check your connection and retry."), { tone: "error" });
+            return;
+          }
+          if (generation !== runtimeGeneration.current) return;
+        } catch {
+          notify(i18n.t("Couldn't reach the server. Please check your connection and retry."), { tone: "error" });
+          return;
+        }
       }
       runner.client.disconnect();
       runnersRef.current.delete(key);
@@ -3378,7 +3551,6 @@ export function ChatStateAdapterProvider({
       enabledTools: current.enabledTools,
       activeCapability: current.activeCapability,
       workspaceMode: current.workspaceMode,
-      timedMediaId: current.timedMediaId,
       knowledgeBases: current.knowledgeBases,
       llmSelection: current.llmSelection,
       masteryPathId: current.masteryPathId,
@@ -3555,25 +3727,68 @@ export function ChatStateAdapterProvider({
     const message = session.messages.find((item) => item.id === messageId);
     if (message?.role !== "user" || !message.failedSubmission || messageId >= 0 || !message.failedSubmissionId) return false;
     const storageKey = session.sessionId ?? draftFailedSubmissionKey();
-    if (!clearFailedSubmission(storageKey, message.failedSubmissionId)) return false;
+    const rootId = message.requestSnapshot?.replacementRootSubmissionId ?? message.failedSubmissionId;
+    const pendingEdits = readFailedSubmissions(storageKey, true).filter((record) => {
+      const snapshot = record.requestSnapshot as MessageRequestSnapshot;
+      return (snapshot?.replacementRootSubmissionId ?? snapshot?.replacesSubmissionId) === rootId;
+    });
+    for (const pendingEdit of pendingEdits) {
+      if (pendingEdit.submissionId && !clearFailedSubmission(storageKey, pendingEdit.submissionId)) return false;
+    }
+    if (rootId !== message.failedSubmissionId && !clearFailedSubmission(storageKey, rootId)) return false;
+    if (!clearFailedSubmission(storageKey, message.failedSubmissionId) && !message.failedSubmissionNotSaved) return false;
     dispatch({ type: "DISCARD_FAILED_SUBMISSION", key, messageId, submissionId: message.failedSubmissionId });
     return true;
   }, []);
 
   const editMessage = useCallback(
-    async (messageId: number, newContent: string) => {
+    async (messageId: number, newContent: string): Promise<boolean> => {
       const generation = runtimeGeneration.current;
       const trimmed = newContent.trim();
-      if (!trimmed) return;
+      if (!trimmed) return false;
       const currentState = stateRef.current;
       const key = currentState.selectedKey;
-      if (!key) return;
+      if (!key) return false;
       const session = currentState.sessions[key];
-      if (!session) return;
+      if (!session) return false;
       // Edits create a new branch via a fresh turn — block while one is
       // already running so we don't queue against an in-flight stream
       // (matches the delete-turn guard).
-      if (session.isStreaming) return;
+      if (session.isStreaming) return false;
+      const local = session.messages.find((message) => message.id === messageId && message.role === "user");
+      if (local?.failedSubmission && local.failedSubmissionId && local.requestSnapshot && !local.failedSubmissionNeedsReview) {
+        if (!(await supportsSubmissionReplacement()) || generation !== runtimeGeneration.current) return false;
+        const rootId = local.requestSnapshot.replacementRootSubmissionId ?? local.failedSubmissionId;
+        const pending = readFailedSubmissions(session.sessionId ?? draftFailedSubmissionKey()).find((record) => {
+          const snapshot = record.requestSnapshot as MessageRequestSnapshot;
+          return (snapshot?.replacementRootSubmissionId ?? snapshot?.replacesSubmissionId) === rootId;
+        });
+        const sameEdit = pending?.content === trimmed;
+        if (pending && !sameEdit) {
+          const priorEdit = pending.requestSnapshot as MessageRequestSnapshot;
+          if (!priorEdit.replacesSubmissionId || !priorEdit.replacementRequest) return false;
+          try {
+            // Before chaining another edit, resolve the uncertain predecessor.
+            // It might never have reached the server, so replacing its ID alone
+            // would leave the original delayed request free to be admitted.
+            await replaceSubmission(priorEdit.replacesSubmissionId, priorEdit.replacementRequest);
+            if (generation !== runtimeGeneration.current) return false;
+          } catch { return false; }
+        }
+        const snapshot = { ...(sameEdit ? pending.requestSnapshot as MessageRequestSnapshot : local.requestSnapshot), content: trimmed };
+        if (!sameEdit) {
+          delete snapshot.replacementRequest;
+          delete snapshot.replacesSubmissionId;
+        }
+        return sendMessage(trimmed, undefined, undefined, undefined, undefined, {
+          requestSnapshotOverride: snapshot,
+          retrySubmissionId: sameEdit ? pending.submissionId : undefined,
+          replacesSubmissionId: sameEdit ? (pending.requestSnapshot as MessageRequestSnapshot).replacesSubmissionId : pending?.submissionId ?? local.failedSubmissionId,
+          replacementRootSubmissionId: rootId,
+          replacedMessageId: messageId,
+          parentMessageId: local.parentMessageId != null && local.parentMessageId > 0 ? local.parentMessageId : null,
+        });
+      }
       let original: MessageItem | undefined;
       try {
         original = await resolvePersistedMessage(
@@ -3586,17 +3801,20 @@ export function ChatStateAdapterProvider({
               : undefined,
         );
       } catch {
-        return;
+        return false;
       }
-      if (!original || generation !== runtimeGeneration.current) return;
+      if (!original || generation !== runtimeGeneration.current) return false;
       const parentId = original.parentMessageId ?? null;
-      sendMessage(
+      return sendMessage(
         trimmed,
+        original.attachments,
         undefined,
         undefined,
         undefined,
-        undefined,
-        { parentMessageId: parentId },
+        { parentMessageId: parentId,
+          requestSnapshotOverride: (local?.requestSnapshot ?? original.requestSnapshot)
+            ? { ...(local?.requestSnapshot ?? original.requestSnapshot)!, content: trimmed,
+                replacesSubmissionId: undefined, replacementRequest: undefined } : undefined },
         undefined,
         undefined,
         undefined,
@@ -3604,6 +3822,29 @@ export function ChatStateAdapterProvider({
     },
     [loadSession, sendMessage],
   );
+
+  const retryFailedSubmission = useCallback(async (messageId: number): Promise<boolean> => {
+    const current = stateRef.current;
+    const key = current.selectedKey;
+    const session = key ? current.sessions[key] : undefined;
+    const message = session?.messages.find((item) => item.id === messageId);
+    if (!key || !session || session.isStreaming || !message?.failedSubmission ||
+      !message.failedSubmissionId || !message.requestSnapshot || message.failedSubmissionNeedsReview) return false;
+    if (message.requestSnapshot.replacesSubmissionId && !(await supportsSubmissionReplacement())) return false;
+    const rootId = message.requestSnapshot.replacementRootSubmissionId ?? message.failedSubmissionId;
+    const pending = readFailedSubmissions(session.sessionId ?? draftFailedSubmissionKey()).find((record) => {
+      const snapshot = record.requestSnapshot as MessageRequestSnapshot;
+      return (snapshot?.replacementRootSubmissionId ?? snapshot?.replacesSubmissionId) === rootId;
+    });
+    if (pending && pending.submissionId !== message.failedSubmissionId) return editMessage(messageId, pending.content);
+    // Move this exact local row to the active tail while retaining its causal
+    // ID; retrying an older draft must never resend the newest row instead.
+    dispatch({ type: "DISCARD_FAILED_SUBMISSION", key, messageId, submissionId: message.failedSubmissionId });
+    return sendMessage(message.content, undefined, undefined, undefined, undefined, {
+      requestSnapshotOverride: message.requestSnapshot, retrySubmissionId: message.failedSubmissionId,
+      parentMessageId: message.parentMessageId != null && message.parentMessageId > 0 ? message.parentMessageId : null,
+    });
+  }, [sendMessage, editMessage]);
 
   const switchBranch = useCallback(
     (parentMessageId: number | null, childId: number) => {
@@ -3702,6 +3943,7 @@ export function ChatStateAdapterProvider({
       resendLastMessage,
       deleteTurn,
       discardFailedSubmission,
+      retryFailedSubmission,
       editMessage,
       switchBranch,
       renameSessionTitle,
@@ -3735,6 +3977,7 @@ export function ChatStateAdapterProvider({
       resendLastMessage,
       deleteTurn,
       discardFailedSubmission,
+      retryFailedSubmission,
       editMessage,
       switchBranch,
       renameSessionTitle,

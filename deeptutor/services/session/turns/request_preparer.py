@@ -11,10 +11,15 @@ import uuid
 from deeptutor.core.stream import StreamEvent, StreamEventType
 from deeptutor.core.turn_request import TurnRequest
 from deeptutor.runtime.capability_routing import route_explicit_quiz_request
+from deeptutor.services.session.protocol import (
+    SUBMISSION_ASSISTANT_FIELD,
+    SUBMISSION_PREVIOUS_TURN_FIELD,
+    SUBMISSION_REPLAY_FIELD,
+    SUBMISSION_USER_FIELD,
+)
 from deeptutor.services.session.workspace_preferences import (
     WORKSPACE_MODE_MASTERY,
     WORKSPACE_MODE_READING,
-    WORKSPACE_MODE_WATCHING,
 )
 from deeptutor.services.workspace.activity import workspace_writer
 
@@ -108,6 +113,7 @@ class TurnRequestPreparer:
             turn_id: str,
             question_id: str,
             answer: str,
+            answers: dict[str, str] | None = None,
         ) -> None: ...
 
         async def _acquire_mastery_path_lease(
@@ -155,6 +161,7 @@ class TurnRequestPreparer:
 
             payload = {**payload, "language": get_response_language(default="en")}
         raw_config = dict(payload.get("config", {}) or {})
+        linked_task_ids = raw_config.pop("linked_task_ids", None)
         resource_reuse = raw_config.pop("_resource_reuse", None)
         persistent_kbs = raw_config.pop("_persistent_knowledge_bases", None)
         per_turn_auto_route = payload.get("auto_route")
@@ -173,7 +180,6 @@ class TurnRequestPreparer:
             raise RuntimeError("Conversation not found in this workspace.")
         session = await self.store.ensure_session(payload.get("session_id"))
         preferences = session.get("preferences") or {}
-
         # A conversation-level choice wins over the account default that the
         # browser sends on every turn. Only the selector's explicit field may
         # change or clear this durable override (#1511).
@@ -227,6 +233,68 @@ class TurnRequestPreparer:
                 else workspace_service.session_binding(session["id"])
             )
             payload["_content_workspace_id"] = binding.workspace_id
+            payload["_workspace_instructions"] = workspace_service.workspace_instructions(
+                binding.workspace_id
+            )
+
+        legacy_watching = (
+            payload.get("workspace_mode") == "immersive_watching"
+            or payload.get("capability") == "immersive_watching"
+            or payload.get("session_kind") == "immersive_watching"
+            or preferences.get("workspace_mode") == "immersive_watching"
+            or preferences.get("capability") == "immersive_watching"
+            or preferences.get("session_kind") == "immersive_watching"
+        )
+        if legacy_watching:
+            timed_media_id = _timed_media_id(
+                payload.get("timed_media_id") or preferences.get("timed_media_id")
+            )
+            if not timed_media_id:
+                raise RuntimeError("The legacy Watching video is unavailable.")
+            try:
+                from deeptutor.video_learning.reading_migration import WatchingToReadingMigration
+
+                migrated = await WatchingToReadingMigration().migrate(
+                    timed_media_id,
+                    session_id=str(session.get("id") or ""),
+                    session_title=str(session.get("title") or "Imported video conversation"),
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    "The legacy Watching video could not be opened in Reading."
+                ) from exc
+            preferences = {
+                **preferences,
+                "capability": "chat",
+                "workspace_mode": WORKSPACE_MODE_READING,
+                "session_kind": "immersive_reading",
+                "reading_workspace_id": migrated.reading_workspace_id,
+                "reading_material_id": migrated.reading_material_id,
+                "timed_media_id": timed_media_id,
+            }
+            legacy_viewport = (
+                payload.get("timed_media_viewport") or preferences.get("timed_media_viewport") or {}
+            )
+            preferences.pop("timed_media_viewport", None)
+            session["preferences"] = preferences
+            await self.store.update_session_preferences(str(session.get("id")), preferences)
+            payload = {
+                **payload,
+                "capability": "chat",
+                "workspace_mode": WORKSPACE_MODE_READING,
+                "reading_workspace_id": migrated.reading_workspace_id,
+                "reading_material_id": migrated.reading_material_id,
+                "timed_media_id": timed_media_id,
+            }
+            # TimedMedia remains a legacy cache pointer on the session, but
+            # execution is wholly Reading-owned from here onward.
+            if (
+                isinstance(legacy_viewport, dict)
+                and legacy_viewport.get("time_seconds") is not None
+            ):
+                payload["reading_viewport"] = {"time_seconds": legacy_viewport["time_seconds"]}
+            payload.pop("timed_media_id", None)
+            payload.pop("timed_media_viewport", None)
 
         course_id_explicit = "course_id" in payload
         requested_course_id = str(
@@ -280,16 +348,8 @@ class TurnRequestPreparer:
         except PermissionError as exc:
             raise RuntimeError(str(exc)) from exc
 
-        if workspace_mode == WORKSPACE_MODE_WATCHING:
-            from deeptutor.video_learning import get_timed_media_store
-
-            media_id = _timed_media_id(payload.get("timed_media_id"))
-            if media_id:
-                # Resolve only in the authenticated owner's store before saving the binding.
-                get_timed_media_store().get(media_id)
-        else:
-            payload.pop("timed_media_id", None)
-            payload.pop("timed_media_viewport", None)
+        payload.pop("timed_media_id", None)
+        payload.pop("timed_media_viewport", None)
         try:
             from deeptutor.runtime.request_contracts import validate_capability_config
 
@@ -549,16 +609,12 @@ class TurnRequestPreparer:
                     ],
                 }
         payload = {**payload, "llm_selection": llm_selection}
-        lease = None
-        if self.coordinator is not None:
-            turn_id = f"turn_{int(time.time() * 1000)}_{uuid.uuid4().hex[:10]}"
-            lease = await self.coordinator.acquire_turn(
-                turn_id,
-                f"{self._coordination_scope}:{session['id']}",
-                self.owner_id,
-            )
-            if lease is None:
-                raise RuntimeError("Session already has an active or recovering turn")
+        if linked_task_ids is not None:
+            from deeptutor.services.task_board import LinkTasks, get_task_board_store
+            from deeptutor.services.workspace.context import current_workspace_id
+
+            task_links = LinkTasks(workspace_id=current_workspace_id(), task_ids=linked_task_ids)
+            await asyncio.to_thread(get_task_board_store().link_tasks, session["id"], task_links)
         preference_update: dict[str, Any] = {
             # Auto-routing is a one-turn execution choice; keep the durable
             # preference on what the caller explicitly selected.
@@ -579,8 +635,6 @@ class TurnRequestPreparer:
         # non-empty legacy capability is persisted as part of migration.
         if workspace_mode_explicit or workspace_mode:
             preference_update["workspace_mode"] = workspace_mode
-        if workspace_mode == "immersive_watching":
-            preference_update["timed_media_id"] = _timed_media_id(payload.get("timed_media_id"))
         if course_id_explicit:
             preference_update["course_id"] = requested_course_id
 
@@ -626,6 +680,9 @@ class TurnRequestPreparer:
                         else workspace_service.session_binding(parent_session_id)
                     )
                     payload["_content_workspace_id"] = inherited_binding.workspace_id
+                    payload["_workspace_instructions"] = workspace_service.workspace_instructions(
+                        inherited_binding.workspace_id
+                    )
                 preference_update.update(
                     {
                         "parent_session_id": parent_session_id,
@@ -673,11 +730,31 @@ class TurnRequestPreparer:
                     "reading_material_id": "",
                 }
             )
-        if not payload.get("preserve_session_preferences"):
-            await self.store.update_session_preferences(session["id"], preference_update)
-        try:
+        lease = None
+        if self.coordinator is not None:
+            turn_id = f"turn_{int(time.time() * 1000)}_{uuid.uuid4().hex[:10]}"
+            lease = await self.coordinator.acquire_turn(
+                turn_id,
+                f"{self._coordination_scope}:{session['id']}",
+                self.owner_id,
+            )
             if lease is None:
-                turn = await self.store.create_turn(session["id"], capability=capability)
+                raise RuntimeError("Session already has an active or recovering turn")
+        try:
+            if not payload.get("preserve_session_preferences"):
+                await self.store.update_session_preferences(session["id"], preference_update)
+            submission_kwargs = {}
+            if (
+                payload.get("client_submission_id")
+                and payload.get("persist_user_message", True)
+                and not payload.get("regenerate")
+                and callable(getattr(self.store, "reserve_submission", None))
+            ):
+                submission_kwargs["submission_id"] = payload["client_submission_id"]
+            if lease is None:
+                turn = await self.store.create_turn(
+                    session["id"], capability=capability, **submission_kwargs
+                )
             else:
                 turn = await self.store.begin_turn(
                     session["id"],
@@ -685,12 +762,30 @@ class TurnRequestPreparer:
                     turn_id=lease.turn_id,
                     owner_id=lease.owner_id,
                     fencing_token=lease.fencing_token,
+                    **submission_kwargs,
                 )
         except Exception:
             if lease is not None and self.coordinator is not None:
                 with contextlib.suppress(Exception):
                     await self.coordinator.release_turn(lease)
             raise
+        if turn.pop(SUBMISSION_REPLAY_FIELD, False):
+            if lease is not None and self.coordinator is not None:
+                await self.coordinator.release_turn(lease)
+            return session, turn
+        user_message_id = turn.pop(SUBMISSION_USER_FIELD, None)
+        prior_assistant_id = turn.pop(SUBMISSION_ASSISTANT_FIELD, None)
+        prior_turn_id = turn.pop(SUBMISSION_PREVIOUS_TURN_FIELD, None)
+        if user_message_id is not None:
+            payload = {
+                **payload,
+                "persist_user_message": False,
+                "regenerate": True,
+                "regenerated_from_message_id": user_message_id,
+                "superseded_turn_id": prior_turn_id,
+            }
+            if replace_assistant_message_id is None:
+                replace_assistant_message_id = prior_assistant_id
         execution = _TurnExecution(
             turn_id=turn["id"],
             session_id=session["id"],
@@ -735,6 +830,11 @@ class TurnRequestPreparer:
                         turn_id=turn["id"],
                         question_id=str(card_answer.get("question_id") or ""),
                         answer=str(card_answer.get("text") or ""),
+                        **(
+                            {"answers": card_answer["answers"]}
+                            if card_answer.get("answers") is not None
+                            else {}
+                        ),
                     )
             except Exception as exc:
                 async with self._lock:

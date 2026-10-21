@@ -1,6 +1,8 @@
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 
+import pytest
 from typer.testing import CliRunner
 
 from deeptutor_cli import provider_cmd

@@ -26,7 +26,7 @@ that produced the corrupted-notebook reports.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import replace as dataclass_replace
 import hashlib
 import json
@@ -205,7 +205,7 @@ class ReadingStore:
         if not db_path.is_file():
             return None
         try:
-            with sqlite3.connect(db_path, timeout=30) as conn:
+            with closing(sqlite3.connect(db_path, timeout=30)) as conn:
                 conn.row_factory = sqlite3.Row
                 return conn.execute(
                     "SELECT * FROM reading_materials WHERE material_id = ?",
@@ -1096,6 +1096,11 @@ class ReadingStore:
             legacy_path = self._legacy_state_path(material_id, POSITION_NAME)
             row = _read_json(legacy_path) if legacy_path is not None else None
         return ReadingPosition.from_dict(row) if isinstance(row, dict) else ReadingPosition()
+
+    def has_position(self, material_id: str) -> bool:
+        """Whether this material already has a persisted Reading viewport."""
+        self.manifest(material_id)
+        return self._state_path(material_id, POSITIONS_DIR).exists()
 
     def save_position(self, material_id: str, position: ReadingPosition) -> ReadingPosition:
         """Validate and atomically persist a material viewport."""

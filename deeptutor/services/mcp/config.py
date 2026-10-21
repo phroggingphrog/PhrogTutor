@@ -61,6 +61,8 @@ class MCPServerConfig(BaseModel):
     #: for large catalogs — eager-mounting a server with hundreds of tools
     #: would put every one of those schemas on every model call.
     deferred: bool = True
+    # Self-service exception requires a matching administrator-approved origin.
+    allow_private_network: bool = False
     # authentication
     #: ``"oauth"`` when this server requires an OAuth 2.1 authorization the
     #: account has to grant interactively; ``""`` when a static credential in

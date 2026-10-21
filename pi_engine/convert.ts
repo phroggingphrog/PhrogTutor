@@ -41,7 +41,9 @@ export function buildModel(req: any): any {
 	const spec = (conn ? undefined : omni.models.find((m: any) => m.id === id)) ?? {};
 	return {
 		id, name: spec.name ?? id, api: conn?.api ?? "openai-completions", provider: conn ? (conn.provider ?? "custom") : "omni", baseUrl: conn?.baseUrl ?? omni.baseUrl,
-		reasoning: Boolean(req.reasoning_effort), input: spec.input ?? ["text"],
+		reasoning: Boolean(req.reasoning_effort),
+		// DeepTutor already degrades images to text for models its capability tables mark as text-only; pi must not drop them again.
+		input: spec.input ?? (conn ? ["text", "image"] : ["text"]),
 		cost: spec.cost ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		contextWindow: spec.contextWindow ?? 128000, maxTokens: req.max_tokens ?? req.max_completion_tokens ?? 16000,
 	};

@@ -3,6 +3,7 @@ from __future__ import annotations
 from io import StringIO
 from types import SimpleNamespace
 
+import pytest
 from rich.console import Console
 
 

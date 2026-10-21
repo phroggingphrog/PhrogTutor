@@ -30,6 +30,7 @@ dependencies = [
     "tenacity>=8.0.0",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
+    "packaging>=24.2",
     "jsonschema>=4.20.0,<5.0.0",
     "aiosqlite>=0.19.0",
     "typer>=0.9.0",
@@ -47,6 +48,11 @@ dependencies = [
     # without it the browser renders no code at all — the operator sees a
     # button that does nothing, with no error to explain why.
     "qrcode>=7.4.0,<9.0.0",
+    # IANA time zone database for `zoneinfo`. Windows ships none, so without
+    # it every named zone (even "UTC") is unknown there and usage statistics,
+    # practice reviews and cron schedules reject every timezone they are given.
+    # On Linux/macOS `zoneinfo` keeps preferring the system database.
+    "tzdata>=2024.1",
     # Full app dependencies included by default for `pip install deeptutor`.
     "anthropic>=0.30.0",
     "dashscope>=1.14.0",
@@ -75,10 +81,9 @@ dependencies = [
     "loguru>=0.7.3,<1.0.0",
     "json-repair>=0.57.0,<1.0.0",
     "croniter>=6.0.0,<7.0.0",
-    # Process-tree memory readings for /api/system/memory. Soft dependency:
-    # deeptutor.runtime.memory_probe imports it lazily and falls back to /proc,
-    # so a missing wheel costs the settings strip, not the app.
+    # Process-tree memory readings and Windows MinerU worker ownership.
     "psutil>=5.9.0,<8.0.0",
+    "pywin32; sys_platform == 'win32'",  # MinerU Job Object ownership
 ]
 
 [project.scripts]
@@ -97,6 +102,9 @@ translation = "deeptutor.reading.translation:TranslationExtension"
 # `packaging/deeptutor-cli` uses this list, which still carries the retrieval engines (the
 # server wheel offers them as the rag-llamaindex and rag-pageindex extras instead).
 cli = [
+    "psutil>=5.9.0,<8.0.0",
+    "pywin32; sys_platform == 'win32'",  # MinerU Job Object ownership
+    "packaging>=24.2",
     # LLM provider SDKs
     "anthropic>=0.30.0",
     "dashscope>=1.14.0",
@@ -237,6 +245,7 @@ rag-lightrag = ["lightrag-hku==1.5.7"]
 # its dependencies). Not needed to chat, or to retrieve from a connected wiki or server.
 rag-llamaindex = [
     "llama-index>=0.14.12",
+    "bm25s>=0.3.14,<0.4.0",  # Legacy page lookup without optional PyStemmer
     # The current BM25 integration pins PyStemmer <3, whose 2.x line has no
     # Python 3.14 wheels. Skip it there so ordinary installs never require a C
     # compiler; the retriever already falls back to vector search when absent.
@@ -251,6 +260,12 @@ rag-llamaindex = [
 # PageIndex Cloud and PageIndex OSS document indexing.
 rag-pageindex = ["pageindex>=0.2.10,<0.3.0"]
 rag-rerank = ["sentence-transformers>=3.0.0,<6.0.0; python_version < '3.14'"]
+
+# Optional request screening (rate limit, IP allow/deny lists, attack-pattern
+# scan of path, query and headers). Off unless system.json `security_guard`
+# is enabled; see docs-for-user/SECURITY_GUARD.md. Mirrors
+# requirements/guard.txt. Docker: DEEPTUTOR_EXTRAS=guard.
+guard = ["fastapi-guard>=8.1.1,<9.0.0"]
 
 # Dev/test tooling. Mirrors requirements/dev.txt.
 dev = [

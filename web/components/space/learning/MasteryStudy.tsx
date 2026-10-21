@@ -181,6 +181,7 @@ export function MasteryStudy({
     resendLastMessage,
     deleteTurn,
     discardFailedSubmission,
+    retryFailedSubmission,
     editMessage,
     switchBranch,
     loadMessageTrace,
@@ -432,13 +433,17 @@ export function MasteryStudy({
   // backend, and returning ``false`` here reopens the card instead of showing
   // the learner that refusal.
   const answerMasteryQuestion = useCallback(
-    (answer: { questionId: string; text: string }) => {
+    (answer: { questionId: string; text: string; answers?: Array<{ questionId: string; text: string }> }) => {
       const text = answer.text.trim();
       if (!text || state.isStreaming || sessionLoading || sessionError) {
         return false;
       }
       sendMessage(text, undefined, undefined, undefined, undefined, {
-        masteryAnswer: { question_id: answer.questionId, text },
+        masteryAnswer: {
+          question_id: answer.questionId,
+          text,
+          ...(answer.answers ? { answers: Object.fromEntries(answer.answers.map((item) => [item.questionId, item.text])) } : {}),
+        },
       });
       shouldAutoScrollRef.current = true;
       return true;
@@ -805,12 +810,18 @@ export function MasteryStudy({
                       onResendLastTurn={resendLastMessage}
                       onDeleteTurn={deleteTurn}
                       onDiscardFailedSubmission={discardFailedSubmission}
+                      onRetryFailedSubmission={retryFailedSubmission}
                       selectedBranches={state.selectedBranches}
                       onEditMessage={editMessage}
                       onSwitchBranch={switchBranch}
                       onSubmitUserReply={submitUserReply}
                       onAnswerMasteryQuestion={answerMasteryQuestion}
                       onSkipMasteryQuestion={skipMasteryQuestion}
+                      onChallengeMasteryQuestion={(questionId) => {
+                        if (state.isStreaming || sessionLoading || sessionError) return false;
+                        sendMessage(t('Please review assessment {{questionId}} against its original source evidence. If it is unsupported, invalidate it and recompute learning state. Do not grant mastery merely because I challenged it.', { questionId }));
+                        return true;
+                      }}
                       onPreviewAttachment={handlePreviewMessageAttachment}
                       onConfirmOutline={confirmResearchOutline}
                       onLoadMessageTrace={(messageId) =>

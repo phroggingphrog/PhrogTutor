@@ -29,7 +29,13 @@ from deeptutor.core.assessment import (
     QUESTION_ORIGIN_TYPES,
 )
 from deeptutor.services.path_service import get_path_service
-from deeptutor.services.session.protocol import ActiveTurnConflict
+from deeptutor.services.session.protocol import (
+    SUBMISSION_ASSISTANT_FIELD,
+    SUBMISSION_PREVIOUS_TURN_FIELD,
+    SUBMISSION_REPLAY_FIELD,
+    SUBMISSION_USER_FIELD,
+    ActiveTurnConflict,
+)
 from deeptutor.utils.secret_files import ensure_private_directory, ensure_private_file
 
 from .ask_user_trace import select_ask_user_events
@@ -341,6 +347,14 @@ class SQLiteSessionStore:
                 CREATE INDEX IF NOT EXISTS idx_turns_session_status
                     ON turns(session_id, status, updated_at DESC);
 
+                CREATE TABLE IF NOT EXISTS turn_submissions (
+                    client_submission_id TEXT PRIMARY KEY,
+                    workspace_id TEXT NOT NULL DEFAULT '',
+                    request_digest TEXT NOT NULL,
+                    session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+                    turn_id TEXT REFERENCES turns(id) ON DELETE SET NULL
+                );
+
                 CREATE TABLE IF NOT EXISTS turn_events (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE,
@@ -458,6 +472,11 @@ class SQLiteSessionStore:
                 );
                 """
             )
+            submission_columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(turn_submissions)")
+            }
+            if "superseded_by" not in submission_columns:
+                conn.execute("ALTER TABLE turn_submissions ADD COLUMN superseded_by TEXT")
             columns = {row[1] for row in conn.execute("PRAGMA table_info(sessions)").fetchall()}
             if "preferences_json" not in columns:
                 conn.execute("ALTER TABLE sessions ADD COLUMN preferences_json TEXT DEFAULT '{}'")
@@ -1124,6 +1143,12 @@ class SQLiteSessionStore:
         title: str | None = None,
         session_id: str | None = None,
     ) -> dict[str, Any]:
+        with self._connect() as conn:
+            return self._insert_session(conn, title, session_id)
+
+    def _insert_session(
+        self, conn: sqlite3.Connection, title: str | None = None, session_id: str | None = None
+    ) -> dict[str, Any]:
         now = time.time()
         resolved_id = session_id or f"unified_{int(now * 1000)}_{uuid.uuid4().hex[:8]}"
         resolved_title = (title or "New conversation").strip() or "New conversation"
@@ -1131,18 +1156,13 @@ class SQLiteSessionStore:
 
         scope = get_workspace_scope()
         preferences = {"workspace_id": scope.workspace_id} if scope is not None else {}
-        with self._connect() as conn:
-            conn.execute(
-                """
-                INSERT INTO sessions (
-                    id, title, created_at, updated_at,
-                    compressed_summary, summary_up_to_msg_id, preferences_json
-                )
-                VALUES (?, ?, ?, ?, '', 0, ?)
-                """,
-                (resolved_id, resolved_title[:100], now, now, _json_dumps(preferences)),
-            )
-            conn.commit()
+        conn.execute(
+            """INSERT INTO sessions (
+                id, title, created_at, updated_at,
+                compressed_summary, summary_up_to_msg_id, preferences_json
+            ) VALUES (?, ?, ?, ?, '', 0, ?)""",
+            (resolved_id, resolved_title[:100], now, now, _json_dumps(preferences)),
+        )
         return {
             "id": resolved_id,
             "session_id": resolved_id,
@@ -1160,6 +1180,163 @@ class SQLiteSessionStore:
         session_id: str | None = None,
     ) -> dict[str, Any]:
         return await self._run(self._create_session_sync, title, session_id)
+
+    def _reserve_submission_sync(
+        self, submission_id: str, digest: str, session_id: str | None
+    ) -> str:
+        from deeptutor.services.workspace.context import get_workspace_scope
+
+        scope = get_workspace_scope()
+        workspace_id = scope.workspace_id if scope is not None else ""
+        with self._connect() as conn:
+            # #1793: bind a first submission and its conversation atomically,
+            # before the transport can lose the SESSION acknowledgement.
+            conn.execute("BEGIN IMMEDIATE")
+            prior = conn.execute(
+                "SELECT * FROM turn_submissions WHERE client_submission_id = ?", (submission_id,)
+            ).fetchone()
+            if prior is not None:
+                if prior["superseded_by"]:
+                    raise RuntimeError("This submission was superseded by an edited message.")
+                if prior["request_digest"] != digest or prior["workspace_id"] != workspace_id:
+                    raise RuntimeError(
+                        "This submission ID belongs to a different request or workspace."
+                    )
+                if session_id and session_id != prior["session_id"]:
+                    raise RuntimeError("This submission ID belongs to another conversation.")
+                row = conn.execute(
+                    "SELECT deleted_at FROM sessions WHERE id = ?", (prior["session_id"],)
+                ).fetchone()
+                if row is None or row["deleted_at"] is not None:
+                    raise RuntimeError(
+                        "Restore the original conversation before resending this message."
+                    )
+                return str(prior["session_id"])
+            if session_id:
+                row = conn.execute(
+                    "SELECT * FROM sessions WHERE id = ? AND deleted_at IS NULL", (session_id,)
+                ).fetchone()
+                if row is None:
+                    raise RuntimeError("Conversation not found in this workspace.")
+                preferences = _json_loads(row["preferences_json"], {})
+                if str(preferences.get("workspace_id") or "") != workspace_id:
+                    raise RuntimeError("The conversation belongs to another workspace.")
+            else:
+                session_id = str(self._insert_session(conn)["id"])
+            conn.execute(
+                "INSERT INTO turn_submissions (client_submission_id, workspace_id, request_digest, session_id) VALUES (?, ?, ?, ?)",
+                (submission_id, workspace_id, digest, session_id),
+            )
+            return session_id
+
+    async def reserve_submission(
+        self, submission_id: str, digest: str, session_id: str | None = None
+    ) -> str:
+        return await self._run(self._reserve_submission_sync, submission_id, digest, session_id)
+
+    def _replace_submission_sync(
+        self, original_id: str, replacement_id: str, digest: str, session_id: str | None
+    ) -> dict[str, Any]:
+        """Fence an unadmitted request and reserve its edit in one transaction.
+
+        A transcript is deliberately not consulted to decide admission: a turn
+        can already own execution before its user row is written.
+        """
+        from deeptutor.services.workspace.context import get_workspace_scope
+
+        if original_id == replacement_id:
+            raise RuntimeError("An edit requires a new submission ID.")
+        scope = get_workspace_scope()
+        workspace_id = scope.workspace_id if scope is not None else ""
+        with self._connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            old = conn.execute(
+                "SELECT * FROM turn_submissions WHERE client_submission_id=?", (original_id,)
+            ).fetchone()
+            if old is not None:
+                if old["workspace_id"] != workspace_id or (
+                    session_id and old["session_id"] != session_id
+                ):
+                    raise RuntimeError(
+                        "The submission belongs to another conversation or workspace."
+                    )
+                session_id = old["session_id"]
+            if session_id:
+                session = conn.execute(
+                    "SELECT * FROM sessions WHERE id=?", (session_id,)
+                ).fetchone()
+                if session is None or session["deleted_at"] is not None:
+                    raise RuntimeError(
+                        "Restore the original conversation before editing this message."
+                    )
+                if (
+                    str(_json_loads(session["preferences_json"], {}).get("workspace_id") or "")
+                    != workspace_id
+                ):
+                    raise RuntimeError("The conversation belongs to another workspace.")
+            else:
+                session_id = str(self._insert_session(conn)["id"])
+            if old is not None and old["turn_id"]:
+                turn = conn.execute("SELECT * FROM turns WHERE id=?", (old["turn_id"],)).fetchone()
+                user = conn.execute(
+                    "SELECT id FROM messages WHERE session_id=? AND role='user' AND json_valid(metadata_json) AND json_extract(metadata_json, '$.client_submission_id')=? ORDER BY id LIMIT 1",
+                    (session_id, original_id),
+                ).fetchone()
+                return {
+                    "status": "admitted",
+                    "session_id": session_id,
+                    "turn": self._serialize_turn(turn),
+                    "user_message_id": user["id"] if user else None,
+                }
+            replacement = conn.execute(
+                "SELECT * FROM turn_submissions WHERE client_submission_id=?", (replacement_id,)
+            ).fetchone()
+            if old is not None and old["superseded_by"]:
+                if old["superseded_by"] != replacement_id:
+                    raise RuntimeError("This submission was already superseded by another edit.")
+                if (
+                    replacement is None
+                    or replacement["request_digest"] != digest
+                    or replacement["superseded_by"]
+                ):
+                    raise RuntimeError("This replacement ID belongs to a different request.")
+            else:
+                if replacement is not None:
+                    raise RuntimeError("This replacement ID is already in use.")
+                conn.execute(
+                    "INSERT INTO turn_submissions (client_submission_id, workspace_id, request_digest, session_id) VALUES (?, ?, ?, ?)",
+                    (replacement_id, workspace_id, digest, session_id),
+                )
+                if old is None:
+                    # The original may still be in a delayed transport queue.
+                    conn.execute(
+                        "INSERT INTO turn_submissions (client_submission_id, workspace_id, request_digest, session_id, superseded_by) VALUES (?, ?, '', ?, ?)",
+                        (original_id, workspace_id, session_id, replacement_id),
+                    )
+                else:
+                    conn.execute(
+                        "UPDATE turn_submissions SET superseded_by=? WHERE client_submission_id=?",
+                        (replacement_id, original_id),
+                    )
+            return {"status": "reserved", "session_id": session_id, "submission_id": replacement_id}
+
+    async def replace_submission(
+        self, original_id: str, replacement_id: str, digest: str, session_id: str | None = None
+    ) -> dict[str, Any]:
+        return await self._run(
+            self._replace_submission_sync, original_id, replacement_id, digest, session_id
+        )
+
+    def _submission_turn_sync(self, submission_id: str) -> dict[str, Any] | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT t.* FROM turns t JOIN turn_submissions s ON s.turn_id=t.id WHERE s.client_submission_id=?",
+                (submission_id,),
+            ).fetchone()
+        return self._serialize_turn(row) if row is not None else None
+
+    async def submission_turn(self, submission_id: str) -> dict[str, Any] | None:
+        return await self._run(self._submission_turn_sync, submission_id)
 
     async def ensure_notebook_session(self, session_id: str, title: str) -> bool:
         """Insert a placeholder session row so notebook-only sources can file
@@ -1286,9 +1463,11 @@ class SQLiteSessionStore:
         turn_id: str | None = None,
         owner_id: str = "",
         fencing_token: int = 0,
+        submission_id: str | None = None,
     ) -> dict[str, Any]:
         now = time.time()
         resolved_turn_id = turn_id or f"turn_{int(now * 1000)}_{uuid.uuid4().hex[:10]}"
+        replay_fields: dict[str, Any] = {}
         try:
             with self._connect() as conn:
                 # Serialize the active-turn check and insert across processes.
@@ -1298,6 +1477,32 @@ class SQLiteSessionStore:
                 ).fetchone()
                 if session is None:
                     raise ValueError(f"Session not found: {session_id}")
+                if submission_id:
+                    reservation = conn.execute(
+                        "SELECT * FROM turn_submissions WHERE client_submission_id=?",
+                        (submission_id,),
+                    ).fetchone()
+                    if reservation is not None and reservation["superseded_by"]:
+                        raise RuntimeError("This submission was superseded by an edited message.")
+                    if reservation is not None and reservation["session_id"] != session_id:
+                        raise RuntimeError("This submission belongs to another conversation.")
+                    old = conn.execute(
+                        "SELECT t.* FROM turns t JOIN turn_submissions s ON s.turn_id=t.id WHERE s.client_submission_id=? AND s.session_id=?",
+                        (submission_id, session_id),
+                    ).fetchone()
+                    if old is not None:
+                        if old["status"] not in {"failed", "cancelled"}:
+                            return {**self._serialize_turn(old), SUBMISSION_REPLAY_FIELD: True}
+                        user = conn.execute(
+                            "SELECT id FROM messages WHERE session_id=? AND role='user' AND json_valid(metadata_json) AND json_extract(metadata_json, '$.client_submission_id')=? ORDER BY id LIMIT 1",
+                            (session_id, submission_id),
+                        ).fetchone()
+                        if user is not None:
+                            replay_fields = {
+                                SUBMISSION_USER_FIELD: user["id"],
+                                SUBMISSION_ASSISTANT_FIELD: old["assistant_message_id"],
+                                SUBMISSION_PREVIOUS_TURN_FIELD: old["id"],
+                            }
                 active = conn.execute(
                     """
                     SELECT id
@@ -1332,11 +1537,17 @@ class SQLiteSessionStore:
                         max(0, int(fencing_token)),
                     ),
                 )
+                if submission_id:
+                    conn.execute(
+                        "UPDATE turn_submissions SET turn_id=? WHERE client_submission_id=? AND session_id=?",
+                        (resolved_turn_id, submission_id, session_id),
+                    )
         except sqlite3.IntegrityError as exc:
             # The partial unique index wins races where another process inserts
             # after our read but before our insert.
             raise ActiveTurnConflict(f"Session already has an active turn: {session_id}") from exc
         return {
+            **replay_fields,
             "id": resolved_turn_id,
             "turn_id": resolved_turn_id,
             "session_id": session_id,
@@ -1362,6 +1573,7 @@ class SQLiteSessionStore:
         turn_id: str | None = None,
         owner_id: str = "",
         fencing_token: int = 0,
+        submission_id: str | None = None,
     ) -> dict[str, Any]:
         return await self._run(
             self._begin_turn_sync,
@@ -1370,10 +1582,13 @@ class SQLiteSessionStore:
             turn_id,
             owner_id,
             fencing_token,
+            submission_id,
         )
 
-    async def create_turn(self, session_id: str, capability: str = "") -> dict[str, Any]:
-        return await self.begin_turn(session_id, capability)
+    async def create_turn(
+        self, session_id: str, capability: str = "", *, submission_id: str | None = None
+    ) -> dict[str, Any]:
+        return await self.begin_turn(session_id, capability, submission_id=submission_id)
 
     def _get_turn_sync(self, turn_id: str) -> dict[str, Any] | None:
         with self._connect() as conn:
@@ -2139,7 +2354,7 @@ class SQLiteSessionStore:
         with self._connect() as conn:
             msg = conn.execute(
                 """
-                SELECT id, session_id, role, attachments_json, created_at
+                SELECT id, session_id, role, attachments_json, metadata_json, created_at, parent_message_id
                 FROM messages
                 WHERE id = ?
                 """,
@@ -2150,7 +2365,7 @@ class SQLiteSessionStore:
                     "deleted": False,
                     "attachment_ids": [],
                     "turn_id": None,
-                    "was_running": False,
+                    "was_active": False,
                 }
 
             role = msg["role"]
@@ -2158,9 +2373,9 @@ class SQLiteSessionStore:
             if role == "user":
                 paired_msg = conn.execute(
                     """
-                    SELECT id, session_id, role, attachments_json, created_at
+                    SELECT id, session_id, role, attachments_json, metadata_json, created_at, parent_message_id
                     FROM messages
-                    WHERE session_id = ? AND role = 'assistant' AND id > ?
+                    WHERE session_id = ? AND role = 'assistant' AND parent_message_id = ?
                     ORDER BY id ASC
                     LIMIT 1
                     """,
@@ -2169,41 +2384,93 @@ class SQLiteSessionStore:
             elif role == "assistant":
                 paired_msg = conn.execute(
                     """
-                    SELECT id, session_id, role, attachments_json, created_at
+                    SELECT id, session_id, role, attachments_json, metadata_json, created_at, parent_message_id
                     FROM messages
-                    WHERE session_id = ? AND role = 'user' AND id < ?
+                    WHERE session_id = ? AND role = 'user' AND id = ?
                     ORDER BY id DESC
+                    LIMIT 1
+                    """,
+                    (session_id, msg["parent_message_id"]),
+                ).fetchone()
+
+            user_msg = msg if role == "user" else paired_msg
+            turn_row = None
+            if role == "assistant":
+                # An assistant row is linked to the turn that produced it,
+                # which stays authoritative when ordering alone cannot tell
+                # (a regenerated answer shares its user row with the old turn).
+                turn_row = conn.execute(
+                    """
+                    SELECT id, status
+                    FROM turns
+                    WHERE session_id = ? AND assistant_message_id = ?
                     LIMIT 1
                     """,
                     (session_id, int(message_id)),
                 ).fetchone()
 
-            user_msg = msg if role == "user" else paired_msg
-            turn_id = None
-            was_running = False
-            if user_msg is not None:
-                user_created_at = user_msg["created_at"]
+            if turn_row is None and user_msg is not None:
+                # Production stamps the owning turn id on the user row
+                # (executor writes metadata.turn_id), including the recovered
+                # worker_lost case that never gets an assistant row.
+                stamped_turn_id = ""
+                metadata = _json_loads(user_msg["metadata_json"], {})
+                if isinstance(metadata, dict):
+                    stamped_turn_id = str(metadata.get("turn_id") or "").strip()
+                if stamped_turn_id:
+                    turn_row = conn.execute(
+                        """
+                        SELECT id, status
+                        FROM turns
+                        WHERE session_id = ? AND id = ?
+                        LIMIT 1
+                        """,
+                        (session_id, stamped_turn_id),
+                    ).fetchone()
+
+            if turn_row is None and user_msg is not None:
+                # Legacy rows predate the stamp: the owning turn is the last
+                # one created at or before the user row. A turn row is always
+                # written before its user row, so a later turn must never match.
                 turn_row = conn.execute(
                     """
                     SELECT id, status
                     FROM turns
-                    WHERE session_id = ? AND created_at >= ?
-                    ORDER BY created_at ASC
+                    WHERE session_id = ? AND created_at <= ?
+                    ORDER BY created_at DESC
                     LIMIT 1
                     """,
-                    (session_id, user_created_at),
+                    (session_id, user_msg["created_at"]),
                 ).fetchone()
-                if turn_row is not None:
-                    turn_id = turn_row["id"]
-                    was_running = turn_row["status"] == "running"
 
-            if was_running:
+            turn_id = None
+            was_active = False
+            if turn_row is not None:
+                turn_id = turn_row["id"]
+                was_active = turn_row["status"] in ACTIVE_TURN_STATUSES
+
+            if was_active:
                 return {
                     "deleted": False,
                     "attachment_ids": [],
                     "turn_id": turn_id,
-                    "was_running": True,
+                    "was_active": True,
                 }
+
+            if role == "assistant" and paired_msg is not None:
+                # Regenerated answers share their question with sibling answers.
+                # Deleting one branch must keep the question those siblings use.
+                sibling = conn.execute(
+                    """
+                    SELECT 1 FROM messages
+                    WHERE session_id = ? AND role = 'assistant'
+                      AND parent_message_id = ? AND id != ?
+                    LIMIT 1
+                    """,
+                    (session_id, paired_msg["id"], int(message_id)),
+                ).fetchone()
+                if sibling is not None:
+                    paired_msg = None
 
             attachment_ids: list[str] = []
             for m in [msg, paired_msg]:
@@ -2264,7 +2531,7 @@ class SQLiteSessionStore:
             "deleted": True,
             "attachment_ids": attachment_ids,
             "turn_id": turn_id,
-            "was_running": was_running,
+            "was_active": was_active,
         }
 
     async def delete_turn_by_message(self, session_id: str, message_id: int) -> dict[str, Any]:
@@ -2918,8 +3185,8 @@ class SQLiteSessionStore:
             conn.commit()
         return cur.rowcount > 0
 
-    async def update_summary(self, session_id: str, summary: str, up_to_msg_id: int) -> bool:
-        return await self._run(self._update_summary_sync, session_id, summary, up_to_msg_id)
+    async def update_summary(self, session_id: str, summary: str, up_to_msg_id: int | str) -> bool:
+        return await self._run(self._update_summary_sync, session_id, summary, int(up_to_msg_id))
 
     def _update_session_preferences_sync(
         self, session_id: str, preferences: dict[str, Any]

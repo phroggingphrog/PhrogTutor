@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import json
 import logging
+import os
 from time import monotonic
 from typing import TYPE_CHECKING, Any
 
@@ -24,7 +25,12 @@ from deeptutor.agents.loop.context_budget import LLMRequestSnapshot
 from deeptutor.agents.loop.dsml_tool_calls import DSMLStreamFilter, extract_dsml_tool_calls
 from deeptutor.core.context import UnifiedContext
 from deeptutor.core.trace import build_trace_metadata, merge_trace_metadata, new_call_id
-from deeptutor.runtime.agentic.messages import assistant_message_with_tool_calls
+from deeptutor.runtime.agentic.messages import (
+    assistant_message_with_tool_calls,
+    extend_transient_model_messages,
+    image_content_hashes,
+    with_transient_model_messages,
+)
 from deeptutor.runtime.agentic.think_stream import InlineThinkFilter
 from deeptutor.runtime.agentic.tool_call_stream import ToolCallAccumulator
 from deeptutor.runtime.agentic.usage import message_content_chars, record_streamed_usage
@@ -36,7 +42,9 @@ from deeptutor.services.llm import (
     finish_was_truncated,
     pi_bridge,
 )
+from deeptutor.services.llm.image_replay import deduplicate_user_images
 from deeptutor.services.llm.metrics import CallMeasurement, measurement_active
+from deeptutor.services.llm.multimodal import has_image_parts
 from deeptutor.services.llm.usage_frame import usage_breakdown
 from deeptutor.services.llm.utils import unreachable_endpoint_hint
 from deeptutor.services.session.provider_response_state import normalize_provider_response_state
@@ -157,6 +165,9 @@ class PiTurn:
         self._round: _Round | None = None
         self._last_request: LLMRequestSnapshot | None = None
         self._request_fingerprint = (context.runtime.previous_model_turn or {}).get("request_fingerprint")
+        # Retrieved pixels belong to this turn's requests, never to durable history.
+        self._transient_model_messages: list[dict[str, Any]] = []
+        context.extension("source_visual_evidence")["image_hashes"] = []
 
     # ---- the turn ------------------------------------------------------
 
@@ -182,6 +193,8 @@ class PiTurn:
                     **self.pipeline._completion_kwargs(max_tokens=self.pipeline.loop_max_tokens),
                 }
                 cfg = {
+                    # a connected provider that goes silent must settle; tests shorten it
+                    **({"idle_timeout_s": float(os.environ["PI_TUTOR_IDLE_TIMEOUT_S"])} if os.environ.get("PI_TUTOR_IDLE_TIMEOUT_S") else {}),
                     "budget": max(1, self.pipeline.effective_max_rounds(self.context)),
                     # first round must call this tool (Ask Questions forces ask_user)
                     "initial_tool_choice": self.pipeline.initial_tool_choice,
@@ -295,6 +308,16 @@ class PiTurn:
             return await self._finish_check(data.get("text") or "")
         if kind == "dispatch":
             return await self._dispatch(data)
+        if kind == "settlement_recovery":
+            # A capability may ask for one restricted, receipt-backed tool round after settlement.
+            recovery = self.pipeline._capability_settlement_recovery(self.context)
+            if recovery is None:
+                return {}
+            instruction, names = recovery
+            return {"instruction": instruction, "names": list(names)}
+        if kind == "reject_finish":
+            await self.discard()  # the rejected round's prose leaves the answer
+            return {}
         raise ValueError(f"unknown pi ask: {kind}")
 
     async def notice(self, key: str, vars: dict[str, Any]) -> None:
@@ -330,18 +353,37 @@ class PiTurn:
     async def _round_start(self, data: dict[str, Any]) -> dict[str, Any]:
         messages = data.get("messages") or []
         before = json.dumps(messages, sort_keys=True, default=str)
-        await self.pipeline._guard_context_window(messages, self.stream)
         forced = data.get("mode") == "forced"
+        tools = None if forced else self.tool_schemas
+        # The model-request boundary: refresh capability state, then add what only this request may carry.
+        prepare = getattr(self.pipeline, "prepare_model_request", None)
+        lesson_messages = await prepare(self.context, self.stream, messages) if prepare else []
+        request_messages = with_transient_model_messages(messages, self._transient_model_messages)
+        # Current tool pixels take precedence over cached lesson pages; neither belongs in the dialogue history.
+        if lesson_messages and not has_image_parts(self._transient_model_messages):
+            request_messages = [*request_messages, *lesson_messages]
+        project = getattr(self.pipeline, "project_model_request", None)
+        if project is not None:
+            request_messages = project(request_messages)
+        projected = deduplicate_user_images(
+            [
+                {key: value for key, value in message.items() if key not in {"_context_snapshot", "_lesson_packet"}}
+                for message in request_messages
+            ]
+        )
+        await self.pipeline._guard_context_window(projected, self.stream, tool_schemas=tools)
+        self.context.extension("source_visual_evidence")["image_hashes"] = image_content_hashes(projected)
         settling = data.get("mode") in ("settle", "forced")
         label = self.pipeline._t("labels.final_response", default="Final response") if settling else self.pipeline._t(
             "labels.exploring", default="Exploring"
         )
         call_id = new_call_id(f"{self.source}-{self.stage}")
+        # Runtime-only invocation identity: reviewed mutations can require a later model call.
+        self.context.extension("agent_loop")["model_call_id"] = call_id
         from deeptutor.services.llm.request_cache import compare_requests, fingerprint_request
 
-        tools = None if forced else self.tool_schemas
         fingerprint = fingerprint_request(
-            messages,
+            projected,
             tools,
             {
                 "provider": self.pipeline.binding,
@@ -363,7 +405,7 @@ class PiTurn:
         )
         trace_meta = merge_trace_metadata(trace_meta, {"request_cache": request_cache})
         carried = list(tools or []) or (self._last_request.tool_schemas if self._last_request else [])
-        self._last_request = LLMRequestSnapshot(messages=list(messages), tool_schemas=carried)
+        self._last_request = LLMRequestSnapshot(messages=list(projected), tool_schemas=carried)
         await self.stream.progress(
             label,
             source=self.source,
@@ -373,7 +415,7 @@ class PiTurn:
         defer = (not forced) and self.pipeline._capability_buffers_visible_output(self.context)
         token = measurement_active.set(False)
         try:
-            meter = CallMeasurement(model=self.pipeline.model or "", provider=self.pipeline.binding, messages=messages)
+            meter = CallMeasurement(model=self.pipeline.model or "", provider=self.pipeline.binding, messages=projected)
         finally:
             measurement_active.reset(token)
         self._round = _Round(
@@ -386,10 +428,14 @@ class PiTurn:
             if defer
             else AskUserDraftEmitter(stream=self.stream, source=self.source, stage=self.stage, metadata=trace_meta),
         )
-        self._round_messages = messages
+        self._round_messages = projected
         self._round_max_tokens = int(data.get("max_tokens") or self.pipeline.loop_max_tokens)
-        changed = json.dumps(messages, sort_keys=True, default=str) != before
-        return {"messages": messages} if changed else {}
+        reply: dict[str, Any] = {}
+        if json.dumps(messages, sort_keys=True, default=str) != before:
+            reply["messages"] = messages
+        if projected != messages:  # only then does the request differ from the transcript (and cost a second copy)
+            reply["request_messages"] = projected
+        return reply
 
     async def _thinking(self, r: _Round, text: str) -> None:
         r.reasoning_chars += len(text)
@@ -613,6 +659,7 @@ class PiTurn:
             stage=self.stage,
         )
         self.sources.extend(dispatch.sources)
+        extend_transient_model_messages(self._transient_model_messages, dispatch.model_messages)
         reply: dict[str, Any] = {"tool_messages": dispatch.tool_messages, "tools": self.tool_schemas}
         if dispatch.pause:
             reply["pause"] = True
@@ -626,6 +673,7 @@ class PiTurn:
             checkpoint = meta.get("_context_checkpoint")
             if isinstance(checkpoint, dict) and str(checkpoint.get("summary") or "").strip():
                 reply["checkpoint"] = str(checkpoint["summary"]).strip()
+                reply["checkpoint_state"] = str(checkpoint.get("state") or "").strip()
         override = self.pipeline._capability_final_text_override(self.context, "")
         if override is not None:
             await self._publish_override(override)

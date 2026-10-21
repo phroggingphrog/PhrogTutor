@@ -10,6 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { questionResultBadge } from "@/lib/question-bank-answers";
 import PickerShell from "@/components/common/PickerShell";
 import PickerHeader from "@/components/common/PickerHeader";
 import {
@@ -336,13 +337,11 @@ export default function QuestionBankPicker({
                             </span>
                           )}
                           <span
-                            className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
-                              entry.is_correct
-                                ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400"
-                                : "bg-destructive/10 text-destructive"
+                            className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+                              questionResultBadge(entry).className
                             }`}
                           >
-                            {entry.is_correct ? t("Correct") : t("Incorrect")}
+                            {t(questionResultBadge(entry).label)}
                           </span>
                           {entry.bookmarked && (
                             <Bookmark

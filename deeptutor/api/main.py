@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 
+from deeptutor.api.security_guard import install_security_guard
 from deeptutor.logging import configure_logging
 from deeptutor.services.config import (
     ensure_runtime_settings_files,
@@ -427,6 +428,12 @@ async def json_error_boundary(request: Request, call_next):
         )
 
 
+# Optional fastapi-guard screening (off unless security_guard.enabled). Added
+# before the access log and CORS middlewares below: Starlette makes the last-added
+# middleware outermost, so CORS stays outside the guard (429/403 carry CORS
+# headers) and the access log sees what the guard rejects.
+install_security_guard(app)
+
 # Access logging is funneled through this one middleware. uvicorn's own
 # per-request access log is disabled on every launch path (run_server.py via
 # access_log=False; the launcher and Docker via `--no-access-log`), so routine
@@ -460,7 +467,7 @@ async def selective_access_log(request, call_next):
         and response.status_code in {401, 403}
     ):
         response = RedirectResponse(
-            "/watching?account=authorization_login_required",
+            "/reading?account=authorization_login_required",
             status_code=303,
             headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
         )
@@ -519,6 +526,7 @@ from deeptutor.api.routers import (
     file_preview,
     imports,
     knowledge,
+    learning_journal,
     marginnote4,
     mastery_path,
     mcp_settings,
@@ -530,6 +538,7 @@ from deeptutor.api.routers import (
     partners,
     personas,
     pi_packages,
+    plugins,
     practice,
     question,
     question_notebook,
@@ -663,6 +672,12 @@ app.include_router(
 )
 app.include_router(memory.router, prefix="/api/memory", tags=["memory"], dependencies=_auth)
 app.include_router(
+    learning_journal.router,
+    prefix="/api/learning-journal",
+    tags=["learning-journal"],
+    dependencies=_auth,
+)
+app.include_router(
     capabilities_settings.router,
     prefix="/api/capabilities",
     tags=["capabilities"],
@@ -749,6 +764,7 @@ app.include_router(
 app.include_router(personas.router, prefix="/api", tags=["personas"], dependencies=_auth)
 app.include_router(run_code_router.router, prefix="/api/run-code", tags=["run-code"], dependencies=_auth)
 app.include_router(notebook_kernel_router.router, prefix="/api/notebook-kernel", tags=["notebook-kernel"], dependencies=_auth)
+app.include_router(plugins.router, prefix="/api/plugins", tags=["plugins"])
 app.include_router(tools_router.router, prefix="/api/tools", tags=["tools"], dependencies=_auth)
 app.include_router(system.router, prefix="/api/system", tags=["system"], dependencies=_auth)
 app.include_router(voice.router, prefix="/api/voice", tags=["voice"], dependencies=_auth)
