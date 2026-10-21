@@ -61,7 +61,7 @@ export const PRIMARY_NAV: NavEntry[] = [
     tooltipKey: 'One tutor, your own way to learn.',
     surfaces: ['reading', 'chat', 'books'],
   },
-  { href: '/space', label: 'Learning Space', icon: LayoutGrid, tooltipKey: 'Space tooltip' },
+  { href: '/space', label: 'Learning Space', icon: LayoutGrid, tooltipKey: 'Space tooltip', defaultCollapsed: true },
   { href: '/notes', label: 'Notes', icon: NotebookPen, tooltipKey: 'Your own Markdown notes' },
   { href: '/terminal', label: 'Terminal', icon: SquareTerminal, tooltipKey: 'A sandboxed shell (no network)', defaultCollapsed: true },
   {

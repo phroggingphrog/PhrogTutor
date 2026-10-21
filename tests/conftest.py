@@ -301,18 +301,22 @@ def scripted_pi_loop(client, settlement_rounds: int = 3):
 
     The real round rules run in ``pi_engine/loop.ts`` (needs a model), so this keeps only what
     the Python side is tested for: it asks the host the same questions loop.ts asks
-    (round_start, chunks, round, finish_check, dispatch) and feeds it the client's chunks.
+    (round_start, chunks, round, finish_check, dispatch, settlement_recovery, reject_finish) and feeds it
+    the client's chunks. ``request_messages`` from round_start are what the client sees, as in loop.ts.
     """
 
     async def loop_turn(request, cfg, host):
         messages, tools = list(request["messages"]), request.get("tools")
         budget, step, mode = cfg["budget"], 0, "explore"
+        boundary, recovery = len(messages), None
         while True:
             reply = await host.ask("round_start", {"messages": messages, "mode": mode, "max_tokens": request.get("max_tokens")})
             messages = reply.get("messages") or messages
-            kwargs = {"model": request.get("model"), "messages": messages, "stream": True}
+            kwargs = {"model": request.get("model"), "messages": reply.get("request_messages") or messages, "stream": True}
             if tools and mode != "forced":
-                kwargs["tools"] = tools
+                kwargs["tools"] = (
+                    [t for t in tools if t["function"]["name"] in recovery] if mode == "recover" else tools
+                )
             async for chunk in await client.chat.completions.create(**kwargs):
                 raw = _plain(chunk)
                 for choice in raw["choices"]:
@@ -325,10 +329,31 @@ def scripted_pi_loop(client, settlement_rounds: int = 3):
             done = await host.ask("round", {})
             messages.append(done["assistant"])
             if done["tool_calls"] and mode != "forced":
+                if mode == "recover" and any(c["name"] not in recovery for c in done["tool_calls"]):
+                    await host.ask("reject_finish", {})
+                    return {"completed": False, "raw": "", "messages": messages, "tools": tools, "rounds": step + 1}
                 out = await host.ask("dispatch", {"tool_calls": done["tool_calls"], "clean": done["clean"], "step": step})
                 messages.extend(out["tool_messages"])
+                if out.get("checkpoint"):
+                    messages = [*messages[:boundary], {"role": "system", "content": f"[Context checkpoint]\n{out['checkpoint']}"}]
+                    boundary = len(messages)
+                    if out.get("checkpoint_state"):
+                        messages.append({"role": "system", "content": out["checkpoint_state"]})
                 step += 1
-                mode = "explore" if step < budget else "settle" if step < budget + settlement_rounds else "forced"
+                if step < budget:
+                    mode = "explore"
+                elif step < budget + settlement_rounds:
+                    mode = "settle"
+                elif recovery is not None:
+                    await host.ask("reject_finish", {})
+                    return {"completed": False, "raw": "", "messages": messages, "tools": tools, "rounds": step}
+                else:
+                    plan = await host.ask("settlement_recovery", {})
+                    if plan.get("names"):
+                        recovery, mode = set(plan["names"]), "recover"
+                        messages.append({"role": "user", "content": plan["instruction"]})
+                    else:
+                        mode = "forced"
                 continue
             check = await host.ask("finish_check", {"text": done["clean"]})
             return {

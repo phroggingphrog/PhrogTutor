@@ -173,7 +173,7 @@ describe("QuizViewer smoke", () => {
       "border-green-500",
     );
     expect(screen.getByRole("button", { name: /Berlin/ }).className).toContain(
-      "border-red-400",
+      "border-destructive",
     );
   });
 

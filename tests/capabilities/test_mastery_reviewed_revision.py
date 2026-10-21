@@ -501,7 +501,7 @@ async def test_runtime_preview_requires_a_later_invocation_and_preserves_legacy_
 ):
     import jsonschema
 
-    from deeptutor.agents.loop.agent_loop import AgentLoop
+    from deeptutor.agents.loop.pi_turn import PiTurn
     from deeptutor.capabilities.mastery import tools
     from deeptutor.capabilities.mastery.loop import MasteryLoopCapability
     from deeptutor.capabilities.mastery.pipeline import MasteryLoopPipeline
@@ -519,37 +519,17 @@ async def test_runtime_preview_requires_a_later_invocation_and_preserves_legacy_
     )
     pipeline = MasteryLoopPipeline(language="en")
 
-    async def chunks():
-        yield SimpleNamespace(
-            choices=[
-                SimpleNamespace(
-                    delta=SimpleNamespace(content="Reviewed.", tool_calls=None),
-                    finish_reason="stop",
-                )
-            ],
-            usage=None,
-        )
-
-    async def create(**kwargs):
-        return chunks()
-
-    engine = AgentLoop(
+    engine = PiTurn(
         pipeline=pipeline,
         context=context,
         stream=StreamBus(),
-        client=SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),
         enabled_tools=[],
         tool_schemas=None,
     )
 
     async def invoke():
-        await engine._call_llm(
-            messages=[{"role": "user", "content": "Review the outline."}],
-            label="review",
-            call_kind="agent_loop_round",
-            trace_role="answer",
-            max_tokens=100,
-        )
+        # every model round is a new invocation: the loop stamps its identity on the context
+        await engine.ask("round_start", {"messages": [{"role": "user", "content": "Review the outline."}], "mode": "explore"})
 
     capability = MasteryLoopCapability()
     tool = MasteryReviseTool()

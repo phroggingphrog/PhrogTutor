@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from deeptutor.agents.loop.agent_loop import AgentLoop, LLMCallResult
+from deeptutor.agents.loop.pi_turn import PiTurn
 from deeptutor.agents.loop.pipeline import AgenticLoopPipeline
 from deeptutor.capabilities.mastery import tools
 from deeptutor.capabilities.mastery.loop import MasteryLoopCapability
@@ -273,16 +273,14 @@ async def test_retracted_optimistic_prose_cannot_supply_teaching_evidence(lesson
         stage="responding",
         metadata={"call_id": "rejected", "answer_visible": True},
     )
-    runner = object.__new__(AgentLoop)
+    runner = object.__new__(PiTurn)
     runner.stream = bus
     runner.source = "mastery_path"
     runner.stage = "responding"
-    await runner._discard_deferred_output(
-        LLMCallResult(
-            text=EXPLANATION,
-            completion_metadata={"call_id": "rejected", "answer_visible": True},
-        )
+    runner._round = SimpleNamespace(
+        completion_meta={"call_id": "rejected", "answer_visible": True}, deferred=True
     )
+    await runner.discard()
     assert not (await note(bus)).success
     assert not lesson.store.load("p").explained_objectives
 

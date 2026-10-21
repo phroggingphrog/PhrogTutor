@@ -19,11 +19,12 @@ import { join } from "node:path";
 import { AGENT_DIR, HERE, buildModel, chunkWriter, connectionOf, convert, text, THINKING, toolSpecs, withCacheKey } from "./convert.ts";
 
 export type Host = { write(o: any): void; ask(kind: string, data?: any): Promise<any> };
-type Mode = "explore" | "settle" | "forced";
+type Mode = "explore" | "settle" | "recover" | "forced"; // recover: the one restricted-tool round a capability may ask for after settlement
 
 const MAX_SETTLEMENT_ROUNDS = 3; // register state -> ask/resume -> record result -> reply
 const MAX_REASONING_ONLY_RECOVERIES = 2;
 const RETRY_DELAYS_MS = [500, 1500]; // only before any output is visible: a replay would duplicate prose
+const IDLE_TIMEOUT_MS = 90_000; // a connected provider that never produces an event must settle
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function runLoop(first: any, host: Host): Promise<any> {
@@ -51,6 +52,7 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	let boundary = transcript.length; // context checkpoints fold everything after this
 	const s = { rounds: 0, exploration: 0, settlement: 0, toolSteps: 0, budgetRecoveries: 0, reasoningOnly: 0, attempt: 0 };
 	let settlementStarted = false, redirectUsed = false;
+	let recovery: Set<string> | undefined; // tools the restricted final round may call
 	const parts: string[] = [];
 	let mode: Mode = "explore";
 	let outcome: any = null; // set once the turn is decided
@@ -61,7 +63,14 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	const instruct = (instruction: string) => { // a loop directive, without two user turns in a row
 		const last = transcript[transcript.length - 1];
 		if (last?.role === "user" && typeof last.content === "string") last.content = last.content.trimEnd() ? `${last.content.trimEnd()}\n\n${instruction}` : instruction;
-		else append({ role: "user", content: instruction });
+		else if (last?.role === "user" && Array.isArray(last.content)) {
+			// content parts (a PDF's embedded images beside its text): extend the text, never fold image bytes into prose
+			const parts = [...last.content];
+			const at = parts.map((p: any) => typeof p?.text === "string").lastIndexOf(true);
+			if (at >= 0) parts[at] = { ...parts[at], text: parts[at].text.trimEnd() ? `${parts[at].text.trimEnd()}\n\n${instruction}` : instruction };
+			else parts.push({ type: "text", text: instruction });
+			last.content = parts;
+		} else append({ role: "user", content: instruction });
 	};
 	const finish = (raw: string, o: any = {}) => { outcome = { raw, parts: [...parts], completed: true, ...o }; };
 
@@ -76,9 +85,28 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		instruct(T("finish_exhausted"));
 		mode = "forced";
 	}
+	/** A turn whose required interaction could not be completed fails instead of passing as an answer. */
+	async function rejectFinish() {
+		await host.ask("reject_finish", {});
+		notice("capability_finish_rejected");
+		outcome = { raw: "", parts: [], completed: false };
+	}
 	async function planNext() {
 		if (s.exploration < budget) { mode = "explore"; return; }
-		if (s.settlement >= MAX_SETTLEMENT_ROUNDS) return forced("budget");
+		if (s.settlement >= MAX_SETTLEMENT_ROUNDS) {
+			// The tool-less salvage and a restricted capability delivery share the same final slot; neither reopens exploration.
+			if (recovery) return rejectFinish();
+			const r = await host.ask("settlement_recovery", {});
+			const names = new Set<string>((r?.names ?? []).filter((n: string) => dtNames().has(n)));
+			if (r?.instruction && (r?.names ?? []).length) {
+				if (!names.size) return rejectFinish();
+				recovery = names;
+				instruct(r.instruction);
+				mode = "recover";
+				return;
+			}
+			return forced("budget");
+		}
 		if (!settlementStarted) { notice("loop_settlement"); instruct(T("settle")); settlementStarted = true; }
 		mode = "settle";
 	}
@@ -103,7 +131,7 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		}
 		s.attempt = 0;
 		s.rounds++;
-		if (mode === "settle") s.settlement++; else if (mode === "explore") s.exploration++;
+		if (mode === "settle" || mode === "recover") s.settlement++; else if (mode === "explore") s.exploration++;
 		const diag = { rounds: s.rounds, reasoning_chars: sum.reasoning_chars, completion_tokens: sum.completion_tokens, reasoning_tokens: sum.reasoning_tokens };
 
 		if (mode === "forced") {
@@ -149,6 +177,10 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 			return;
 		}
 
+		if (mode === "recover" && sum.tool_calls.some((c: any) => !recovery?.has(c.name))) {
+			// A schema hint is not an execution permission: reject the whole batch before any rogue tool runs.
+			return rejectFinish();
+		}
 		// tool round: DeepTutor runs its tools (plugin tools are run by pi and added at turn_end)
 		const plugins = new Set((api.getActiveTools?.() ?? []).filter((n: string) => !registered.has(n)));
 		const d = await host.ask("dispatch", { tool_calls: sum.tool_calls.filter((c: any) => !plugins.has(c.name)), clean: sum.clean, truncated: sum.truncated, step: s.toolSteps });
@@ -162,8 +194,10 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 			return planNext(); // the user's answer replaced the ask_user tool message
 		}
 		if (d.checkpoint) {
-			transcript = [...transcript.slice(0, boundary), { role: "system", content: `[Context checkpoint]\n${d.checkpoint}` }];
-			boundary = transcript.length;
+			const folded = [...transcript.slice(0, boundary), { role: "system", content: `[Context checkpoint]\n${d.checkpoint}` }];
+			boundary = folded.length;
+			// current state sits past the boundary, so the next fold replaces it instead of stacking a stale copy
+			transcript = d.checkpoint_state ? [...folded, { role: "system", content: d.checkpoint_state }] : folded;
 		}
 		if (d.override != null) { finish(d.override, { allow_empty: true }); return; }
 		if (d.terminate) { outcome = { raw: "", terminal: d.terminate_text ?? "", parts: [...parts], completed: true }; return; }
@@ -171,6 +205,10 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	}
 
 	// ---- the pi session ----
+	// A provider that connects but never produces another event must settle, not park a durable turn.
+	const idleMs = (cfg.idle_timeout_s ?? IDLE_TIMEOUT_MS / 1000) * 1000;
+	let awaitingModel = false, lastEvent = Date.now(), idled = false;
+	const touch = () => { lastEvent = Date.now(); };
 	let writer: ReturnType<typeof chunkWriter> | undefined;
 	let roundError = "";
 	let decision: Promise<void> = Promise.resolve();
@@ -195,7 +233,9 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	};
 	const activate = () => {
 		const plugins = (api.getActiveTools?.() ?? []).filter((n: string) => !registered.has(n));
-		api.setActiveTools?.(mode === "forced" ? [] : [...dtNames(), ...plugins]);
+		const active = mode === "forced" ? [] : mode === "recover" ? [...(recovery ?? [])] : [...dtNames(), ...plugins];
+		if (process.env.PI_TUTOR_DEBUG) process.stderr.write(`[activate] ${mode}: ${active.join(",")}\n`);
+		api.setActiveTools?.(active);
 	};
 
 	const deeptutor = (pi: any) => {
@@ -205,25 +245,35 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 			// DeepTutor's transcript as this loop keeps it (its system prompt + rounds), pi's tool declarations kept.
 			const r = await host.ask("round_start", { mode, messages: transcript, max_tokens: req.max_tokens ?? req.max_completion_tokens });
 			if (r?.messages) transcript = r.messages; // context-window guard snipped old tool results
-			const { system, messages } = convert({ messages: transcript }, model.id);
+			// the request may carry what the transcript must not keep (fresh tool pixels, a lesson page)
+			const { system, messages } = convert({ messages: r?.request_messages ?? transcript }, model.id);
 			return { messages: [{ ...ev.messages[0], sections: { preamble: system } }, ...messages] };
 		});
 		pi.on("before_provider_request", (ev: any) => {
 			// DeepTutor forces a named tool on the first round (Ask Questions -> ask_user); pi-ai has only auto/none.
 			const name = cfg.initial_tool_choice;
-			const p = withCacheKey(ev.payload, req);
+			awaitingModel = true; touch();
+			let p = withCacheKey(ev.payload, req);
+			// The request is the authority on which tools a round may call, whatever pi had active when it was built.
+			if (p && Array.isArray(p.tools) && (mode === "recover" || mode === "forced")) {
+				const keep = mode === "recover" ? p.tools.filter((t: any) => recovery?.has(t.function?.name ?? t.name)) : [];
+				const { tools: _drop, tool_choice: _choice, ...rest } = p;
+				p = keep.length ? { ...p, tools: keep } : rest;
+			}
 			if (s.rounds === 0 && name && p && Array.isArray(p.tools) && p.tools.some((t: any) => t.function?.name === name)) {
 				if (process.env.PI_TUTOR_DEBUG) process.stderr.write(`[tool_choice] forced ${name}\n`);
 				return { ...p, tool_choice: { type: "function", function: { name } } };
 			}
 			return p === ev.payload ? undefined : p;
 		});
-		pi.on("message_start", (ev: any) => { if (ev.message?.role === "assistant") { roundError = ""; writer = chunkWriter(model.id, host.write); } });
-		pi.on("message_update", (ev: any) => { if (ev.message?.role === "assistant") writer?.event(ev.assistantMessageEvent); });
+		pi.on("message_start", (ev: any) => { touch(); if (ev.message?.role === "assistant") { roundError = ""; writer = chunkWriter(model.id, host.write); } });
+		pi.on("message_update", (ev: any) => { touch(); if (ev.message?.role === "assistant") writer?.event(ev.assistantMessageEvent); });
 		pi.on("message_end", (ev: any) => {
 			if (ev.message?.role !== "assistant") return;
 			const msg = ev.message;
-			if (msg.stopReason === "error" || msg.stopReason === "aborted") roundError = `pi model error: ${msg.errorMessage ?? msg.stopReason}`;
+			awaitingModel = false;
+			if (msg.stopReason === "error" || msg.stopReason === "aborted") roundError = idled ? "The model provider stream timed out." : `pi model error: ${msg.errorMessage ?? msg.stopReason}`;
+			idled = false;
 			writer?.finish(msg);
 			decision = host.ask("round", { error: roundError || undefined }).then(decide);
 		});
@@ -254,6 +304,9 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE, req.cache_key ? { id: req.cache_key } : undefined), noTools: "builtin",
 		...(modelRuntime ? { modelRuntime } : {}),
 	});
+	const watchdog = setInterval(() => {
+		if (awaitingModel && !idled && Date.now() - lastEvent > idleMs) { idled = true; void session.abort(); }
+	}, Math.min(5000, Math.max(50, idleMs / 4)));
 	try {
 		await session.bindExtensions({});
 		activate();
@@ -274,6 +327,7 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	} catch (e: any) {
 		outcome = outcome ?? { error: String(e?.message ?? e), error_kind: "transport", partial: s.rounds > 0 };
 	} finally {
+		clearInterval(watchdog);
 		try { session.dispose(); } catch {}
 		if (modelRuntime) { try { modelRuntime.unregisterProvider(connProvider); } catch {} }
 	}
