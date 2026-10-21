@@ -852,6 +852,33 @@ export async function connectKiwix(payload: {
   invalidateKnowledgeCaches();
 }
 
+export async function probeWiki(payload: { serverUrl: string }): Promise<void> {
+  const res = await apiFetch(apiUrl("/api/knowledge-bases/probe-wiki"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: "probe", server_url: payload.serverUrl }),
+  });
+  if (!res.ok) throw new Error(await readErrorDetail(res, "Could not reach the wiki"));
+}
+
+export async function connectWiki(payload: {
+  name: string;
+  serverUrl: string;
+  collections: string[];
+}): Promise<void> {
+  const res = await apiFetch(apiUrl("/api/knowledge-bases/connect-wiki"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: payload.name,
+      server_url: payload.serverUrl,
+      collections: payload.collections,
+    }),
+  });
+  if (!res.ok) throw new Error(await readErrorDetail(res, "Could not connect the wiki"));
+  invalidateKnowledgeCaches();
+}
+
 export async function searchKiwixArticles(kbRef: string, query: string): Promise<KiwixArticle[]> {
   const path = `/api/knowledge-bases/kiwix-articles?kb_ref=${encodeURIComponent(kbRef)}&q=${encodeURIComponent(query)}`;
   const res = await apiFetch(apiUrl(path), { cache: "no-store" });

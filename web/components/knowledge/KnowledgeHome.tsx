@@ -41,7 +41,7 @@ interface KnowledgeHomeProps {
   providers: RagProviderSummary[];
   onOpenKb: (name: string) => void;
   onOpenEngine: (id: string) => void;
-  onOpenSource: (id: "obsidian" | "marginnote4" | "kiwix") => void;
+  onOpenSource: (id: "obsidian" | "marginnote4" | "kiwix" | "wiki") => void;
   onCreate: () => void;
   activeSection: KnowledgeHomeSection;
   onSectionChange: (section: KnowledgeHomeSection) => void;
@@ -164,6 +164,13 @@ export default function KnowledgeHome({
         description: t("Search an existing ZIM archive through kiwix-serve. Articles stay on the server."),
         action: t("Connect archive"),
         count: kbs.filter((kb) => kb.metadata?.type === "kiwix").length,
+      },
+      {
+        id: "wiki" as const,
+        name: t("LLM wiki (qmd)"),
+        description: t("Your markdown wiki, indexed by qmd. Read-only; notes stay where they are."),
+        action: t("Connect wiki"),
+        count: kbs.filter((kb) => kb.metadata?.type === "wiki").length,
       },
     ],
     [kbs, t],

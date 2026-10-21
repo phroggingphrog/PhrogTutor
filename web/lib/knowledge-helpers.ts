@@ -190,6 +190,8 @@ export interface KnowledgeBase {
     server_url?: string;
     zim_name?: string;
     zim_title?: string;
+    /** qmd collections a connected wiki KB searches (when type === "wiki"). */
+    collections?: string[];
     /** Backend of a connected subagent (when type === "subagent"): "claude_code" | "codex" | "antigravity" | "kimi" | "opencode" | "mimo" | "hermes" | "openclaw" | "deepseek_harness" | "partner". */
     agent_kind?: string;
     /** Bound partner id when agent_kind === "partner". */
@@ -354,6 +356,8 @@ export const kbDetailSections = (kb: KnowledgeBase): KbDetailSection[] =>
     ? ["devices", "settings"]
     : kb.metadata?.type === "kiwix"
       ? ["kiwix", "settings"]
+    : kb.metadata?.type === "wiki"
+      ? ["settings"]
     : KB_DETAIL_SECTIONS.filter(
         (section) => section !== "devices" && section !== "kiwix" && (section !== "folders" || !kb.metadata?.type),
       );
@@ -367,6 +371,7 @@ export const kbProvider = (kb: KnowledgeBase): string => {
   if (kb.metadata?.type === "obsidian") return "obsidian";
   if (isMarginNoteKb(kb)) return MARGINNOTE4_KB_TYPE;
   if (kb.metadata?.type === "kiwix") return "kiwix";
+  if (kb.metadata?.type === "wiki") return "wiki";
   return (
     (kb.statistics?.rag_provider as string | undefined) ||
     (kb.metadata?.rag_provider as string | undefined) ||
@@ -376,7 +381,7 @@ export const kbProvider = (kb: KnowledgeBase): string => {
 
 /** Source-document count for a KB, or null when unknown. */
 export const kbDocCount = (kb: KnowledgeBase): number | null => {
-  if (kb.metadata?.type === "kiwix") return null;
+  if (kb.metadata?.type === "kiwix" || kb.metadata?.type === "wiki") return null;
   const raw = kb.statistics?.raw_documents;
   if (typeof raw === "number") return raw;
   const indexed = kb.metadata?.last_indexed_count;

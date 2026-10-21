@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   connectImaKnowledgeBase as connectImaApi,
   connectKiwix as connectKiwixApi,
+  connectWiki as connectWikiApi,
   connectWeKnora as connectWeKnoraApi,
   connectLinkedFolder as connectLinkedFolderApi,
   connectMarginNote4Library as connectMarginNote4Api,
@@ -466,6 +467,15 @@ export function useKnowledgeBases() {
     [load],
   );
 
+  const connectWiki = useCallback(
+    async (params: { name: string; serverUrl: string; collections: string[] }) => {
+      await connectWikiApi(params);
+      invalidateKnowledgeCaches();
+      await load({ force: true, showSpinner: false });
+    },
+    [load],
+  );
+
   return {
     kbs: combinedKbs,
     rawKbs: kbs,
@@ -496,6 +506,7 @@ export function useKnowledgeBases() {
     connectMarginNote4,
     connectIma,
     connectKiwix,
+    connectWiki,
   };
 }
 
