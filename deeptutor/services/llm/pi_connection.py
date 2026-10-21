@@ -21,6 +21,7 @@ import re
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
+from deeptutor.services.keypool import KeyPool, primary_api_key
 from deeptutor.services.provider_registry import effective_backend, find_by_name
 
 from .config import LLMConfig
@@ -71,7 +72,7 @@ def normalize_azure_base_url(api_base: str) -> str:
 
 def _azure_connection(config: LLMConfig) -> dict[str, Any] | None:
     """Azure serves the Responses API at ``/openai/v1``; the model name is the deployment."""
-    key = config.get_api_key()
+    key = request_key(config)
     base_url = normalize_azure_base_url(config.effective_url or config.base_url or "")
     if not key or not base_url or (config.api_version or "").strip().lower() == "preview":
         return None  # the ``preview`` query parameter has no place in a pi base URL
@@ -85,6 +86,32 @@ def _pi_api(config: LLMConfig, backend: str) -> str | None:
     if backend == "openai_compat":
         return "openai-responses" if config.wire_api == "responses" else "openai-completions"
     return None  # the OAuth providers: not served through pi yet
+
+
+_POOLS: dict[tuple[str, ...], KeyPool] = {}
+
+
+def key_pool(config: LLMConfig) -> KeyPool | None:
+    """The rotation pool for a profile that lists several API keys; None for a single key."""
+    keys = tuple(str(k).strip() for k in config.api_key if str(k).strip()) if isinstance(config.api_key, list) else ()
+    if len(keys) < 2:
+        return None
+    return _POOLS.setdefault(keys, KeyPool(list(keys)))
+
+
+def request_key(config: LLMConfig) -> str:
+    """The key for this request: the next one in the pool, or the single configured key."""
+    pool = key_pool(config)
+    return pool.next() if pool else (primary_api_key(config.api_key) or "")
+
+
+def mark_rate_limited(config: LLMConfig, key: str) -> bool:
+    """Record a 429 for ``key``; True when another key is available to retry with."""
+    pool = key_pool(config)
+    if pool is None:
+        return False
+    pool.mark_429(key)
+    return True
 
 
 CODEX_BASE_URL = "https://chatgpt.com/backend-api"
@@ -135,7 +162,7 @@ def pi_connection(config: LLMConfig) -> dict[str, Any] | None:
         return _azure_connection(config)
     api = _pi_api(config, backend)
     base_url = (config.effective_url or config.base_url or (spec.default_api_base if spec else "") or "").rstrip("/")
-    key = config.get_api_key()
+    key = request_key(config)
     if api is None or not base_url:
         return None
     if api == "anthropic-messages" and base_url.endswith("/v1"):

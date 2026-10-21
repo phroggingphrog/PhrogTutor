@@ -65,8 +65,13 @@ class _PiProcess:
     async def _ensure(self) -> asyncio.subprocess.Process:
         async with self.lock:
             if self.proc is None or self.proc.returncode is not None:
+                env = dict(os.environ)
+                from .openai_http_client import disable_ssl_verify_enabled
+
+                if disable_ssl_verify_enabled():  # the "disable SSL verification" setting, for self-signed gateways
+                    env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"
                 self.proc = await asyncio.create_subprocess_exec(
-                    _ENGINE_BIN, str(_LLM_TS), "--serve",
+                    _ENGINE_BIN, str(_LLM_TS), "--serve", env=env,
                     stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=open(os.environ["PI_TUTOR_DEBUG_LOG"], "a") if os.environ.get("PI_TUTOR_DEBUG_LOG") else asyncio.subprocess.DEVNULL,
                     limit=16 * 1024 * 1024,
                 )
@@ -84,12 +89,36 @@ class _PiProcess:
             queue.put_nowait({"end": True, "error": "pi SDK process exited"})
 
     async def chunks(self, request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
+        """Stream one call; a profile with several API keys moves to the next key after a 429 that came before any output."""
+        from .config import get_llm_config
+        from .pi_connection import key_pool, mark_rate_limited
+
+        try:
+            config = get_llm_config()
+        except Exception:  # no catalog profile (gateway mode): one key, nothing to rotate
+            config = None
+        attempts = len(key_pool(config) or []) or 1 if config is not None else 1
+        for attempt in range(attempts):
+            sent = False
+            connected = request
+            try:
+                connected = await _with_connection(request)
+                async for chunk in self._chunks_once(connected):
+                    sent = True
+                    yield chunk
+                return
+            except RuntimeError as exc:
+                key = (connected.get("connection") or {}).get("apiKey") or ""
+                limited = "429" in str(exc) or "rate limit" in str(exc).lower()
+                if sent or not limited or attempt + 1 >= attempts or not mark_rate_limited(config, key):
+                    raise
+
+    async def _chunks_once(self, request: dict[str, Any]) -> AsyncIterator[dict[str, Any]]:
         rid = uuid.uuid4().hex
         queue: asyncio.Queue = asyncio.Queue()
         self.queues[rid] = queue
         try:
             proc = await self._ensure()
-            request = await _with_connection(request)
             req = {k: request[k] for k in _PASS if request.get(k) is not None}
             proc.stdin.write((json.dumps({"rid": rid, "req": req}) + "\n").encode())
             await proc.stdin.drain()

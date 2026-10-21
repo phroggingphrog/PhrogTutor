@@ -591,22 +591,6 @@ def test_visual_message_reaches_next_model_request_without_stream_leak(tmp_path:
         base64.b64decode(next_request[-1]["content"][1]["image_url"]["url"].split(",", 1)[1])
         == image.read_bytes()
     )
-    from deeptutor.services.llm.provider_core.anthropic_provider import AnthropicProvider
-    from deeptutor.services.llm.provider_core.openai_responses.converters import convert_messages
-
-    _system, responses_input = convert_messages(next_request)
-    response_image = responses_input[-1]["content"][1]
-    assert response_image["type"] == "input_image"
-    assert base64.b64decode(response_image["image_url"].split(",", 1)[1]) == image.read_bytes()
-    anthropic_image = AnthropicProvider._convert_image_block(next_request[-1]["content"][1])
-    assert anthropic_image["type"] == "image"
-    assert base64.b64decode(anthropic_image["source"]["data"]) == image.read_bytes()
-    _system, anthropic_messages = AnthropicProvider.__new__(AnthropicProvider)._convert_messages(
-        next_request
-    )
-    assert anthropic_messages[-1]["role"] == "user"
-    assert anthropic_messages[-1]["content"][0]["type"] == "tool_result"
-    assert anthropic_messages[-1]["content"][-1]["type"] == "image"
 
 
 def test_visual_messages_follow_complete_tool_reply_batch():

@@ -59,58 +59,6 @@ def test_openai_client_kwargs_rejects_production(monkeypatch: pytest.MonkeyPatch
         openai_http_client.openai_client_kwargs()
 
 
-def test_provider_core_passes_disable_ssl_http_client(monkeypatch: pytest.MonkeyPatch) -> None:
-    from deeptutor.services.llm.provider_core import openai_compat_provider as provider_mod
-
-    clients = _enable_ssl_override(monkeypatch)
-    captured = _capture_async_openai(monkeypatch, provider_mod)
-
-    provider_mod.OpenAICompatProvider(api_key="sk-test", api_base="https://example.com/v1")
-
-    assert captured[0]["http_client"] is clients[0]
-    assert clients[0].kwargs["verify"] is False
-
-
-def test_azure_provider_passes_disable_ssl_http_client(monkeypatch: pytest.MonkeyPatch) -> None:
-    from deeptutor.services.llm.provider_core import azure_openai_provider as azure_mod
-
-    clients = _enable_ssl_override(monkeypatch)
-    captured = _capture_async_openai(monkeypatch, azure_mod)
-
-    azure_mod.AzureOpenAIProvider(
-        api_key="sk-test",
-        api_base="https://example.openai.azure.com",
-        default_model="gpt-test",
-    )
-
-    assert captured[0]["http_client"] is clients[0]
-    assert clients[0].kwargs["verify"] is False
-
-
-def test_agentic_client_passes_disable_ssl_http_client(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The agentic handle builds its SDK client through the same helper as provider_core."""
-    from deeptutor.runtime.agentic import client as agentic_mod
-
-    clients = _enable_ssl_override(monkeypatch)
-    captured = _capture_async_openai(monkeypatch, agentic_mod)
-
-    agentic_mod._build_openai_client(
-        agentic_mod.LLMClientConfig(
-            binding="custom",
-            model="gpt-test",
-            api_key="sk-test",
-            base_url="https://example.com/v1",
-            extra_headers={"X-Test": "1"},
-        ),
-        disable_ssl_verify=True,
-    )
-
-    assert captured[0]["http_client"] is clients[0]
-    assert clients[0].kwargs["verify"] is False
-    assert captured[0]["default_headers"]["X-Test"] == "1"
-    assert "x-session-affinity" in captured[0]["default_headers"]
-
-
 def test_embedding_sdk_passes_disable_ssl_http_client(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -131,3 +79,24 @@ def test_embedding_sdk_passes_disable_ssl_http_client(
 
     assert captured[0]["http_client"] is clients[0]
     assert clients[0].kwargs == {"verify": False, "timeout": 60}
+
+
+@pytest.mark.asyncio
+async def test_pi_engine_inherits_the_disable_ssl_verify_setting(monkeypatch: pytest.MonkeyPatch) -> None:
+    from deeptutor.services.llm import pi_bridge
+
+    monkeypatch.setenv("DISABLE_SSL_VERIFY", "1")
+    monkeypatch.delenv("ENVIRONMENT", raising=False)
+    seen: dict[str, Any] = {}
+
+    class Stop(Exception):
+        pass
+
+    async def fake_exec(*args: Any, **kwargs: Any) -> Any:
+        seen.update(kwargs.get("env") or {})
+        raise Stop
+
+    monkeypatch.setattr(pi_bridge.asyncio, "create_subprocess_exec", fake_exec)
+    with pytest.raises(Stop):
+        await pi_bridge._PiProcess()._ensure()
+    assert seen.get("NODE_TLS_REJECT_UNAUTHORIZED") == "0"

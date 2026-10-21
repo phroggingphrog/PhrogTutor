@@ -749,23 +749,15 @@ def test_native_workspace_append_invalidates_queued_rebuild_without_meta_change(
 
 @pytest.mark.parametrize("model", ["qwen3-32b", "deepseek-r1"])
 def test_custom_binary_reasoning_choices_match_actual_request(model):
-    from deeptutor.services.llm.provider_core.openai_compat_provider import OpenAICompatProvider
+    from deeptutor.runtime.agentic.client import build_provider_extra_kwargs
     from deeptutor.services.model_selection.reasoning import supported_reasoning_efforts
-    from deeptutor.services.provider_registry import find_by_name
 
     assert supported_reasoning_efforts("custom", model) == ["minimal", "high"]
     assert supported_reasoning_efforts(
         "custom", model, metadata={"codex_supported_reasoning_levels": ["none", "low", "high"]}
     ) == ["high"]
-    provider = OpenAICompatProvider(
-        api_key="synthetic", default_model=model, spec=find_by_name("custom"), configure_env=False
-    )
-    disabled = provider._build_kwargs(
-        [{"role": "user", "content": "test"}], None, model, 100, 0, "minimal", None
-    )
-    enabled = provider._build_kwargs(
-        [{"role": "user", "content": "test"}], None, model, 100, 0, "high", None
-    )
+    disabled = build_provider_extra_kwargs(binding="custom", model=model, reasoning_effort="minimal")
+    enabled = build_provider_extra_kwargs(binding="custom", model=model, reasoning_effort="high")
     if "qwen" in model:
         assert disabled["extra_body"]["enable_thinking"] is False
         assert enabled["extra_body"]["enable_thinking"] is True
@@ -866,23 +858,13 @@ def test_restoring_pre_auto_policy_preserves_legacy_resolution(role_environment)
 )
 def test_provider_auto_omits_actual_reasoning_request_fields(role_environment, binding, model):
     """Automatic roles produce no explicit reasoning or thinking request controls."""
-    from deeptutor.services.llm.provider_core.openai_compat_provider import OpenAICompatProvider
-    from deeptutor.services.provider_registry import find_by_name
+    from deeptutor.runtime.agentic.client import build_provider_extra_kwargs
 
     role_environment["configs"]["p0"].binding = binding
     role_environment["configs"]["p0"].model = model
     config = roles.resolve_selection(LLMSelection(**choice(0)))
-    provider = OpenAICompatProvider(
-        api_key="synthetic", default_model=model, spec=find_by_name(binding), configure_env=False
-    )
-    body = provider._build_kwargs(
-        [{"role": "user", "content": "test"}],
-        None,
-        model,
-        100,
-        0,
-        config.reasoning_effort,
-        None,
+    body = build_provider_extra_kwargs(
+        binding=binding, model=model, reasoning_effort=config.reasoning_effort
     )
     assert "reasoning_effort" not in body
     assert "reasoning" not in body

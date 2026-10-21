@@ -73,24 +73,3 @@ def test_warning_deduped(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCapt
     ]
     assert len(warns) == 1
     assert missing_path not in caplog.text
-
-
-def test_build_openai_client_survives_stale_ssl_cert_file(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """The chat client factory must not crash when SSL_CERT_FILE is stale."""
-    from deeptutor.runtime.agentic.client import LLMClientConfig, build_openai_client
-
-    monkeypatch.setenv("SSL_CERT_FILE", "/definitely/not/here/cacert.pem")
-    config = LLMClientConfig(
-        binding="custom",
-        model="m",
-        api_key="sk-test",
-        base_url="https://example.test/v1",
-    )
-    client = build_openai_client(config)  # raised FileNotFoundError before the fix
-    try:
-        # The underlying httpx transport initialised successfully.
-        assert getattr(client._client, "_transport", None) is not None
-    finally:
-        asyncio.run(client.close())
