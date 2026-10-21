@@ -23,9 +23,11 @@ const TerminalPanel = dynamic(() => import("./TerminalPanel"), { ssr: false });
 
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { apiFetch, apiUrl } from "@/lib/api";
+import { Button } from "@/shared/ui/Button";
 import { IconButton } from "@/shared/ui/IconButton";
 import BacklinksPanel from "./BacklinksPanel";
 import NotesGraph from "./NotesGraph";
+import { NoteTags } from "./noteTags";
 import NoteNameDialog from "./NoteNameDialog";
 import { NoteImage, altFromFile, isImageFile, uploadNoteImage } from "./noteImage";
 import { RunnableCodeBlock, cellRunners, notebook } from "./RunnableCodeBlock";
@@ -171,11 +173,18 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}&tag=${encodeURIComponent(tag)}`));
     setHits(r.ok ? (await r.json()).hits : []);
   };
-  const chooseTag = (tag: string) => {
-    const next = tag === activeTag ? "" : tag;
+  const tagRef = useRef<((tag: string) => void) | null>(null);
+  const chooseTag = (tag: string, only = false) => {
+    const next = tag === activeTag && !only ? "" : tag;
     setActiveTag(next);
     if (next) void searchText(next);
     else setHits(null);
+  };
+  // A #tag clicked in the text opens the list filtered to that tag.
+  tagRef.current = (tag) => {
+    setMode("note");
+    setShowList(true);
+    chooseTag(tag, true);
   };
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const openRef = useRef<((name: string) => Promise<void>) | null>(null);
@@ -220,6 +229,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       // Without this a markdown table is dropped on the first edit of the note.
       TableKit,
       NoteImage,
+      NoteTags.configure({ onTag: (tag) => tagRef.current?.(tag) }),
       Wikilink.configure({
         getNames: () => namesRef.current,
         onOpen: (target, resolved) => openLinkRef.current?.(target, resolved),
@@ -408,7 +418,7 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   };
 
   return (
-    <div className={`relative flex ${compact ? "h-full" : "h-[calc(100vh-4rem)]"} text-[var(--foreground)]`}>
+    <div className="relative flex h-full text-[var(--foreground)]">
       {!compact && <h1 className="sr-only">{t("Notes")}</h1>}
       {overlay && showList && <div aria-hidden="true" onClick={() => setShowList(false)} className="absolute inset-0 z-[9] bg-black/20" />}
       {showList && (
@@ -596,9 +606,13 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
             <BacklinksPanel note={current} version={linksVersion} onOpen={(name) => void open(name)} />
           </>
         ) : (
-          <div className="m-auto flex flex-col items-center gap-2 p-6 text-center text-[var(--muted-foreground)]">
-            {t("Pick a note or create one.")}
-            {overlay && <button onClick={() => setShowList(true)} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">{t("Open notes")}</button>}
+          <div className="m-auto flex max-w-sm flex-col items-center gap-3 p-6 text-center">
+            <p className="font-serif text-xl text-[var(--foreground)]">{t("Pick a note or create one.")}</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button onClick={() => setDialog("new")} icon={<FilePlus size={16} />}>{t("New note")}</Button>
+              {overlay && <Button variant="secondary" onClick={() => setShowList(true)}>{t("Open notes")}</Button>}
+            </div>
+            <p className="text-sm text-[var(--muted-foreground)]">{t("Type / for blocks, [[ to link notes, and paste images straight in.")}</p>
           </div>
         )}
       </div>

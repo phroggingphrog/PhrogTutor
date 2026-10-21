@@ -5987,5 +5987,6 @@
   "No links yet. Link notes with [[ to see them here.": "Aucun lien pour l’instant. Liez des notes avec [[ pour les voir ici.",
   "Notes by connections": "Notes par connexions",
   "{{count}} links_one": "{{count}} lien",
-  "{{count}} links_other": "{{count}} liens"
+  "{{count}} links_other": "{{count}} liens",
+  "Type / for blocks, [[ to link notes, and paste images straight in.": "Tapez / pour des blocs, [[ pour lier des notes, et collez des images directement."
 }

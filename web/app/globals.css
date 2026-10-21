@@ -1472,7 +1472,24 @@ a[href^="#dt-locator-"]:hover {
 .notes-prose ul { list-style: disc; padding-left: 1.5em; }
 .notes-prose ol { list-style: decimal; padding-left: 1.5em; }
 .notes-prose ul[data-type="taskList"] { list-style: none; padding-left: 0; }
-.notes-prose ul[data-type="taskList"] li { display: flex; gap: .5em; align-items: flex-start; }
+.notes-prose ul[data-type="taskList"] li { display: flex; gap: .6em; align-items: flex-start; }
+.notes-prose ul[data-type="taskList"] li > label { flex: none; margin-top: .42em; line-height: 1; }
+.notes-prose ul[data-type="taskList"] li > label input { width: 1rem; height: 1rem; accent-color: var(--primary); cursor: pointer; }
+.notes-prose ul[data-type="taskList"] li > div { flex: 1; min-width: 0; }
+.notes-prose ul[data-type="taskList"] li[data-checked="true"] > div { color: var(--muted-foreground); text-decoration: line-through; }
+.notes-prose li { margin: .1em 0; }
+.notes-prose li p { margin: 0; }
+.notes-prose ul ul, .notes-prose ol ol, .notes-prose ul ol, .notes-prose ol ul { margin: .1em 0; }
+.notes-prose hr { border: 0; border-top: 1px solid var(--border); margin: 1.5em 0; }
+.notes-prose .tableWrapper { overflow-x: auto; margin: 1em 0; }
+.notes-prose table { border-collapse: collapse; width: 100%; min-width: 16rem; font-size: .95em; }
+.notes-prose th, .notes-prose td { border: 1px solid var(--border); padding: .4em .7em; text-align: left; vertical-align: top; min-width: 3rem; }
+.notes-prose th { background: var(--muted); font-weight: 600; }
+.notes-prose td > p, .notes-prose th > p { margin: 0; }
+.notes-prose .tiptap-mathematics-render { text-align: center; margin: 1em 0; overflow-x: auto; }
+.notes-prose blockquote { margin: 1em 0; }
+.notes-prose .note-tag { color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); border-radius: 999px; padding: .05em .5em; font-size: .9em; cursor: pointer; }
+.notes-prose .note-tag:hover { background: color-mix(in srgb, var(--primary) 18%, transparent); }
 .notes-prose code:not(pre code) { background: var(--muted); padding: .1em .3em; border-radius: 4px; }
 .notes-prose blockquote { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
 .notes-prose p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: var(--muted-foreground); pointer-events: none; }

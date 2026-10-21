@@ -5608,5 +5608,6 @@
   "No links yet. Link notes with [[ to see them here.": "No links yet. Link notes with [[ to see them here.",
   "Notes by connections": "Notes by connections",
   "{{count}} links_one": "{{count}} link",
-  "{{count}} links_other": "{{count}} links"
+  "{{count}} links_other": "{{count}} links",
+  "Type / for blocks, [[ to link notes, and paste images straight in.": "Type / for blocks, [[ to link notes, and paste images straight in."
 }
