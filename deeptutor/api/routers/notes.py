@@ -8,11 +8,14 @@ Obsidian vault or an LLM wiki, can be opened read-only with PI_TUTOR_NOTE_SOURCE
 
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
+import re
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from deeptutor.services.notes_links import links_to, rewrite_links
@@ -100,6 +103,56 @@ def list_notes():
     ]
     notes.sort(key=lambda n: (n["read_only"], -n["updated_at"]))
     return {"notes": notes, "sources": sorted(_sources())}
+
+
+_MAX_IMAGE_BYTES = 10 * 1024 * 1024
+_ASSET_NAME = re.compile(r"^[0-9a-f]{16}\.(png|jpg|gif|webp)$")
+_MEDIA = {"png": "image/png", "jpg": "image/jpeg", "gif": "image/gif", "webp": "image/webp"}
+
+
+def _image_extension(data: bytes) -> str | None:
+    """The image type from its magic bytes. The client's content type is not trusted, and SVG is refused."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return "jpg"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return "gif"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+@router.post("/_assets")
+async def upload_asset(file: UploadFile = File(...)):
+    """Store a pasted or dropped image; the note refers to it as ``_assets/<name>``."""
+    data = await file.read(_MAX_IMAGE_BYTES + 1)
+    if len(data) > _MAX_IMAGE_BYTES:
+        raise HTTPException(413, "Image is larger than 10 MB")
+    ext = _image_extension(data)
+    if ext is None:
+        raise HTTPException(415, "Only PNG, JPEG, GIF and WebP images can be added")
+    name = f"{hashlib.sha256(data).hexdigest()[:16]}.{ext}"
+    folder = _dir() / "_assets"
+    folder.mkdir(exist_ok=True)
+    target = folder / name
+    if not target.exists():
+        target.write_bytes(data)
+    return {"path": f"_assets/{name}"}
+
+
+@router.get("/_assets/{filename}")
+def read_asset(filename: str):
+    if not _ASSET_NAME.match(filename):
+        raise HTTPException(404, "Image not found")
+    path = _dir() / "_assets" / filename
+    if not path.is_file():
+        raise HTTPException(404, "Image not found")
+    return FileResponse(
+        path,
+        media_type=_MEDIA[filename.rsplit(".", 1)[1]],
+        headers={"X-Content-Type-Options": "nosniff", "Cache-Control": "private, max-age=31536000, immutable"},
+    )
 
 
 @router.get("/_backlinks")

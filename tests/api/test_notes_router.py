@@ -84,3 +84,32 @@ def test_trash_keeps_both_same_named_notes(client, tmp_path) -> None:
     client.delete("/api/notes/b/Notes")
     kept = sorted(p.read_text() for p in (tmp_path / ".trash").iterdir())
     assert kept == ["first", "second"]
+
+
+PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 32
+
+
+def test_image_upload_is_stored_by_content_and_served(client, tmp_path) -> None:
+    r = client.post("/api/notes/_assets", files={"file": ("shot.png", PNG, "image/png")})
+    assert r.status_code == 200
+    path = r.json()["path"]
+    assert path.startswith("_assets/") and path.endswith(".png")
+    again = client.post("/api/notes/_assets", files={"file": ("other.png", PNG, "image/png")})
+    assert again.json()["path"] == path  # same bytes, same file
+    got = client.get(f"/api/notes/{path}")
+    assert got.status_code == 200 and got.content == PNG
+    assert got.headers["content-type"] == "image/png" and got.headers["x-content-type-options"] == "nosniff"
+
+
+def test_image_upload_refuses_svg_html_and_oversize(client, monkeypatch) -> None:
+    svg = b"<svg xmlns='http://www.w3.org/2000/svg'><script>alert(1)</script></svg>"
+    assert client.post("/api/notes/_assets", files={"file": ("a.png", svg, "image/png")}).status_code == 415
+    assert client.post("/api/notes/_assets", files={"file": ("a.png", b"<html>", "image/png")}).status_code == 415
+    monkeypatch.setattr(notes, "_MAX_IMAGE_BYTES", 16)
+    assert client.post("/api/notes/_assets", files={"file": ("a.png", PNG, "image/png")}).status_code == 413
+
+
+def test_asset_route_refuses_traversal_and_unknown_names(client) -> None:
+    assert client.get("/api/notes/_assets/..%2Fsecret.png").status_code in (400, 404)
+    assert client.get("/api/notes/_assets/abcdef0123456789.png").status_code == 404
+    assert client.get("/api/notes/_assets/notes.md").status_code == 404
