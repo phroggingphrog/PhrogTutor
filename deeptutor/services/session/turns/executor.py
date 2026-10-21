@@ -1402,6 +1402,10 @@ class TurnExecutor:
                     retryable=resolved_retryable,
                 )
         finally:
+            if execution.flush_task is not None:
+                execution.flush_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await execution.flush_task
             resource_scope.close()
             if llm_scope_token is not None and reset_active_llm_selection is not None:
                 reset_active_llm_selection(llm_scope_token)
