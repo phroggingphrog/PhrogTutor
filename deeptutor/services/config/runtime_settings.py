@@ -35,9 +35,10 @@ DEFAULT_SYSTEM_SETTINGS: dict[str, Any] = {
     # deployment shapes; a stronger backend (runner sidecar / bwrap) still
     # takes precedence when available. Set false to disable host-side exec.
     "sandbox_allow_subprocess": True,
-    # Conservative chat -> deep_question routing. Explicit requests only, and
-    # callers can still pass config.auto_route=false for a single turn.
-    "capability_routing_enabled": False,
+    # Conservative chat -> deep_question routing. Explicit requests only ("generate N quiz
+    # questions"); the tutor decides, so the learner does not have to pick a mode. Callers can
+    # still pass config.auto_route=false for a single turn.
+    "capability_routing_enabled": True,
     # Reference policy applied after every web-search provider. This belongs in
     # runtime JSON so packaged installs and the settings service share one
     # source of truth; project main.yaml is intentionally not an operator
@@ -1277,7 +1278,7 @@ class RuntimeSettingsService:
                 settings.get("sandbox_allow_subprocess"), True
             ),
             "capability_routing_enabled": _coerce_bool(
-                settings.get("capability_routing_enabled"), False
+                settings.get("capability_routing_enabled"), True
             ),
             "web_search_source_filtering": {
                 "enabled": _coerce_bool(source_filter.get("enabled"), True),

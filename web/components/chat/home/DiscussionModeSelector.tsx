@@ -47,7 +47,7 @@ export default function DiscussionModeSelector() {
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          aria-label="Discussion mode"
+          aria-label={`Discussion mode: ${LABELS[value]}`}
           aria-expanded={open}
           className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[13px] font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.97] ${
             open
@@ -58,7 +58,8 @@ export default function DiscussionModeSelector() {
           }`}
         >
           <MessagesSquare size={16} strokeWidth={1.7} className="shrink-0" />
-          <span className="max-sm:hidden">{LABELS[value]}</span>
+          {/* Auto is the tutor deciding: icon only. A name shows only once the learner has set one. */}
+          {value ? <span className="max-sm:hidden">{LABELS[value]}</span> : null}
           <ChevronDown size={13} className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
       </Tooltip>
