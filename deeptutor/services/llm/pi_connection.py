@@ -129,6 +129,8 @@ def pi_connection(config: LLMConfig) -> dict[str, Any] | None:
     if spec is not None and spec.is_oauth:
         return None
     backend = effective_backend(spec, config.api_format)
+    if backend == "openai_compat" and spec is not None and spec.name == "openai" and config.api_version:
+        backend = "azure_openai"  # an OpenAI profile carrying an api_version is an Azure deployment typed under the generic vendor
     if backend == "azure_openai":
         return _azure_connection(config)
     api = _pi_api(config, backend)

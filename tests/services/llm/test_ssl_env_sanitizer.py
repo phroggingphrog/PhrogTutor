@@ -18,13 +18,6 @@ from deeptutor.services.llm import openai_http_client
 from deeptutor.services.llm.openai_http_client import sanitize_invalid_ssl_env
 
 @pytest.fixture(autouse=True)
-def _own_clients(monkeypatch):
-    """These tests exercise DeepTutor's own provider clients, not the pi SDK path."""
-    monkeypatch.setenv("PI_TUTOR_SDK", "0")
-
-
-
-@pytest.fixture(autouse=True)
 def _reset_sanitizer_state(monkeypatch: pytest.MonkeyPatch) -> None:
     # The warning-dedup set is module-level and would leak between tests.
     monkeypatch.setattr(openai_http_client, "_sanitized_warned", set())

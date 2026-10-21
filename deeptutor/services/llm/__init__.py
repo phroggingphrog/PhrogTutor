@@ -11,14 +11,11 @@ Architecture:
               ↓
          LLM Factory (complete / stream)
               ↓
-         provider_factory.get_runtime_provider()
-              ↓
-    provider_core.* (one SDK-backed class per backend:
-    openai_compat / anthropic / azure_openai / openai_codex)
+         pi_bridge (the pi engine: pi-ai speaks OpenAI-compatible,
+                    Anthropic, Azure and ChatGPT/Codex)
 
 Features:
 - Unified interface for all LLM providers (cloud + local)
-- Automatic retry with exponential backoff
 - Provider capability detection, overridable per model in Settings
 
 ``cloud_provider`` and ``local_provider`` remain only for listing models and

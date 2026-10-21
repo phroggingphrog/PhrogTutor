@@ -18,31 +18,12 @@ from __future__ import annotations
 
 import pytest
 
-from deeptutor.services.llm.provider_core.openai_compat_provider import OpenAICompatProvider
+from deeptutor.services.llm import factory
 from deeptutor.services.provider_registry import find_by_model, find_by_name, model_overrides_for
 
-_MOONSHOT_BASE = "https://api.moonshot.cn/v1"
-
-
 def _payload(binding: str | None, model: str) -> dict:
-    """Build the request exactly as a chat round would."""
-    spec = find_by_name(binding)
-    provider = OpenAICompatProvider(
-        api_key="test-key",
-        api_base=_MOONSHOT_BASE,
-        default_model=model,
-        spec=spec,
-        provider_name=binding,
-    )
-    return provider._build_kwargs(
-        messages=[{"role": "user", "content": "hi"}],
-        tools=None,
-        model=model,
-        max_tokens=256,
-        temperature=0.7,
-        reasoning_effort=None,
-        tool_choice=None,
-    )
+    """The request fields a chat round sends to pi for this model."""
+    return factory._pi_kwargs({"temperature": 0.7, "max_tokens": 256}, model, find_by_name(binding))
 
 
 @pytest.mark.parametrize("binding", ["openai", "moonshot", "azure", "no-such-provider"])
@@ -80,30 +61,6 @@ def test_claude_effort_families_never_send_temperature(binding: str, model: str)
     """The direct and gateway routes share the vendor's model restriction."""
     assert "temperature" not in _payload(binding, model)
     assert model_overrides_for(model, find_by_name(binding)) == {"temperature": None}
-
-
-def test_gateway_responses_body_applies_intrinsic_model_overrides() -> None:
-    provider = OpenAICompatProvider(
-        api_key="test-key",
-        api_base="https://openrouter.ai/api/v1",
-        default_model="anthropic/claude-opus-4-7",
-        spec=find_by_name("openrouter"),
-        provider_name="openrouter",
-    )
-
-    def body(model: str) -> dict:
-        return provider._build_responses_body(
-            messages=[{"role": "user", "content": "hi"}],
-            tools=None,
-            model=model,
-            max_tokens=256,
-            temperature=0.7,
-            reasoning_effort=None,
-            tool_choice=None,
-        )
-
-    assert "temperature" not in body("anthropic/claude-opus-4-7")
-    assert body("anthropic/claude-opus-4-6")["temperature"] == pytest.approx(0.7)
 
 
 def test_configured_binding_wins_over_the_vendor_fallback() -> None:

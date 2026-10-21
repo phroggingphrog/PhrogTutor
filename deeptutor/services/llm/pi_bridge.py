@@ -6,7 +6,7 @@
 * Single model calls: :func:`complete` / :func:`stream` (``services.llm.factory``: BaseAgent.call_llm /
   stream_llm) and :class:`PiClient` ``create()`` use pi's model layer (pi-ai ``stream``).
 
-Agent turns always run on pi. ``PI_TUTOR_SDK=0`` only sends single model calls back to DeepTutor's own clients.
+Every model call runs on pi.
 """
 
 from __future__ import annotations
@@ -24,10 +24,6 @@ _LLM_TS = Path(__file__).resolve().parents[3] / "pi_engine" / "llm.ts"
 # The bun binary that runs pi_engine (name it e.g. "pi-engine" via a symlink so OOM killers can spare it).
 _ENGINE_BIN = os.path.expanduser(os.environ.get("PI_TUTOR_ENGINE_BIN", "bun"))
 _PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "connection")
-
-
-def pi_sdk_enabled() -> bool:
-    return os.environ.get("PI_TUTOR_SDK", "1").lower() not in ("0", "false", "no")
 
 
 _warned_unserved = False
@@ -163,15 +159,26 @@ async def stream(
     prompt: str, system_prompt: str, model: str | None, messages: list[dict[str, Any]] | None,
     outcome: Any = None, **kwargs: Any,
 ) -> AsyncGenerator[str, None]:
+    from openai.types.chat import ChatCompletionChunk
+
+    from .metrics import CallMeasurement
+
     request = {"model": model, "messages": _messages(prompt, system_prompt, messages), **kwargs}
-    async for chunk in _chunks(request):
-        choice = (chunk.get("choices") or [{}])[0]
-        text = (choice.get("delta") or {}).get("content")
-        if text:
-            yield text
-        if choice.get("finish_reason") and outcome is not None:
-            outcome.finish_reason = choice["finish_reason"]
-            outcome.usage = chunk.get("usage") or {}
+    meter = CallMeasurement(model=model or "", provider="pi", messages=request["messages"])
+    try:
+        async for chunk in _chunks(request):
+            meter.chunk(ChatCompletionChunk.model_validate(chunk))
+            choice = (chunk.get("choices") or [{}])[0]
+            text = (choice.get("delta") or {}).get("content")
+            if text:
+                yield text
+            if choice.get("finish_reason") and outcome is not None:
+                outcome.finish_reason = choice["finish_reason"]
+                outcome.usage = chunk.get("usage") or {}
+    except BaseException:  # a cancelled or failed call is metered too
+        meter.finish(status="interrupted")
+        raise
+    meter.finish()
 
 
 async def complete(

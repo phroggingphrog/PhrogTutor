@@ -5,33 +5,33 @@ from types import SimpleNamespace as NS
 
 import pytest
 
-from deeptutor.services.llm import factory, metrics, usage_ledger
+from deeptutor.services.llm import factory, metrics, pi_bridge, usage_ledger
 from deeptutor.services.llm.config import LLMConfig
-from deeptutor.services.llm.provider_core.base import LLMProvider, LLMResponse
 from deeptutor.services.session.usage_statistics import aggregate_usage
 
-@pytest.fixture(autouse=True)
-def _own_clients(monkeypatch):
-    """These tests exercise DeepTutor's own provider clients, not the pi SDK path."""
-    monkeypatch.setenv("PI_TUTOR_SDK", "0")
+
+async def _provider_chat(**kwargs):
+    return NS(content="answer", usage={"prompt_tokens": 100, "completion_tokens": 20}, finish_reason="stop")
 
 
+def _answer_chunks(request):
+    """What the pi engine streams back for one call: the text, then the finish chunk with usage."""
 
-class Provider(LLMProvider):
-    provider_name = "test-provider"
+    async def chunks():
+        yield {"id": "c", "object": "chat.completion.chunk", "created": 0, "model": "test-model",
+               "choices": [{"index": 0, "delta": {"role": "assistant", "content": "answer"}, "finish_reason": None}]}
+        yield {"id": "c", "object": "chat.completion.chunk", "created": 0, "model": "test-model",
+               "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+               "usage": {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120}}
 
-    async def chat(self, **kwargs):
-        return LLMResponse(content="answer", usage={"prompt_tokens": 100, "completion_tokens": 20})
-
-    def get_default_model(self):
-        return "test-model"
+    return chunks()
 
 
 @pytest.mark.asyncio
 async def test_factory_records_background_completion_and_stream_without_turn(monkeypatch):
     config = LLMConfig(model="test-model", api_key="test", binding="openai", provider_name="openai")
     monkeypatch.setattr(factory, "get_llm_config", lambda: config)
-    monkeypatch.setattr(factory, "get_runtime_provider", lambda _: Provider())
+    monkeypatch.setattr(pi_bridge, "_chunks", _answer_chunks)
     assert metrics.current_usage.get() is None
     assert await factory.complete("private prompt") == "answer"
     assert "".join([part async for part in factory.stream("private prompt")]) == "answer"
@@ -105,7 +105,7 @@ async def test_owner_is_captured_before_async_work_and_nested_calls_count_once(
 
             async def create(**kwargs):
                 await asyncio.sleep(0)
-                return await metrics.measure_provider_call(Provider().chat, model=name)
+                return await metrics.measure_provider_call(_provider_chat, model=name)
 
             client = metrics.instrument_client(
                 NS(chat=NS(completions=NS(create=create))), model=name

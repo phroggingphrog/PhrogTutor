@@ -17,25 +17,18 @@ from deeptutor.services.provider_registry import (
     find_by_model,
     find_by_name,
     find_gateway,
+    model_overrides_for,
 )
 
 from .capabilities import supports_response_format, supports_vision
 from .config import LLMConfig, get_llm_config
-from .error_mapping import map_error
 from .multimodal import prepare_multimodal_messages
-from .provider_core.base import LLMProvider
-from .provider_factory import build_isolated_provider, get_runtime_provider
 from .types import StreamOutcome
 from .utils import is_local_llm_server
 
 DEFAULT_MAX_RETRIES = settings.retry.max_retries
 DEFAULT_RETRY_DELAY = settings.retry.base_delay
 DEFAULT_EXPONENTIAL_BACKOFF = settings.retry.exponential_backoff
-DEFAULT_STREAM_COALESCE_CHARS = 64
-DEFAULT_STREAM_COALESCE_SECONDS = 0.04
-STREAM_CONTROL_TOKENS = {"<think>", "</think>"}
-
-CallKwargs = dict[str, Any]
 
 
 class ApiProviderPreset(TypedDict, total=False):
@@ -61,21 +54,6 @@ class LocalProviderPreset(TypedDict, total=False):
 ProviderPreset = ApiProviderPreset | LocalProviderPreset
 ProviderPresetMap = Mapping[str, ProviderPreset]
 ProviderPresetBundle = Mapping[str, ProviderPresetMap]
-
-
-def _build_retry_delays(
-    max_retries: int,
-    retry_delay: float,
-    exponential_backoff: bool,
-) -> tuple[float, ...]:
-    if max_retries <= 0:
-        return ()
-    delays: list[float] = []
-    base = max(float(retry_delay), 0.0)
-    for attempt in range(max_retries):
-        delay = base * (2**attempt) if exponential_backoff else base
-        delays.append(min(delay, 120.0))
-    return tuple(delays)
 
 
 def _resolve_provider_spec(
@@ -278,20 +256,6 @@ def _build_messages(
     ]
 
 
-def _coerce_stream_coalesce_chars(value: Any) -> int:
-    try:
-        return max(1, int(value))
-    except (TypeError, ValueError):
-        return DEFAULT_STREAM_COALESCE_CHARS
-
-
-def _coerce_stream_coalesce_seconds(value: Any) -> float:
-    try:
-        return max(0.0, float(value))
-    except (TypeError, ValueError):
-        return DEFAULT_STREAM_COALESCE_SECONDS
-
-
 def _apply_inline_image_data(
     messages: list[dict[str, Any]],
     *,
@@ -314,103 +278,40 @@ def _apply_inline_image_data(
     return result.messages
 
 
-def _sanitize_call_kwargs(
-    *,
-    binding: str,
-    model: str,
-    kwargs: dict[str, Any],
-) -> CallKwargs:
-    extra_kwargs = dict(kwargs)
-    for key in (
-        "messages",
-        "image_data",
-        "image_mime_type",
-        "image_filename",
-        "api_key",
-        "base_url",
-        "api_version",
-        "binding",
-        "effective_url",
-        "extra_headers",
-        "provider_mode",
-        "provider_name",
-        "reasoning_effort",
-        "wire_api",
-    ):
-        extra_kwargs.pop(key, None)
+def _pi_kwargs(kwargs: dict[str, Any], model: str | None = None, spec: Any = None) -> dict[str, Any]:
+    """The request fields the pi bridge understands; images ride in ``messages``.
 
-    if not supports_response_format(binding, model):
-        extra_kwargs.pop("response_format", None)
-    return extra_kwargs
+    Model-intrinsic overrides apply last, whatever route serves the model (a Kimi model rejects an explicit
+    ``temperature``): a ``None`` value drops the parameter.
+    """
+    request = {k: kwargs[k] for k in ("temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "tools") if kwargs.get(k) is not None}
+    for key, value in model_overrides_for(model, spec).items():
+        if value is None:
+            request.pop(key, None)
+        else:
+            request[key] = value
+    return request
 
 
-async def _complete_with_resolved_config(
+async def _pi_request(
     config: LLMConfig,
     provider_spec: Any,
-    *,
     prompt: str,
     system_prompt: str,
     messages: list[dict[str, Any]] | None,
-    max_retries: int,
-    retry_delay: float,
-    exponential_backoff: bool,
-    allow_image_fallback: bool | None,
-    image_data: str | None,
-    image_mime_type: str,
-    image_filename: str,
     kwargs: dict[str, Any],
-    provider: LLMProvider | None = None,
-) -> str:
-    """Execute one completion from an already resolved configuration."""
-    provider = provider or get_runtime_provider(config)
-    capability_binding = _capability_binding(config, provider_spec)
-    request_messages = _build_messages(prompt, system_prompt, messages)
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """The messages (images folded in) and pi keyword arguments for one resolved call."""
     request_messages = _apply_inline_image_data(
-        request_messages,
-        binding=capability_binding,
+        _build_messages(prompt, system_prompt, messages),
+        binding=_capability_binding(config, provider_spec),
         model=config.model,
-        image_data=image_data,
-        image_mime_type=str(image_mime_type or "image/png"),
-        image_filename=str(image_filename or "image.png"),
+        image_data=kwargs.get("image_data"),
+        image_mime_type=str(kwargs.get("image_mime_type") or "image/png"),
+        image_filename=str(kwargs.get("image_filename") or "image.png"),
     )
-    retry_delays = _build_retry_delays(max_retries, retry_delay, exponential_backoff)
-    extra_kwargs = _sanitize_call_kwargs(
-        binding=capability_binding, model=config.model, kwargs=kwargs
-    )
-    image_fallback_enabled = (
-        not supports_vision(capability_binding, config.model)
-        if allow_image_fallback is None
-        else allow_image_fallback
-    )
-
-    try:
-        response = await provider.chat_with_retry(
-            messages=request_messages,
-            model=config.model,
-            reasoning_effort=config.reasoning_effort,
-            retry_delays=retry_delays,
-            allow_image_fallback=image_fallback_enabled,
-            **extra_kwargs,
-        )
-    except Exception as exc:
-        raise map_error(exc, provider=config.provider_name) from exc
-
-    if response.finish_reason == "error":
-        raise map_error(
-            RuntimeError(response.content or "LLM request failed"), provider=config.provider_name
-        )
-    # Provider adapters keep hidden reasoning in ``reasoning_content``.  A
-    # few gateways duplicate that field into ``content`` when no visible
-    # answer is present; never let that duplicate become user-facing text.
-    if response.content and response.reasoning_content:
-        if response.content == response.reasoning_content:
-            return ""
-    return response.content or ""
-
-
-def _pi_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
-    """The request fields the pi bridge understands; images ride in ``messages``."""
-    return {k: kwargs[k] for k in ("temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "tools") if kwargs.get(k) is not None}
+    effort = kwargs.get("reasoning_effort") or config.reasoning_effort
+    return request_messages, _pi_kwargs({**kwargs, **({"reasoning_effort": effort} if effort else {})}, config.model, provider_spec)
 
 
 async def complete(
@@ -422,21 +323,10 @@ async def complete(
     api_version: str | None = None,
     binding: str | None = None,
     messages: list[dict[str, Any]] | None = None,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    retry_delay: float = DEFAULT_RETRY_DELAY,
-    exponential_backoff: bool = DEFAULT_EXPONENTIAL_BACKOFF,
-    allow_image_fallback: bool | None = None,
     **kwargs: Any,
 ) -> str:
+    """One model call on the pi engine, against the active profile (or the gateway) with ``model`` overridden."""
     from deeptutor.services.llm import pi_bridge
-
-    if pi_bridge.pi_sdk_enabled():  # TASK-71: every factory call runs on the pi SDK
-        return await pi_bridge.complete(prompt, system_prompt, model, messages, **_pi_kwargs(kwargs))
-    caller_extra_headers = kwargs.pop("extra_headers", None)
-    reasoning_effort = kwargs.pop("reasoning_effort", None)
-    image_data = kwargs.pop("image_data", None)
-    image_mime_type = kwargs.pop("image_mime_type", "image/png")
-    image_filename = kwargs.pop("image_filename", "image.png")
 
     config, provider_spec = _resolve_call_config(
         model=model,
@@ -444,24 +334,11 @@ async def complete(
         base_url=base_url,
         api_version=api_version,
         binding=binding,
-        extra_headers=caller_extra_headers,
-        reasoning_effort=reasoning_effort,
+        extra_headers=kwargs.get("extra_headers"),
+        reasoning_effort=kwargs.get("reasoning_effort"),
     )
-    return await _complete_with_resolved_config(
-        config,
-        provider_spec,
-        prompt=prompt,
-        system_prompt=system_prompt,
-        messages=messages,
-        max_retries=max_retries,
-        retry_delay=retry_delay,
-        exponential_backoff=exponential_backoff,
-        allow_image_fallback=allow_image_fallback,
-        image_data=image_data,
-        image_mime_type=str(image_mime_type or "image/png"),
-        image_filename=str(image_filename or "image.png"),
-        kwargs=kwargs,
-    )
+    request_messages, pi_args = await _pi_request(config, provider_spec, prompt, system_prompt, messages, kwargs)
+    return await pi_bridge.complete(prompt, system_prompt, config.model, request_messages, **pi_args)
 
 
 async def complete_with_config(
@@ -469,13 +346,9 @@ async def complete_with_config(
     prompt: str,
     system_prompt: str = "You are a helpful assistant.",
     messages: list[dict[str, Any]] | None = None,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    retry_delay: float = DEFAULT_RETRY_DELAY,
-    exponential_backoff: bool = DEFAULT_EXPONENTIAL_BACKOFF,
-    allow_image_fallback: bool | None = None,
     **kwargs: Any,
 ) -> str:
-    """Complete using only the supplied, fully resolved configuration."""
+    """Complete using only the supplied, fully resolved configuration (a settings test runs the real path)."""
     forbidden = {
         "model",
         "api_key",
@@ -493,27 +366,14 @@ async def complete_with_config(
         names = ", ".join(sorted(forbidden))
         raise TypeError(f"complete_with_config does not accept config overrides: {names}")
 
-    # With catalog connections on, a resolved profile runs on the pi engine like chat does, so a
-    # settings test exercises the real path. Image calls and profiles pi cannot serve use the old one.
-    if not kwargs.get("image_data"):
-        from deeptutor.services.llm import pi_bridge
-        from deeptutor.services.llm.pi_connection import catalog_connections_enabled, codex_model_slug, is_codex, resolve_connection
+    from deeptutor.services.llm import pi_bridge
+    from deeptutor.services.llm.pi_connection import (
+        catalog_connections_enabled,
+        codex_model_slug,
+        is_codex,
+        resolve_connection,
+    )
 
-        connection = await resolve_connection(config) if pi_bridge.pi_sdk_enabled() and catalog_connections_enabled() else None
-        if connection is not None:
-            effort = config.reasoning_effort
-            return await pi_bridge.complete(
-                prompt,
-                system_prompt,
-                codex_model_slug(config.model) if is_codex(config) else config.model,
-                messages,
-                connection=connection,
-                **_pi_kwargs({**kwargs, **({"reasoning_effort": effort} if effort else {})}),
-            )
-
-    image_data = kwargs.pop("image_data", None)
-    image_mime_type = kwargs.pop("image_mime_type", "image/png")
-    image_filename = kwargs.pop("image_filename", "image.png")
     provider_spec = _resolve_provider_spec(
         binding=config.provider_name or config.binding,
         model=config.model,
@@ -521,26 +381,12 @@ async def complete_with_config(
         base_url=config.effective_url or config.base_url,
         fallback=config.provider_name or config.binding,
     )
-    provider = build_isolated_provider(config)
-    try:
-        return await _complete_with_resolved_config(
-            config,
-            provider_spec,
-            prompt=prompt,
-            system_prompt=system_prompt,
-            messages=messages,
-            max_retries=max_retries,
-            retry_delay=retry_delay,
-            exponential_backoff=exponential_backoff,
-            allow_image_fallback=allow_image_fallback,
-            image_data=image_data,
-            image_mime_type=str(image_mime_type or "image/png"),
-            image_filename=str(image_filename or "image.png"),
-            kwargs=kwargs,
-            provider=provider,
-        )
-    finally:
-        await provider.aclose()
+    request_messages, pi_args = await _pi_request(config, provider_spec, prompt, system_prompt, messages, kwargs)
+    connection = await resolve_connection(config) if catalog_connections_enabled() else None
+    model = codex_model_slug(config.model) if is_codex(config) else config.model
+    return await pi_bridge.complete(
+        prompt, system_prompt, model, request_messages, **({"connection": connection} if connection else {}), **pi_args
+    )
 
 
 async def stream(
@@ -552,36 +398,15 @@ async def stream(
     api_version: str | None = None,
     binding: str | None = None,
     messages: list[dict[str, Any]] | None = None,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    retry_delay: float = DEFAULT_RETRY_DELAY,
-    exponential_backoff: bool = DEFAULT_EXPONENTIAL_BACKOFF,
-    allow_image_fallback: bool | None = None,
     outcome: StreamOutcome | None = None,
     **kwargs: Any,
 ) -> AsyncGenerator[str, None]:
     """Stream a completion as text chunks.
 
-    ``outcome``, when given, is filled with the provider's terminal reason and
-    usage once the stream ends. A caller that parses the streamed text needs it
-    to tell a complete response from one cut off at ``max_tokens`` (#1545).
+    ``outcome``, when given, is filled with the terminal reason and usage once the stream ends. A caller that
+    parses the streamed text needs it to tell a complete response from one cut off at ``max_tokens`` (#1545).
     """
     from deeptutor.services.llm import pi_bridge
-
-    if pi_bridge.pi_sdk_enabled():  # TASK-71: every factory call runs on the pi SDK
-        async for part in pi_bridge.stream(prompt, system_prompt, model, messages, outcome, **_pi_kwargs(kwargs)):
-            yield part
-        return
-    caller_extra_headers = kwargs.pop("extra_headers", None)
-    reasoning_effort = kwargs.pop("reasoning_effort", None)
-    image_data = kwargs.pop("image_data", None)
-    image_mime_type = kwargs.pop("image_mime_type", "image/png")
-    image_filename = kwargs.pop("image_filename", "image.png")
-    stream_coalesce_chars = _coerce_stream_coalesce_chars(
-        kwargs.pop("stream_coalesce_chars", DEFAULT_STREAM_COALESCE_CHARS)
-    )
-    stream_coalesce_seconds = _coerce_stream_coalesce_seconds(
-        kwargs.pop("stream_coalesce_seconds", DEFAULT_STREAM_COALESCE_SECONDS)
-    )
 
     config, provider_spec = _resolve_call_config(
         model=model,
@@ -589,171 +414,12 @@ async def stream(
         base_url=base_url,
         api_version=api_version,
         binding=binding,
-        extra_headers=caller_extra_headers,
-        reasoning_effort=reasoning_effort,
+        extra_headers=kwargs.get("extra_headers"),
+        reasoning_effort=kwargs.get("reasoning_effort"),
     )
-    provider = get_runtime_provider(config)
-    capability_binding = _capability_binding(config, provider_spec)
-    request_messages = _build_messages(prompt, system_prompt, messages)
-    request_messages = _apply_inline_image_data(
-        request_messages,
-        binding=capability_binding,
-        model=config.model,
-        image_data=image_data,
-        image_mime_type=str(image_mime_type or "image/png"),
-        image_filename=str(image_filename or "image.png"),
-    )
-    retry_delays = _build_retry_delays(max_retries, retry_delay, exponential_backoff)
-    extra_kwargs = _sanitize_call_kwargs(
-        binding=capability_binding, model=config.model, kwargs=kwargs
-    )
-    image_fallback_enabled = (
-        not supports_vision(capability_binding, config.model)
-        if allow_image_fallback is None
-        else allow_image_fallback
-    )
-
-    queue: asyncio.Queue[str | BaseException | None] = asyncio.Queue()
-    saw_output = False
-    saw_content = False
-    in_think_block = False
-
-    async def _on_reasoning_delta(chunk: str) -> None:
-        nonlocal saw_output, in_think_block
-        if not chunk:
-            return
-        saw_output = True
-        if not in_think_block:
-            in_think_block = True
-            await queue.put("<think>")
-        await queue.put(chunk)
-
-    async def _on_content_delta(chunk: str) -> None:
-        nonlocal saw_output, saw_content, in_think_block
-        if not chunk:
-            return
-        saw_output = True
-        saw_content = True
-        if in_think_block:
-            in_think_block = False
-            await queue.put("</think>")
-        await queue.put(chunk)
-
-    async def _runner() -> None:
-        nonlocal saw_output, in_think_block
-        try:
-            response = await provider.chat_stream_with_retry(
-                messages=request_messages,
-                model=config.model,
-                reasoning_effort=config.reasoning_effort,
-                on_content_delta=_on_content_delta,
-                on_reasoning_delta=_on_reasoning_delta,
-                retry_delays=retry_delays,
-                allow_image_fallback=image_fallback_enabled,
-                **extra_kwargs,
-            )
-            if outcome is not None:
-                outcome.finish_reason = str(response.finish_reason or "")
-                outcome.usage = dict(response.usage or {})
-            if in_think_block:
-                in_think_block = False
-                await queue.put("</think>")
-            # Some providers synthesize a final response only after the stream.
-            # Do not replay reasoning_content as user-visible answer text, and
-            # never surface an error-shaped response's operator message as if
-            # the model had written it: that case is raised below instead.
-            if (
-                response.finish_reason != "error"
-                and not saw_content
-                and response.content
-                and response.content != response.reasoning_content
-            ):
-                saw_output = True
-                await queue.put(response.content)
-            if response.finish_reason == "error" and not saw_output:
-                await queue.put(
-                    map_error(
-                        RuntimeError(response.content or "LLM request failed"),
-                        provider=config.provider_name,
-                    )
-                )
-        except Exception as exc:
-            await queue.put(map_error(exc, provider=config.provider_name))
-        finally:
-            await queue.put(None)
-
-    task = asyncio.create_task(_runner())
-    try:
-        sent_first_text_chunk = False
-        buffered_chunks: list[str] = []
-        buffered_chars = 0
-
-        def _flush_buffer() -> str:
-            nonlocal buffered_chars
-            text = "".join(buffered_chunks)
-            buffered_chunks.clear()
-            buffered_chars = 0
-            return text
-
-        async def _queue_get(timeout: float | None = None) -> str | BaseException | None:
-            if timeout is None:
-                return await queue.get()
-            return await asyncio.wait_for(queue.get(), timeout=timeout)
-
-        while True:
-            item = await queue.get()
-            if item is None:
-                if buffered_chunks:
-                    yield _flush_buffer()
-                break
-            if isinstance(item, BaseException):
-                if buffered_chunks:
-                    yield _flush_buffer()
-                raise item
-            if item in STREAM_CONTROL_TOKENS or stream_coalesce_seconds <= 0:
-                if buffered_chunks:
-                    yield _flush_buffer()
-                yield item
-                continue
-            if not sent_first_text_chunk:
-                sent_first_text_chunk = True
-                yield item
-                continue
-            buffered_chunks.append(item)
-            buffered_chars += len(item)
-            deadline = asyncio.get_running_loop().time() + stream_coalesce_seconds
-            while buffered_chunks and buffered_chars < stream_coalesce_chars:
-                timeout = deadline - asyncio.get_running_loop().time()
-                if timeout <= 0:
-                    break
-                try:
-                    next_item = await _queue_get(timeout)
-                except asyncio.TimeoutError:
-                    break
-                if next_item is None:
-                    if buffered_chunks:
-                        yield _flush_buffer()
-                    await task
-                    return
-                if isinstance(next_item, BaseException):
-                    if buffered_chunks:
-                        yield _flush_buffer()
-                    raise next_item
-                if next_item in STREAM_CONTROL_TOKENS:
-                    if buffered_chunks:
-                        yield _flush_buffer()
-                    yield next_item
-                    break
-                buffered_chunks.append(next_item)
-                buffered_chars += len(next_item)
-            if buffered_chunks:
-                yield _flush_buffer()
-        await task
-    finally:
-        if not task.done():
-            task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await task
+    request_messages, pi_args = await _pi_request(config, provider_spec, prompt, system_prompt, messages, kwargs)
+    async for part in pi_bridge.stream(prompt, system_prompt, config.model, request_messages, outcome, **pi_args):
+        yield part
 
 
 async def fetch_models(
@@ -823,13 +489,5 @@ __all__ = [
     "DEFAULT_MAX_RETRIES",
     "DEFAULT_RETRY_DELAY",
     "DEFAULT_EXPONENTIAL_BACKOFF",
-    "LLMFactory",
 ]
 
-
-class LLMFactory:
-    """Compatibility factory for legacy integrations."""
-
-    @staticmethod
-    def get_provider(config: LLMConfig):
-        return get_runtime_provider(config)

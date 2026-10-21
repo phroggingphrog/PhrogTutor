@@ -6,16 +6,13 @@ from typing import Any
 
 from deeptutor.runtime.agentic.client import can_use_native_tool_calling
 from deeptutor.services.config.provider_runtime import resolve_llm_runtime_config
-from deeptutor.services.llm import provider_factory
 from deeptutor.services.llm.capabilities import (
     catalog_capability_override,
     set_catalog_capability_overrides,
     supports_tools,
 )
 from deeptutor.services.llm.config import LLMConfig
-from deeptutor.services.llm.provider_core.anthropic_provider import AnthropicProvider
-from deeptutor.services.llm.provider_core.azure_openai_provider import AzureOpenAIProvider
-from deeptutor.services.llm.provider_core.openai_compat_provider import OpenAICompatProvider
+from deeptutor.services.llm.pi_connection import pi_connection
 
 
 def _catalog(profile: dict[str, Any]) -> dict[str, Any]:
@@ -74,8 +71,7 @@ def test_custom_endpoint_in_anthropic_format_gets_the_anthropic_backend() -> Non
     assert resolved.api_format == "anthropic"
     assert resolved.wire_api == "auto"
 
-    provider = provider_factory._build_runtime_provider(_runtime_config(resolved))
-    assert isinstance(provider, AnthropicProvider)
+    assert pi_connection(_runtime_config(resolved))["api"] == "anthropic-messages"
 
 
 def test_legacy_custom_anthropic_binding_resolves_exactly_as_before() -> None:
@@ -86,17 +82,13 @@ def test_legacy_custom_anthropic_binding_resolves_exactly_as_before() -> None:
     )
     assert resolved.provider_name == "custom_anthropic"
     assert resolved.api_format == "anthropic"
-    assert isinstance(
-        provider_factory._build_runtime_provider(_runtime_config(resolved)), AnthropicProvider
-    )
+    assert pi_connection(_runtime_config(resolved))["api"] == "anthropic-messages"
 
 
 def test_openai_responses_format_sets_wire_api() -> None:
     resolved = resolve_llm_runtime_config(catalog=_catalog(_profile(api_format="openai_responses")))
     assert resolved.wire_api == "responses"
-    provider = provider_factory._build_runtime_provider(_runtime_config(resolved))
-    assert isinstance(provider, OpenAICompatProvider)
-    assert provider._wire_api == "responses"
+    assert pi_connection(_runtime_config(resolved))["api"] == "openai-responses"
 
 
 def test_legacy_wire_api_still_drives_the_protocol() -> None:
@@ -112,9 +104,9 @@ def test_minimax_anthropic_format_uses_the_vendor_anthropic_endpoint() -> None:
     # The profile left base_url blank, so the vendor default for *this format*
     # is what the runtime should fall back to.
     assert resolved.effective_url == "https://api.minimax.io/anthropic"
-    provider = provider_factory._build_runtime_provider(_runtime_config(resolved))
-    assert isinstance(provider, AnthropicProvider)
-    assert str(provider._client.base_url).rstrip("/") == "https://api.minimax.io/anthropic"
+    connection = pi_connection(_runtime_config(resolved))
+    assert connection["api"] == "anthropic-messages"
+    assert connection["baseUrl"] == "https://api.minimax.io/anthropic"
 
 
 def test_openai_profile_with_api_version_is_an_azure_deployment() -> None:
@@ -126,7 +118,7 @@ def test_openai_profile_with_api_version_is_an_azure_deployment() -> None:
         provider_name="openai",
         api_version="2024-02-01",
     )
-    assert isinstance(provider_factory._build_runtime_provider(config), AzureOpenAIProvider)
+    assert pi_connection(config)["provider"] == "azure_openai"
 
 
 def test_model_capability_overrides_are_published_on_resolution() -> None:
