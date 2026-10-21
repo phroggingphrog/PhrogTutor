@@ -6,6 +6,14 @@ import { apiFetch, apiUrl } from "@/lib/api";
 
 type Backlink = { name: string; snippet: string };
 
+/** The raw Markdown excerpt, minus the syntax noise: links show their text, headings lose the #. */
+const readable = (snippet: string) =>
+  snippet
+    .replace(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]/g, (_m, target: string, alias?: string) => alias ?? target)
+    .replace(/\\([\[\]])/g, "$1")
+    .replace(/(^|\s)#{1,6}\s/g, "$1")
+    .replace(/[*_`]/g, "");
+
 /** Notes that link here with `[[wikilinks]]`. Re-read when the open note or `version` changes. */
 export default function BacklinksPanel({
   note,
@@ -47,7 +55,7 @@ export default function BacklinksPanel({
                 className="w-full rounded-lg px-2 py-1.5 text-left hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 <span className="block truncate text-sm font-medium">{link.name}</span>
-                <span className="line-clamp-2 text-xs text-[var(--muted-foreground)]">{link.snippet}</span>
+                <span className="line-clamp-2 text-xs text-[var(--muted-foreground)]">{readable(link.snippet)}</span>
               </button>
             </li>
           ))}
