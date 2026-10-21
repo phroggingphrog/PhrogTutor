@@ -1,0 +1,12 @@
+{
+  "python_lines": 298369,
+  "web_lines": 200235,
+  "pi_engine_lines": 570,
+  "pi_engine_node_modules_mb": 154.0,
+  "web_node_modules_mb": 1231.7,
+  "backend": {
+    "seconds_to_ready": 5.5,
+    "rss_mb_at_ready": 142.4,
+    "rss_mb_after_5s_idle": 142.4
+  }
+}

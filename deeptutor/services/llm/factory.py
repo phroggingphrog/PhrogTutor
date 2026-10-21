@@ -493,6 +493,24 @@ async def complete_with_config(
         names = ", ".join(sorted(forbidden))
         raise TypeError(f"complete_with_config does not accept config overrides: {names}")
 
+    # With catalog connections on, a resolved profile runs on the pi engine like chat does, so a
+    # settings test exercises the real path. Image calls and profiles pi cannot serve use the old one.
+    if not kwargs.get("image_data"):
+        from deeptutor.services.llm import pi_bridge
+        from deeptutor.services.llm.pi_connection import catalog_connections_enabled, pi_connection
+
+        connection = pi_connection(config) if pi_bridge.pi_sdk_enabled() and catalog_connections_enabled() else None
+        if connection is not None:
+            effort = config.reasoning_effort
+            return await pi_bridge.complete(
+                prompt,
+                system_prompt,
+                config.model,
+                messages,
+                connection=connection,
+                **_pi_kwargs({**kwargs, **({"reasoning_effort": effort} if effort else {})}),
+            )
+
     image_data = kwargs.pop("image_data", None)
     image_mime_type = kwargs.pop("image_mime_type", "image/png")
     image_filename = kwargs.pop("image_filename", "image.png")

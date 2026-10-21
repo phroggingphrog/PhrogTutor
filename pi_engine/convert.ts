@@ -6,7 +6,11 @@ import { fileURLToPath } from "node:url";
 export const HERE = dirname(fileURLToPath(import.meta.url));
 export const AGENT_DIR = join(HERE, "agent-dir");
 // Model gateway: agent-dir/models.json (copy models.example.json), overridable by env.
-const _omni = JSON.parse(readFileSync(join(AGENT_DIR, "models.json"), "utf8")).providers.omni;
+// A fresh checkout has no models.json: requests that bring their own connection do not need one.
+const _omni = (() => {
+	try { return JSON.parse(readFileSync(join(AGENT_DIR, "models.json"), "utf8")).providers.omni; }
+	catch { return { baseUrl: "https://api.openai.com/v1", api: "openai-completions", models: [] }; }
+})();
 export const omni = {
 	..._omni,
 	baseUrl: process.env.PI_TUTOR_LLM_BASE_URL || _omni.baseUrl,
@@ -19,12 +23,24 @@ const ZERO = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0,
 
 // ---------- OpenAI <-> pi conversions ----------
 
+/** A request may bring its own endpoint (see deeptutor/services/llm/pi_connection.py); otherwise the gateway is used. */
+export type Connection = { api: string; provider?: string; baseUrl: string; apiKey?: string; headers?: Record<string, string> | null };
+export function connectionOf(req: any): Connection | undefined {
+	const c = req?.connection;
+	if (!c || typeof c.api !== "string" || typeof c.baseUrl !== "string") return undefined;
+	// models.json-style interpolation would run a value that starts with "!" or "$": refuse those outright.
+	for (const v of [c.apiKey, ...Object.values(c.headers ?? {})])
+		if (typeof v === "string" && /^[!$]/.test(v)) throw new Error("connection values may not start with ! or $");
+	return c;
+}
+
 export function buildModel(req: any): any {
 	// Any OmniRoute model or combo name passes through (DeepTutor's own catalog picks it); known ones get their limits/costs.
 	const id: string = req.model || process.env.PI_TUTOR_MODEL || "openai/luna";
-	const spec = omni.models.find((m: any) => m.id === id) ?? {};
+	const conn = connectionOf(req);
+	const spec = (conn ? undefined : omni.models.find((m: any) => m.id === id)) ?? {};
 	return {
-		id, name: spec.name ?? id, api: "openai-completions", provider: "omni", baseUrl: omni.baseUrl,
+		id, name: spec.name ?? id, api: conn?.api ?? "openai-completions", provider: conn ? (conn.provider ?? "custom") : "omni", baseUrl: conn?.baseUrl ?? omni.baseUrl,
 		reasoning: Boolean(req.reasoning_effort), input: spec.input ?? ["text"],
 		cost: spec.cost ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
 		contextWindow: spec.contextWindow ?? 128000, maxTokens: req.max_tokens ?? req.max_completion_tokens ?? 16000,
@@ -77,9 +93,10 @@ export const toolSpecs = (req: any) =>
 	(req.tools ?? []).map((t: any) => ({ name: t.function.name, description: t.function.description ?? "", parameters: t.function.parameters ?? { type: "object", properties: {} } }));
 
 export function streamOptions(req: any): any {
-	const o: any = { apiKey: omni.apiKey };
+	const conn = connectionOf(req);
+	const o: any = { apiKey: conn ? (conn.apiKey || undefined) : omni.apiKey };
 	// Gateways that route on a header (JSON object in PI_TUTOR_LLM_HEADERS, else the provider's "headers").
-	const headers = process.env.PI_TUTOR_LLM_HEADERS ? JSON.parse(process.env.PI_TUTOR_LLM_HEADERS) : omni.headers;
+	const headers = conn ? conn.headers : process.env.PI_TUTOR_LLM_HEADERS ? JSON.parse(process.env.PI_TUTOR_LLM_HEADERS) : omni.headers;
 	if (headers) o.headers = headers;
 	if (req.temperature != null) o.temperature = req.temperature;
 	if (req.reasoning_effort) o.reasoningEffort = req.reasoning_effort;

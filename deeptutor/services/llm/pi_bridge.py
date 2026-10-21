@@ -12,6 +12,7 @@ Agent turns always run on pi. ``PI_TUTOR_SDK=0`` only sends single model calls b
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 import json
 import os
@@ -22,11 +23,33 @@ import uuid
 _LLM_TS = Path(__file__).resolve().parents[3] / "pi_engine" / "llm.ts"
 # The bun binary that runs pi_engine (name it e.g. "pi-engine" via a symlink so OOM killers can spare it).
 _ENGINE_BIN = os.path.expanduser(os.environ.get("PI_TUTOR_ENGINE_BIN", "bun"))
-_PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort")
+_PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "connection")
 
 
 def pi_sdk_enabled() -> bool:
     return os.environ.get("PI_TUTOR_SDK", "1").lower() not in ("0", "false", "no")
+
+
+_warned_unserved = False
+
+
+def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
+    """Attach the active catalog profile as the request's endpoint, when that mode is on and pi can serve it."""
+    from .pi_connection import catalog_connections_enabled, pi_connection
+
+    if request.get("connection") is not None or not catalog_connections_enabled():
+        return request
+    global _warned_unserved
+    from .config import get_llm_config
+
+    connection = pi_connection(get_llm_config())
+    if connection is None and not _warned_unserved:
+        _warned_unserved = True
+        logging.getLogger(__name__).warning(
+            "PI_TUTOR_LLM_FROM_CATALOG is on but the active profile cannot be served through pi "
+            "(OAuth or Azure); using the gateway in pi_engine/agent-dir/models.json"
+        )
+    return {**request, "connection": connection} if connection else request
 
 
 class _PiProcess:
@@ -64,6 +87,7 @@ class _PiProcess:
         self.queues[rid] = queue
         try:
             proc = await self._ensure()
+            request = _with_connection(request)
             req = {k: request[k] for k in _PASS if request.get(k) is not None}
             proc.stdin.write((json.dumps({"rid": rid, "req": req}) + "\n").encode())
             await proc.stdin.drain()
@@ -86,6 +110,7 @@ class _PiProcess:
         queue: asyncio.Queue = asyncio.Queue()
         self.queues[rid] = queue
         try:
+            request = _with_connection(request)
             req = {k: request[k] for k in _PASS if request.get(k) is not None}
             await self._send({"rid": rid, "kind": "loop", "req": req, "cfg": cfg})
             while True:
