@@ -48,7 +48,7 @@ async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
         _warned_unserved = True
         logging.getLogger(__name__).warning(
             "PI_TUTOR_LLM_FROM_CATALOG is on but the active profile cannot be served through pi "
-            "(Copilot, CodeBuddy or Azure preview); using the gateway in pi_engine/agent-dir/models.json"
+            "(Azure preview); using the gateway in pi_engine/agent-dir/models.json"
         )
     if not connection:
         return request

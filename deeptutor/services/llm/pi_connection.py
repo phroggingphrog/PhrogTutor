@@ -8,7 +8,7 @@ the gateway.
 ``PI_TUTOR_LLM_FROM_CATALOG`` decides: ``1`` forces it on, ``0`` forces it off. Unset, it is on only when
 no gateway is configured (no ``PI_TUTOR_LLM_BASE_URL`` and no ``agent-dir/models.json``), so a fresh
 install uses the catalog while an existing gateway setup keeps working untouched.
-Profiles pi cannot serve yet (Copilot/CodeBuddy sign-ins, Azure with ``api-version=preview``) return ``None``
+Profiles pi cannot serve yet (Azure with ``api-version=preview``) return ``None``
 and use the old path. The ChatGPT/Codex sign-in stays managed by ``services/codex_auth`` (login, refresh,
 per-user storage); only the inference call goes through pi, with the access token that service hands out.
 """

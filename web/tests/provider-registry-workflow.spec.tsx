@@ -51,9 +51,6 @@ vi.mock("@/features/knowledge/api/engines", async (importOriginal) => ({
 vi.mock("@/components/settings/CodexOAuthCard", () => ({
   CodexOAuthCard: () => <div>Codex sign-in</div>,
 }));
-vi.mock("@/components/settings/CodeBuddyAuthCard", () => ({
-  CodeBuddyAuthCard: () => <div>CodeBuddy sign-in</div>,
-}));
 function fixture(): Catalog {
   const services = Object.fromEntries(
     [

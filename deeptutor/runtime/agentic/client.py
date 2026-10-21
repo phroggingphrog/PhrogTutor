@@ -58,9 +58,8 @@ _NATIVE_TOOL_BLOCKED_BINDINGS: frozenset[str] = frozenset(
 # here get tools attached regardless of the binding blocklist above.
 # Invariant: must be a subset of _NATIVE_ADAPTER_BUILDERS — every tool-gated
 # backend needs an adapter branch, or tool schemas would be attached to a plain
-# AsyncOpenAI client pointed at a non-OpenAI wire format. github_copilot is
-# adapter-routed but deliberately excluded from this set.
-_NATIVE_TOOL_BACKENDS: frozenset[str] = frozenset({"anthropic", "openai_codex", "codebuddy"})
+# AsyncOpenAI client pointed at a non-OpenAI wire format.
+_NATIVE_TOOL_BACKENDS: frozenset[str] = frozenset({"anthropic", "openai_codex"})
 _AGENTIC_CLIENT_POOL_MAXSIZE = 2
 _agentic_client_pool: "OrderedDict[tuple[Any, ...], Any]" = OrderedDict()
 _agentic_client_pool_lock = threading.RLock()
@@ -326,27 +325,6 @@ def _build_codex_adapter(config: LLMClientConfig, spec: Any) -> Any:
     return _ProviderOpenAIAdapter(oauth_provider)
 
 
-def _build_copilot_adapter(config: LLMClientConfig, spec: Any) -> Any:
-    from deeptutor.services.llm.provider_core import GitHubCopilotProvider
-
-    copilot_provider = GitHubCopilotProvider(
-        default_model=config.model or "github-copilot/gpt-4.1",
-    )
-    return _ProviderOpenAIAdapter(copilot_provider)
-
-
-def _build_codebuddy_adapter(config: LLMClientConfig, spec: Any) -> Any:
-    from deeptutor.services.llm.provider_core.codebuddy_http_provider import (
-        build_codebuddy_provider,
-    )
-
-    codebuddy_provider = build_codebuddy_provider(
-        api_key=primary_api_key(config.api_key),
-        default_model=config.model or "codebuddy/hy3",
-    )
-    return _ProviderOpenAIAdapter(codebuddy_provider)
-
-
 def _build_direct_openai_adapter(config: LLMClientConfig, spec: Any) -> Any:
     from deeptutor.services.llm.provider_core import OpenAICompatProvider
 
@@ -365,8 +343,6 @@ def _build_direct_openai_adapter(config: LLMClientConfig, spec: Any) -> Any:
 _NATIVE_ADAPTER_BUILDERS: dict[str, Callable[[LLMClientConfig, Any], Any]] = {
     "anthropic": _build_anthropic_adapter,
     "openai_codex": _build_codex_adapter,
-    "github_copilot": _build_copilot_adapter,
-    "codebuddy": _build_codebuddy_adapter,
 }
 
 

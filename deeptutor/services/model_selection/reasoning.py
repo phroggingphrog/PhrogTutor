@@ -101,7 +101,7 @@ def supported_reasoning_efforts(
             )
         ):
             levels = ["minimal", "high"]
-    elif provider in {"openai", "azure_openai", "openai_codex", "github_copilot"}:
+    elif provider in {"openai", "azure_openai", "openai_codex"}:
         if "gpt-5.6-sol" in name:
             levels = ["none", "low", "medium", "high", "xhigh", "max"]
         elif "gpt-5" in name or "codex" in name:

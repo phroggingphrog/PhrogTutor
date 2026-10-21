@@ -26,7 +26,6 @@ import {
   reasoningEffortOptionsFromSupportedLevels,
 } from "@/lib/reasoning-effort";
 import { CodexOAuthCard } from "./CodexOAuthCard";
-import { CodeBuddyAuthCard } from "./CodeBuddyAuthCard";
 import {
   isBoundManagedCodexProfile,
   isCodexOAuthProfile,
@@ -375,7 +374,7 @@ export function ServiceConfigEditor({
     const binding = connection?.binding ?? activeProfile.binding ?? "";
     const baseUrl = connection?.base_url ?? activeProfile.base_url ?? "";
     const apiKey = connection?.api_key ?? activeProfile.api_key ?? "";
-    if (!binding || (binding !== "codebuddy" && !baseUrl.trim())) return;
+    if (!binding || !baseUrl.trim()) return;
 
     const profileId = activeProfile.id;
     setModelsSyncing(true);
@@ -659,59 +658,9 @@ export function ServiceConfigEditor({
                           supportedSearchProviderNames={
                             supportedSearchProviderNames
                           }
-                          onProviderChanged={(
-                            provider,
-                            previousProvider,
-                          ) => {
-                            if (service !== "llm" || !activeProfile) return;
-                            const crossesCodeBuddyBoundary =
-                              provider.value === "codebuddy" ||
-                              previousProvider === "codebuddy";
-                            if (crossesCodeBuddyBoundary) {
-                              const profileId = activeProfile.id;
-                              mutateCatalog((next) => {
-                                const target = next.services.llm;
-                                const profile = target.profiles.find(
-                                  (item) => item.id === profileId,
-                                );
-                                if (
-                                  !profile ||
-                                  profile.binding !== provider.value
-                                )
-                                  return;
-                                if (provider.value === "codebuddy") {
-                                  profile.models = [];
-                                  if (
-                                    target.active_profile_id === profile.id
-                                  )
-                                    target.active_model_id = null;
-                                  return;
-                                }
-                                const modelId = `llm-model-${Date.now()}`;
-                                profile.models = [
-                                  {
-                                    id: modelId,
-                                    name: defaultModelLabel(language, 1),
-                                    model: "",
-                                  },
-                                ];
-                                if (target.active_profile_id === profile.id)
-                                  target.active_model_id = modelId;
-                              });
-                            }
-                            if (provider.value === "codebuddy") {
-                              void syncProviderModels({
-                                binding: provider.value,
-                                base_url: provider.base_url || "",
-                                api_key: "",
-                              });
-                            }
-                          }}
                         />
 
-                        {service !== "search" &&
-                          !isCodexOAuth &&
-                          openedProfile.binding !== "codebuddy" && (
+                        {service !== "search" && !isCodexOAuth && (
                             <ProviderModelDiscovery
                               input={providerProbeInput}
                               selectedModels={openedProfile.models.map(
@@ -750,21 +699,6 @@ export function ServiceConfigEditor({
                               })}
                               action={
                                 <span className="flex items-center gap-2">
-                                  {service === "llm" &&
-                                    openedProfile.binding ===
-                                      "codebuddy" && (
-                                      <CardAction
-                                        onClick={() =>
-                                          void syncProviderModels()
-                                        }
-                                        disabled={modelsSyncing}
-                                      >
-                                        <RefreshCw
-                                          className={`h-3 w-3 ${modelsSyncing ? "animate-spin" : ""}`}
-                                        />
-                                        {t("Sync models")}
-                                      </CardAction>
-                                    )}
                                   <CardAction
                                     onClick={() =>
                                       addModel(service, openedProfile.id)
@@ -1412,7 +1346,6 @@ function ProfileFields({
   isDeprecatedSearchProvider,
   searchProviderMissingKey,
   supportedSearchProviderNames,
-  onProviderChanged,
 }: {
   service: ServiceName;
   profile: CatalogProfile;
@@ -1423,10 +1356,6 @@ function ProfileFields({
   isDeprecatedSearchProvider: boolean;
   searchProviderMissingKey: boolean;
   supportedSearchProviderNames: string;
-  onProviderChanged: (
-    provider: ProviderOption,
-    previousProvider: string,
-  ) => void;
 }) {
   const { t } = useTranslation();
   const {
@@ -1485,8 +1414,6 @@ function ProfileFields({
     providerOption,
     profile,
   );
-  const isCodeBuddyAuth =
-    service === "llm" && providerValue === "codebuddy";
   const apiFormats = LLM_SHAPED.has(service)
     ? (providerOption?.api_formats ?? [])
     : [];
@@ -1514,7 +1441,7 @@ function ProfileFields({
   };
 
   const fields =
-    isCodexOAuth || isCodeBuddyAuth
+    isCodexOAuth
       ? { apiKey: false, baseUrl: false, baseUrlRequired: false }
       : service === "search"
         ? searchProviderFields(profile.provider, providerOption)
@@ -1586,14 +1513,8 @@ function ProfileFields({
               if (renamed !== profile.name) {
                 updateProfileField(service, "name", renamed);
               }
-              if (val === "codebuddy") {
-                updateProfileField(service, "base_url", "");
-                updateProfileField(service, "api_key", "");
-              } else if (match?.base_url) {
+              if (match?.base_url) {
                 updateProfileField(service, "base_url", match.base_url);
-              }
-              if (match) {
-                onProviderChanged(match, providerValue);
               }
               if (service === "embedding" && match?.default_dim) {
                 updateModelField(service, "dimension", match.default_dim);
@@ -1669,11 +1590,6 @@ function ProfileFields({
           <CodexOAuthCard />
         </div>
       )}
-      {isCodeBuddyAuth && (
-        <div className="sm:col-span-2">
-          <CodeBuddyAuthCard />
-        </div>
-      )}
       {linkedConnection && (
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/25 px-3 py-2.5 sm:col-span-2">
           <span className="text-[12px] text-[var(--muted-foreground)]">
@@ -1732,7 +1648,7 @@ function ProfileFields({
           </div>
         </div>
       )}
-      {!isCodexOAuth && !isCodeBuddyAuth && (
+      {!isCodexOAuth && (
         <details
           key={providerValue}
           open={showConnectionOptions}

@@ -28,7 +28,6 @@ def _own_clients(monkeypatch):
     monkeypatch.setenv("PI_TUTOR_SDK", "0")
 
 
-
 def test_agentic_kwargs_leave_deepseek_flash_thinking_to_the_provider() -> None:
     """Flash is no longer switched off — see ``_THINKING_DISABLED_BY_DEFAULT_MODELS``."""
     kwargs = build_completion_kwargs(
@@ -394,57 +393,6 @@ async def test_build_openai_client_tries_every_api_key_after_429(monkeypatch) ->
     await agentic_client.close_agentic_client_pool()
 
 
-def test_build_openai_client_routes_github_copilot_backend_through_adapter(monkeypatch) -> None:
-    captured = {}
-
-    class FakeProvider:
-        def __init__(self, **kwargs):
-            captured.update(kwargs)
-
-    monkeypatch.setattr(
-        "deeptutor.services.llm.provider_core.GitHubCopilotProvider",
-        FakeProvider,
-    )
-
-    client = build_openai_client(
-        LLMClientConfig(
-            binding="github_copilot",
-            model="github-copilot/gpt-4.1",
-            api_key=None,
-            base_url="https://api.githubcopilot.com",
-        )
-    )
-
-    assert isinstance(client, _ProviderOpenAIAdapter)
-    assert captured["default_model"] == "github-copilot/gpt-4.1"
-
-
-def test_build_openai_client_routes_codebuddy_backend_through_adapter(monkeypatch) -> None:
-    captured = {}
-
-    class FakeProvider:
-        def __init__(self, **kwargs):
-            captured.update(kwargs)
-
-    monkeypatch.setattr(
-        "deeptutor.services.llm.provider_core.codebuddy_http_provider.CodeBuddyHTTPProvider",
-        FakeProvider,
-    )
-
-    client = build_openai_client(
-        LLMClientConfig(
-            binding="codebuddy",
-            model="codebuddy/hy3",
-            api_key="sk-codebuddy",
-            base_url=None,
-        )
-    )
-
-    assert isinstance(client, _ProviderOpenAIAdapter)
-    assert captured["api_key"] == "sk-codebuddy"
-    assert captured["default_model"] == "codebuddy/hy3"
-
-
 @pytest.mark.asyncio
 async def test_direct_openai_gpt5_agentic_tools_use_provider_adapter(monkeypatch) -> None:
     captured: dict = {}
@@ -585,13 +533,8 @@ def test_openai_codex_backend_can_use_native_tool_calling() -> None:
     )
 
 
-def test_codebuddy_backend_can_use_native_tool_calling() -> None:
-    assert can_use_native_tool_calling(binding="codebuddy", model="codebuddy/hy3") is True
-
-
-def test_local_and_github_copilot_backends_stay_opted_out_of_native_tools() -> None:
+def test_local_backends_stay_opted_out_of_native_tools() -> None:
     # Local OpenAI-compatible servers have model-dependent, unreliable tool support.
-    # GitHub Copilot remains opted out until its native tool path is validated.
     for binding in (
         "ollama",
         "vllm",
@@ -599,7 +542,6 @@ def test_local_and_github_copilot_backends_stay_opted_out_of_native_tools() -> N
         "llama_cpp",
         "lemonade",
         "ovms",
-        "github_copilot",
     ):
         assert can_use_native_tool_calling(binding=binding, model=None) is False, binding
 

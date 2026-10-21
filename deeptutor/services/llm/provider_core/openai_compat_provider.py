@@ -484,11 +484,10 @@ class OpenAICompatProvider(LLMProvider):
         spec = self._spec
         if self._uses_native_web_search(model, tools):
             return self._responses_circuit_allows(model, reasoning_effort)
-        if spec and spec.name not in {"openai", "github_copilot"}:
+        if spec and spec.name != "openai":
             return False
-        if spec is None or spec.name != "github_copilot":
-            if not _is_direct_openai_base(self._effective_base):
-                return False
+        if not _is_direct_openai_base(self._effective_base):
+            return False
 
         model_name = (model or self.default_model).lower()
         wants_reasoning = bool(reasoning_effort and reasoning_effort.lower() != "none")
@@ -914,7 +913,7 @@ class OpenAICompatProvider(LLMProvider):
             if not chunk.choices:
                 usage = cls._extract_usage(chunk) or usage
                 continue
-            # Some providers (CodeBuddy) attach usage to the chunk carrying the
+            # Some providers attach usage to the chunk carrying the
             # last delta rather than to a final choice-less one. Only a report
             # with real numbers replaces what we already have: a gateway that
             # echoes a zero-filled usage object on every delta would otherwise
@@ -1024,8 +1023,6 @@ class OpenAICompatProvider(LLMProvider):
                     self._record_responses_success(model, reasoning_effort)
                     return result
                 except Exception as responses_error:
-                    if self._spec and self._spec.name == "github_copilot":
-                        raise
                     if self._wire_api == "responses":
                         raise
                     if not self._should_fallback_from_responses_error(responses_error):
@@ -1192,8 +1189,6 @@ class OpenAICompatProvider(LLMProvider):
                         ),
                     )
                 except Exception as responses_error:
-                    if self._spec and self._spec.name == "github_copilot":
-                        raise
                     if self._wire_api == "responses":
                         raise
                     if not self._should_fallback_from_responses_error(responses_error):

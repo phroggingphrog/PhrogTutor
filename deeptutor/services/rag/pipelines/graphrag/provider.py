@@ -33,7 +33,7 @@ def resolve_completion_provider(llm_cfg: Any) -> str:
         return "anthropic"
     if backend == "azure_openai":
         return "azure"
-    if backend in {"openai_codex", "github_copilot"} or spec.is_oauth:
+    if backend in {"openai_codex"} or spec.is_oauth:
         raise GraphRagUnsupportedProviderError(
             "GraphRAG cannot use this OAuth-only model provider. Choose an API-key profile."
         )

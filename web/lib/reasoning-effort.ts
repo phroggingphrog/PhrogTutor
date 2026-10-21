@@ -33,7 +33,6 @@ const OPENAI_PROVIDERS = new Set([
   "openai",
   "azure_openai",
   "openai_codex",
-  "github_copilot",
 ]);
 const BINARY_THINKING_PROVIDERS = new Set([
   "deepseek",

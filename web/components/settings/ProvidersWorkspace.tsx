@@ -36,7 +36,6 @@ import {
 import { ProviderServices } from "./ProviderServices";
 import { AddProviderPanel, ProviderProtocol, type CustomProviderInput } from "./AddProviderPanel";
 import { CodexOAuthCard } from "./CodexOAuthCard";
-import { CodeBuddyAuthCard } from "./CodeBuddyAuthCard";
 import { stringifyExtraHeaders, subPanelClass } from "./shared";
 import {
   WorkspaceDetailEmpty,
@@ -269,7 +268,6 @@ export function ProvidersWorkspace() {
                     <CodexOAuthCard />
                   ) : (
                     <>
-                      {source.provider === "codebuddy" && <CodeBuddyAuthCard />}
                       {/* Address and credential belong on one line: they are the
                           two halves of one connection, and stacking them full
                           width was most of what made this pane feel cramped. */}

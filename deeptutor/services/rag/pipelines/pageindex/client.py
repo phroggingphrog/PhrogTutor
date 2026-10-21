@@ -47,11 +47,7 @@ def resolve_oss_sdk_config() -> tuple[str, dict[str, Any]]:
         spec is None
         or spec.is_oauth
         or spec.backend
-        in {
-            "openai_codex",
-            "github_copilot",
-            "codebuddy",
-        }
+        in {"openai_codex"}
     ):
         raise RuntimeError(
             "PageIndex OSS indexing needs an API-key or local LLM profile; "

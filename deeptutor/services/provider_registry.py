@@ -30,7 +30,7 @@ class ProviderSpec:
     display_name: str = ""
 
     # Which provider implementation to use:
-    # "openai_compat" | "anthropic" | "azure_openai" | "openai_codex" | "github_copilot" | "codebuddy"
+    # "openai_compat" | "anthropic" | "azure_openai" | "openai_codex"
     backend: str = "openai_compat"
 
     env_extras: tuple[tuple[str, str], ...] = ()
@@ -103,7 +103,7 @@ class ProviderSpec:
         Anthropic Messages when the vendor is known to serve it too or when
         the endpoint is user-supplied and could be anything.
         """
-        if self.is_oauth or self.backend in {"azure_openai", "openai_codex", "github_copilot"}:
+        if self.is_oauth or self.backend in {"azure_openai", "openai_codex"}:
             return ()
         if self.backend == "anthropic":
             return ("anthropic",)
@@ -142,11 +142,7 @@ PROVIDER_ALIASES = {
     "volcengineCodingPlan": "volcengine_coding_plan",
     "bytepluscodingplan": "byteplus_coding_plan",
     "byteplusCodingPlan": "byteplus_coding_plan",
-    "github-copilot": "github_copilot",
     "openai-codex": "openai_codex",
-    "codebuddy-code": "codebuddy",
-    "codebuddy_code": "codebuddy",
-    "workbuddy": "codebuddy",
     "lm-studio": "lm_studio",
     "atlas": "atlascloud",
     "atlas_cloud": "atlascloud",
@@ -438,27 +434,6 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
         backend="openai_codex",
         is_oauth=True,
         default_api_base="https://chatgpt.com/backend-api",
-    ),
-    ProviderSpec(
-        name="github_copilot",
-        keywords=("github_copilot", "copilot"),
-        env_key="",
-        display_name="GitHub Copilot",
-        backend="github_copilot",
-        is_oauth=True,
-        default_api_base="https://api.githubcopilot.com",
-        strip_model_prefix=True,
-        supports_max_completion_tokens=True,
-    ),
-    ProviderSpec(
-        name="codebuddy",
-        keywords=("codebuddy", "workbuddy"),
-        env_key="CODEBUDDY_API_KEY",
-        display_name="CodeBuddy/WorkBuddy",
-        backend="codebuddy",
-        is_oauth=True,
-        strip_model_prefix=True,
-        supports_stream_options=False,
     ),
     ProviderSpec(
         name="deepseek",

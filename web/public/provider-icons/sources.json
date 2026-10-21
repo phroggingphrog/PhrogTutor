@@ -32,11 +32,6 @@
       "sha256": "21f50cd74ca927d57102f255f234791d8f8008837362a9b32c5f32688f01df06",
       "source": "Official website asset"
     },
-    "codebuddy-official.svg": {
-      "url": "https://download.codebuddy.cn/web/website/a156fee78f35e874d407848198e5f96a4cf383ef/assets/logo.svg",
-      "sha256": "149baa45b9f9370c15f20d599afe381aa138e4fc13acf503f435c571ac93ecf5",
-      "source": "Official website asset"
-    },
     "byteplus.png": {
       "url": "https://sf-bpcms.bytepluscdn.com/obj/byteplus-public-aiso/portal/assets/favicon.png",
       "sha256": "64fc512a00a7e955b1fc678cc72485aaba3af7a7fa5d915aaccd79daa8474b76",
@@ -150,7 +145,6 @@
     "zhipu": "https://www.bigmodel.cn/",
     "stepfun": "https://platform.stepfun.com/",
     "xiaomi_mimo": "https://platform.xiaomimimo.com/",
-    "codebuddy": "https://www.codebuddy.cn/",
     "qianfan": "https://cloud.baidu.com/product-s/qianfan_home",
     "bocha": "https://bocha.cn/",
     "doubao": "https://www.doubao.com/",

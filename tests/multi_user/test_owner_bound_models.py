@@ -117,27 +117,11 @@ def test_ordinary_shared_profiles_stay_grantable(tmp_path, monkeypatch):
         reset_current_user(token)
 
 
-def test_a_codebuddy_profile_is_owner_bound_by_its_binding() -> None:
-    """CodeBuddy reads the operator's own IDE-plugin login on this host.
-
-    Codex stamps ``owner_bound`` onto the managed profile it publishes, but a
-    CodeBuddy profile is created by hand in the settings editor and has nowhere
-    to acquire the flag — so without this the administrator's own subscription
-    would be grantable to every account on the deployment.
-    """
-    assert model_access.is_owner_bound({"binding": "codebuddy"}) is True
-    assert model_access.is_owner_bound({"binding": "CodeBuddy"}) is True
-    # An ordinary team key stays grantable.
-    assert model_access.is_owner_bound({"binding": "openai"}) is False
-    # The explicit flag still wins for anything else that sets it.
-    assert model_access.is_owner_bound({"binding": "openai", "owner_bound": True}) is True
-
-
 def test_individual_provider_references_keep_subscription_models_private(tmp_path, monkeypatch):
     catalog = _catalog(owner_bound=False)
     profile = catalog["services"]["llm"]["profiles"][0]
-    profile["models"][0]["provider_ref"] = {"connection_id": "private", "binding": "codebuddy"}
-    catalog["connections"] = [{"id": "private", "name": "My IDE login", "provider": "codebuddy"}]
+    profile["models"][0]["provider_ref"] = {"connection_id": "private", "binding": "openai_codex"}
+    catalog["connections"] = [{"id": "private", "name": "My IDE login", "provider": "openai_codex"}]
     monkeypatch.setattr(model_access, "admin_catalog", lambda: catalog)
     monkeypatch.setattr(model_access, "load_grant", _grant)
     token = set_current_user(make_user(tmp_path))
