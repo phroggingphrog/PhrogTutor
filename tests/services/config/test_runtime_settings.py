@@ -64,10 +64,10 @@ def test_runtime_settings_creates_defaults_without_reading_dotenv(tmp_path: Path
     assert _read_json(service.path_for("auth"))["enabled"] is False
 
 
-def test_capability_routing_defaults_to_disabled(tmp_path) -> None:
+def test_capability_routing_defaults_to_enabled(tmp_path) -> None:
     service = RuntimeSettingsService(tmp_path / "settings")
 
-    assert service.load_system()["capability_routing_enabled"] is False
+    assert service.load_system()["capability_routing_enabled"] is True
 
 
 def test_web_search_source_filter_defaults_to_safe_runtime_json(tmp_path) -> None:

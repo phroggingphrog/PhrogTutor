@@ -5,6 +5,7 @@ import { AlertTriangle, Loader2, Plug, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import McpAdminRegistry from "@/components/mcp/McpAdminRegistry";
+import PiPackagesAdmin from "@/components/mcp/PiPackagesAdmin";
 import McpCatalogBrowser from "@/components/mcp/McpCatalogBrowser";
 import McpDeploymentList from "@/components/mcp/McpDeploymentList";
 import McpServerForm from "@/components/mcp/McpServerForm";
@@ -186,7 +187,10 @@ export default function McpStoreSection() {
                     every row twice. Held back until the role is known rather
                     than flashing the read-only list at an admin. */}
                 {authLoading ? null : isAdmin ? (
-                  <McpAdminRegistry />
+                  <>
+                    <McpAdminRegistry />
+                    <PiPackagesAdmin />
+                  </>
                 ) : (
                   view && (
                     <McpDeploymentList

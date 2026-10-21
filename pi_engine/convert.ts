@@ -78,6 +78,9 @@ export const toolSpecs = (req: any) =>
 
 export function streamOptions(req: any): any {
 	const o: any = { apiKey: omni.apiKey };
+	// Gateways that route on a header (JSON object in PI_TUTOR_LLM_HEADERS, else the provider's "headers").
+	const headers = process.env.PI_TUTOR_LLM_HEADERS ? JSON.parse(process.env.PI_TUTOR_LLM_HEADERS) : omni.headers;
+	if (headers) o.headers = headers;
 	if (req.temperature != null) o.temperature = req.temperature;
 	if (req.reasoning_effort) o.reasoningEffort = req.reasoning_effort;
 	return o;

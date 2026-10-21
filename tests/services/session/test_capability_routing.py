@@ -236,3 +236,22 @@ async def test_choosing_quiz_mode_still_makes_it_the_conversations_mode(
     detail = await runtime.store.get_session(session["id"])
     assert detail is not None
     assert detail["preferences"]["capability"] == "deep_question"
+
+
+@pytest.mark.parametrize(
+    ("message", "expected"),
+    [
+        ("Generate 3 quiz questions on derivatives.", 3),
+        ("Please create five quiz questions about limits", 5),
+        ("Make 12 quiz questions for chapter 4", 12),
+        ("Write two multiple-choice quiz questions on cells", 2),
+        ("Generate quiz questions on derivatives.", None),
+        ("Generate 99 quiz questions on derivatives.", None),
+    ],
+)
+def test_routed_quiz_request_carries_the_requested_question_count(message, expected):
+    from deeptutor.runtime.capability_routing import route_explicit_quiz_request
+
+    route = route_explicit_quiz_request(message, "chat", enabled=True)
+    assert route is not None and route.capability == "deep_question"
+    assert route.config.get("num_questions") == expected

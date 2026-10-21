@@ -547,6 +547,7 @@ from deeptutor.api.routers import (
     partner_groups,
     partners,
     personas,
+    pi_packages,
     practice,
     question,
     question_notebook,
@@ -732,6 +733,12 @@ app.include_router(
     prefix="/api/settings/mcp",
     tags=["mcp-settings"],
     dependencies=_auth,
+)
+app.include_router(
+    pi_packages.router,
+    prefix="/api/settings/pi-packages",
+    tags=["pi-packages"],
+    dependencies=_admin,
 )
 # Per-user MCP servers. Deliberately only ``_auth``: the router's own routes
 # resolve the owner server-side, and everything a non-admin can reach through it

@@ -47,6 +47,7 @@ AUTO_MOUNTED_TOOLS: frozenset[str] = frozenset(CONFIGURABLE_BUILTIN_TOOL_NAMES)
 _CONDITIONAL_MOUNT_FLAGS: dict[str, str] = {
     "rag": "has_kb",
     "kb_files": "has_kb",
+    "wiki_get": "has_wiki",
     "knowledge_frontier": "has_kb",
     "read_source": "has_sources",
     "read_memory": "has_memory",
@@ -149,6 +150,8 @@ class ToolMountFlags:
     """
 
     has_kb: bool = False
+    #: A connected wiki (qmd) KB is attached, so its pages can be opened by path.
+    has_wiki: bool = False
     has_sources: bool = False
     has_memory: bool = False
     has_notebooks: bool = False
@@ -237,7 +240,7 @@ def compose_enabled_tools(
         extra = (
             [
                 name
-                for name in _KB_COEXISTING_TOOLS
+                for name in (*_KB_COEXISTING_TOOLS, *(("wiki_get",) if mount_flags.has_wiki else ()))
                 if builtin_whitelist is None or name in builtin_whitelist
             ]
             if mount_flags.has_kb

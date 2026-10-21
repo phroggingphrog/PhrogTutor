@@ -50,6 +50,7 @@ BUILTIN_TOOL_SPECS: tuple[BuiltinToolSpec, ...] = (
             ("brainstorm", "BrainstormTool"),
             ("rag", "RAGTool"),
             ("kb_files", "KbFilesTool"),
+            ("wiki_get", "WikiGetTool"),
             ("knowledge_frontier", "KnowledgeFrontierTool"),
             ("web_search", "WebSearchTool"),
             ("reason", "ReasonTool"),

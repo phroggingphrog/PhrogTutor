@@ -162,7 +162,7 @@ class TurnRequestPreparer:
             from deeptutor.services.config.runtime_settings import load_system_settings
 
             routing_enabled = _coerce_bool(
-                load_system_settings().get("capability_routing_enabled"), False
+                load_system_settings().get("capability_routing_enabled"), True
             )
         else:
             routing_enabled = _coerce_bool(per_turn_auto_route, False)
@@ -295,10 +295,10 @@ class TurnRequestPreparer:
 
             # A routed capability owns a different schema. Chat-only options
             # must not be smuggled into the generator; the user request itself
-            # carries the desired topic/count.
+            # carries the desired topic/count, which the router extracts.
             validated_public_config = validate_capability_config(
                 capability,
-                {} if capability_route is not None else raw_config,
+                capability_route.config if capability_route is not None else raw_config,
             )
         except ValueError as exc:
             raise RuntimeError(str(exc)) from exc

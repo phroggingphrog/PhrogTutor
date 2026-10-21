@@ -13,12 +13,12 @@ import type { SettingsAccess } from './settings-access'
 export const SETTINGS_PAGE_GROUPS: { label: Lang; keys: string[] }[] = [
   { label: { en: 'Personal', zh: '个人' }, keys: ['general', 'workspace', 'data-migration', 'appearance', 'usage'] },
   {
-    label: { en: 'Learning & conversation', zh: '学习与对话' },
-    keys: ['starters', 'attachments', 'video-learning', 'learner-profile', 'progress', 'guardian', 'memory'],
-  },
-  {
     label: { en: 'Models & services', zh: '模型与服务' },
     keys: ['connections', 'llm', 'task-models', 'embedding', 'search', 'voice', 'multimodal'],
+  },
+  {
+    label: { en: 'Learning & conversation', zh: '学习与对话' },
+    keys: ['starters', 'attachments', 'video-learning', 'learner-profile', 'guardian', 'memory'],
   },
   {
     label: { en: 'Features & integrations', zh: '功能与集成' },
@@ -60,14 +60,6 @@ export function settingsPageFamily(key: string): string[] {
 }
 
 const extraPages: SettingsLeaf[] = [
-  {
-    key: 'progress',
-    label: { en: 'Learning progress', zh: '学习进度' },
-    blurb: { en: 'Reading progress and recent learning actions', zh: '阅读进度与近期学习操作' },
-    icon: BarChart3,
-    href: '/settings/progress',
-    tile: '',
-  },
   {
     key: 'data-migration',
     label: { en: 'Data migration', zh: '数据迁移' },

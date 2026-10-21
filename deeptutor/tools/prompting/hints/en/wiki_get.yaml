@@ -1,0 +1,6 @@
+short_description: "Open one page of a connected wiki by the path or docid a rag result cited."
+when_to_use: "Use after rag returned a wiki note you need to read in full, or when the learner names a specific wiki page."
+input_format: "{\"kb_name\": \"the connected wiki knowledge base\", \"file\": \"page path or docid exactly as cited\"}."
+guideline: "Search with rag first and open only the pages it cited. Quote the page path when you rely on it."
+note: "Read-only. The wiki is the learner's own notes; never claim to have changed them."
+phase: "exploration"

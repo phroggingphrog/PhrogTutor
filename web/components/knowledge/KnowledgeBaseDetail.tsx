@@ -161,11 +161,13 @@ export default function KnowledgeBaseDetail({
   // "llamaindex · Default embedding" here described a pipeline it never runs.
   const provider = kb.metadata?.type === "kiwix"
     ? t("Kiwix / ZIM")
+    : kb.metadata?.type === "wiki"
+    ? t("LLM wiki (qmd)")
     : isMarginNote
     ? t("MarginNote 4")
     : kb.statistics?.rag_provider || "llamaindex";
   const pageIndexProvider =
-    isMarginNote || kb.metadata?.type === "kiwix" || !providerUsesEmbeddingMetadata(provider);
+    isMarginNote || kb.metadata?.type === "kiwix" || kb.metadata?.type === "wiki" || !providerUsesEmbeddingMetadata(provider);
   const embeddingLabel = meta.embedding_model
     ? typeof meta.embedding_dim === "number"
       ? `${meta.embedding_model} · ${meta.embedding_dim}${t("d")}`
@@ -180,7 +182,7 @@ export default function KnowledgeBaseDetail({
     task.executing === true;
   const status = resolveKbStatus(kb);
   // Nothing to re-run: its content arrives from the add-on, not an index.
-  const canRetry = status === "error" && !kb.read_only && !isMarginNote && kb.metadata?.type !== "kiwix";
+  const canRetry = status === "error" && !kb.read_only && !isMarginNote && kb.metadata?.type !== "kiwix" && kb.metadata?.type !== "wiki";
 
   const handleRetry = async () => {
     if (!canRetry || retrySubmitting || isReindexingLocally) return;

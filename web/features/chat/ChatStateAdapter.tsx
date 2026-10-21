@@ -454,6 +454,7 @@ type Action =
       turnId: string | null;
     }
   | { type: "DELETE_TURN"; key: string; messageId: number }
+  | { type: "DISCARD_FAILED_SUBMISSION"; key: string; messageId: number; submissionId: string }
   | {
       type: "NEW_SESSION";
       key: string;
@@ -1371,6 +1372,41 @@ function reducer(state: ProviderState, action: Action): ProviderState {
         },
       };
     }
+    case "DISCARD_FAILED_SUBMISSION": {
+      const session = state.sessions[action.key];
+      if (!session || session.isStreaming) return state;
+      const index = session.messages.findIndex((message) =>
+        message.id === action.messageId && message.role === "user" &&
+        message.failedSubmission === true && message.failedSubmissionId === action.submissionId &&
+        typeof message.id === "number" && message.id < 0);
+      if (index < 0) return state;
+      const discarded = session.messages[index];
+      const parentId = discarded.parentMessageId ?? null;
+      const messages = session.messages.filter((_, i) => i !== index).map((message) =>
+        message.parentMessageId === discarded.id ? { ...message, parentMessageId: parentId } : message);
+      const selectedBranches = { ...session.selectedBranches };
+      const parentKey = parentId == null ? "null" : String(parentId);
+      const selectedChild = selectedBranches[String(discarded.id)];
+      const selectedDiscarded = selectedBranches[parentKey] === discarded.id;
+      delete selectedBranches[String(discarded.id)];
+      for (const [key, id] of Object.entries(selectedBranches)) {
+        if (id === discarded.id) delete selectedBranches[key];
+      }
+      if (selectedDiscarded && selectedChild != null) selectedBranches[parentKey] = selectedChild;
+      return {
+        ...state,
+        sessions: {
+          ...state.sessions,
+          [action.key]: {
+            ...session, messages, selectedBranches,
+            status: index === session.messages.length - 1
+              ? messages.at(-1)?.failedSubmission ? "failed" : "idle"
+              : session.status,
+            updatedAt: Date.now(),
+          },
+        },
+      };
+    }
     case "DELETE_TURN": {
       const session = state.sessions[action.key];
       if (!session) return state;
@@ -1545,6 +1581,8 @@ interface ChatContextValue {
    *  so the new turn runs with the same context as the failed one. */
   resendLastMessage: () => void;
   deleteTurn: (messageId: number) => Promise<void>;
+  /** Forget only this browser's unsent recovery copy; never mutate a server turn. */
+  discardFailedSubmission: (messageId: number) => boolean;
   /** Re-send a user message under a new branch (sibling of the original).
    *  Uses the composer's current capability / refs — only the text is
    *  taken from ``newContent``. Re-runs the turn from the original's
@@ -3509,6 +3547,19 @@ export function ChatStateAdapterProvider({
     [],
   );
 
+  const discardFailedSubmission = useCallback((messageId: number): boolean => {
+    const currentState = stateRef.current;
+    const key = currentState.selectedKey;
+    const session = key ? currentState.sessions[key] : undefined;
+    if (!key || !session || session.isStreaming) return false;
+    const message = session.messages.find((item) => item.id === messageId);
+    if (message?.role !== "user" || !message.failedSubmission || messageId >= 0 || !message.failedSubmissionId) return false;
+    const storageKey = session.sessionId ?? draftFailedSubmissionKey();
+    if (!clearFailedSubmission(storageKey, message.failedSubmissionId)) return false;
+    dispatch({ type: "DISCARD_FAILED_SUBMISSION", key, messageId, submissionId: message.failedSubmissionId });
+    return true;
+  }, []);
+
   const editMessage = useCallback(
     async (messageId: number, newContent: string) => {
       const generation = runtimeGeneration.current;
@@ -3650,6 +3701,7 @@ export function ChatStateAdapterProvider({
       regenerateLastMessage,
       resendLastMessage,
       deleteTurn,
+      discardFailedSubmission,
       editMessage,
       switchBranch,
       renameSessionTitle,
@@ -3682,6 +3734,7 @@ export function ChatStateAdapterProvider({
       regenerateLastMessage,
       resendLastMessage,
       deleteTurn,
+      discardFailedSubmission,
       editMessage,
       switchBranch,
       renameSessionTitle,

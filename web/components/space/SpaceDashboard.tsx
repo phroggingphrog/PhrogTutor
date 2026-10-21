@@ -225,8 +225,8 @@ const GROUPS: DashboardGroup[] = [
         icon: ListChecks,
         title: { zh: "学习清单", en: "Study list" },
         blurb: {
-          zh: "你已学会与待巩固内容的证据清单。",
-          en: "What you have learned, with the evidence behind it.",
+          zh: "你已学会的内容、阅读进度与相关证据。",
+          en: "What you know, your reading progress, and the evidence behind it.",
         },
         tile: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
       },

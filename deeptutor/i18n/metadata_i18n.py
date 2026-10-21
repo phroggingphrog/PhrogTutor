@@ -50,6 +50,10 @@ _TOOL_DESCRIPTIONS: dict[str, dict[str, str]] = {
         "en": "List the documents a knowledge base holds, with the total count.",
         "zh": "列出知识库中的文档清单与总数。",
     },
+    "wiki_get": {
+        "en": "Open one page of a connected wiki by the path a search result cited.",
+        "zh": "按检索结果引用的路径打开已连接 wiki 的某一页。",
+    },
     "paper_search": {
         "en": "Search arXiv preprints and return paper metadata.",
         "zh": "搜索 arXiv 预印本并返回论文元数据。",

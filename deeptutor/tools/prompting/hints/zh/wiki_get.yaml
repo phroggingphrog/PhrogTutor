@@ -1,0 +1,6 @@
+short_description: "按 rag 结果引用的路径或 docid 打开已连接 wiki 的某一页。"
+when_to_use: "rag 返回了需要通读的 wiki 笔记，或学习者点名某个 wiki 页面时使用。"
+input_format: "{\"kb_name\": \"已连接的 wiki 知识库\", \"file\": \"页面路径或 docid，与引用一致\"}。"
+guideline: "先用 rag 检索，只打开其引用的页面；依据某页作答时引用其路径。"
+note: "只读。wiki 是学习者自己的笔记，不要声称修改过它们。"
+phase: "exploration"

@@ -165,20 +165,20 @@ class TurnApplicationService:
                 done = True
                 tail_possible = self._done_has_tail(event)
             yield event
-        if done:
-            # The turn had already finished before this subscription opened, so
-            # the durable replay above carried its post-DONE events too. Only
-            # bail out once the terminal row confirms that; a turn still marked
-            # running with a DONE in its journal is mid-teardown and its title
-            # may not be written yet.
-            turn = await store.get_turn(turn_id)
-            if not tail_possible or turn is None or str(turn.get("status") or "") != "running":
-                return
+        if done and not tail_possible:
+            return
+        # A completed row can still have an owned title tail. Drain it below,
+        # including durable events committed after the initial replay (#1971).
 
         first_done_at: float | None = time.monotonic() if done else None
         while True:
             emitted = False
-            for event in await self.coordinator.read_events(turn_id, last_seq):
+            events = await self.coordinator.read_events(turn_id, last_seq)
+            if not events and await self.coordinator.get_lease(turn_id) is None:
+                # The completed in-memory stream may have been reclaimed
+                # while this subscriber was paused. Its durable tail remains.
+                events = await store.get_events(turn_id, last_seq)
+            for event in events:
                 seq = int(event.get("seq") or 0)
                 if seq <= last_seq:
                     continue
@@ -210,9 +210,15 @@ class TurnApplicationService:
                 return
             status = str(turn.get("status") or "")
             if status in {"completed", "failed", "cancelled"}:
-                # A terminal row without DONE can only be legacy data. Keep the
-                # compatibility envelope stable while all new paths journal
-                # DONE before the terminal CAS.
+                # Completion can commit before the owner publishes DONE. Do
+                # not synthesize an id-less envelope in that window (#1971).
+                if await self.coordinator.get_lease(turn_id) is not None:
+                    await asyncio.sleep(0.1)
+                    continue
+                # Ownership/cleanup can change between the reads above.
+                if await store.get_events(turn_id, last_seq):
+                    continue
+                # Only legacy terminal rows with no journal need synthesis.
                 metadata = {
                     "status": status,
                     "synthesized": True,

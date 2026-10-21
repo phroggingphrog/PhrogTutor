@@ -26,7 +26,7 @@ vi.mock("@/lib/api", () => ({
   apiFetch: (...args: unknown[]) => mocks.fetch(...args),
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
-const t = (key: string) => key;
+const t = (key: string, values?: Record<string, unknown>) => key.replace(/{{(.*?)}}/g, (_, name) => String(values?.[name] ?? name));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t, i18n: { language: "en" } }),
 }));
@@ -197,6 +197,27 @@ it("keeps failed changes pending and allows retry", async () => {
   mocks.fetch.mockImplementation(implementation);
   await act(() => settings.applyCatalog());
   expect(settings.draftState).toBe("clean");
+});
+
+it.each(["/api/settings/draft", "/api/settings/apply"])("shows a denied %s write without losing the editable draft", async endpoint => {
+  live.services.llm.profiles.push({ id: "saved", name: "Saved profile", binding: "custom", base_url: "", api_key: "", api_version: "", models: [] });
+  render(<App page="" />);
+  await ready();
+  await act(async () => settings.mutateCatalog(next => {
+    next.services.llm.profiles[0].name = "Retained draft";
+  }));
+  const original = mocks.fetch.getMockImplementation()!;
+  mocks.fetch.mockImplementation((url, init) => url === endpoint && init?.method !== "GET"
+    ? { ...reply({ detail: "Check the service account write permissions; your draft was retained." }, false), status: 503 }
+    : original(url, init));
+  await act(() => settings.applyCatalog());
+  expect(settings.toast).toContain("service account write permissions");
+  expect(settings.draft.services.llm.profiles[0].name).toBe("Retained draft");
+  expect(live.services.llm.profiles[0].name).not.toBe("Retained draft");
+  mocks.fetch.mockImplementation(original);
+  await act(() => settings.applyCatalog());
+  expect(settings.draftState).toBe("clean");
+  expect(live.services.llm.profiles[0].name).toBe("Retained draft");
 });
 
 it("stages language and appearance without changing browser preferences until Apply", async () => {
@@ -385,6 +406,54 @@ it("stages MinerU credentials and restores them when revisiting the page", async
   expect(screen.getByPlaceholderText("Paste API token")).toHaveValue("");
 });
 
+it("applies MinerU credentials and clears dirty state cleanly", async () => {
+  resources.mineru = {
+    settings: { mode: "cloud", api_base_url: "http://mineru" },
+    api_token_set: false,
+  };
+  render(<App page="mineru" />);
+  await ready();
+  fireEvent.change(await screen.findByPlaceholderText("Paste API token"), {
+    target: { value: "applied-token" },
+  });
+  expect(settings.draftState).toBe("unsaved");
+  await act(() => settings.applyCatalog());
+  expect(writes("/api/settings/mineru")).toHaveLength(1);
+  expect(resources.mineru.api_token).toBe("applied-token");
+  expect(settings.draftState).toBe("clean");
+  expect(settings.hasUnsavedChanges).toBe(false);
+});
+
+it("applies MinerU credentials from within document-parsing page without leaving unsaved state", async () => {
+  resources["document-parsing"] = {
+    engine: "mineru",
+    engines: {
+      mineru: { mode: "local", api_base_url: "https://mineru.net" },
+    },
+    available_engines: [
+      { id: "mineru", name: "MinerU", available: true },
+    ],
+    readiness: { mineru: { ready: true } },
+    installable: [],
+    mineru: { api_token_set: false },
+  };
+  resources.mineru = {
+    settings: { mode: "local", api_base_url: "https://mineru.net" },
+    api_token_set: false,
+  };
+  render(<App page="document-parsing" />);
+  await ready();
+  fireEvent.click(await screen.findByRole("button", { name: "Cloud API" }));
+  fireEvent.change(await screen.findByPlaceholderText("Paste API token"), {
+    target: { value: "cloud-token-123" },
+  });
+  expect(settings.draftState).toBe("unsaved");
+  await act(() => settings.applyCatalog());
+  expect(writes("/api/settings/mineru")).toHaveLength(1);
+  expect(settings.draftState).toBe("clean");
+  expect(settings.hasUnsavedChanges).toBe(false);
+});
+
 it("allows incomplete model drafts but blocks Apply before writing any live settings", async () => {
   render(<App />);
   await ready();
@@ -410,4 +479,46 @@ it("allows incomplete model drafts but blocks Apply before writing any live sett
   expect(settings.draftState).toBe("saved");
   expect(writes("/api/settings/workspace")).toHaveLength(0);
   expect(live.services.llm.profiles).toHaveLength(0);
+});
+
+it("preserves the distinction between untouched and explicitly cleared MinerU tokens", async () => {
+  resources.mineru = {
+    settings: { mode: "cloud", api_base_url: "http://mineru" },
+    api_token_set: true,
+  };
+  render(<App page="mineru" />);
+  await ready();
+  const token = await screen.findByPlaceholderText("••••••••••••");
+  fireEvent.click(screen.getByRole("button", { name: "Show API token" }));
+  expect(token).toHaveAttribute("type", "text");
+  expect(settings.hasUnsavedChanges).toBe(false);
+  fireEvent.change(token, { target: { value: "replacement" } });
+  fireEvent.change(token, { target: { value: "" } });
+  expect(settings.hasUnsavedChanges).toBe(true);
+  await act(() => settings.applyCatalog());
+  expect(JSON.parse(String(writes("/api/settings/mineru")[0][1].body))).toHaveProperty("api_token", "");
+});
+
+it("keeps edits made while Apply is pending for the next Apply", async () => {
+  render(<App />);
+  await ready();
+  fireEvent.change(screen.getByLabelText("workspace"), { target: { value: "/first" } });
+  const implementation = mocks.fetch.getMockImplementation()!;
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  mocks.fetch.mockImplementation(async (url, init) => {
+    if (url === "/api/settings/workspace" && init?.method === "PUT") await gate;
+    return implementation(url, init);
+  });
+  let applying!: Promise<void>;
+  act(() => { applying = settings.applyCatalog(); });
+  await waitFor(() => expect(writes("/api/settings/workspace")).toHaveLength(1));
+  fireEvent.change(screen.getByLabelText("workspace"), { target: { value: "/second" } });
+  await act(async () => { release(); await applying; });
+  expect(resources.workspace.path).toBe("/first");
+  expect(screen.getByLabelText("workspace")).toHaveValue("/second");
+  expect(settings.draftState).toBe("unsaved");
+  await act(() => settings.applyCatalog());
+  expect(resources.workspace.path).toBe("/second");
+  expect(settings.draftState).toBe("clean");
 });

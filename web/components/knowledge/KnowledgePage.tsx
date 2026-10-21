@@ -46,6 +46,7 @@ const EngineDetail = dynamic(
 );
 const CreateKbModal = dynamic(() => import("./CreateKbModal"));
 const ConnectKiwixModal = dynamic(() => import("./ConnectKiwixModal"));
+const ConnectWikiModal = dynamic(() => import("./ConnectWikiModal"));
 
 export default function KnowledgePage() {
   const { t } = useTranslation();
@@ -86,6 +87,7 @@ export default function KnowledgePage() {
     connectMarginNote4,
     connectIma,
     connectKiwix,
+    connectWiki,
   } = useKnowledgeBases();
 
   // Connected subagents are stored as ``type: subagent`` KBs so the chat
@@ -106,6 +108,7 @@ export default function KnowledgePage() {
     useState<KnowledgeHomeSection>(initialHomeSection);
   const [createOpen, setCreateOpen] = useState(false);
   const [kiwixOpen, setKiwixOpen] = useState(false);
+  const [wikiOpen, setWikiOpen] = useState(false);
   const [createPreset, setCreatePreset] = useState<{
     mode: "new" | "link";
     source?: string;
@@ -115,9 +118,13 @@ export default function KnowledgePage() {
     setCreatePreset(null);
     setCreateOpen(true);
   }, []);
-  const openSource = useCallback((source: "obsidian" | "marginnote4" | "kiwix") => {
+  const openSource = useCallback((source: "obsidian" | "marginnote4" | "kiwix" | "wiki") => {
     if (source === "kiwix") {
       setKiwixOpen(true);
+      return;
+    }
+    if (source === "wiki") {
+      setWikiOpen(true);
       return;
     }
     setCreatePreset({ mode: "link", source });
@@ -507,6 +514,15 @@ export default function KnowledgePage() {
           onConfigureProvider={(providerId) => {
             setCreateOpen(false);
             openEngine(providerId);
+          }}
+        />
+      ) : null}
+      {wikiOpen ? (
+        <ConnectWikiModal
+          onClose={() => setWikiOpen(false)}
+          onConnect={async (params) => {
+            await connectWiki(params);
+            openKb(`account:kb:${params.name}`);
           }}
         />
       ) : null}

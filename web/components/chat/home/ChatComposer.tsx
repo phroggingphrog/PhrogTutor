@@ -10,7 +10,11 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { saveWorkspaceDraft, readWorkspaceDraft } from "@/lib/workspace-drafts";
+import {
+  saveWorkspaceDraft,
+  readWorkspaceDraft,
+  type WorkspaceDraft,
+} from "@/lib/workspace-drafts";
 import {
   ArrowUp,
   BookMarked,
@@ -19,6 +23,7 @@ import {
   Brain,
   Check,
   ChevronDown,
+  SlidersHorizontal,
   ChevronRight,
   ClipboardList,
   Database,
@@ -462,6 +467,9 @@ export default memo(function ChatComposer({
   showCapabilityChip?: boolean;
 }) {
   const { t } = useTranslation();
+  // Mode, sources and answer preferences are things the tutor chooses itself; they sit
+  // behind one Options button unless the learner has changed something from the default.
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const [partners, setPartners] = useState<PartnerInfo[]>([]);
   const [partnersLoading, setPartnersLoading] = useState(false);
   const [partnerLoadError, setPartnerLoadError] = useState(false);
@@ -519,6 +527,7 @@ export default memo(function ChatComposer({
     addDraftFilesRef.current = onAddFiles;
   }, [onAddFiles]);
   const restoredDraftRef = useRef(false);
+  const restoreFailedRef = useRef(false);
   useEffect(() => {
     let alive = true;
     const restore = readWorkspaceDraft();
@@ -544,22 +553,51 @@ export default memo(function ChatComposer({
             });
           if (files.length) addDraftFilesRef.current(files);
         })
-        .catch(() => {});
+        .catch((error) => {
+          if (!alive) return;
+          restoreFailedRef.current = true;
+          console.warn(
+            "[ChatComposer] workspace draft restore failed; keeping the stored draft untouched",
+            error,
+          );
+        });
     }
+    const collectDraft = () => ({
+      text: inputHandleRef.current?.getValue() || "",
+      attachments: draftAttachmentsRef.current.map(
+        ({ filename, base64, mimeType }) => ({ filename, base64, mimeType }),
+      ),
+    });
+    // The stored draft never made it into the composer, so saving the composer
+    // as-is could clobber it. Skip when nothing new was typed; otherwise merge
+    // the new input on top of the stored draft. If even the re-read fails,
+    // reject the switch (as on main) instead of losing the new input.
+    let storedDraft: WorkspaceDraft | undefined | null = null;
+    const saveAfterFailedRestore = () => {
+      restoreFailedRef.current = true;
+      const draft = collectDraft();
+      if (!draft.text && !draft.attachments.length) return Promise.resolve();
+      const merge = (stored?: WorkspaceDraft) =>
+        saveWorkspaceDraft({
+          text: [stored?.text, draft.text].filter(Boolean).join("\n"),
+          attachments: [...(stored?.attachments ?? []), ...draft.attachments],
+        });
+      // Re-read only once per mount so a retried switch merges the original
+      // stored draft instead of re-appending the composer to itself.
+      if (storedDraft !== null) return merge(storedDraft);
+      return readWorkspaceDraft().then((stored) => {
+        storedDraft = stored ?? { text: "", attachments: [] };
+        return merge(stored);
+      });
+    };
     const save = (event: Event) => {
       (event as CustomEvent<Promise<void>[]>).detail.push(
-        restore.then(() =>
-          saveWorkspaceDraft({
-            text: inputHandleRef.current?.getValue() || "",
-            attachments: draftAttachmentsRef.current.map(
-              ({ filename, base64, mimeType }) => ({
-                filename,
-                base64,
-                mimeType,
-              }),
+        restoreFailedRef.current
+          ? saveAfterFailedRestore()
+          : restore.then(
+              () => saveWorkspaceDraft(collectDraft()),
+              saveAfterFailedRestore,
             ),
-          }),
-        ),
       );
     };
     window.addEventListener("deeptutor:before-workspace-switch", save);
@@ -677,7 +715,9 @@ export default memo(function ChatComposer({
   const doSend = useCallback(
     (content: string) => {
       onSend(content);
-      void saveWorkspaceDraft({ text: "", attachments: [] }).catch(() => {});
+      if (!restoreFailedRef.current) {
+        void saveWorkspaceDraft({ text: "", attachments: [] }).catch(() => {});
+      }
       setHasContent(false);
       inputHandleRef.current?.clear();
       // Sending can move focus to the button or rerender the empty-state
@@ -1002,6 +1042,17 @@ export default memo(function ChatComposer({
   }
 
 
+  const optionsCustomized =
+    activeCap.value !== "" ||
+    contextTreeItems.length > 0 ||
+    resourceItems.some((item) => (item.count ?? 0) > 0);
+  const showOptions =
+    optionsOpen ||
+    optionsCustomized ||
+    capMenuOpen ||
+    spaceMenuOpen ||
+    Boolean(personaSelectorOpen);
+
   return (
     <div
       ref={composerRef}
@@ -1114,7 +1165,23 @@ export default memo(function ChatComposer({
           <div className="px-3 pb-2 pt-0.5">
             <div className={styles.toolbar}>
               <div className={styles.context}>
-                {showCapabilityChip && (
+                <button
+                  type="button"
+                  aria-expanded={showOptions}
+                  aria-label={t("Options")}
+                  onClick={() => setOptionsOpen((open) => !open)}
+                  disabled={optionsCustomized}
+                  title={optionsCustomized ? t("Options are in use") : undefined}
+                  className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-default ${
+                    showOptions
+                      ? "text-[var(--foreground)]"
+                      : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  <SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden />
+                  {!showOptions && <span>{t("Options")}</span>}
+                </button>
+                {showOptions && showCapabilityChip && (
                   <div className="relative min-w-0 max-w-full">
                     <Tooltip label={t(activeCap.label)} suppressed={capMenuOpen} side="top">
                       <button
@@ -1265,7 +1332,7 @@ export default memo(function ChatComposer({
                   </RailSlot>
                 ) : null}
 
-                {
+                {showOptions &&
                   <ComposerResources
                     selectedCount={contextTreeItems.length}
                     items={resourceItems}
