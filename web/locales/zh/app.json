@@ -5535,5 +5535,10 @@
   "my-wiki": "my-wiki",
   "qmd server URL": "qmd server URL",
   "Leave empty to use the default local address.": "Leave empty to use the default local address.",
-  "Comma-separated qmd collections. Leave empty to search the defaults.": "Comma-separated qmd collections. Leave empty to search the defaults."
+  "Comma-separated qmd collections. Leave empty to search the defaults.": "Comma-separated qmd collections. Leave empty to search the defaults.",
+  "Tutor extensions": "Tutor extensions",
+  "Could not update the packages": "Could not update the packages",
+  "Install pi packages that add tools, skills or prompts to the tutor. A package runs code on this machine, so install only sources you trust. It is active from the next message.": "Install pi packages that add tools, skills or prompts to the tutor. A package runs code on this machine, so install only sources you trust. It is active from the next message.",
+  "Package source": "Package source",
+  "No extensions installed.": "No extensions installed."
 }
