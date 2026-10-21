@@ -334,3 +334,39 @@ def test_settings_put_merges_per_field_and_backend(client):
     body = r4.json()
     assert body["consult_budget"] == 7
     assert body["backends"]["claude_code"]["model"] == "opus"
+
+
+def _gated_client(monkeypatch, role: str):
+    """The router with sign-in on and no admin bypass, as a public deployment runs it."""
+    from types import SimpleNamespace
+
+    from deeptutor.api.routers import auth
+
+    monkeypatch.setattr(auth, "AUTH_ENABLED", True)
+    monkeypatch.setattr(subagents_module, "account_kb_manager", lambda: _FakeKBManager())
+    monkeypatch.setattr(subagents_module, "list_backend_kinds", lambda: ["claude_code"])
+    monkeypatch.setattr(subagents_module, "assert_path_allowed", lambda p: Path(p))
+    app = FastAPI()
+    app.include_router(subagents_module.router, prefix="/api/subagents")
+    app.dependency_overrides[auth.require_auth] = lambda: SimpleNamespace(role=role, username="u")
+    return TestClient(app)
+
+
+@pytest.mark.parametrize(
+    "method,path,body",
+    [
+        ("post", "/api/subagents/connections", {"name": "x", "agent_kind": "claude_code"}),
+        ("post", "/api/subagents/backends/claude_code/sync", None),
+        ("post", "/api/subagents/connections/x/message", {"message": "hi"}),
+    ],
+)
+def test_starting_local_agent_programs_is_admin_only(monkeypatch, method, path, body):
+    denied = getattr(_gated_client(monkeypatch, "user"), method)(path, json=body)
+    assert denied.status_code == 403
+
+
+def test_an_admin_can_still_connect_when_sign_in_is_on(monkeypatch):
+    ok = _gated_client(monkeypatch, "admin").post(
+        "/api/subagents/connections", json={"name": "mine", "agent_kind": "claude_code"}
+    )
+    assert ok.status_code == 200 and ok.json()["status"] == "connected"
