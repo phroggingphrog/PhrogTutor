@@ -16,7 +16,7 @@
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
-import { AGENT_DIR, HERE, buildModel, chunkWriter, connectionOf, convert, text, THINKING, toolSpecs } from "./convert.ts";
+import { AGENT_DIR, HERE, buildModel, chunkWriter, connectionOf, convert, text, THINKING, toolSpecs, withCacheKey } from "./convert.ts";
 
 export type Host = { write(o: any): void; ask(kind: string, data?: any): Promise<any> };
 type Mode = "explore" | "settle" | "forced";
@@ -211,11 +211,12 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 		pi.on("before_provider_request", (ev: any) => {
 			// DeepTutor forces a named tool on the first round (Ask Questions -> ask_user); pi-ai has only auto/none.
 			const name = cfg.initial_tool_choice;
-			const p = ev.payload;
+			const p = withCacheKey(ev.payload, req);
 			if (s.rounds === 0 && name && p && Array.isArray(p.tools) && p.tools.some((t: any) => t.function?.name === name)) {
 				if (process.env.PI_TUTOR_DEBUG) process.stderr.write(`[tool_choice] forced ${name}\n`);
 				return { ...p, tool_choice: { type: "function", function: { name } } };
 			}
+			return p === ev.payload ? undefined : p;
 		});
 		pi.on("message_start", (ev: any) => { if (ev.message?.role === "assistant") { roundError = ""; writer = chunkWriter(model.id, host.write); } });
 		pi.on("message_update", (ev: any) => { if (ev.message?.role === "assistant") writer?.event(ev.assistantMessageEvent); });
@@ -250,7 +251,7 @@ export async function runLoop(first: any, host: Host): Promise<any> {
 	if (conn?.transport) settings.setTransport(conn.transport as any);
 	const { session } = await createAgentSession({
 		cwd: HERE, agentDir: AGENT_DIR, model, thinkingLevel: (THINKING[req.reasoning_effort] ?? "off") as any,
-		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE), noTools: "builtin",
+		resourceLoader: loader, settingsManager: settings, sessionManager: SessionManager.inMemory(HERE, req.cache_key ? { id: req.cache_key } : undefined), noTools: "builtin",
 		...(modelRuntime ? { modelRuntime } : {}),
 	});
 	try {

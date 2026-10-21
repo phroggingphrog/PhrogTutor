@@ -12,6 +12,7 @@ Every model call runs on pi.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 import json
@@ -23,14 +24,32 @@ import uuid
 _LLM_TS = Path(__file__).resolve().parents[3] / "pi_engine" / "llm.ts"
 # The bun binary that runs pi_engine (name it e.g. "pi-engine" via a symlink so OOM killers can spare it).
 _ENGINE_BIN = os.path.expanduser(os.environ.get("PI_TUTOR_ENGINE_BIN", "bun"))
-_PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "connection")
+_PASS = ("model", "messages", "tools", "temperature", "max_tokens", "max_completion_tokens", "reasoning_effort", "connection", "cache_key")
 
 
 _warned_unserved = False
 
 
+def cache_key(messages: list[dict[str, Any]] | None) -> str | None:
+    """Routing affinity for upstream prompt caches: calls that share a system prefix share a key.
+
+    The key must survive ordinary history growth, so it hashes only the leading system messages; the provider
+    still verifies every token of the prefix before it reuses a cache.
+    """
+    prefix = []
+    for message in messages or []:
+        if message.get("role") != "system":
+            break
+        prefix.append({"role": "system", "content": message.get("content")})
+    if not prefix:
+        return None
+    return hashlib.sha256(json.dumps(prefix, ensure_ascii=True, sort_keys=True).encode("utf-8")).hexdigest()
+
+
 async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
-    """Attach the active catalog profile as the request's endpoint, when that mode is on and pi can serve it."""
+    """Attach the active catalog profile as the request's endpoint (and the cache key), when pi can serve it."""
+    if request.get("cache_key") is None and (key := cache_key(request.get("messages"))):
+        request = {**request, "cache_key": key}
     from .pi_connection import catalog_connections_enabled, codex_model_slug, is_codex, resolve_connection
 
     if request.get("connection") is not None or not catalog_connections_enabled():

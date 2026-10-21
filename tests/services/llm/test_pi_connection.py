@@ -153,8 +153,8 @@ def endpoint():
     server.shutdown()
 
 
-def _ask(connection: dict) -> str:
-    request = {"model": "m", "messages": [{"role": "user", "content": "hi"}], "connection": connection}
+def _ask(connection: dict, **extra) -> str:
+    request = {"model": "m", "messages": [{"role": "user", "content": "hi"}], "connection": connection, **extra}
     done = subprocess.run(
         ["bun", str(ENGINE / "llm.ts")],
         input=json.dumps(request), capture_output=True, text=True, timeout=60, cwd=ENGINE,
@@ -258,3 +258,67 @@ def test_codex_profile_takes_its_token_from_the_codex_service(monkeypatch) -> No
 
 async def _async(value):
     return value
+
+
+KEY = "a" * 64
+
+
+@needs_engine
+@pytest.mark.parametrize(
+    "api,path,base",
+    [("openai-completions", "/v1/chat/completions", "/v1"), ("openai-responses", "/v1/responses", "/v1")],
+)
+def test_openai_style_gateways_get_the_cache_key_that_keeps_a_prefix_on_one_cache(endpoint, api, path, base) -> None:
+    url, seen = endpoint
+    _ask({"api": api, "provider": "custom", "baseUrl": f"{url}{base}", "apiKey": "k", "headers": None}, cache_key=KEY)
+    assert seen[0]["path"] == path
+    assert seen[0]["body"]["prompt_cache_key"] == KEY
+
+
+@needs_engine
+def test_other_vendors_do_not_receive_an_openai_cache_key(endpoint) -> None:
+    url, seen = endpoint
+    _ask({"api": "anthropic-messages", "provider": "anthropic", "baseUrl": url, "apiKey": "k", "headers": None}, cache_key=KEY)
+    assert "prompt_cache_key" not in seen[0]["body"]
+    # pi's own Anthropic caching stays on: the system prompt carries an ephemeral breakpoint
+    assert "cache_control" in json.dumps(seen[0]["body"])
+
+
+def test_cache_key_follows_the_system_prefix_not_the_history() -> None:
+    from deeptutor.services.llm.pi_bridge import cache_key
+
+    system = [{"role": "system", "content": "rules"}]
+    first = [*system, {"role": "user", "content": "q"}]
+    later = [*first, {"role": "assistant", "content": "a"}, {"role": "user", "content": "next"}]
+    assert cache_key(first) == cache_key(later) != cache_key([{"role": "system", "content": "other rules"}])
+    assert cache_key([{"role": "user", "content": "no system"}]) is None
+
+
+@needs_engine
+def test_agent_loop_requests_carry_the_same_cache_key(endpoint, monkeypatch) -> None:
+    import asyncio
+
+    from deeptutor.services.llm import pi_bridge
+
+    url, seen = endpoint
+
+    class Host:
+        async def ask(self, kind, data=None):
+            return {}
+
+        async def notice(self, *_):
+            pass
+
+        async def release(self):
+            pass
+
+        async def chunk(self, _):
+            pass
+
+    request = {
+        "model": "m",
+        "messages": [{"role": "system", "content": "rules"}, {"role": "user", "content": "hi"}],
+        "connection": {"api": "openai-completions", "provider": "custom", "baseUrl": f"{url}/v1", "apiKey": "k", "headers": None},
+    }
+    asyncio.run(pi_bridge.loop_turn(request, {"budget": 1, "texts": {}}, Host()))  # the stub host ends the turn; only the request matters
+    assert seen and seen[0]["body"]["prompt_cache_key"] == pi_bridge.cache_key(request["messages"])

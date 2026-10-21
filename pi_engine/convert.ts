@@ -92,9 +92,27 @@ export function convert(req: any, modelId: string): { system: string; messages: 
 export const toolSpecs = (req: any) =>
 	(req.tools ?? []).map((t: any) => ({ name: t.function.name, description: t.function.description ?? "", parameters: t.function.parameters ?? { type: "object", properties: {} } }));
 
+/**
+ * Cache affinity: calls that share a system prefix share a key, so the provider routes them to the cache that holds
+ * the prefix. pi derives its own `prompt_cache_key` only for api.openai.com, so OpenAI-style gateways get it here.
+ */
+export function withCacheKey(payload: any, req: any): any {
+	const key = req?.cache_key;
+	const provider = connectionOf(req)?.provider;
+	const api = connectionOf(req)?.api;
+	if (!key || !payload || typeof payload !== "object" || payload.prompt_cache_key) return payload;
+	if (api !== "openai-completions" && api !== "openai-responses") return payload;
+	if (provider && provider !== "custom" && provider !== "openai") return payload;
+	return { ...payload, prompt_cache_key: key };
+}
+
 export function streamOptions(req: any): any {
 	const conn = connectionOf(req);
 	const o: any = { apiKey: conn ? (conn.apiKey || undefined) : omni.apiKey };
+	if (req.cache_key) {
+		o.sessionId = req.cache_key;
+		o.onPayload = (payload: any) => withCacheKey(payload, req);
+	}
 	// Gateways that route on a header (JSON object in PI_TUTOR_LLM_HEADERS, else the provider's "headers").
 	const headers = conn ? conn.headers : process.env.PI_TUTOR_LLM_HEADERS ? JSON.parse(process.env.PI_TUTOR_LLM_HEADERS) : omni.headers;
 	if (headers) o.headers = headers;
