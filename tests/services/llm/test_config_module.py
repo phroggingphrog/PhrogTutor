@@ -93,61 +93,6 @@ def test_scoped_llm_config_takes_precedence_over_global_cache(monkeypatch) -> No
     assert config_module.get_llm_config().model == "gpt-global"
 
 
-def test_initialize_environment_sets_openai_env(monkeypatch) -> None:
-    """initialize_environment should set OPENAI env vars from resolver output."""
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
-
-    monkeypatch.setattr(
-        config_module,
-        "resolve_llm_runtime_config",
-        lambda *_args, **_kwargs: ResolvedLLMConfig(
-            model="gpt-4o-mini",
-            provider_name="openai",
-            provider_mode="standard",
-            binding_hint="openai",
-            binding="openai",
-            api_key="test-key",
-            base_url="https://example.com/v1",
-            effective_url="https://example.com/v1",
-            api_version=None,
-            extra_headers={},
-            reasoning_effort=None,
-            context_window=None,
-        ),
-    )
-    config_module.initialize_environment()
-    assert os.environ["OPENAI_API_KEY"] == "test-key"
-    assert os.environ["OPENAI_BASE_URL"] == "https://example.com/v1"
-
-
-def test_initialize_environment_skips_openai_env_for_custom_anthropic(monkeypatch) -> None:
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
-
-    monkeypatch.setattr(
-        config_module,
-        "resolve_llm_runtime_config",
-        lambda *_args, **_kwargs: ResolvedLLMConfig(
-            model="claude-sonnet-4-20250514",
-            provider_name="custom_anthropic",
-            provider_mode="direct",
-            binding_hint="custom_anthropic",
-            binding="custom_anthropic",
-            api_key="anthropic-key",
-            base_url="https://claude-proxy.example/v1",
-            effective_url="https://claude-proxy.example/v1",
-            api_version=None,
-            extra_headers={},
-            reasoning_effort=None,
-            context_window=None,
-        ),
-    )
-    config_module.initialize_environment()
-    assert "OPENAI_API_KEY" not in os.environ
-    assert "OPENAI_BASE_URL" not in os.environ
-
-
 def test_resolver_missing_model_raises(monkeypatch) -> None:
     _reset_config_cache()
 

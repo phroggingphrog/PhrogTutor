@@ -143,33 +143,3 @@ _GLOBAL_RULES: list[MappingRule] = [
         factory=lambda exc, provider: ProviderContextWindowError(str(exc), provider=provider),
     ),
 ]
-
-
-def map_error(exc: Exception, provider: str | None = None) -> LLMError:
-    """Map provider-specific errors to unified internal exceptions.
-
-    An exception that is already an ``LLMError`` is returned *itself*, not a
-    replacement: re-running the rules would re-classify a precise error into a
-    vaguer one (an ``LLMTimeoutError`` fell out as a bare ``LLMAPIError``), and
-    callers such as the LightRAG adapter re-raise the terminal error and
-    compare identity. Filling in ``provider`` when the raiser did not know it is
-    therefore an in-place write on the caller's exception — deliberate, and the
-    only field this function mutates.
-    """
-    if isinstance(exc, LLMError):
-        if exc.provider is None:
-            exc.provider = provider
-        return exc
-
-    # Heuristic check for status codes before rules
-    status_code = getattr(exc, "status_code", None)
-    if status_code == 401:
-        return LLMAuthenticationError(str(exc), provider=provider)
-    if status_code == 429:
-        return _rate_limit_error(exc, provider)
-
-    for rule in _GLOBAL_RULES:
-        if rule.classifier(exc):
-            return rule.factory(exc, provider)
-
-    return LLMAPIError(str(exc), status_code=status_code, provider=provider)

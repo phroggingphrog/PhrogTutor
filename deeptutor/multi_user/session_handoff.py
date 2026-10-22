@@ -470,8 +470,3 @@ def get_session_handoff_store() -> SessionHandoffStore:
     if _DEFAULT_STORE is None:
         _DEFAULT_STORE = SessionHandoffStore()
     return _DEFAULT_STORE
-
-
-def reset_session_handoff_store_for_tests() -> None:
-    global _DEFAULT_STORE
-    _DEFAULT_STORE = None
