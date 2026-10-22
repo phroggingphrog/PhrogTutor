@@ -38,6 +38,10 @@ const Network = dynamic(
     loading,
   },
 );
+const Engines = dynamic(
+  () => import("@/features/settings/sections/EnginesSettingsSection"),
+  { loading },
+);
 const Workspace = dynamic(
   () => import("@/features/settings/sections/WorkspaceSettingsSection"),
   {
@@ -178,6 +182,7 @@ const PAGES: Record<string, React.ComponentType> = {
   usage: Usage,
   appearance: Appearance,
   network: Network,
+  engines: Engines,
   workspace: Workspace,
   knowledge: Knowledge,
   memory: Memory,

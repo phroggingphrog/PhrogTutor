@@ -30,9 +30,18 @@ _GATEWAY_FILE = Path(__file__).resolve().parents[3] / "pi_engine" / "agent-dir" 
 
 
 def catalog_connections_enabled() -> bool:
+    """Whether requests use the profile chosen in Settings (True) or the gateway file (False).
+
+    The environment variable wins, then the "model source" setting, then automatic: profiles unless a gateway is configured.
+    """
     setting = os.environ.get("PI_TUTOR_LLM_FROM_CATALOG", "").strip().lower()
     if setting:
         return setting in {"1", "true", "yes"}
+    from deeptutor.services import pi_settings
+
+    source = pi_settings.model_source()
+    if source != "auto":
+        return source == "catalog"
     return not os.environ.get("PI_TUTOR_LLM_BASE_URL", "").strip() and not _GATEWAY_FILE.exists()
 
 
