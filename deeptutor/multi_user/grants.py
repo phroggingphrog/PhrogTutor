@@ -382,7 +382,3 @@ def validate_grant(grant: dict[str, Any]) -> None:
             "learning_policy.reading.extensions contains invalid ids: "
             f"{', '.join(invalid_extensions)}"
         )
-
-
-def public_grant(user_id: str) -> dict[str, Any]:
-    return deepcopy(load_grant(user_id))

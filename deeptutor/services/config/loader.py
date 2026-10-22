@@ -126,28 +126,6 @@ def load_config_with_main(config_file: str, project_root: Path | None = None) ->
     return _inject_runtime_paths(_load_yaml_file(config_path))
 
 
-async def load_config_with_main_async(
-    config_file: str, project_root: Path | None = None
-) -> dict[str, Any]:
-    """
-    Async version of load_config_with_main for non-blocking file operations.
-
-    Load configuration file, automatically merge with main.yaml common configuration
-
-    Args:
-        config_file: Configuration file name (e.g., "main.yaml")
-        project_root: Project root directory (if None, will try to auto-detect)
-
-    Returns:
-        Merged configuration dictionary
-    """
-    if project_root is None:
-        project_root = PROJECT_ROOT
-
-    config_path, _ = resolve_config_path(config_file, project_root)
-    return _inject_runtime_paths(await _load_yaml_file_async(config_path))
-
-
 def get_path_from_config(config: dict[str, Any], path_key: str, default: str = None) -> str:
     """
     Get path from configuration.

@@ -174,22 +174,6 @@ def reset_scoped_llm_config(token: Token[LLMConfig | None]) -> None:
     _SCOPED_LLM_CONFIG.reset(token)
 
 
-def initialize_environment() -> None:
-    """
-    Explicitly initialize environment variables for compatibility.
-
-    This should be called during application startup to keep OPENAI_* env vars
-    aligned with current config values.
-    """
-    resolved = resolve_llm_runtime_config()
-    if _is_openai_compatible(resolved.binding, resolved.api_format):
-        _set_openai_env_vars(
-            resolved.api_key,
-            resolved.effective_url,
-            source="initialize_environment",
-        )
-
-
 def _get_llm_config_from_resolver() -> LLMConfig:
     """Resolve LLM config from the TutorBot-style runtime adapter."""
     resolved = resolve_llm_runtime_config()
