@@ -63,7 +63,7 @@ async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
         _warned_unserved = True
         logging.getLogger(__name__).warning(
             "PI_TUTOR_LLM_FROM_CATALOG is on but the active profile cannot be served through pi "
-            "(Azure preview); using the gateway in pi_engine/agent-dir/models.json"
+            "(no usable key or endpoint); using the gateway in pi_engine/agent-dir/models.json"
         )
     if not connection:
         return request
@@ -71,6 +71,19 @@ async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
     if is_codex(config) and request.get("model"):
         request["model"] = codex_model_slug(request["model"])
     return request
+
+
+def _has_output(chunk: dict[str, Any]) -> bool:
+    """Whether a chunk carries text, reasoning or a tool call a reader has seen.
+
+    The engine opens every call with an empty role chunk and closes a failed one with a finish chunk, so
+    neither counts: a 429 arrives between them.
+    """
+    for choice in chunk.get("choices") or []:
+        delta = choice.get("delta") or {}
+        if delta.get("tool_calls") or any(delta.get(key) for key in ("content", "reasoning_content", "reasoning")):
+            return True
+    return False
 
 
 class _PiProcess:
@@ -123,7 +136,7 @@ class _PiProcess:
             try:
                 connected = await _with_connection(request)
                 async for chunk in self._chunks_once(connected):
-                    sent = True
+                    sent = sent or _has_output(chunk)
                     yield chunk
                 return
             except RuntimeError as exc:

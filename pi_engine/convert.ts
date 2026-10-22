@@ -21,6 +21,21 @@ export const tagged = (rid: string) => (c: any) => out({ ...c, rid });
 const finishMap: Record<string, string> = { stop: "stop", length: "length", toolUse: "tool_calls", error: "stop", aborted: "stop" };
 const ZERO = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: 0, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } };
 
+// A connection can ask for a query parameter the pi-ai clients have no option for (Azure's api-version=preview) by
+// sending it in an x-pi-query header; this wrapper moves it onto the URL, so it works for one-shot calls and agent turns alike.
+const QUERY_HEADER = "x-pi-query";
+const plainFetch = globalThis.fetch;
+globalThis.fetch = (async (input: any, init?: any) => {
+	const raw = init?.headers;
+	const query = raw instanceof Headers ? raw.get(QUERY_HEADER) : Array.isArray(raw) ? raw.find(([k]: string[]) => k.toLowerCase() === QUERY_HEADER)?.[1] : raw?.[QUERY_HEADER];
+	if (!query || !(typeof input === "string" || input instanceof URL)) return plainFetch(input, init);
+	const headers = new Headers(raw);
+	headers.delete(QUERY_HEADER);
+	const url = new URL(String(input));
+	for (const [k, v] of new URLSearchParams(query)) url.searchParams.set(k, v);
+	return plainFetch(url, { ...init, headers });
+}) as typeof fetch;
+
 // ---------- OpenAI <-> pi conversions ----------
 
 /** A request may bring its own endpoint (see deeptutor/services/llm/pi_connection.py); otherwise the gateway is used. */
