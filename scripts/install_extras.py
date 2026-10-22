@@ -43,6 +43,18 @@ def parse_names(raw: str) -> list[str]:
     return list(seen)
 
 
+def recorded_names(settings_file: Path) -> list[str]:
+    """Extras installed from Settings → Engines, so a recreated container gets them back."""
+    import json
+
+    try:
+        data = json.loads(settings_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    names = data.get("extras") if isinstance(data, dict) else None
+    return [n for n in names if isinstance(n, str)] if isinstance(names, list) else []
+
+
 def load_extras(pyproject: Path) -> dict[str, list[str]]:
     """``{extra: [requirement, …]}`` as declared by the project."""
     with open(pyproject, "rb") as handle:
@@ -103,13 +115,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("names", nargs="?", default="", help="extras, comma- or space-separated")
     parser.add_argument("--pyproject", default="pyproject.toml", type=Path)
     parser.add_argument(
+        "--settings",
+        default="data/user/settings/extras.json",
+        type=Path,
+        help="extras recorded by Settings → Engines, installed in addition to the declared ones",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="report what would be installed and change nothing",
     )
     args = parser.parse_args(argv)
 
-    names = parse_names(args.names)
+    names = parse_names(",".join([args.names, *recorded_names(args.settings)]))
     if not names:
         return 0
 

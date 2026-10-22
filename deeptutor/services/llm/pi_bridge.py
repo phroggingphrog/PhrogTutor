@@ -54,7 +54,7 @@ async def _with_connection(request: dict[str, Any]) -> dict[str, Any]:
         request = {**request, "cache_key": key}
     from .pi_connection import catalog_connections_enabled, codex_model_slug, is_codex, resolve_connection
 
-    if request.get("connection") is not None or not catalog_connections_enabled():
+    if request.get("connection") is not None or request.get("force_gateway") or not catalog_connections_enabled():
         return request
     global _warned_unserved
     from .config import get_llm_config
@@ -125,7 +125,9 @@ class _PiProcess:
                     limit=16 * 1024 * 1024,
                 )
                 asyncio.create_task(self._read(self.proc))
-                idle_s = float(os.environ.get("PI_TUTOR_ENGINE_IDLE_S", "600"))
+                from deeptutor.services import pi_settings
+
+                idle_s = pi_settings.engine_idle_seconds()
                 if idle_s > 0:
                     asyncio.create_task(self._reap_when_idle(self.proc, idle_s))
             return self.proc
@@ -311,3 +313,48 @@ class PiClient:
 
     async def close(self) -> None:
         return None
+
+
+# ---- management (Settings → Engines) -----------------------------------------------------------------------------
+
+def _rss_mb(pid: int) -> float | None:
+    try:
+        for line in Path(f"/proc/{pid}/status").read_text().splitlines():
+            if line.startswith("VmRSS:"):
+                return round(int(line.split()[1]) / 1024, 1)
+    except OSError:
+        pass
+    return None
+
+
+def engine_status() -> dict[str, Any]:
+    """Whether bun is installed and what the engine process is doing right now."""
+    import shutil
+    import subprocess
+
+    binary = shutil.which(_ENGINE_BIN) or (_ENGINE_BIN if os.path.isfile(_ENGINE_BIN) else None)
+    version = None
+    if binary:
+        try:
+            version = subprocess.run([binary, "--version"], capture_output=True, text=True, timeout=5).stdout.strip() or None
+        except (OSError, subprocess.SubprocessError):
+            pass
+    running = [p.proc for p in _PROCS.values() if p.proc is not None and p.proc.returncode is None]
+    return {
+        "runtime": "bun",
+        "installed": binary is not None,
+        "version": version,
+        "running": bool(running),
+        "memory_mb": next((m for m in (_rss_mb(p.pid) for p in running) if m is not None), None),
+        "dependencies_installed": (Path(_LLM_TS).parent / "node_modules").exists(),
+    }
+
+
+async def restart_engines() -> None:
+    """Stop the engine so the next call starts it again with the current gateway file and settings."""
+    for process in list(_PROCS.values()):
+        proc, process.proc = process.proc, None
+        if proc is not None and proc.returncode is None:
+            proc.terminate()
+            with contextlib.suppress(ProcessLookupError, TimeoutError):
+                await asyncio.wait_for(proc.wait(), 5)

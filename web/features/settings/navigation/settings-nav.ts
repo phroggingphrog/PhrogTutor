@@ -7,6 +7,7 @@ import {
   Brain,
   BrainCircuit,
   Clapperboard,
+  Cpu,
   Database,
   FileScan,
   FolderOpen,
@@ -82,6 +83,8 @@ export interface SettingsCategory {
   learnerOnly?: boolean;
   /** Shown only to authenticated standard users who may act as guardians. */
   guardianOnly?: boolean;
+  /** Hidden from non-admin users (the backend rejects them anyway). */
+  adminOnly?: boolean;
 }
 
 export function isSettingsLeafVisible(
@@ -97,6 +100,7 @@ export function isSettingsCategoryVisible(
 ): boolean {
   if (category.learnerOnly && !access.showLearnerOnly) return false;
   if (category.guardianOnly && !access.showGuardianOnly) return false;
+  if (category.adminOnly && access.hideAdminOnly) return false;
   return (
     !category.children ||
     category.children.some((leaf) => isSettingsLeafVisible(leaf, access))
@@ -447,6 +451,17 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
     href: "/settings#appearance",
   },
   {
+    key: "engines",
+    label: { zh: "引擎", en: "Engines" },
+    blurb: {
+      zh: "模型来源、网关、pi 引擎与可选引擎",
+      en: "Model source, gateway, pi engine and optional engines",
+    },
+    icon: Cpu,
+    href: "/settings#engines",
+    adminOnly: true,
+  },
+  {
     key: "network",
     label: { zh: "网络", en: "Network" },
     blurb: {
@@ -585,6 +600,7 @@ export function settingsAnchorHref(key: string): string {
 const STORAGE_PATHS: Record<string, string> = {
   "/settings#appearance": "data/user/settings/interface.json",
   "/settings#network": "data/user/settings/system.json",
+  "/settings#engines": "data/user/settings/pi_engine.json",
   "/settings#workspace": "data/user/.runtime/workspaces.sqlite3",
   "/settings#llm": "data/user/settings/model_catalog.json",
   "/settings#embedding": "data/user/settings/model_catalog.json",
@@ -598,6 +614,7 @@ const STORAGE_PATHS: Record<string, string> = {
   "/settings#memory": "data/user/settings/main.yaml",
   appearance: "data/user/settings/interface.json",
   network: "data/user/settings/system.json",
+  engines: "data/user/settings/pi_engine.json",
   workspace: "data/user/.runtime/workspaces.sqlite3",
   voice: "data/user/settings/model_catalog.json",
   multimodal: "data/user/settings/model_catalog.json",

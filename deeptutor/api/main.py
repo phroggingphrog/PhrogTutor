@@ -537,6 +537,7 @@ from deeptutor.api.routers import (
     partner_groups,
     partners,
     personas,
+    engines,
     pi_packages,
     plugins,
     practice,
@@ -735,6 +736,12 @@ app.include_router(
     pi_packages.router,
     prefix="/api/settings/pi-packages",
     tags=["pi-packages"],
+    dependencies=_admin,
+)
+app.include_router(
+    engines.router,
+    prefix="/api/settings/engines",
+    tags=["engines"],
     dependencies=_admin,
 )
 # Per-user MCP servers. Deliberately only ``_auth``: the router's own routes
