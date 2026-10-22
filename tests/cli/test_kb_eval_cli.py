@@ -162,7 +162,7 @@ def test_eval_reports_an_invalid_dataset(eval_env: SimpleNamespace, tmp_path: Pa
     result = runner.invoke(app, ["kb", "eval", "kb1", "--dataset", str(broken)])
 
     assert result.exit_code == 1
-    assert "case #1" in result.output
+    assert "case #1" in " ".join(result.output.split())  # rich wraps long temp paths mid-sentence
 
 
 def test_eval_rejects_a_reasoning_as_retrieval_engine(

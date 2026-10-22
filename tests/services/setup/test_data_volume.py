@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import shutil
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -157,8 +159,16 @@ def test_ensure_unwritable_directory_fail_fasts(
         ensure_data_volume_writable(target)
 
 
-def test_check_container_data_volume_probes_knowledge_bases(tmp_path: Path, monkeypatch) -> None:
-    data_root = tmp_path / "app-data"
+def test_check_container_data_volume_probes_knowledge_bases(
+    tmp_path: Path, monkeypatch, request
+) -> None:
+    base = tmp_path
+    if os.geteuid() == 0:
+        # As root the check drops to uid 1000, which cannot traverse root's 0700 pytest temp directory.
+        base = Path(tempfile.mkdtemp(prefix="dt-volume-"))
+        base.chmod(0o777)
+        request.addfinalizer(lambda: shutil.rmtree(base, ignore_errors=True))
+    data_root = base / "app-data"
     monkeypatch.setenv("PUID", "1000")
     monkeypatch.setenv("PGID", "1000")
     check_container_data_volume(data_root)

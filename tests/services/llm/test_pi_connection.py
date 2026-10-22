@@ -46,7 +46,6 @@ def test_anthropic_profile_drops_the_v1_the_sdk_adds_back() -> None:
 
 def test_profiles_pi_cannot_serve_yet_fall_back() -> None:
     assert pi_connection(_config(binding="openai_codex", provider_name="openai_codex", base_url=None)) is None
-    assert pi_connection(_config(binding="azure_openai", provider_name="azure_openai", base_url="https://r.openai.azure.com", api_version="preview")) is None
 
 
 @pytest.mark.parametrize("base", [
@@ -322,3 +321,15 @@ def test_agent_loop_requests_carry_the_same_cache_key(endpoint, monkeypatch) -> 
     }
     asyncio.run(pi_bridge.loop_turn(request, {"budget": 1, "texts": {}}, Host()))  # the stub host ends the turn; only the request matters
     assert seen and seen[0]["body"]["prompt_cache_key"] == pi_bridge.cache_key(request["messages"])
+
+
+@needs_engine
+def test_azure_preview_api_version_reaches_the_url_without_leaking_the_marker_header(endpoint) -> None:
+    url, seen = endpoint
+    connection = pi_connection(
+        _config(binding="azure_openai", provider_name="azure_openai", base_url=url, api_key="az-secret", api_version="preview")
+    )
+    assert connection["headers"]["x-pi-query"] == "api-version=preview"
+    assert _ask(connection) == "hello from responses"
+    assert seen[0]["path"] == "/openai/v1/responses?api-version=preview"
+    assert "x-pi-query" not in seen[0]["headers"]
