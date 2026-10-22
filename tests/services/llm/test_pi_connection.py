@@ -333,3 +333,36 @@ def test_azure_preview_api_version_reaches_the_url_without_leaking_the_marker_he
     assert _ask(connection) == "hello from responses"
     assert seen[0]["path"] == "/openai/v1/responses?api-version=preview"
     assert "x-pi-query" not in seen[0]["headers"]
+
+
+@needs_engine
+def test_the_engine_gives_its_memory_back_when_idle_and_returns_on_demand(endpoint, monkeypatch) -> None:
+    import asyncio
+
+    from deeptutor.services.llm import pi_bridge
+
+    url, _seen = endpoint
+    monkeypatch.setenv("PI_TUTOR_ENGINE_IDLE_S", "2")
+    monkeypatch.setenv("PI_TUTOR_LLM_FROM_CATALOG", "1")
+    monkeypatch.delenv("PI_TUTOR_LLM_BASE_URL", raising=False)
+    monkeypatch.setattr(
+        "deeptutor.services.llm.config.get_llm_config",
+        lambda: _config(binding="custom", provider_name="custom", base_url=f"{url}/v1"),
+    )
+
+    async def scenario() -> tuple[bool, bool, str]:
+        process = pi_bridge._PiProcess()
+        first = await process._ensure()
+        async for _ in process._chunks_once({"model": "m", "messages": [{"role": "user", "content": "hi"}], "connection": {"api": "openai-completions", "baseUrl": f"{url}/v1", "apiKey": "k", "headers": None}}):
+            pass
+        await asyncio.sleep(5)
+        gone = first.returncode is not None and process.proc is None
+        text = ""
+        async for chunk in process.chunks({"model": "m", "messages": [{"role": "user", "content": "hi"}]}):
+            text += (chunk["choices"][0]["delta"].get("content") or "") if chunk.get("choices") else ""
+        alive = process.proc is not None and process.proc.returncode is None
+        process.proc.terminate()
+        return gone, alive, text
+
+    gone, alive, text = asyncio.run(scenario())
+    assert gone and alive and text == "hello from openai"

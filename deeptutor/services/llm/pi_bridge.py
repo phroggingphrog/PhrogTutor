@@ -12,12 +12,14 @@ Every model call runs on pi.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import hashlib
 import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 import json
 import os
 from pathlib import Path
+import time
 from typing import Any
 import uuid
 
@@ -93,8 +95,23 @@ class _PiProcess:
         self.proc: asyncio.subprocess.Process | None = None
         self.queues: dict[str, asyncio.Queue] = {}
         self.lock = asyncio.Lock()
+        self.last_used = time.monotonic()
+
+    async def _reap_when_idle(self, proc: asyncio.subprocess.Process, idle_s: float) -> None:
+        """Give back the engine's memory (about 90 MB) once nothing has used it for ``idle_s``; the next call respawns it."""
+        while proc.returncode is None:
+            await asyncio.sleep(max(1.0, idle_s / 4))
+            async with self.lock:
+                if self.proc is not proc or self.queues or time.monotonic() - self.last_used < idle_s:
+                    continue
+                self.proc = None
+                proc.terminate()
+                with contextlib.suppress(ProcessLookupError):
+                    await asyncio.wait_for(proc.wait(), 5)
+                return
 
     async def _ensure(self) -> asyncio.subprocess.Process:
+        self.last_used = time.monotonic()
         async with self.lock:
             if self.proc is None or self.proc.returncode is not None:
                 env = dict(os.environ)
@@ -108,6 +125,9 @@ class _PiProcess:
                     limit=16 * 1024 * 1024,
                 )
                 asyncio.create_task(self._read(self.proc))
+                idle_s = float(os.environ.get("PI_TUTOR_ENGINE_IDLE_S", "600"))
+                if idle_s > 0:
+                    asyncio.create_task(self._reap_when_idle(self.proc, idle_s))
             return self.proc
 
     async def _read(self, proc: asyncio.subprocess.Process) -> None:
@@ -160,6 +180,7 @@ class _PiProcess:
                 raise RuntimeError(f"pi SDK model call failed: {msg['error'][-500:]}")
         finally:
             self.queues.pop(rid, None)
+            self.last_used = time.monotonic()
 
 
     async def _send(self, obj: dict[str, Any]) -> None:
@@ -197,6 +218,7 @@ class _PiProcess:
                     await host.chunk(msg)
         finally:
             self.queues.pop(rid, None)
+            self.last_used = time.monotonic()
 
 
 _PROCS: dict[int, _PiProcess] = {}
