@@ -16,8 +16,32 @@ from typing import Any
 from deeptutor.core.tool_protocol import BaseTool, ToolDefinition, ToolParameter, ToolResult
 from deeptutor.services.path_service import get_path_service
 
-_RUNNING: set = set()
+_RUNNING: dict[str, tuple[asyncio.subprocess.Process, asyncio.Task]] = {}
 _CMD = os.environ.get("PI_TUTOR_PROJECT_MAP_BIN", str(Path.home() / ".local/bin/project-map"))
+
+
+async def _mapping_result(
+    name: str,
+    proc: asyncio.subprocess.Process,
+    job: asyncio.Task,
+) -> ToolResult:
+    try:
+        out, err = await asyncio.wait_for(asyncio.shield(job), timeout=60)
+    except asyncio.TimeoutError:
+        return ToolResult(
+            content=f"Mapping '{name}' is still running (big repo, a few minutes). Tell the learner it is "
+                    f"being mapped and to ask again shortly; then call map_project with source='{name}'."
+        )
+
+    if _RUNNING.get(name) == (proc, job):
+        _RUNNING.pop(name, None)
+    if proc.returncode:
+        return ToolResult(content=f"Mapping failed: {err.decode()[-400:]}", success=False)
+    lines = out.decode().strip().splitlines()
+    if not lines:
+        return ToolResult(content=f"Mapping failed: project-map returned no map path for '{name}'.", success=False)
+    text = Path(lines[-1]).read_text(encoding="utf-8")
+    return ToolResult(content=text[:8000], metadata={"project": name})
 
 
 class MapProjectTool(BaseTool):
@@ -40,10 +64,23 @@ class MapProjectTool(BaseTool):
         source = str(kwargs.get("source") or "").strip()
         name = re.sub(r"[^a-z0-9-]+", "-", str(kwargs.get("name") or Path(source.rstrip("/")).name.removesuffix(".git")).lower()).strip("-") or "project"
         data = get_path_service().user_data_dir
-        known = data / "project-maps" / f"{source.lower()}.md"
-        if known.is_file():  # already mapped: return it straight away
-            return ToolResult(content=known.read_text(encoding="utf-8")[:8000], metadata={"project": source.lower()})
-        if re.match(r"^(https://|git@)", source):
+        map_path = data / "project-maps" / f"{name}.md"
+        is_git_url = re.match(r"^(https://|git@)", source) is not None
+
+        if not is_git_url and source == name:
+            if map_path.is_file():
+                running = _RUNNING.get(name)
+                if running:
+                    return await _mapping_result(name, *running)
+                return ToolResult(content=map_path.read_text(encoding="utf-8")[:8000], metadata={"project": name})
+            running = _RUNNING.get(name)
+            if running:
+                return await _mapping_result(name, *running)
+
+        if is_git_url:
+            running = _RUNNING.get(name)
+            if running:
+                return await _mapping_result(name, *running)
             dest = data / "project-sources" / name
             shutil.rmtree(dest, ignore_errors=True)
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -58,21 +95,16 @@ class MapProjectTool(BaseTool):
             folder = dest
         else:
             folder = Path(source).expanduser()
+            if source == name and not folder.is_dir():
+                cloned_folder = data / "project-sources" / name
+                if cloned_folder.is_dir():
+                    folder = cloned_folder
             if not folder.is_dir():
                 return ToolResult(content=f"No folder at {source}", success=False)
         proc = await asyncio.create_subprocess_exec(_CMD, str(folder), name, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         job = asyncio.ensure_future(proc.communicate())
-        _RUNNING.add(job)
-        job.add_done_callback(_RUNNING.discard)
-        try:  # big repos keep mapping in the background; the chat is not held up
-            out, err = await asyncio.wait_for(asyncio.shield(job), timeout=60)
-        except asyncio.TimeoutError:
-            return ToolResult(content=f"Mapping '{name}' is still running (big repo, a few minutes). Tell the learner it is "
-                                      f"being mapped and to ask again shortly; then call map_project with source='{name}'.")
-        if proc.returncode:
-            return ToolResult(content=f"Mapping failed: {err.decode()[-400:]}", success=False)
-        text = Path(out.decode().strip().splitlines()[-1]).read_text(encoding="utf-8")
-        return ToolResult(content=text[:8000], metadata={"project": name})
+        _RUNNING[name] = (proc, job)
+        return await _mapping_result(name, proc, job)
 
 
 class ReadProjectFileTool(BaseTool):
