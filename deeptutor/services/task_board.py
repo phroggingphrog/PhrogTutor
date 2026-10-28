@@ -149,7 +149,7 @@ class TaskBoardStore:
 
     @staticmethod
     def _changed(connection: sqlite3.Connection) -> None:
-        connection.execute("UPDATE board_state SET revision=revision+1 WHERE id=1")
+        connection.execute("UPDATE board_state SET revision=revision+1 WHERE id=?", (1,))
 
     @staticmethod
     def _snapshot(connection: sqlite3.Connection) -> TaskBoard:
@@ -170,7 +170,7 @@ class TaskBoardStore:
             if key not in links:
                 links[key] = SessionTaskLinks(workspace_id=key[0], session_id=key[1])
             links[key].task_ids.append(row["task_id"])
-        state = connection.execute("SELECT * FROM board_state WHERE id=1").fetchone()
+        state = connection.execute("SELECT * FROM board_state WHERE id=?", (1,)).fetchone()
         return TaskBoard(
             cards=cards,
             colors=StatusColors.model_validate_json(state["colors"]),
@@ -192,7 +192,7 @@ class TaskBoardStore:
             return 0
         with closing(sqlite3.connect(self.path, timeout=10)) as connection:
             try:
-                row = connection.execute("SELECT revision FROM board_state WHERE id=1").fetchone()
+                row = connection.execute("SELECT revision FROM board_state WHERE id=?", (1,)).fetchone()
             except sqlite3.OperationalError as exc:
                 if "no such table" not in str(exc):
                     raise
@@ -239,7 +239,7 @@ class TaskBoardStore:
         with closing(self._connect()) as connection, connection:
             connection.execute("BEGIN IMMEDIATE")
             connection.execute(
-                "UPDATE board_state SET colors=? WHERE id=1", (colors.model_dump_json(),)
+                "UPDATE board_state SET colors=? WHERE id=?", (colors.model_dump_json(), 1)
             )
             self._changed(connection)
             return self._snapshot(connection)
