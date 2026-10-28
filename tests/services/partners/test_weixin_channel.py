@@ -20,6 +20,8 @@ from deeptutor.partners.channels.weixin import (
     MESSAGE_TYPE_BOT,
     WeixinChannel,
     WeixinConfig,
+    _decrypt_aes_ecb,
+    _encrypt_aes_ecb,
     _parse_aes_key,
     _pkcs7_unpad_safe,
 )
@@ -443,3 +445,15 @@ class TestCryptoHelpers:
     def test_pkcs7_unpad_safe(self):
         assert _pkcs7_unpad_safe(b"abc" + b"\x0d" * 13) == b"abc"
         assert _pkcs7_unpad_safe(b"abc") == b"abc"
+
+    def test_encrypt_and_decrypt_aes_ecb_roundtrip(self):
+        key_raw = b"1234567890123456"
+        key_b64 = base64.b64encode(key_raw).decode()
+        plaintext = b"Hello, WeChat CDN media protocol!"
+
+        encrypted = _encrypt_aes_ecb(plaintext, key_b64)
+        assert encrypted != plaintext
+        assert len(encrypted) % 16 == 0
+
+        decrypted = _decrypt_aes_ecb(encrypted, key_b64)
+        assert decrypted == plaintext

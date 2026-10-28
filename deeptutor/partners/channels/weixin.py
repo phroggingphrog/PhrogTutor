@@ -1369,21 +1369,21 @@ def _encrypt_aes_ecb(data: bytes, aes_key_b64: str) -> bytes:
     padded = data + bytes([pad_len] * pad_len)
 
     # AES-128-ECB is mandated by the WeChat CDN media protocol — not our choice.
-    # The ``Crypto`` namespace is provided by the maintained pycryptodome fork.
+    # Prefer `cryptography` over deprecated `Crypto` (pycryptodome).
     with suppress(ImportError):
-        from Crypto.Cipher import AES  # nosec B413
-
-        cipher = AES.new(key, AES.MODE_ECB)
-        return cipher.encrypt(padded)
-
-    try:
         from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
         cipher_obj = Cipher(algorithms.AES(key), modes.ECB())  # nosec B305
         encryptor = cipher_obj.encryptor()
         return encryptor.update(padded) + encryptor.finalize()
+
+    try:
+        from Crypto.Cipher import AES  # nosec B413
+
+        cipher = AES.new(key, AES.MODE_ECB)
+        return cipher.encrypt(padded)
     except ImportError:
-        logger.warning("Cannot encrypt media: install 'pycryptodome' or 'cryptography'")
+        logger.warning("Cannot encrypt media: install 'cryptography' or 'pycryptodome'")
         return data
 
 
@@ -1401,22 +1401,22 @@ def _decrypt_aes_ecb(data: bytes, aes_key_b64: str) -> bytes:
     decrypted: bytes | None = None
 
     # AES-128-ECB is mandated by the WeChat CDN media protocol — not our choice.
-    # The ``Crypto`` namespace is provided by the maintained pycryptodome fork.
+    # Prefer `cryptography` over deprecated `Crypto` (pycryptodome).
     with suppress(ImportError):
-        from Crypto.Cipher import AES  # nosec B413
+        from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-        cipher = AES.new(key, AES.MODE_ECB)
-        decrypted = cipher.decrypt(data)
+        cipher_obj = Cipher(algorithms.AES(key), modes.ECB())  # nosec B305
+        decryptor = cipher_obj.decryptor()
+        decrypted = decryptor.update(data) + decryptor.finalize()
 
     if decrypted is None:
         try:
-            from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+            from Crypto.Cipher import AES  # nosec B413
 
-            cipher_obj = Cipher(algorithms.AES(key), modes.ECB())  # nosec B305
-            decryptor = cipher_obj.decryptor()
-            decrypted = decryptor.update(data) + decryptor.finalize()
+            cipher = AES.new(key, AES.MODE_ECB)
+            decrypted = cipher.decrypt(data)
         except ImportError:
-            logger.warning("Cannot decrypt media: install 'pycryptodome' or 'cryptography'")
+            logger.warning("Cannot decrypt media: install 'cryptography' or 'pycryptodome'")
             return data
 
     return _pkcs7_unpad_safe(decrypted)
