@@ -498,7 +498,7 @@ def _install_request_workspace(request) -> None:
             ("/api/skills", "/api/space/mcp")
         )
         management = path.startswith(
-            ("/api/settings", "/api/auth", "/api/multi-user", "/api/task-board")
+            ("/api/settings", "/api/auth", "/api/multi-user", "/api/task-board", "/api/learner-context")
         )
         selected = install_workspace_scope(
             None if management or catalog_management else header if header is not None else query
@@ -660,6 +660,7 @@ def _learning_surface_for_path(
         # the router already scopes every record to the current account, so
         # all methods (including progress PATCH/POST) belong to "chat".
         ("/api/mastery-paths", "chat"),
+        ("/api/learner-context", "chat"),
     ):
         if normalized == root or normalized.startswith(f"{root}/"):
             return surface

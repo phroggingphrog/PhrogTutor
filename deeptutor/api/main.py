@@ -562,6 +562,7 @@ from deeptutor.api.routers import (
 )
 from deeptutor.api.routers import dictionary as dictionary_router
 from deeptutor.api.routers import mastery_records as mastery_records_router
+from deeptutor.api.routers import learner_context as learner_context_router
 from deeptutor.api.routers import notebook_kernel as notebook_kernel_router
 from deeptutor.api.routers import run_code as run_code_router
 from deeptutor.api.routers import terminal as terminal_router
@@ -659,6 +660,8 @@ app.include_router(notebook.router, prefix="/api", tags=["notebooks"], dependenc
 app.include_router(notes.router, prefix="/api/notes", tags=["notes"], dependencies=_auth)
 app.include_router(dictionary_router.router, prefix="/api/dictionary", tags=["dictionary"], dependencies=_auth)
 app.include_router(mastery_records_router.router, prefix="/api/mastery-records", tags=["mastery-records"], dependencies=_auth)
+app.include_router(learner_context_router.router, prefix="/api/learner-context", tags=["learner-context"], dependencies=_auth)
+app.include_router(learner_context_router.integration_router, prefix="/api/learner-context/v1/integrations", tags=["learner-context-integrations"])
 app.include_router(
     task_board.router, prefix="/api/task-board", tags=["task-board"], dependencies=_auth
 )
