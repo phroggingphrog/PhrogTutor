@@ -33,7 +33,9 @@ def build_server():
         instructions=(
             "Read the owner's shared learner style context and optionally record completed interactions. "
             "Combine this context with the active task mode. Never replace the user's selected mode. "
-            "Learner style can be disabled or cleared through Pi Tutor's authenticated API or CLI."
+            "Learner style can be disabled or cleared through Pi Tutor's authenticated API or CLI. "
+            "Classification sends bounded learner and assistant text to Pi Tutor's configured LLM provider. "
+            "Only record after the account owner explicitly opts in and accepts provider data handling."
         ),
     )
 
@@ -50,7 +52,7 @@ def build_server():
 
     @mcp.tool()
     def learner_record_interaction(event_id: str, source: str, user_message: str, assistant_response: str = "") -> str:
-        """Classify and record a completed interaction. Transcripts are not stored."""
+        """Classify after opt-in. Bounded text is sent to the configured LLM provider; the exchange is not stored."""
         payload = _request(
             "POST", "/interactions", {
                 "event_id": event_id,

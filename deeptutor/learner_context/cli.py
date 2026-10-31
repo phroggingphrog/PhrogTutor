@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-import shutil
 import sqlite3
 from datetime import datetime, timezone
 
@@ -52,9 +51,28 @@ def show(format: str = typer.Option("text", "--format", "-f", help="Export forma
 
 
 def set_enabled(enabled: bool = typer.Argument(..., help="Set true to collect and inject style context.")):
-    """Enable or pause learner style collection and prompt context."""
+    """Enable or pause learner style context injection."""
     state = service.set_enabled(enabled)
     console.print(f"Learner context {'enabled' if state else 'paused'}.")
+
+
+def set_automatic_collection(
+    enabled: bool = typer.Argument(..., help="Set true only after the account owner opts in."),
+):
+    """Enable or pause LLM-based style classification of Pi Tutor turns."""
+    client, base = _api_client()
+    try:
+        response = client.put(
+            f"{base}/api/learner-context/v1/automatic-collection",
+            json={"enabled": enabled},
+        )
+        response.raise_for_status()
+        state = bool(response.json().get("automatic_collection_enabled"))
+        console.print(f"Automatic learner-style collection {'enabled' if state else 'paused'}.")
+    except httpx.HTTPError as exc:
+        raise typer.BadParameter(f"Automatic collection setting failed: {exc}") from exc
+    finally:
+        client.close()
 
 
 def delete_record(record_id: int = typer.Argument(..., help="Style record ID from the JSON profile.")):
@@ -170,6 +188,7 @@ def register(target: typer.Typer) -> None:
     """Register learner-context commands in the main DeepTutor CLI."""
     target.command("show")(show)
     target.command("set-enabled")(set_enabled)
+    target.command("set-automatic-collection")(set_automatic_collection)
     target.command("delete-record")(delete_record)
     target.command("backup")(backup)
     target.command("clear")(clear)

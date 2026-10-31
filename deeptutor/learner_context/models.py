@@ -26,6 +26,7 @@ class StyleRecord(TypedDict):
 class LearnerStyleProfile(TypedDict):
     schema_version: int
     enabled: bool
+    automatic_collection_enabled: bool
     signals: int
     shares: dict[str, float]
     dominant: StyleLabel | None

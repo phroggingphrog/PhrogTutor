@@ -132,6 +132,7 @@ def _profile_from_rows(
     return {
         "schema_version": 1,
         "enabled": is_enabled,
+        "automatic_collection_enabled": False,
         "signals": valid_signals,
         "shares": shares,
         "dominant": dominant,
@@ -148,14 +149,21 @@ def get_profile(
     path=None,
     include_records: bool = True,
     include_quotes: bool = True,
+    automatic_collection_enabled: bool | None = None,
 ) -> LearnerStyleProfile:
     """Return this account's learned usage-style profile."""
     with repository.connect(path) as con:
         is_enabled = repository.enabled(con)
+        collection_row = con.execute(
+            "SELECT value FROM learner_context_settings WHERE key = 'learner_context_style_collection_enabled'"
+        ).fetchone()
+        collection_enabled = bool(collection_row and collection_row[0] == "1")
+        if automatic_collection_enabled is not None:
+            collection_enabled = automatic_collection_enabled
         rows = [dict(row) for row in con.execute(
             "SELECT id, ts, style, quote, source, event_id FROM usage_style ORDER BY ts DESC, id DESC"
         )]
-    return _profile_from_rows(
+    profile = _profile_from_rows(
         rows,
         is_enabled=is_enabled,
         now=float(now if now is not None else time.time()),
@@ -164,11 +172,32 @@ def get_profile(
         include_records=include_records,
         include_quotes=include_quotes,
     )
+    profile["automatic_collection_enabled"] = collection_enabled
+    return profile
 
 
-def get_prompt_context(*, path=None, include_records: bool = False) -> str:
-    """Return mode-safe advisory prompt context, or empty text when unavailable."""
-    profile = get_profile(path=path, include_records=include_records, include_quotes=False)
+def get_prompt_context(
+    *,
+    path=None,
+    include_records: bool = False,
+    automatic_collection_enabled: bool | None = None,
+) -> str:
+    """Return mode-safe advisory prompt context after the user opts in to injection."""
+    collection_enabled = None
+    if automatic_collection_enabled is None and path is None:
+        from deeptutor.services import chat_mastery
+
+        collection_enabled = chat_mastery._style_collection_enabled()
+    if automatic_collection_enabled is None:
+        automatic_collection_enabled = collection_enabled
+    profile = get_profile(
+        path=path,
+        include_records=include_records,
+        include_quotes=False,
+        automatic_collection_enabled=automatic_collection_enabled,
+    )
+    if not profile["enabled"]:
+        return ""
     instruction = profile["instruction"]
     if not instruction:
         return ""

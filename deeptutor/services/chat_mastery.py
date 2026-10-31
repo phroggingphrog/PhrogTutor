@@ -31,6 +31,9 @@ KINDS = {
 }
 _HALF_LIFE_DAYS = 30.0
 _TASKS: set[asyncio.Task] = set()
+
+# Automatic style capture requires a separate, explicit account opt-in.
+_STYLE_COLLECTION_KEY = "learner_context_style_collection_enabled"
 # A cheap model for the background mastery calls (on PhrogVPS: the OmniRoute combo "deepseek-flash").
 _EXTRACT_MODEL = os.environ.get("PI_TUTOR_EXTRACT_MODEL") or None  # None = the active chat model
 
@@ -267,8 +270,48 @@ def _learned_rules() -> str:
     return "\n\nRules learned from what worked for this learner (newest first):\n" + "\n".join(reversed(lines[-15:]))
 
 
-def record_turn(session_id: str, turn_id: str, user_message: str, answer: str) -> None:
-    """Fire-and-forget: schedule the evidence extraction for one finished turn."""
+def _style_collection_enabled() -> bool:
+    """Return true only after the current authenticated account opted in."""
+    from deeptutor.learner_context import repository
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    if get_current_user_or_none() is None:
+        return False
+    with repository.connect() as con:
+        row = con.execute(
+            "SELECT value FROM learner_context_settings WHERE key = ?",
+            (_STYLE_COLLECTION_KEY,),
+        ).fetchone()
+    return row is not None and row[0] == "1"
+
+
+def set_style_collection_enabled(enabled: bool) -> bool:
+    """Persist the current authenticated account's explicit opt-in."""
+    from deeptutor.learner_context import repository
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    if get_current_user_or_none() is None:
+        raise RuntimeError("Style collection consent requires a signed-in Pi Tutor account.")
+    with repository.connect() as con:
+        con.execute(
+            "INSERT INTO learner_context_settings(key, value) VALUES (?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            (_STYLE_COLLECTION_KEY, "1" if enabled else "0"),
+        )
+    return bool(enabled)
+
+
+def record_turn(
+    session_id: str,
+    turn_id: str,
+    user_message: str,
+    answer: str,
+    *,
+    style_collection_opt_in: bool = False,
+) -> None:
+    """Schedule style extraction only after the account's explicit opt-in."""
+    if not style_collection_opt_in or not _style_collection_enabled():
+        return
     if not user_message.strip() or not answer.strip():
         return
 
@@ -283,15 +326,32 @@ def record_turn(session_id: str, turn_id: str, user_message: str, answer: str) -
     task.add_done_callback(_TASKS.discard)
 
 
-def record_code(language: str, original: str, code: str, stdout: str, stderr: str, exit_code: int) -> None:
-    """The learner edited a code block and ran it: their edit plus the result is evidence too."""
+def record_code(
+    language: str,
+    original: str,
+    code: str,
+    stdout: str,
+    stderr: str,
+    exit_code: int,
+    *,
+    style_collection_opt_in: bool = False,
+) -> None:
+    """Record code evidence only after the account opts in to automatic extraction."""
+    if not style_collection_opt_in:
+        return
     message = (
         f"(The learner edited the tutor's {language} code and ran it. A typo or unfamiliar syntax is NOT a "
         "concept gap; only judge what the edit shows they understand.)\n"
         f"Tutor's code:\n{original[:1500]}\n\nLearner's edited code:\n{code[:2000]}"
     )
     result = f"Exit code {exit_code}.\nOutput:\n{stdout[-800:]}\nErrors:\n{stderr[-800:]}"
-    record_turn("run-code", f"run-{int(time.time() * 1000)}", message, result)
+    record_turn(
+        "run-code",
+        f"run-{int(time.time() * 1000)}",
+        message,
+        result,
+        style_collection_opt_in=True,
+    )
 
 
 def mastery() -> list[dict]:
@@ -319,7 +379,7 @@ def style_profile() -> dict:
 def _style_line() -> str:
     from deeptutor.learner_context.service import get_prompt_context
 
-    return get_prompt_context()
+    return get_prompt_context(automatic_collection_enabled=_style_collection_enabled())
 
 
 # The learner's own rules (docs/learner-analysis-2026-10-19.md), always on.

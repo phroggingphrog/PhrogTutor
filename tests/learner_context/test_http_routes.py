@@ -94,6 +94,55 @@ def test_http_profile_is_account_isolated_and_revocation_takes_effect(tmp_path, 
     assert still_valid.status_code == 200
 
 
+def test_write_credential_does_not_send_text_to_provider_without_owner_opt_in(tmp_path, monkeypatch):
+    _isolate_users(monkeypatch, tmp_path)
+    monkeypatch.setattr(routes, "AUTH_ENABLED", True)
+    token = credentials.create("u_test", "write", 3, ("read", "write"))
+
+    import deeptutor.services.chat_mastery as chat_mastery
+    monkeypatch.setattr(chat_mastery, "_style_collection_enabled", lambda: False)
+    from deeptutor.learner_context import classifier
+    monkeypatch.setattr(classifier, "classify_interaction", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("must not call provider")))
+
+    response = TestClient(_integration_test_app()).post(
+        "/api/learner-context/v1/integrations/interactions",
+        headers={"Authorization": f"Bearer {token['access_token']}"},
+        json={"event_id": "e-no-consent", "source": "pi", "user_message": "synthetic learner text"},
+    )
+    assert response.status_code == 202
+    assert response.json() == {"accepted": False, "reason": "classification_not_enabled"}
+
+
+def test_settings_api_reads_current_account_style_flags(tmp_path, monkeypatch):
+    monkeypatch.setattr(routes, "AUTH_ENABLED", True)
+    calls = []
+
+    def profile_for_path(**kwargs):
+        calls.append(kwargs)
+        return {"enabled": True, "signals": 7, "automatic_collection_enabled": True}
+
+    monkeypatch.setattr(routes.service, "get_profile", profile_for_path)
+    monkeypatch.setattr(
+        routes,
+        "_chat_mastery_module",
+        lambda: type("ChatMastery", (), {"_style_collection_enabled": staticmethod(lambda: True)})(),
+    )
+    from deeptutor.multi_user.context import set_current_user, reset_current_user
+    from deeptutor.multi_user.models import CurrentUser, UserScope
+    user_id = "u_settings"
+    root = tmp_path / user_id
+    scope = UserScope(kind="user", user_id=user_id, root=root)
+    token = set_current_user(CurrentUser(id=user_id, username=user_id, role="user", scope=scope))
+    try:
+        from starlette.responses import Response as StarletteResponse
+
+        result = routes.get_style_settings(StarletteResponse())
+        assert result == {"enabled": True, "signals": 7, "automatic_collection_enabled": True}
+        assert calls == [{"path": root / "user" / "chat_mastery.sqlite3"}]
+    finally:
+        reset_current_user(token)
+
+
 def test_read_only_http_credential_cannot_record_interactions(tmp_path, monkeypatch):
     _isolate_users(monkeypatch, tmp_path)
     monkeypatch.setattr(routes, "AUTH_ENABLED", True)

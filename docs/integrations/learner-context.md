@@ -8,7 +8,7 @@ A style profile is context, not a mode. A harness can combine it with Brainstorm
 
 Pi Tutor stores the style label, a source name, a stable event ID, a timestamp, and a learner quote of up to 200 characters. It does not store the full interaction transcript in the style table.
 
-When an external harness submits an interaction, Pi Tutor sends up to 4,000 characters of learner text and 3,000 characters of assistant text to its configured LLM provider for classification. The selected provider and its data-retention terms determine how that transient text is handled. Do not submit sensitive content unless those terms are acceptable.
+When an external harness submits an interaction, Pi Tutor sends up to 4,000 characters of learner text and 3,000 characters of assistant text to its configured LLM provider for classification. The selected provider and its data-retention terms determine how that transient text is handled. Do not submit sensitive content unless those terms are acceptable. This API has an explicit write credential, but it cannot prove that a separate harness obtained per-account consent. Set that harness to classify only after the account owner opts in, or use read-only access and submit no interactions.
 
 The labels are `tried_first`, `asked_for_answer`, `pushed_back`, `accepted`, and `own_idea`. Pi Tutor uses a 30-day half-life. It adds a learned instruction after at least 8 valid signals and a leading share of 40% or more.
 
@@ -31,7 +31,7 @@ deeptutor learner-context clear --yes
 deeptutor learner-context backup
 ```
 
-Opt-out stops collection and prompt-context injection. It does not delete existing records. `clear --yes` deletes all style records. `backup` creates an online SQLite backup with owner-only permissions. Make a backup before a schema migration or release.
+The separate `set-automatic-collection false` command pauses Pi Tutor's automatic turn classification. Its default is off for every account. The authenticated account endpoint also exposes this control. The ordinary `set-enabled` setting controls prompt-context injection and external interaction storage. These controls do not delete existing records. `clear --yes` deletes all style records. `backup` creates an online SQLite backup with owner-only permissions. Make a backup before a schema migration or release.
 
 ## Connect a harness through the API
 
@@ -46,7 +46,7 @@ deeptutor learner-context credentials-create "DSH" --expires-in-days 30
 
 The CLI prompts for sign-in unless `PI_TUTOR_AUTH_TOKEN` contains a signed-in bearer token. Set `PI_TUTOR_API_URL` to the API base when it does not use `http://127.0.0.1:18051`. The write-capable token can send interactions for classification. The read-only token can only read a profile and prompt context.
 
-The API returns the new `access_token` once. Save it in the target harness secret manager. Do not add it to a prompt, MCP description, URL, or committed configuration. Tokens expire within 90 days and have separate read/write scopes.
+The API returns the new `access_token` once. Save it in the target harness secret manager. Do not add it to a prompt, MCP description, URL, or committed configuration. Tokens expire within 90 days and have separate read/write scopes. A write scope does not replace the owner's opt-in. Before an external harness sends interaction text, the owner must enable `deeptutor learner-context set-automatic-collection true` in the signed-in account or call the authenticated `PUT /api/learner-context/v1/automatic-collection` endpoint with `{"enabled":true}`. A write request returns `classification_not_enabled` and does not call the provider while this setting is off.
 
 List and revoke credentials:
 

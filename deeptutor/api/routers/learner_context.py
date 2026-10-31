@@ -60,6 +60,18 @@ class CredentialCreateRequest(BaseModel):
 class EnabledRequest(BaseModel):
     enabled: bool
 
+class CollectionConsentRequest(BaseModel):
+    enabled: bool
+
+
+def _require_auth_enabled() -> None:
+    if not AUTH_ENABLED:
+        raise HTTPException(status_code=503, detail="Learner-context account controls require authentication to be enabled.")
+
+def _chat_mastery_module():
+    from deeptutor.services import chat_mastery
+
+    return chat_mastery
 
 def _no_store(response: Response) -> None:
     response.headers["Cache-Control"] = "no-store"
@@ -118,24 +130,28 @@ def _require_scope(credential: dict[str, Any], scope: str) -> str:
 
 @router.get("/v1/profile")
 def get_style_profile(response: Response, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     _no_store(response)
     return service.get_profile(include_records=True)
 
 
 @router.get("/v1/prompt-context")
 def get_prompt_context(response: Response, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     _no_store(response)
     return {"schema_version": 1, "prompt_context": service.get_prompt_context()}
 
 
 @router.get("/v1/records")
 def get_style_records(response: Response, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     _no_store(response)
     return {"records": service.get_profile(include_records=True)["records"]}
 
 
 @router.delete("/v1/records/{record_id}")
 def remove_style_record(record_id: int, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     if not service.delete_record_for_current_user(get_current_user().id, record_id):
         raise HTTPException(status_code=404, detail="Style record not found.")
     return {"deleted": True}
@@ -143,18 +159,42 @@ def remove_style_record(record_id: int, _: TokenPayload | None = Depends(require
 
 @router.get("/v1/settings")
 def get_style_settings(response: Response, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     _no_store(response)
-    profile = service.get_profile()
-    return {"enabled": profile["enabled"], "signals": profile["signals"]}
+    user = get_current_user()
+    profile = service.get_profile(path=user.scope.root / "user" / "chat_mastery.sqlite3")
+    automatic_collection_enabled = _chat_mastery_module()._style_collection_enabled()
+    return {
+        "enabled": profile["enabled"],
+        "signals": profile["signals"],
+        "automatic_collection_enabled": automatic_collection_enabled,
+    }
 
 
 @router.put("/v1/settings")
-def update_style_settings(payload: EnabledRequest, _: TokenPayload | None = Depends(require_auth)):
+def update_style_settings(
+    payload: EnabledRequest,
+    response: Response,
+    _: TokenPayload | None = Depends(require_auth),
+):
+    _require_auth_enabled()
+    _no_store(response)
     return {"enabled": service.set_enabled(payload.enabled)}
+
+@router.put("/v1/automatic-collection")
+def update_automatic_collection(
+    payload: CollectionConsentRequest,
+    response: Response,
+    _: TokenPayload | None = Depends(require_auth),
+):
+    _require_auth_enabled()
+    _no_store(response)
+    return {"automatic_collection_enabled": _chat_mastery_module().set_style_collection_enabled(payload.enabled)}
 
 
 @router.delete("/v1/records")
 def remove_all_style_records(_: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     return {"deleted": service.clear_records_for_current_user(get_current_user().id)}
 
 
@@ -164,23 +204,26 @@ def create_integration_credential(
     response: Response,
     _: TokenPayload | None = Depends(require_auth),
 ):
+    _require_auth_enabled()
     _no_store(response)
-    if not AUTH_ENABLED:
-        raise HTTPException(status_code=503, detail="Learner-context credentials require authentication to be enabled.")
     user = get_current_user()
     return credentials.create(user.id, payload.name, payload.expires_in_days, tuple(payload.scopes))
 
 
 @router.get("/v1/credentials")
 def list_integration_credentials(response: Response, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     _no_store(response)
-    if not AUTH_ENABLED:
-        return {"credentials": []}
     return {"credentials": credentials.list_for_user(get_current_user().id)}
 
 
 @router.delete("/v1/credentials/{credential_id}")
-def revoke_integration_credential(credential_id: str, response: Response, _: TokenPayload | None = Depends(require_auth)):
+def revoke_integration_credential(
+    credential_id: str,
+    response: Response,
+    _: TokenPayload | None = Depends(require_auth),
+):
+    _require_auth_enabled()
     _no_store(response)
     user = get_current_user()
     revoked = credentials.revoke(user.id, credential_id)
@@ -191,14 +234,14 @@ def revoke_integration_credential(credential_id: str, response: Response, _: Tok
 
 @router.delete("/v1/credentials")
 def revoke_all_integration_credentials(response: Response, _: TokenPayload | None = Depends(require_auth)):
+    _require_auth_enabled()
     _no_store(response)
-    if not AUTH_ENABLED:
-        raise HTTPException(status_code=503, detail="Learner-context credentials require authentication to be enabled.")
     user = get_current_user()
     return {"revoked": credentials.revoke_all(user.id)}
 
 @integration_router.get("/profile")
 def integration_profile(response: Response, credential: dict[str, Any] = Depends(_require_integration)):
+    _require_auth_enabled()
     _no_store(response)
     user_id = _require_scope(credential, "read")
     with _user_workspace(user_id):
@@ -207,10 +250,16 @@ def integration_profile(response: Response, credential: dict[str, Any] = Depends
 
 @integration_router.get("/prompt-context")
 def integration_prompt_context(response: Response, credential: dict[str, Any] = Depends(_require_integration)):
+    _require_auth_enabled()
     _no_store(response)
     user_id = _require_scope(credential, "read")
     with _user_workspace(user_id):
-        return {"schema_version": 1, "prompt_context": service.get_prompt_context()}
+        return {
+            "schema_version": 1,
+            "prompt_context": service.get_prompt_context(
+                automatic_collection_enabled=_chat_mastery_module()._style_collection_enabled()
+            ),
+        }
 
 
 @integration_router.post("/interactions", status_code=202)
@@ -218,11 +267,14 @@ async def integration_record_interaction(
     payload: InteractionRequest,
     credential: dict[str, Any] = Depends(_require_integration),
 ):
+    _require_auth_enabled()
     user_id = _require_scope(credential, "write")
     with _user_workspace(user_id):
         profile = service.get_profile()
         if not profile["enabled"]:
             return {"accepted": False, "reason": "opted_out"}
+        if not _chat_mastery_module()._style_collection_enabled():
+            return {"accepted": False, "reason": "classification_not_enabled"}
         from deeptutor.learner_context.classifier import classify_interaction
 
         label = await classify_interaction(

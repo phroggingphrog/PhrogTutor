@@ -7,6 +7,37 @@ from typer.testing import CliRunner
 from deeptutor.learner_context import cli, repository
 
 
+def test_automatic_collection_uses_authenticated_settings_api(monkeypatch):
+    class FakeResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"automatic_collection_enabled": True}
+
+    class FakeClient:
+        def __init__(self):
+            self.closed = False
+            self.request = None
+
+        def put(self, url, json):
+            self.request = (url, json)
+            return FakeResponse()
+
+        def close(self):
+            self.closed = True
+
+    fake = FakeClient()
+    monkeypatch.setattr(cli, "_api_client", lambda: (fake, "http://test"))
+    result = CliRunner().invoke(cli.app, ["set-automatic-collection", "true"])
+    assert result.exit_code == 0, result.output
+    assert fake.request == (
+        "http://test/api/learner-context/v1/automatic-collection",
+        {"enabled": True},
+    )
+    assert fake.closed
+
+
 def test_backup_makes_consistent_copy(tmp_path, monkeypatch):
     source = tmp_path / "chat_mastery.sqlite3"
     with sqlite3.connect(source) as con:

@@ -56,6 +56,7 @@ def test_integration_workspace_keeps_each_users_db_separate(tmp_path, monkeypatc
 def test_external_endpoint_profile_is_scoped_to_credential_owner(tmp_path, monkeypatch):
     from fastapi import Response
     _isolated_api_paths(monkeypatch, tmp_path)
+    monkeypatch.setattr(api, "AUTH_ENABLED", True)
     with api._user_workspace("u_test"):
         service.record_interaction_style(style="pushed_back", source="pi", event_id="event")
     integration = api.credentials
@@ -120,6 +121,7 @@ def test_classifier_request_discards_transcript(monkeypatch, tmp_path):
     assert credential
     monkeypatch.setattr(learner_context, "AUTH_ENABLED", True)
     monkeypatch.setattr(classifier, "classify_interaction", lambda *_args: _return_style())
+    monkeypatch.setattr("deeptutor.services.chat_mastery._style_collection_enabled", lambda: True)
 
     async def call():
         return await learner_context.integration_record_interaction(

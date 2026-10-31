@@ -81,6 +81,11 @@ def initialize(con: sqlite3.Connection) -> None:
     con.execute(
         "INSERT OR IGNORE INTO learner_context_settings(key, value) VALUES ('enabled', '1')"
     )
+    # Existing accounts must opt in before Pi Tutor sends chats for style classification.
+    con.execute(
+        "INSERT OR IGNORE INTO learner_context_settings(key, value) "
+        "VALUES ('learner_context_style_collection_enabled', '0')"
+    )
 
 
 def migrate_legacy_workspace_style_rows(source: sqlite3.Connection) -> int:

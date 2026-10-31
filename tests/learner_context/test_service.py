@@ -56,14 +56,38 @@ def test_event_idempotency_is_scoped_by_source(tmp_path):
     assert service.get_profile(path=path)["signals"] == 2
 
 
-def test_opt_out_stops_storage_and_prompt_context(tmp_path):
+def test_existing_accounts_do_not_opt_in_to_automatic_collection(tmp_path):
+    path = tmp_path / "existing-account.sqlite3"
+    profile = service.get_profile(path=path)
+    assert profile["enabled"] is True
+    assert profile["automatic_collection_enabled"] is False
+    assert service.get_prompt_context(path=path) == ""
+
+
+def test_opt_out_stops_storage_and_prompt_context(tmp_path, monkeypatch):
     path = tmp_path / "off.sqlite3"
     service.set_enabled(False, path=path)
     assert not service.record_interaction_style(style="tried_first", event_id="e", source="pi", path=path)
     service.set_enabled(True, path=path)
     for i in range(8):
         service.record_interaction_style(style="tried_first", event_id=str(i), source="pi", path=path)
-    assert service.get_prompt_context(path=path)
+    from deeptutor.services import chat_mastery
+    from deeptutor.multi_user.context import set_current_user, reset_current_user
+    from deeptutor.multi_user.models import CurrentUser, UserScope
+
+    token = set_current_user(CurrentUser(id="u_optin", username="owner", role="user", scope=UserScope(kind="user", user_id="u_optin", root=tmp_path)))
+    monkeypatch.setattr(repository, "database_path", lambda: path)
+    try:
+        assert chat_mastery.set_style_collection_enabled(True)
+        assert service.get_prompt_context(automatic_collection_enabled=True)
+        assert chat_mastery._style_collection_enabled()
+        assert chat_mastery.set_style_collection_enabled(False) is False
+        assert not chat_mastery._style_collection_enabled()
+        assert chat_mastery.record_turn("s", "t", "synthetic learner text", "synthetic assistant text") is None
+        assert service.get_prompt_context(automatic_collection_enabled=True)
+        assert not chat_mastery._TASKS
+    finally:
+        reset_current_user(token)
     service.set_enabled(False, path=path)
     assert not service.get_prompt_context(path=path)
     assert service.get_profile(path=path)["signals"] == 8
@@ -73,7 +97,7 @@ def test_prompt_export_contains_only_instruction_not_quotes(tmp_path):
     path = tmp_path / "prompt.sqlite3"
     for i in range(8):
         service.record_interaction_style(style="own_idea", event_id=str(i), source="pi", quote="private excerpt", path=path)
-    prompt = service.get_prompt_context(path=path)
+    prompt = service.get_prompt_context(path=path, automatic_collection_enabled=True)
     assert "Build on their idea" in prompt
     assert "advisory only" in prompt
     assert "Do not replace or change an active user-selected mode" in prompt
