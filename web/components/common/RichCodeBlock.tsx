@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 import { apiFetch, apiUrl } from "@/lib/api";
+import Tooltip from "@/shared/ui/Tooltip";
 
 import {
   getCodeBlockTheme,
@@ -54,8 +55,8 @@ export default function RichCodeBlock({
   lang: string;
   className?: string;
 }) {
-  const { codeBlockTheme, codeBlockShowLineNumbers, codeBlockWrapLongLines } =
-    useAppShell();
+  const learner = useAppShell();
+  const { codeBlockTheme, codeBlockShowLineNumbers, codeBlockWrapLongLines } = learner;
   const normalizedLang = (lang || "").toLowerCase();
   const isPlain = PLAIN_LANGS.has(normalizedLang);
   const syntaxTheme = getCodeBlockTheme(codeBlockTheme);
@@ -119,24 +120,28 @@ export default function RichCodeBlock({
           <span style={{ opacity: 0.8 }}>{normalizedLang}</span>
           <span className="flex gap-2 normal-case">
             {normalizedLang === "html" ? (
+              <Tooltip label="Open this as a live, sandboxed page in the side panel" side="top">
+                <button
+                  type="button"
+                  aria-label="Open in panel"
+                  onClick={() => window.dispatchEvent(new CustomEvent("pi-tutor:open-html", { detail: { html: code } }))}
+                  className="rounded bg-violet-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-violet-500"
+                >
+                  ▶ Open in panel
+                </button>
+              </Tooltip>
+            ) : null}
+            <Tooltip label="Save this command to your coding dictionary (wiki cheatsheets)" side="top">
               <button
                 type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent("pi-tutor:open-html", { detail: { html: code } }))}
-                title="Open this as a live, sandboxed page in the side panel"
-                className="rounded bg-violet-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-violet-500"
+                aria-label={saved ? "Saved to dictionary" : "Save to dictionary"}
+                onClick={saveToDictionary}
+                disabled={!!saved}
+                className="rounded px-2 py-0.5 text-[11px] hover:bg-white/10 disabled:opacity-70"
               >
-                ▶ Open in panel
+                {saved || "📖 Save to dictionary"}
               </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={saveToDictionary}
-              disabled={!!saved}
-              title="Save this command to your coding dictionary (wiki cheatsheets)"
-              className="rounded px-2 py-0.5 text-[11px] hover:bg-white/10 disabled:opacity-70"
-            >
-              {saved || "📖 Save to dictionary"}
-            </button>
+            </Tooltip>
           {runnable ? (
             <span className="flex gap-2 normal-case">
               <button

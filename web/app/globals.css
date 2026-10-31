@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 /* Feature-page standards. Queries measure usable content after the sidebar
    and gutters, so the same cards behave consistently in both route groups. */
 .dt-page-container {
@@ -22,11 +18,7 @@
 [data-page-actions] > div > button,
 [data-page-actions] > div > a {
   min-height: 44px;
-<<<<<<< HEAD
   font-size: 13px;
-=======
-  font-size: 12.5px;
->>>>>>> origin/main
   font-weight: 500;
   line-height: 18px;
 }

@@ -48,6 +48,7 @@ notebook_app = typer.Typer(help="Manage notebooks and imported markdown records.
 provider_app = typer.Typer(help="Manage provider OAuth login.")
 book_app = typer.Typer(help="Manage interactive Books (BookEngine).")
 workspace_app = typer.Typer(help="Manage the user content workspace.")
+learner_context_app = typer.Typer(help="Inspect and export shared learner context.")
 
 app.add_typer(partner_app, name="partner")
 app.add_typer(chat_app, name="chat")
@@ -62,6 +63,7 @@ app.add_typer(notebook_app, name="notebook")
 app.add_typer(provider_app, name="provider")
 app.add_typer(book_app, name="book")
 app.add_typer(workspace_app, name="workspace")
+app.add_typer(learner_context_app, name="learner-context")
 
 register_partner(partner_app)
 register_chat(chat_app)
@@ -75,6 +77,8 @@ register_notebook(notebook_app)
 register_provider(provider_app)
 register_book(book_app)
 register_workspace(workspace_app)
+from deeptutor.learner_context.cli import register as register_learner_context
+register_learner_context(learner_context_app)
 register_doctor(app)
 register_init(app)
 

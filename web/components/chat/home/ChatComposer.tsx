@@ -43,6 +43,7 @@ import {
   ATTACHMENT_ACCEPT,
 } from "@/lib/doc-attachments";
 import { useTranslation } from "react-i18next";
+import { browserStorage } from "@/shared/storage";
 
 import { CoursePill } from "@/components/chat/home/CoursePill";
 import { WorkspacePill } from "@/components/workspaces/WorkspacePill";
@@ -627,8 +628,8 @@ export default memo(function ChatComposer({
   useEffect(() => {
     let text: string | null = null;
     try {
-      text = sessionStorage.getItem("pi-tutor:ask-note");
-      sessionStorage.removeItem("pi-tutor:ask-note");
+      text = browserStorage.readRaw("session", "pi-tutor:ask-note");
+      browserStorage.removeRaw("session", "pi-tutor:ask-note");
     } catch {}
     if (text) window.requestAnimationFrame(() => inputHandleRef.current?.setValue(text!));
   }, []);
@@ -1225,22 +1226,23 @@ export default memo(function ChatComposer({
           <div className="px-3 pb-2 pt-0.5">
             <div className={styles.toolbar}>
               <div className={styles.context}>
-                <button
-                  type="button"
-                  aria-expanded={showOptions}
-                  aria-label={t("Options")}
-                  onClick={() => setOptionsOpen((open) => !open)}
-                  disabled={optionsCustomized}
-                  title={optionsCustomized ? t("Options are in use") : undefined}
-                  className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-default ${
-                    showOptions
-                      ? "text-[var(--foreground)]"
-                      : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
-                  }`}
-                >
-                  <SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden />
-                  {!showOptions && <span>{t("Options")}</span>}
-                </button>
+                <Tooltip label={t("Options are in use")} suppressed={!optionsCustomized} side="top">
+                  <button
+                    type="button"
+                    aria-expanded={showOptions}
+                    aria-label={t("Options")}
+                    onClick={() => setOptionsOpen((open) => !open)}
+                    disabled={optionsCustomized}
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-default ${
+                      showOptions
+                        ? "text-[var(--foreground)]"
+                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/55 hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    <SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden />
+                    {!showOptions && <span>{t("Options")}</span>}
+                  </button>
+                </Tooltip>
                 {showOptions && showCapabilityChip && (
                   <div className="relative min-w-0 max-w-full">
                     <Tooltip label={t(activeCap.label)} suppressed={capMenuOpen} side="top">
