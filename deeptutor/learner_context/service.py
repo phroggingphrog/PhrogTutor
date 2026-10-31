@@ -217,8 +217,10 @@ def delete_record(record_id: int, *, path=None) -> bool:
 def delete_record_for_current_user(user_id: str, record_id: int) -> bool:
     """Delete a style record only when the authenticated account owns the supplied ID."""
     from deeptutor.multi_user.context import get_current_user
+    from deeptutor.multi_user.models import LOCAL_ADMIN_ID
 
-    if get_current_user().id != user_id:
+    current = get_current_user()
+    if current.id != user_id and not (current.role == "admin" and user_id == LOCAL_ADMIN_ID):
         return False
     return delete_record(record_id)
 
@@ -231,8 +233,10 @@ def clear_records(*, path=None) -> int:
 def clear_records_for_current_user(user_id: str) -> int:
     """Clear style records only for the authenticated account."""
     from deeptutor.multi_user.context import get_current_user
+    from deeptutor.multi_user.models import LOCAL_ADMIN_ID
 
-    if get_current_user().id != user_id:
+    current = get_current_user()
+    if current.id != user_id and not (current.role == "admin" and user_id == LOCAL_ADMIN_ID):
         return 0
     return clear_records()
 

@@ -65,7 +65,6 @@ const FORMAT_BAR_KEY = "notes-format-bar";
 export default function NotesEditor({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
   const tRef = useRef(t);
-  tRef.current = t;
   const [narrow, setNarrow] = useState(false);
   const [showList, setShowList] = useState(!compact);
   const [notes, setNotes] = useState<NoteMeta[]>([]);
@@ -80,11 +79,24 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
   const [activeTag, setActiveTag] = useState("");
   const [linksVersion, setLinksVersion] = useState(0);
   const [renameNonce, setRenameNonce] = useState(0);
+  const tagRef = useRef<((tag: string) => void) | null>(null);
+  const openRef = useRef<((name: string) => Promise<void>) | null>(null);
+  const openLinkRef = useRef<((target: string, resolved: string | null) => void) | null>(null);
+  const createRef = useRef<((typed: string) => Promise<void>) | null>(null);
+  const namesRef = useRef<string[]>([]);
+  const currentRef = useRef<string | null>(null);
   const imageInput = useRef<HTMLInputElement>(null);
   const insertImagesRef = useRef<((files: File[], at?: number) => Promise<void>) | null>(null);
   const aiRange = useRef<{ from: number; to: number; whole: boolean } | null>(null);
   const router = useRouter();
+  const notebookRef = useRef(notebook);
   const overlay = compact || narrow;
+
+  useEffect(() => {
+    tRef.current = t;
+    currentRef.current = current;
+    namesRef.current = notes.map((note) => note.name);
+  }, [t, current, notes]);
 
   useEffect(() => {
     const media = window.matchMedia(NARROW);
@@ -118,8 +130,8 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
       return;
     }
     try {
-      sessionStorage.setItem("pi-tutor:ask-note", text);
-      sessionStorage.setItem("pi-tutor:open-note", current);
+      browserStorage.writeRaw("session", "pi-tutor:ask-note", text);
+      browserStorage.writeRaw("session", "pi-tutor:open-note", current);
     } catch {}
     router.push("/");
   };
@@ -185,28 +197,23 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     const r = await apiFetch(api(`/search?q=${encodeURIComponent(query)}&tag=${encodeURIComponent(tag)}`));
     setHits(r.ok ? (await r.json()).hits : []);
   };
-  const tagRef = useRef<((tag: string) => void) | null>(null);
-  const chooseTag = (tag: string, only = false) => {
+  const chooseTag = useCallback((tag: string, only = false) => {
     const next = tag === activeTag && !only ? "" : tag;
     setActiveTag(next);
     if (next) void searchText(next);
     else setHits(null);
-  };
+  }, [activeTag, searchText]);
+  useEffect(() => {
+    tagRef.current = (tag) => {
+      setMode("note");
+      setShowList(true);
+      chooseTag(tag, true);
+    };
+  }, [chooseTag]);
   // A #tag clicked in the text opens the list filtered to that tag.
-  tagRef.current = (tag) => {
-    setMode("note");
-    setShowList(true);
-    chooseTag(tag, true);
-  };
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
-  const openRef = useRef<((name: string) => Promise<void>) | null>(null);
-  const openLinkRef = useRef<((target: string, resolved: string | null) => void) | null>(null);
-  const namesRef = useRef<string[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loading = useRef(false);
-  const currentRef = useRef<string | null>(null);
-  currentRef.current = current;
-  namesRef.current = notes.map((n) => n.name);
 
   const refresh = useCallback(async () => {
     const r = await apiFetch(api());
@@ -324,8 +331,8 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     if (!compact || !editor) return;
     let name: string | null = null;
     try {
-      name = sessionStorage.getItem("pi-tutor:open-note");
-      sessionStorage.removeItem("pi-tutor:open-note");
+      name = browserStorage.readRaw("session", "pi-tutor:open-note");
+      browserStorage.removeRaw("session", "pi-tutor:open-note");
     } catch {}
     if (name) void openRef.current?.(name);
   }, [compact, editor]);
@@ -348,22 +355,27 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     },
     [editor, flushPendingSave],
   );
-  openRef.current = open;
+  useEffect(() => {
+    openRef.current = open;
+    openLinkRef.current = (target, resolved) => {
+      if (resolved) void open(resolved);
+      else if (target && !target.startsWith("@")) void createRef.current?.(target.replace(/^\/+|\/+$/g, ""));
+    };
+  }, [open, notes, current]);
 
-  const createNote = async (typed: string) => {
+  const createNote = useCallback(async (typed: string) => {
     let n = typed;
     for (let i = 2; notes.some((x) => x.name === n); i++) n = `${typed} ${i}`;
     await flushPendingSave();
     await save(n, "");
     await refresh();
     await open(n);
-  };
+  }, [notes, flushPendingSave, save, refresh, open]);
 
-  // Follow a [[link]]: open the note, or create it first when it does not exist yet.
-  openLinkRef.current = (target, resolved) => {
-    if (resolved) void open(resolved);
-    else if (target && !target.startsWith("@")) void createNote(target.replace(/^\/+|\/+$/g, ""));
-  };
+  useEffect(() => {
+    createRef.current = createNote;
+  }, [createNote]);
+
 
   const remove = async () => {
     setDialog(null);
@@ -395,7 +407,9 @@ export default function NotesEditor({ compact = false }: { compact?: boolean }) 
     }
   };
 
-  notebook.note = current ?? "";
+  useEffect(() => {
+    notebookRef.current.note = current ?? "";
+  }, [current]);
 
   // Jupyter-style: run every code cell top to bottom in the note's shared session.
   const runAll = async () => {

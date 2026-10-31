@@ -2936,7 +2936,7 @@ function GeogebraTabBridge({
   useEffect(() => {
     let pending = false;
     try {
-      pending = !!sessionStorage.getItem("pi-tutor:open-note");
+      pending = !!browserStorage.readRaw("session", "pi-tutor:open-note");
     } catch {}
     if (pending) window.setTimeout(() => viewerPanelRef.current?.openMarkdownNoteTab(), 300);
   }, [viewerPanelRef]);

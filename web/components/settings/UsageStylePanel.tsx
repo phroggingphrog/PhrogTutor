@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import Tooltip from "@/shared/ui/Tooltip";
 
 import { apiFetch, apiUrl } from "@/lib/api";
 
@@ -18,13 +20,14 @@ const STYLE: Record<string, string> = {
 
 // How you use the tutor (not what you know). The tutor adapts to it; delete any record that is wrong.
 export default function UsageStylePanel() {
+  const { t } = useTranslation();
   const [style, setStyle] = useState<StyleProfile | null>(null);
   const load = useCallback(async () => {
     const r = await apiFetch(apiUrl("/api/mastery-records/style"));
     if (r.ok) setStyle(await r.json());
   }, []);
   useEffect(() => {
-    load();
+    void load();
   }, [load]);
 
   return (
@@ -56,16 +59,18 @@ export default function UsageStylePanel() {
                 <li key={r.id} className="flex items-center gap-2">
                   <span className="shrink-0 text-xs text-[var(--muted-foreground)]">{STYLE[r.style] ?? r.style}</span>
                   <span className="flex-1 truncate">{r.quote}</span>
-                  <button
-                    aria-label="Delete record"
-                    className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
-                    onClick={async () => {
-                      await apiFetch(apiUrl(`/api/mastery-records/style/${r.id}`), { method: "DELETE" });
-                      load();
-                    }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <Tooltip label={t("Delete record")} side="top">
+                    <button
+                      aria-label={t("Delete record")}
+                      className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+                      onClick={async () => {
+                        await apiFetch(apiUrl(`/api/mastery-records/style/${r.id}`), { method: "DELETE" });
+                        load();
+                      }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </Tooltip>
                 </li>
               ))}
             </ul>

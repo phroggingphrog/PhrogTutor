@@ -6,6 +6,17 @@ import json
 import os
 
 
+def _integration_token() -> str:
+    owner_token = os.environ.get("PI_TUTOR_AUTH_TOKEN", "")
+    if owner_token:
+        return owner_token
+    from deeptutor.learner_context.credentials import load_token
+    from deeptutor.multi_user.context import get_current_user
+
+    owner = get_current_user().id
+    credential_id = os.environ.get("PI_TUTOR_LEARNER_CONTEXT_TOKEN_ID", "")
+    return load_token(owner, credential_id) or ""
+
 def build_server():
     """Create a server only when FastMCP is installed in the harness environment."""
     try:
@@ -13,9 +24,10 @@ def build_server():
     except ImportError as exc:
         raise RuntimeError("Install the DeepTutor server or MCP dependency to run this bridge.") from exc
 
-    if not os.environ.get("PI_TUTOR_LEARNER_CONTEXT_URL") or not os.environ.get("PI_TUTOR_LEARNER_CONTEXT_TOKEN"):
-        raise RuntimeError("Set PI_TUTOR_LEARNER_CONTEXT_URL and PI_TUTOR_LEARNER_CONTEXT_TOKEN.")
-
+    if not os.environ.get("PI_TUTOR_LEARNER_CONTEXT_URL") or not (
+        os.environ.get("PI_TUTOR_AUTH_TOKEN") or os.environ.get("PI_TUTOR_LEARNER_CONTEXT_TOKEN_ID")
+    ):
+        raise RuntimeError("Set PI_TUTOR_LEARNER_CONTEXT_URL and an owner token or local credential ID.")
     from urllib.parse import urlsplit
 
     origin = os.environ["PI_TUTOR_LEARNER_CONTEXT_URL"].rstrip("/")
@@ -33,7 +45,7 @@ def build_server():
         instructions=(
             "Read the owner's shared learner style context and optionally record completed interactions. "
             "Combine this context with the active task mode. Never replace the user's selected mode. "
-            "Learner style can be disabled or cleared through Pi Tutor's authenticated API or CLI. "
+            "Learner style can be disabled or cleared through Pi Tutor's authenticated API or local CLI. "
             "Classification sends bounded learner and assistant text to Pi Tutor's configured LLM provider. "
             "Only record after the account owner explicitly opts in and accepts provider data handling."
         ),
@@ -52,7 +64,7 @@ def build_server():
 
     @mcp.tool()
     def learner_record_interaction(event_id: str, source: str, user_message: str, assistant_response: str = "") -> str:
-        """Classify after opt-in. Bounded text is sent to the configured LLM provider; the exchange is not stored."""
+        """Submit an opted-in interaction. The configured LLM provider receives bounded text."""
         payload = _request(
             "POST", "/interactions", {
                 "event_id": event_id,
@@ -72,13 +84,16 @@ def _request(method: str, path: str, payload: dict | None = None):
     except ImportError as exc:
         raise RuntimeError("Install httpx in the harness environment.") from exc
     base = os.environ.get("PI_TUTOR_LEARNER_CONTEXT_URL", "").rstrip("/")
-    token = os.environ.get("PI_TUTOR_LEARNER_CONTEXT_TOKEN", "")
+    token = _integration_token()
     if not base or not token:
-        raise RuntimeError("Set PI_TUTOR_LEARNER_CONTEXT_URL and PI_TUTOR_LEARNER_CONTEXT_TOKEN.")
+        raise RuntimeError("The learner-context bearer is missing or expired.")
+    from deeptutor.services.auth import AUTH_ENABLED
+
+    endpoint = "/api/learner-context/v1" if AUTH_ENABLED else "/api/learner-context/v1/integrations"
     with httpx.Client(timeout=65, follow_redirects=False) as client:
         response = client.request(
             method,
-            f"{base}/api/learner-context/v1/integrations{path}",
+            f"{base}{endpoint}{path}",
             headers={"Authorization": f"Bearer {token}"},
             json=payload,
         )
@@ -87,6 +102,17 @@ def _request(method: str, path: str, payload: dict | None = None):
 
 
 def main() -> None:
+    from deeptutor.multi_user.context import reset_current_user, set_current_user
+    from deeptutor.multi_user.models import CurrentUser, LOCAL_ADMIN_ID, LOCAL_ADMIN_USERNAME, UserScope
+    from deeptutor.multi_user.paths import PROJECT_ROOT
+
+    local_owner = CurrentUser(
+        id=LOCAL_ADMIN_ID,
+        username=LOCAL_ADMIN_USERNAME,
+        role="admin",
+        scope=UserScope(kind="admin", user_id=LOCAL_ADMIN_ID, root=PROJECT_ROOT / "data"),
+    )
+    set_current_user(local_owner)
     mcp = build_server()
     transport = os.environ.get("PI_TUTOR_LEARNER_CONTEXT_MCP_TRANSPORT", "stdio")
     if transport == "stdio":

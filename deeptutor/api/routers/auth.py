@@ -191,6 +191,7 @@ class LoginRequest(BaseModel):
 
     username: str
     password: str
+    return_access_token: bool = False
 
 
 class DeviceLoginRequest(BaseModel):
@@ -498,7 +499,7 @@ def _install_request_workspace(request) -> None:
             ("/api/skills", "/api/space/mcp")
         )
         management = path.startswith(
-            ("/api/settings", "/api/auth", "/api/multi-user", "/api/task-board", "/api/learner-context")
+            ("/api/settings", "/api/auth", "/api/multi-user", "/api/task-board")
         )
         selected = install_workspace_scope(
             None if management or catalog_management else header if header is not None else query
@@ -863,6 +864,7 @@ async def login(body: LoginRequest, request: Request, response: Response) -> dic
         logger.info(f"User '{payload.username}' logged in via PocketBase (role={payload.role!r})")
         return {
             "ok": True,
+            **({"access_token": pb_token} if body.return_access_token else {}),
             "user_id": payload.user_id,
             "username": payload.username,
             "role": payload.role,
@@ -883,6 +885,7 @@ async def login(body: LoginRequest, request: Request, response: Response) -> dic
     logger.info(f"User '{result.username}' logged in (role={result.role!r})")
     return {
         "ok": True,
+        **({"access_token": token} if body.return_access_token else {}),
         "user_id": result.user_id,
         "username": result.username,
         "role": result.role,

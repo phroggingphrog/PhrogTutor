@@ -12,8 +12,8 @@ from pydantic import BaseModel, Field, field_validator
 from deeptutor.api.routers.auth import AUTH_ENABLED, TokenPayload, require_auth
 from deeptutor.learner_context import credentials, service
 from deeptutor.multi_user.context import get_current_user, reset_current_user, set_current_user
-from deeptutor.multi_user.identity import get_user_by_id
-from deeptutor.multi_user.models import CurrentUser
+from deeptutor.multi_user.identity import get_user_by_id, load_users
+from deeptutor.multi_user.models import CurrentUser, LOCAL_ADMIN_ID
 from deeptutor.multi_user.paths import (
     ensure_scope_workspace,
     get_path_service_for_scope,
@@ -68,6 +68,14 @@ def _require_auth_enabled() -> None:
     if not AUTH_ENABLED:
         raise HTTPException(status_code=503, detail="Learner-context account controls require authentication to be enabled.")
 
+def _require_account_admin(user_id: str) -> None:
+    from deeptutor.multi_user.context import get_current_user
+
+    user = get_current_user()
+    if user.id != user_id or (user_id == LOCAL_ADMIN_ID and user.role != "admin"):
+        raise HTTPException(status_code=403, detail="Learner-context account data must match the authenticated owner.")
+
+
 def _chat_mastery_module():
     from deeptutor.services import chat_mastery
 
@@ -86,7 +94,15 @@ def _user_workspace(user_id: str):
     if account is admin:
         username, role = admin.username, "admin"
     else:
-        username, record = account
+        if isinstance(account, tuple):
+            username, record = account
+        else:
+            username, record = next(
+                ((name, value) for name, value in load_users().items() if str(value.get("id") or "") == user_id),
+                ("", {}),
+            )
+        if not username or str(record.get("id") or "") != user_id:
+            raise HTTPException(status_code=401, detail="Credential owner no longer exists.")
         if bool(record.get("disabled", False)):
             raise HTTPException(status_code=401, detail="Integration credential owner is disabled.")
         role = str(record.get("role") or "user")
@@ -109,23 +125,86 @@ def _user_workspace(user_id: str):
 
 
 def _require_integration(
+    request: Request,
     authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> dict[str, Any]:
     if not AUTH_ENABLED:
-        raise HTTPException(status_code=503, detail="Learner-context credentials require authentication to be enabled.")
+        if not _trusted_local_request(request):
+            raise HTTPException(status_code=403, detail="Single-user learner integrations accept loopback requests only.")
+        user_token = set_current_user(local_admin_user())
+        try:
+            credential = credentials.authenticate((authorization or "").partition(" ")[2].strip(), owner_id=LOCAL_ADMIN_ID)
+        finally:
+            reset_current_user(user_token)
+        if credential is None or credential.get("user_id") != LOCAL_ADMIN_ID:
+            raise HTTPException(status_code=401, detail="Invalid, expired, or revoked local integration credential.")
+        return credential
     scheme, _, token = (authorization or "").partition(" ")
     if scheme.lower() != "bearer" or not token:
         raise HTTPException(status_code=401, detail="Bearer integration credential required.")
-    credential = credentials.authenticate(token.strip())
+    owner_id = _token_owner_id(token.strip())
+    if not owner_id:
+        raise HTTPException(status_code=401, detail="Invalid integration credential owner.")
+    credential = credentials.authenticate(token.strip(), owner_id=owner_id)
     if credential is None:
         raise HTTPException(status_code=401, detail="Invalid, expired, or revoked integration credential.")
     return credential
 
 
+def _token_owner_id(token: str) -> str | None:
+    prefix, separator, rest = token.partition(".")
+    owner = prefix.removeprefix("dtlc_")
+    credential_id, separator2, _secret = rest.partition(".")
+    if not separator or not separator2 or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", owner):
+        return None
+    if not re.fullmatch(r"[a-f0-9]{24}", credential_id):
+        return None
+    return owner
+
+def _trusted_local_request(request: Request) -> bool:
+    if any(
+        request.headers.get(name)
+        for name in (
+            "cf-access-jwt-assertion",
+            "cf-connecting-ip",
+            "cf-access-authenticated-user-email",
+            "cf-ray",
+            "x-forwarded-for",
+            "x-real-ip",
+            "x-authenticated-user",
+            "remote-user",
+            "x-forwarded-host",
+            "x-forwarded-proto",
+        )
+    ):
+        return False
+    client = request.client
+    host = client.host if client else ""
+    if host in {"127.0.0.1", "::1"}:
+        return True
+    try:
+        import ipaddress
+
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
 def _require_scope(credential: dict[str, Any], scope: str) -> str:
     if scope not in str(credential.get("scopes", "")).split(","):
         raise HTTPException(status_code=403, detail=f"Integration credential does not have {scope!r} scope.")
     return str(credential["user_id"])
+
+@contextmanager
+def _credential_workspace(credential: dict[str, Any], user_id: str):
+    if not AUTH_ENABLED and user_id == LOCAL_ADMIN_ID:
+        token = set_current_user(local_admin_user())
+        try:
+            yield
+        finally:
+            reset_current_user(token)
+        return
+    with _user_workspace(user_id):
+        yield
 
 
 @router.get("/v1/profile")
@@ -207,7 +286,12 @@ def create_integration_credential(
     _require_auth_enabled()
     _no_store(response)
     user = get_current_user()
-    return credentials.create(user.id, payload.name, payload.expires_in_days, tuple(payload.scopes))
+    return credentials.create(
+        user.id,
+        payload.name,
+        payload.expires_in_days,
+        tuple(payload.scopes),
+    )
 
 
 @router.get("/v1/credentials")
@@ -237,23 +321,21 @@ def revoke_all_integration_credentials(response: Response, _: TokenPayload | Non
     _require_auth_enabled()
     _no_store(response)
     user = get_current_user()
-    return {"revoked": credentials.revoke_all(user.id)}
+    return {"revoked": credentials.revoke_all(get_current_user().id)}
 
 @integration_router.get("/profile")
 def integration_profile(response: Response, credential: dict[str, Any] = Depends(_require_integration)):
-    _require_auth_enabled()
     _no_store(response)
     user_id = _require_scope(credential, "read")
-    with _user_workspace(user_id):
+    with _credential_workspace(credential, user_id):
         return service.get_profile(include_records=False, include_quotes=False)
 
 
 @integration_router.get("/prompt-context")
 def integration_prompt_context(response: Response, credential: dict[str, Any] = Depends(_require_integration)):
-    _require_auth_enabled()
     _no_store(response)
     user_id = _require_scope(credential, "read")
-    with _user_workspace(user_id):
+    with _credential_workspace(credential, user_id):
         return {
             "schema_version": 1,
             "prompt_context": service.get_prompt_context(
@@ -267,9 +349,8 @@ async def integration_record_interaction(
     payload: InteractionRequest,
     credential: dict[str, Any] = Depends(_require_integration),
 ):
-    _require_auth_enabled()
     user_id = _require_scope(credential, "write")
-    with _user_workspace(user_id):
+    with _credential_workspace(credential, user_id):
         profile = service.get_profile()
         if not profile["enabled"]:
             return {"accepted": False, "reason": "opted_out"}

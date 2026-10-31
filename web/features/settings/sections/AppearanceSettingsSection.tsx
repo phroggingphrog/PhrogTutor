@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { browserStorage } from "@/shared/storage";
 
 import type { CodeBlockThemeId } from "@/components/common/code-block-themes";
 import { CODE_BLOCK_THEME_OPTIONS } from "@/components/common/code-block-themes";
@@ -47,13 +48,14 @@ const FONTS = [
 ] as const;
 
 function FontRow() {
-  const [font, setFont] = useState("system");
-  useEffect(() => setFont(document.documentElement.dataset.font || "system"), []);
+  const [font, setFont] = useState(
+    () => typeof document === "undefined" ? "system" : document.documentElement.dataset.font || "system",
+  );
   const choose = (next: string) => {
     setFont(next);
     document.documentElement.dataset.font = next;  // applies at once, no Apply needed
     try {
-      localStorage.setItem("phrogtutor-font", next);
+      browserStorage.writeRaw("local", "phrogtutor-font", next);
     } catch {}
   };
   return (
