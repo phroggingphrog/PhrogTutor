@@ -35,12 +35,12 @@ _warned_unserved = False
 def cache_key(messages: list[dict[str, Any]] | None) -> str | None:
     """Routing affinity for upstream prompt caches: calls that share a system prefix share a key.
 
-    The key must survive ordinary history growth, so it hashes only the leading system messages; the provider
-    still verifies every token of the prefix before it reuses a cache.
+    The key must survive ordinary history growth, so it hashes only leading system and developer messages,
+    which pi_engine/convert.ts combines into its system prompt. The provider still verifies the prefix.
     """
     prefix = []
     for message in messages or []:
-        if message.get("role") != "system":
+        if message.get("role") not in {"system", "developer"}:
             break
         prefix.append({"role": "system", "content": message.get("content")})
     if not prefix:

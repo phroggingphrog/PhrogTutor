@@ -293,6 +293,18 @@ def test_cache_key_follows_the_system_prefix_not_the_history() -> None:
     assert cache_key([{"role": "user", "content": "no system"}]) is None
 
 
+def test_cache_key_includes_leading_developer_messages() -> None:
+    from deeptutor.services.llm.pi_bridge import cache_key
+
+    prefix = [{"role": "system", "content": "rules"}]
+    first = [*prefix, {"role": "developer", "content": "first policy"}]
+    changed = [*prefix, {"role": "developer", "content": "second policy"}]
+    assert cache_key(first) != cache_key(changed)
+    assert cache_key([{"role": "developer", "content": "policy"}]) is not None
+    history = [*first, {"role": "user", "content": "question"}]
+    assert cache_key(history) == cache_key([*history, {"role": "developer", "content": "step note"}])
+
+
 @needs_engine
 def test_agent_loop_requests_carry_the_same_cache_key(endpoint, monkeypatch) -> None:
     import asyncio
