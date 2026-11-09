@@ -26,8 +26,12 @@ def usage_style():
 
 @router.delete("/style/{record_id}")
 def delete_style(record_id: int):
-    with chat_mastery._db() as con:
-        con.execute("DELETE FROM usage_style WHERE id = ?", (record_id,))
+    from deeptutor.learner_context.service import delete_record
+
+    if not delete_record(record_id):
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=404, detail="Style record not found.")
     return {"ok": True}
 
 

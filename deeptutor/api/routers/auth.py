@@ -191,6 +191,7 @@ class LoginRequest(BaseModel):
 
     username: str
     password: str
+    return_access_token: bool = False
 
 
 class DeviceLoginRequest(BaseModel):
@@ -660,6 +661,7 @@ def _learning_surface_for_path(
         # the router already scopes every record to the current account, so
         # all methods (including progress PATCH/POST) belong to "chat".
         ("/api/mastery-paths", "chat"),
+        ("/api/learner-context", "chat"),
     ):
         if normalized == root or normalized.startswith(f"{root}/"):
             return surface
@@ -862,6 +864,7 @@ async def login(body: LoginRequest, request: Request, response: Response) -> dic
         logger.info(f"User '{payload.username}' logged in via PocketBase (role={payload.role!r})")
         return {
             "ok": True,
+            **({"access_token": pb_token} if body.return_access_token else {}),
             "user_id": payload.user_id,
             "username": payload.username,
             "role": payload.role,
@@ -882,6 +885,7 @@ async def login(body: LoginRequest, request: Request, response: Response) -> dic
     logger.info(f"User '{result.username}' logged in (role={result.role!r})")
     return {
         "ok": True,
+        **({"access_token": token} if body.return_access_token else {}),
         "user_id": result.user_id,
         "username": result.username,
         "role": result.role,

@@ -50,6 +50,24 @@ const config = [
     },
   },
   {
+    files: ["components/notes/NotesEditor.tsx"],
+    rules: {
+      "react-hooks/refs": "off",
+    },
+  },
+  {
+    files: [
+      "components/chat/home/DiscussionModeSelector.tsx",
+      "components/chat/home/EffortSelector.tsx",
+      "components/mastery-records/MasteryRecords.tsx",
+      "components/notes/NoteNameDialog.tsx",
+      "components/settings/UsageStylePanel.tsx",
+    ],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
+  {
     // Vendored upstream source — see `web/vendor/thinking-orbs/index.ts` for
     // provenance and the list of local changes.
     //

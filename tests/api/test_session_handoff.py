@@ -213,11 +213,19 @@ def test_private_login_host_policy_gates_password_login(tmp_path, monkeypatch) -
         allowed = client.post(
             "/login",
             headers={"x-deeptutor-frontend-host": "127.0.0.1:8001"},
+            json={"username": "alice", "password": "password123", "return_access_token": True},
+        )
+        default_login = client.post(
+            "/login",
+            headers={"x-deeptutor-frontend-host": "127.0.0.1:8001"},
             json={"username": "alice", "password": "password123"},
         )
 
     assert refused.status_code == 403
     assert allowed.status_code == 200
+    assert allowed.json()["access_token"] == bearer
+    assert default_login.status_code == 200
+    assert "access_token" not in default_login.json()
 
 
 def test_direct_backend_request_cannot_forge_private_frontend_host(tmp_path, monkeypatch) -> None:

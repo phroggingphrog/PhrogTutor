@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 
 import { apiFetch, apiUrl } from "@/lib/api";
 import LearningActivity from "@/components/learning/LearningActivity";
+import Tooltip from "@/shared/ui/Tooltip";
 
 type Rec = { id: number; ts: number; kind: string; quote: string };
 type Gap = { page: string; title: string; status: string; via: string };
@@ -78,9 +79,11 @@ export default function MasteryRecords() {
                     </span>
                     <span className="w-32 shrink-0 text-xs font-medium">{KIND[r.kind] ?? r.kind}</span>
                     <span className="flex-1 italic">“{r.quote}”</span>
-                    <button onClick={() => remove(r.id)} title="Delete this record" className="rounded p-1 hover:bg-[var(--background)]">
-                      <Trash2 size={14} />
-                    </button>
+                    <Tooltip label="Delete this record" side="top">
+                      <button aria-label="Delete this record" onClick={() => remove(r.id)} className="rounded p-1 hover:bg-[var(--background)]">
+                        <Trash2 size={14} />
+                      </button>
+                    </Tooltip>
                   </li>
                 ))}
               </ul>

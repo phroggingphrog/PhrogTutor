@@ -31,6 +31,9 @@ KINDS = {
 }
 _HALF_LIFE_DAYS = 30.0
 _TASKS: set[asyncio.Task] = set()
+
+# Automatic style capture requires a separate, explicit account opt-in.
+_STYLE_COLLECTION_KEY = "learner_context_style_collection_enabled"
 # A cheap model for the background mastery calls (on PhrogVPS: the OmniRoute combo "deepseek-flash").
 _EXTRACT_MODEL = os.environ.get("PI_TUTOR_EXTRACT_MODEL") or None  # None = the active chat model
 
@@ -62,7 +65,8 @@ def _db() -> sqlite3.Connection:
 
     path: Path = get_path_service().user_data_dir / "chat_mastery.sqlite3"
     path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path)
+    con = sqlite3.connect(path, timeout=15)
+    con.execute("PRAGMA busy_timeout = 15000")
     con.execute(
         "CREATE TABLE IF NOT EXISTS evidence (id INTEGER PRIMARY KEY, ts REAL, session_id TEXT, turn_id TEXT,"
         " concept TEXT, kind TEXT, quote TEXT)"
@@ -73,7 +77,10 @@ def _db() -> sqlite3.Connection:
         "CREATE TABLE IF NOT EXISTS explanations (id INTEGER PRIMARY KEY, ts REAL, concept TEXT, outcome TEXT,"
         " tutor_answer TEXT, learner_quote TEXT)"
     )
-    con.execute("CREATE TABLE IF NOT EXISTS usage_style (id INTEGER PRIMARY KEY, ts REAL, session_id TEXT, style TEXT, quote TEXT)")
+    # The shared learner-context repository owns the usage-style schema.
+    from deeptutor.learner_context.repository import initialize
+
+    initialize(con)
     return con
 
 
@@ -93,9 +100,17 @@ async def _extract(session_id: str, turn_id: str, user_message: str, answer: str
     rows = parsed.get("evidence") or []
     now = time.time()
     if parsed.get("style") in STYLES:
-        with _db() as con:
-            con.execute("INSERT INTO usage_style (ts, session_id, style, quote) VALUES (?,?,?,?)",
-                        (now, session_id, parsed["style"], user_message[:200]))
+        from deeptutor.learner_context.service import record_interaction_style
+
+        record_interaction_style(
+            style=parsed["style"],
+            quote=user_message[:200],
+            source="pi-tutor",
+            event_id=f"{session_id}:{turn_id}",
+            session_id=session_id,
+            ts=now,
+            allow_workspace_migration=True,
+        )
     clean = [
         (now, session_id, turn_id, str(r["concept"]).strip().lower()[:60], r["kind"], str(r.get("quote", ""))[:200], answer[:2000])
         for r in rows
@@ -255,8 +270,48 @@ def _learned_rules() -> str:
     return "\n\nRules learned from what worked for this learner (newest first):\n" + "\n".join(reversed(lines[-15:]))
 
 
-def record_turn(session_id: str, turn_id: str, user_message: str, answer: str) -> None:
-    """Fire-and-forget: schedule the evidence extraction for one finished turn."""
+def _style_collection_enabled() -> bool:
+    """Return true only after the current authenticated account opted in."""
+    from deeptutor.learner_context import repository
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    if get_current_user_or_none() is None:
+        return False
+    with repository.connect() as con:
+        row = con.execute(
+            "SELECT value FROM learner_context_settings WHERE key = ?",
+            (_STYLE_COLLECTION_KEY,),
+        ).fetchone()
+    return row is not None and row[0] == "1"
+
+
+def set_style_collection_enabled(enabled: bool) -> bool:
+    """Persist the current authenticated account's explicit opt-in."""
+    from deeptutor.learner_context import repository
+    from deeptutor.multi_user.context import get_current_user_or_none
+
+    if get_current_user_or_none() is None:
+        raise RuntimeError("Style collection consent requires a signed-in Pi Tutor account.")
+    with repository.connect() as con:
+        con.execute(
+            "INSERT INTO learner_context_settings(key, value) VALUES (?, ?) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            (_STYLE_COLLECTION_KEY, "1" if enabled else "0"),
+        )
+    return bool(enabled)
+
+
+def record_turn(
+    session_id: str,
+    turn_id: str,
+    user_message: str,
+    answer: str,
+    *,
+    style_collection_opt_in: bool = False,
+) -> None:
+    """Schedule style extraction only after the account's explicit opt-in."""
+    if not style_collection_opt_in or not _style_collection_enabled():
+        return
     if not user_message.strip() or not answer.strip():
         return
 
@@ -271,15 +326,32 @@ def record_turn(session_id: str, turn_id: str, user_message: str, answer: str) -
     task.add_done_callback(_TASKS.discard)
 
 
-def record_code(language: str, original: str, code: str, stdout: str, stderr: str, exit_code: int) -> None:
-    """The learner edited a code block and ran it: their edit plus the result is evidence too."""
+def record_code(
+    language: str,
+    original: str,
+    code: str,
+    stdout: str,
+    stderr: str,
+    exit_code: int,
+    *,
+    style_collection_opt_in: bool = False,
+) -> None:
+    """Record code evidence only after the account opts in to automatic extraction."""
+    if not style_collection_opt_in:
+        return
     message = (
         f"(The learner edited the tutor's {language} code and ran it. A typo or unfamiliar syntax is NOT a "
         "concept gap; only judge what the edit shows they understand.)\n"
         f"Tutor's code:\n{original[:1500]}\n\nLearner's edited code:\n{code[:2000]}"
     )
     result = f"Exit code {exit_code}.\nOutput:\n{stdout[-800:]}\nErrors:\n{stderr[-800:]}"
-    record_turn("run-code", f"run-{int(time.time() * 1000)}", message, result)
+    record_turn(
+        "run-code",
+        f"run-{int(time.time() * 1000)}",
+        message,
+        result,
+        style_collection_opt_in=True,
+    )
 
 
 def mastery() -> list[dict]:
@@ -296,39 +368,18 @@ def mastery() -> list[dict]:
     return sorted(out, key=lambda r: r["mastery"])
 
 
-_STYLE_NEEDS = 8  # signals before a pattern is trusted
-_STYLE_TUTOR = {
-    "asked_for_answer": "They usually ask for the answer before trying. Ask for their first guess or attempt (one line is fine) before you explain, then build on it.",
-    "tried_first": "They usually try first. Skip the warm-up and give feedback on their attempt straight away.",
-    "accepted": "They often take answers without testing them. End with one small 'what would break if...' check they can answer in a line.",
-    "pushed_back": "They question and correct answers. Give your reasoning and its limits so they can check it, and welcome disagreement.",
-    "own_idea": "They bring their own ideas. Build on their idea first, then add yours as a second option.",
-}
-
 
 def style_profile() -> dict:
-    """How the learner uses the AI: recency-weighted share per style, plus the dominant one once there is enough evidence."""
-    with _db() as con:
-        rows = con.execute("SELECT id, ts, style, quote FROM usage_style ORDER BY ts DESC").fetchall()
-    now, acc = time.time(), {}
-    for _, ts, style, _q in rows:
-        acc[style] = acc.get(style, 0.0) + 0.5 ** ((now - ts) / 86400 / _HALF_LIFE_DAYS)
-    total = sum(acc.values())
-    shares = {k: round(v / total, 2) for k, v in sorted(acc.items(), key=lambda kv: -kv[1])} if total else {}
-    top = next(iter(shares), None)
-    return {
-        "signals": len(rows), "shares": shares,
-        "dominant": top if len(rows) >= _STYLE_NEEDS and shares.get(top, 0) >= 0.4 else None,
-        "records": [{"id": i, "ts": ts, "style": st, "quote": q} for i, ts, st, q in rows[:30]],
-    }
+    """Compatibility wrapper for the shared harness-neutral learner profile."""
+    from deeptutor.learner_context.service import get_profile
+
+    return get_profile()
 
 
 def _style_line() -> str:
-    try:
-        top = style_profile()["dominant"]
-    except Exception:
-        return ""
-    return f"\nHow this learner uses AI: {_STYLE_TUTOR[top]}" if top else ""
+    from deeptutor.learner_context.service import get_prompt_context
+
+    return get_prompt_context(automatic_collection_enabled=_style_collection_enabled())
 
 
 # The learner's own rules (docs/learner-analysis-2026-10-19.md), always on.
@@ -539,8 +590,11 @@ def _snippet(map_path: Path, area_file: str, concept: str) -> str:
 async def prompt_block(user_message: str, limit: int = 4, mode: str | None = None) -> str:
     """The learner's teaching rules, plus a method for each tracked concept relevant to the message."""
     from deeptutor.services.discussion_modes import mode_block
+    from deeptutor.learner_context.prompt import combine_mode_and_learner_context
 
-    how = mode_block(mode) or _style_line()  # a chosen mode overrides the learned style; Auto uses the style. Goes last so it has the final word.
+    mode_context = mode_block(mode)
+    style_context = _style_line()
+    how = combine_mode_and_learner_context(mode_context, style_context)
     words = {w for w in re.findall(r"[a-z0-9]+", user_message.lower()) if len(w) > 2}
     hits = [m for m in mastery() if words & set(re.findall(r"[a-z0-9]+", m["concept"]))]
     try:  # also match by meaning ("beta-binomial updating" -> "conjugate priors")
@@ -564,8 +618,8 @@ async def prompt_block(user_message: str, limit: int = 4, mode: str | None = Non
         logger.debug("chat mastery: code examples skipped", exc_info=True)
         examples = {}
     for m in hits:
-        band, how = _method(m["mastery"])
-        lines.append(f"- {m['concept']} ({band}, from {m['evidence']} past chat signals): {how}")
+        band, method = _method(m["mastery"])
+        lines.append(f"- {m['concept']} ({band}, from {m['evidence']} past chat signals): {method}")
         if mine := _understood(m["concept"]):
             lines.append(f"  Their own page on it (reuse its words and example): {mine}")
         if ex := examples.get(m["concept"]):

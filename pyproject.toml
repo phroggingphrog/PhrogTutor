@@ -88,6 +88,7 @@ dependencies = [
 
 [project.scripts]
 deeptutor = "deeptutor_cli.main:main"
+deeptutor-learner-context-mcp = "deeptutor.learner_context.mcp_server:main"
 deeptutor-export-frontend-contracts = "deeptutor.api.contracts.export:main"
 
 [project.entry-points."deeptutor.reading_extensions"]

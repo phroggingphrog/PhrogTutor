@@ -1242,9 +1242,17 @@ class TurnExecutor:
             stream_done_sent = True
             await self._flush_buffered_events(execution)
             if not is_regenerate and turn_status == "completed":
+                from deeptutor.learner_context import service as learner_context_service
                 from deeptutor.services import chat_mastery
 
-                chat_mastery.record_turn(session_id, turn_id, raw_user_content, assistant_content)
+                learner_profile = learner_context_service.get_profile()
+                chat_mastery.record_turn(
+                    session_id,
+                    turn_id,
+                    raw_user_content,
+                    assistant_content,
+                    style_collection_opt_in=learner_profile["automatic_collection_enabled"],
+                )
                 # Title generation is post-turn metadata. Keep it after DONE
                 # so the composer and duration clock stop as soon as the
                 # assistant answer is saved; the frontend keeps this socket

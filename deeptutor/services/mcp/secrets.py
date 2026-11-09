@@ -84,6 +84,14 @@ def store_secrets(owner_id: str, server: str, values: dict[str, str]) -> None:
     _write_all(path, current)
 
 
+def load_secret_value(owner_id: str, server: str, field: str) -> str | None:
+    """Read one local secret value for an explicit owner and server."""
+    return _read_all(_secrets_file(owner_id, server)).get(field)
+
+def load_secret_values(owner_id: str, server: str) -> dict[str, str]:
+    """Read local secret values for one explicit owner and server."""
+    return _read_all(_secrets_file(owner_id, server))
+
 def configured_fields(owner_id: str, server: str) -> set[str]:
     """Field names that have a stored value. Never returns the values."""
     return set(_read_all(_secrets_file(owner_id, server)))
@@ -185,6 +193,8 @@ __all__ = [
     "SECRET_REFERENCE_RE",
     "configured_fields",
     "delete_secrets",
+    "load_secret_value",
+    "load_secret_values",
     "resolve_references",
     "resolve_url_references",
     "secret_reference",
